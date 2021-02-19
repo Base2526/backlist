@@ -301,4 +301,5 @@ Drupal 8-9 add button form
 Drupal 8-9 Search api
 - https://drupal.stackexchange.com/questions/225008/programatically-use-search-api
 - https://www.hook42.com/blog/search-and-facets-and-queries-oh-my
+- https://www.drupal.org/project/elasticsearch_connector/issues/2782745
 
