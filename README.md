@@ -303,3 +303,5 @@ Drupal 8-9 Search api
 - https://www.hook42.com/blog/search-and-facets-and-queries-oh-my
 - https://www.drupal.org/project/elasticsearch_connector/issues/2782745
 
+-  cluster >> https://marcofranssen.nl/building-a-elasticsearch-cluster-using-docker-compose-and-traefik/
+
