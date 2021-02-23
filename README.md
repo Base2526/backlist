@@ -305,3 +305,7 @@ Drupal 8-9 Search api
 
 -  cluster >> https://marcofranssen.nl/building-a-elasticsearch-cluster-using-docker-compose-and-traefik/
 
+
+React native animation
+- https://itnext.io/change-react-native-screen-animation-direction-with-react-navigation-8cec0f66f22
+
