@@ -64,6 +64,20 @@ services:
       # google
       - ./google4a78161938c3c95a.html:/opt/drupal/web/google4a78161938c3c95a.html
 
+      # Cloud
+      # - /mnt/volume_sgp1_09/banlist.info/files:/opt/drupal/web/sites/default/files
+
+      # SSL
+      # - ./000-default.conf:/etc/apache2/sites-available/000-default.conf
+      # - ./.well-known/acme-challenge:/opt/drupal/.well-known/acme-challenge
+      - ./etc/letsencrypt/live/banlist.info:/etc/letsencrypt/live/banlist.info
+      - ./letsencrypt.conf:/etc/apache2/conf-available/letsencrypt.conf
+      - ./ssl-params.conf:/etc/apache2/conf-available/ssl-params.conf
+
+
+      # google
+      - ./google4a78161938c3c95a.html:/opt/drupal/web/google4a78161938c3c95a.html
+
     # custom theme
     # - ./web/core/themes/bartik/templates/node--back-list.html.twig:/opt/drupal/web/core/themes/bartik/templates/node--back-list.html.twig
     # - ./web/core/themes/bartik/templates/classy/field/field--node--field-images--back-list.html.twig:/opt/drupal/web/core/themes/bartik/templates/classy/field/field--node--field-images--back-list.html.twig
