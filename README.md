@@ -3,8 +3,12 @@ https://gist.github.com/gilyes/525cc0f471aafae18c3857c27519fc4b
 Backup:
 docker exec -t -u postgres your-db-container pg_dumpall -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
 
+
 Restore:
 cat your_dump.sql | docker exec -i your-db-container psql -Upostgres
+
+
+psql  -d banlist -U postgres -f dump_22-02-2021_10_56_27.sql
 
 
 Facebook Login
@@ -308,4 +312,57 @@ Drupal 8-9 Search api
 
 React native animation
 - https://itnext.io/change-react-native-screen-animation-direction-with-react-navigation-8cec0f66f22
+
+
+/////////////////
+use Drupal\search_api\Entity\Index; 
+
+$index = Index::load('content_back_list');
+        $query = $index->query();
+
+
+        // Change the parse mode for the search.
+        $parse_mode = \Drupal::service('plugin.manager.search_api.parse_mode')->createInstance('direct');
+        $parse_mode->setConjunction('OR');
+        $query->setParseMode($parse_mode);
+
+        $query->addCondition('type', 'back_list');
+
+        // Set fulltext search keywords and fields.
+        //$query->keys('เค้า');
+        //$query->setFulltextFields([ 'body']);
+
+        $query->keys('ไอ');
+        $query->setFulltextFields(['title', 'name', 'body', 'field_sales_person_name']);
+
+        $results = $query->execute();
+
+        $count = count($results->getResultItems());
+        echo "Result count: { $count }\n";
+
+        $data = array();
+        foreach ($results as $result) {
+           $nid    = $result->getField('nid')->getValues();
+           $title  = $result->getField('title')->getValues();
+           $name = $result->getField('field_sales_person_name')->getValues();
+           $body   = $result->getField('body')->getValues();
+
+           // $data[] = array($nid, $title, $name, $body);
+
+           // dpm( $title[0]->getText());
+
+$result_transfer_amount = $result->getField('field_transfer_amount')->getValues();  
+
+           // dpm($result_transfer_amount);
+
+           $result_title  = $result->getField('title')->getValues();
+
+           dpm( $result_title[0] );
+        }
+
+
+dpm($data);
+
+ ////////////////
+
 

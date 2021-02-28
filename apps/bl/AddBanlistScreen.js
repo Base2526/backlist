@@ -19,6 +19,7 @@ import {
   ActivityIndicator,
   Button,
   Image,
+  Platform
 } from 'react-native';
 
 import {
@@ -26,13 +27,19 @@ import {
   Colors,
 } from 'react-native/Libraries/NewAppScreen';
 
-// import DatePicker from 'react-native-datepicker'
 import DropDownPicker from 'react-native-dropdown-picker';
 import Icon from 'react-native-vector-icons/Feather';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 import ImagePicker from 'react-native-image-crop-picker';
 import ActionSheet from 'react-native-actionsheet';
+
+import DateTimePicker from '@react-native-community/datetimepicker';
+import Moment from 'moment';
+
+import Spinner from 'react-native-loading-spinner-overlay';
+
+import Toast, {DURATION} from 'react-native-easy-toast'
 
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
@@ -45,15 +52,48 @@ class AddBanlistScreen extends Component {
     this.state = {title: "", 
                   name: "", 
                   surname: "", 
+                  id_card_number: "",
+                  selling_website: "",
+                  detail: "",
                   bank_account: "",
                   date:"2016-05-15",
                 
-                
+                  transfer_amount: "",
                 
                   textInput : [],
                 
                   selectedPhotoIndex: 0,
-                  localPhotos: []};
+                  localPhotos: [],
+                
+                  showDateTimePicker: false,
+                  currentDateTimePicker: new Date(),
+                  items_merchant_bank_account : {
+                    1: 'ธนาคารกรุงศรีอยุธยา',
+                    2: 'ธนาคารกรุงเทพ',
+                    3: 'ธนาคารซีไอเอ็มบี' ,
+                    4: 'ธนาคารออมสิน',
+                    5: 'ธนาคารอิสลาม',
+                    6: 'ธนาคารกสิกรไทย',
+                    7: 'ธนาคารเกียรตินาคิน',
+                    8: 'ธนาคารกรุงไทย',
+                    9: 'ธนาคารไทยพาณิชย์',
+                    10: 'Standard Chartered',
+                    11: 'ธนาคารธนชาติ',
+                    12: 'ทิสโก้แบงค์',
+                    13: 'ธนาคารทหารไทย',
+                    14: 'ธนาคารยูโอบี',
+                    15: 'ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร',
+                    16: 'True Wallet',
+                    17: 'พร้อมเพย์ (PromptPay)',
+                    18: 'ธนาคารอาคารสงเคราะห์',
+                    19: 'AirPay (แอร์เพย์)',
+                    20: 'mPay',
+                    21: '123 เซอร์วิส',
+                    22: 'ธ.ไทยเครดิตเพื่อรายย่อย',
+                    23: 'ธนาคารแลนด์แอนด์เฮ้าส์',
+                    24: 'เก็บเงินปลายทาง' 
+                  },
+                  spinner: false};  
   
     // const [date, setDate] = useState(new Date(1598051730000));
     // const [mode, setMode] = useState('date');
@@ -69,15 +109,137 @@ class AddBanlistScreen extends Component {
   }
 
   componentDidMount() {
-    // this.props.navigation.dangerouslyGetParent().setOptions({
-    //   tabBarVisible: false
-    // });
+    Moment.locale('en');
+
+    const { route, navigation } = this.props;
+    let _this = this
+    navigation.setOptions({
+      headerRight: () => (
+          <View style={{flexDirection:'row'}}>
+              <TouchableOpacity 
+                  style={{ marginHorizontal: 10 }}
+                  onPress={()=>{
+                    _this.handleAdd()
+                  }}>
+                  <Text style={{ fontSize:18 }}>ADD</Text>
+              </TouchableOpacity>
+          </View>
+        )
+    })
+  }
+
+  getNavigationParams() {
+    return this.props.navigation.state.params || {}
   }
 
   handleAdd= () => {
-    console.log(this.state.name);
-    console.log(this.state.surname);
-    console.log(this.state.bank_account);
+    // console.log(this.state.name);
+    // console.log(this.state.surname);
+    // console.log(this.state.bank_account);
+
+    /*
+    $product_type   = trim( $content['product_type'] );       // สินค้า/ประเภท
+    $transfer_amount= trim( $content['transfer_amount'] );    // ยอดเงิน
+    $person_name    = trim( $content['person_name'] );        // ชื่อบัญชี ผู้รับเงินโอน
+    $person_surname = trim( $content['person_surname'] );     // นามสกุล ผู้รับเงินโอน
+    $id_card_number = trim( $content['id_card_number'] );     // เลขบัตรประชาชนคนขาย
+    $selling_website= trim( $content['selling_website'] );    // เว็บไซด์ประกาศขายของ
+    $transfer_date  = trim( $content['transfer_date'] );      // วันโอนเงิน
+    $details        = trim( $content['details'] );            // รายละเอียดเพิ่มเติม
+    $merchant_bank_account   = $content['merchant_bank_account']; // บัญชีธนาคารคนขาย
+    $images         = $content['images'];            // รูปภาพประกอบ
+    */
+
+    
+
+    let { title, 
+          transfer_amount, 
+          name, 
+          surname, 
+          id_card_number, 
+          selling_website,
+          currentDateTimePicker,
+          detail} = this.state
+
+    
+
+    let _this = this
+    // this.setState({spinner: true})
+
+    //_this.props.navigation.goBack() ;   
+    
+    // const { navigation, route } = this.props;
+    // navigation.goBack();
+    // route.params.onSelect({ selected: true });
+    // this.props.navigation.state.params.onSelect(status);
+    // console.log(this.props.navigation.setParams({abc:'tes'}))
+
+    const { navigation } = this.props;
+    navigation.goBack();
+    navigation.state.params.onSelect({ selected: true });
+
+   
+    return;
+
+    console.log(title, transfer_amount, name, surname, id_card_number, selling_website, currentDateTimePicker)
+
+    axios.post(`${API_URL}/api/added_banlist?_format=json`, {
+      product_type: title,
+      transfer_amount,
+      person_name: name,
+      person_surname: surname,
+      id_card_number,
+      selling_website,
+      transfer_date: currentDateTimePicker,
+      details: detail
+    }, {
+      headers: { 
+        'Authorization': `Basic ${API_TOKEN}` 
+      }
+    })
+    .then(function (response) {
+      let results = response.data
+      // console.log()
+      if(results.result){
+        // true
+        console.log('true');
+        console.log(results);
+
+        // let {execution_time, datas, count} = results;
+        // console.log(execution_time);
+        // console.log(count);
+        // console.log(datas);
+
+        // if(datas && datas.length > 0){
+        //   _this.setState({spinner: false, execution_time, datas, count});
+        // }else{
+
+        _this.setState({spinner: false})
+        //   alert('Empty result.');
+        // }
+
+
+
+        _this.toast.show('เพิ่มรายงานเรียบร้อย');
+
+        _this.props.navigation.pop();        
+      }else{
+        // false
+        console.log('false');
+
+        _this.setState({spinner: false})
+
+        _this.toast.show('ไม่สามารถเพิ่มรายงาน');
+      }
+    })
+    .catch(function (error) {
+
+      _this.setState({spinner: false})
+
+      _this.toast.show('ไม่สามารถเพิ่มรายงาน');
+
+      console.log(error);
+    });
   }
 
   handleDelete=(key)=>{
@@ -87,6 +249,14 @@ class AddBanlistScreen extends Component {
   // https://stackoverflow.com/questions/45407581/how-to-dynamically-add-a-text-input-in-react-native/45407976
   addTextInput = (key) => {
     let textInput = this.state.textInput;
+    let items_merchant_bank_account = this.state.items_merchant_bank_account;
+
+    var tifOptions = [];
+
+    Object.keys(items_merchant_bank_account).forEach(function(key) {
+      tifOptions.push({key, label: items_merchant_bank_account[key], value: key, icon: () => <Icon name="flag" size={18}  />, hidden: false})
+    });
+    
     textInput.push( <View key={{key}}>
                       <View style={{ flexDirection:"row", marginTop:10}}>
                         <Text>เลขบัญชี</Text> 
@@ -95,20 +265,7 @@ class AddBanlistScreen extends Component {
                       <TextInput key={key}  style={{borderWidth: .5, height: 40}}/>
                       <Text>ธนาคาร/ระบบ Wallet</Text>
                       <DropDownPicker
-                        items={[
-                          {label: 'ชื่อ-นามสกุล', value: '1', icon: () => <Icon name="flag" size={18}  />, hidden: false},
-                          {label: 'เลขบัตรประชาชน', value: '2', icon: () => <Icon name="flag" size={18}  />},
-                          {label: 'บัญชีธนาคาร', value: '3', icon: () => <Icon name="flag" size={18}  />},
-                          {label: 'เว็บไซด์ประกาศขายของ', value: '4', icon: () => <Icon name="flag" size={18}  />},
-                          {label: 'เว็บไซด์ประกาศขายของ', value: '5', icon: () => <Icon name="flag" size={18}  />},
-                          {label: 'เว็บไซด์ประกาศขายของ', value: '6', icon: () => <Icon name="flag" size={18}  />},
-                          {label: 'เว็บไซด์ประกาศขายของ', value: '7', icon: () => <Icon name="flag" size={18}  />},
-                          {label: 'เว็บไซด์ประกาศขายของ', value: '8', icon: () => <Icon name="flag" size={18}  />},
-                          {label: 'เว็บไซด์ประกาศขายของ', value: '9', icon: () => <Icon name="flag" size={18}  />},
-                          {label: 'เว็บไซด์ประกาศขายของ', value: '10', icon: () => <Icon name="flag" size={18}  />},
-                          {label: 'เว็บไซด์ประกาศขายของ', value: '11', icon: () => <Icon name="flag" size={18}  />},
-                          {label: 'เว็บไซด์ประกาศขายของ', value: '12', icon: () => <Icon name="flag" size={18}  />},
-                        ]}
+                        items={tifOptions}
                         defaultValue={'1'}
                         containerStyle={{height: 50}}
                         style={{backgroundColor: '#fafafa'}}
@@ -244,167 +401,202 @@ class AddBanlistScreen extends Component {
     );
   };
   // Upload image
+
+  onDateTimePickerChange = (event, selectedDate) => {
+    console.log(selectedDate)
+    if(event.type == 'set'){
+      this.setState({currentDateTimePicker: selectedDate, showDateTimePicker:false})
+    }else{
+      this.setState({showDateTimePicker:false})
+    }
+  };
+
+  handleDatepicker = () =>{
+    console.log('handleDatepicker');
+    this.setState({showDateTimePicker:true})
+  }
   
   render(){
+
+    console.log(this.state.currentDateTimePicker)
     return (
-      <SafeAreaView>
-            <KeyboardAwareScrollView>
-            <View style={styles.container}>
-              <Text>Title</Text>
-              <TextInput
-                style={{height: 40,
-                        borderWidth: .5,}}
-                ref= {(el) => { this.title = el; }}
-                onChangeText={(title) => this.setState({title})}
-                value={this.state.title}/>
+      <SafeAreaView >
+        <KeyboardAwareScrollView contentContainerStyle={{ flexGrow: 1 }} enableOnAndroid={true}>
+          <Spinner visible={this.state.spinner} textContent={'Loading...'} textStyle={styles.spinnerTextStyle}/>  
+          
+          <Toast
+            ref={(toast) => this.toast = toast}
+            position='bottom'
+            positionValue={200}
+            fadeInDuration={750}
+            fadeOutDuration={1000}
+            opacity={0.8}/>
 
-              <Text>Amount</Text>
-              <TextInput
-                style={{height: 40,
-                        borderWidth: .5,}}
-                ref= {(el) => { this.amount = el; }}
-                onChangeText={(amount) => this.setState({amount})}
-                value={this.state.amount}/>
+          <View style={styles.container}>
+          <View style={{flexDirection:'row'}}>
+            <Text>Title </Text>
+            <Text style={{color:'#ab1111', fontSize:20}}>*</Text>
+          </View>
+          <TextInput
+            style={{height: 40,
+                    borderWidth: .5,}}
+            ref= {(el) => { this.title = el; }}
+            onChangeText={(title) => this.setState({title})}
+            value={this.state.title}/>
+          <View style={{flexDirection:'row'}}>
+            <Text>Amount</Text>
+            <Text style={{color:'#ab1111', fontSize:20}}>*</Text>
+          </View>
+         
+          <TextInput
+            style={{height: 40,
+                    borderWidth: .5,}}
+            ref= {(el) => { this.transfer_amount = el; }}
+            onChangeText={(transfer_amount) => this.setState({transfer_amount})}
+            value={this.state.transfer_amount}
+            numeric
+            keyboardType={'numeric'}/>
 
-              <Text>Name</Text>
-              <TextInput
-                style={{height: 40,
-                        borderWidth: .5,}}
-                ref= {(el) => { this.name = el; }}
-                onChangeText={(name) => this.setState({name})}
-                value={this.state.name}/>
+          <View style={{flexDirection:'row'}}>
+            <Text>Name</Text>
+            <Text style={{color:'#ab1111', fontSize:20}}>*</Text>
+          </View>
+          <TextInput
+            style={{height: 40,
+                    borderWidth: .5,}}
+            ref= {(el) => { this.name = el; }}
+            onChangeText={(name) => this.setState({name})}
+            value={this.state.name}/>
 
-              <Text>Subname</Text>
-              <TextInput
-                style={{height: 40, 
-                        borderWidth: .5,}}
-                ref= {(el) => { this.surname = el; }}
-                onChangeText={(surname) => this.setState({surname})}
-                value={this.state.surname}/>
+          <View style={{flexDirection:'row'}}>
+            <Text>Subname</Text>
+            <Text style={{color:'#ab1111', fontSize:20}}>*</Text>
+          </View>
+          <TextInput
+            style={{height: 40, 
+                    borderWidth: .5,}}
+            ref= {(el) => { this.surname = el; }}
+            onChangeText={(surname) => this.setState({surname})}
+            value={this.state.surname}/>
 
-              <Text>ID card number</Text>
-              <TextInput
-                style={{height: 40,
-                        borderWidth: .5,}}
-                ref= {(el) => { this.id_card_number = el; }}
-                onChangeText={(id_card_number) => this.setState({id_card_number})}
-                value={this.state.id_card_number}/>
+          <Text>ID card number</Text>
+          <TextInput
+            style={{height: 40,
+                    borderWidth: .5,}}
+            ref= {(el) => { this.id_card_number = el; }}
+            onChangeText={(id_card_number) => this.setState({id_card_number})}
+            value={this.state.id_card_number}
+            numeric
+            keyboardType={'numeric'}/>
 
-              <Text>Selling website</Text>
-              <TextInput
-                style={{height: 40,
-                        borderWidth: .5,}}
-                ref= {(el) => { this.selling_website = el; }}
-                onChangeText={(selling_website) => this.setState({selling_website})}
-                value={this.state.selling_website}/>
+          <Text>Selling website</Text>
+          <TextInput
+            style={{borderWidth: .5,
+                    height: 80,
+                    textAlignVertical: 'top'}}
+            multiline numberOfLines={10}
+            ref= {(el) => { this.selling_website = el; }}
+            onChangeText={(selling_website) => this.setState({selling_website})}
+            value={this.state.selling_website}/>
 
-              <Text>Date tranfer</Text>
-              
-              {/* <DatePicker
-                style={{width: 200}}
-                date={this.state.date}
-                mode="date"
-                placeholder="select date"
-                format="YYYY-MM-DD"
-                minDate="2016-05-01"
-                maxDate="2016-06-01"
-                confirmBtnText="Confirm"
-                cancelBtnText="Cancel"
-                useNativeDriver="false"
-                customStyles={{
-                  dateIcon: {
-                    position: 'absolute',
-                    left: 0,
-                    top: 4,
-                    marginLeft: 0
-                  },
-                  dateInput: {
-                    marginLeft: 36
-                  }
-                  // ... You can check the source to find the other keys.
-                }}
-                onDateChange={(date) => {this.setState({date: date})}}
-              /> */}
-              
-              <Text>Detail</Text>
-              <TextInput
-                style={{height: 40,
-                        borderWidth: .5,
-                        height: 150,
-                        textAlignVertical: 'top'}}
-                // multiline={true}
-                multiline numberOfLines={10}
-                ref= {(el) => { this.detail = el; }}
-                onChangeText={(detail) => this.setState({detail})}
-                value={this.state.detail}
-                underlineColorAndroid={'transparent'}
-                autoCorrect={true} 
-                // autoFocus={true}
-                autoCapitalize={'sentences'}/>
+          <View style={{flexDirection:'row'}}>
+            <Text>Date tranfer</Text>
+            <Text style={{color:'#ab1111', fontSize:20}}>*</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={this.handleDatepicker}>
+            <Text>Show date picker : {Moment(this.state.currentDateTimePicker).format('DD-MMMM,YYYY')}</Text>
+          </TouchableOpacity>
+          {this.state.showDateTimePicker && 
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={this.state.currentDateTimePicker}
+            mode={'date'}
+            is24Hour={true}
+            display= {Platform.OS === 'ios' ? "inline" : "spinner"}
+            onChange={this.onDateTimePickerChange}
+          />}
+          
+        
+          <View style={{flexDirection:'row'}}>
+            <Text>Detail</Text>
+            <Text style={{color:'#ab1111', fontSize:20}}>*</Text>
+          </View>
+          <TextInput
+            style={{borderWidth: .5,
+                    height: 150,
+                    textAlignVertical: 'top'}}
+            // multiline={true}
+            multiline numberOfLines={10}
+            ref= {(el) => { this.detail = el; }}
+            onChangeText={(detail) => this.setState({detail})}
+            value={this.state.detail}
+            underlineColorAndroid={'transparent'}
+            autoCorrect={true} 
+            // autoFocus={true}
+            autoCapitalize={'sentences'}/>
 
-              <View style={{ flexDirection:"row", marginTop:10}}>
-                <Text>บัญชีธนาคารคนขาย</Text>
-                <Button style={{height:5}} title='+' onPress={() => this.addTextInput(this.state.textInput.length)} />
-              </View>
-              
-              {this.state.textInput.map((value, index) => {
-                return value
-              })}
+          <View style={{ flexDirection:"row", marginTop:10}}>
+            <Text>บัญชีธนาคารคนขาย</Text>
+            <Button style={{height:5}} title='+' onPress={() => this.addTextInput(this.state.textInput.length)} />
+          </View>
+          
+          {this.state.textInput.map((value, index) => {
+            return value
+          })}
 
-              {/*  */}
-              
-              <ScrollView
-                contentInsetAdjustmentBehavior="automatic"
-                style={styles.scrollView}>
-                {/* <Header /> */}
-                {/* <Image style={{ width: 143, height: 30 }} source={{ uri: 'https://tuanitpro.com/wp-content/uploads/2015/04/logo.png' }} /> */}
-                <View style={styles.body}>
-                  <Text style={styles.sectionTitle}>รูปภาพประกอบ</Text>
-                  {this.renderSelectPhotoControl(this.state.localPhotos)}
-                  {/* <View style={styles.sectionContainer}> */}
-                    {/* <TouchableOpacity style={styles.button} onPress={this.onDoUploadPress}>
-                      <Text>Upload now</Text>
-                    </TouchableOpacity> */}
-                  {/* </View> */}
-                  {/* <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}>Logs</Text>
-                    <TextInput multiline numberOfLines={10} style={{ height: 250, borderColor: 'gray', borderWidth: 1 }}
-                      value={this.state.logs}
-                    />
-                  </View> */}
-                </View>
-              </ScrollView>
-              {/*  */}
-
-              <ActionSheet
-                ref={o => (this.ActionSheet = o)}
-                title={'Confirm delete photo'}
-                options={['Confirm', 'Cancel']}
-                cancelButtonIndex={1}
-                destructiveButtonIndex={0}
-                onPress={index => {
-                  this.onActionDeleteDone(index);
-                }}/>
-
-              <ActionSheet
-                ref={o => (this.ActionSheetSelectPhoto = o)}
-                title={'Select photo'}
-                options={['Take Photo...', 'Choose from Library...', 'Cancel']}
-                cancelButtonIndex={2}
-                destructiveButtonIndex={1}
-                onPress={index => {
-                  this.onActionSelectPhotoDone(index);
-                }}/>
-    
-
-              <TouchableOpacity
-                style={styles.button}
-                onPress={this.handleAdd}>
-                <Text>ADD</Text>
-              </TouchableOpacity>
+          {/*  */}
+          
+          <ScrollView
+            contentInsetAdjustmentBehavior="automatic"
+            style={styles.scrollView}>
+            {/* <Header /> */}
+            {/* <Image style={{ width: 143, height: 30 }} source={{ uri: 'https://tuanitpro.com/wp-content/uploads/2015/04/logo.png' }} /> */}
+            <View style={styles.body}>
+              <Text style={styles.sectionTitle}>รูปภาพประกอบ</Text>
+              {this.renderSelectPhotoControl(this.state.localPhotos)}
+              {/* <View style={styles.sectionContainer}> */}
+                {/* <TouchableOpacity style={styles.button} onPress={this.onDoUploadPress}>
+                  <Text>Upload now</Text>
+                </TouchableOpacity> */}
+              {/* </View> */}
+              {/* <View style={styles.sectionContainer}>
+                <Text style={styles.sectionTitle}>Logs</Text>
+                <TextInput multiline numberOfLines={10} style={{ height: 250, borderColor: 'gray', borderWidth: 1 }}
+                  value={this.state.logs}
+                />
+              </View> */}
             </View>
-          </KeyboardAwareScrollView>
-          </SafeAreaView>)
+          </ScrollView>
+          <ActionSheet
+            ref={o => (this.ActionSheet = o)}
+            title={'Confirm delete photo'}
+            options={['Confirm', 'Cancel']}
+            cancelButtonIndex={1}
+            destructiveButtonIndex={0}
+            onPress={index => {
+              this.onActionDeleteDone(index);
+            }}/>
+
+          <ActionSheet
+            ref={o => (this.ActionSheetSelectPhoto = o)}
+            title={'Select photo'}
+            options={['Take Photo...', 'Choose from Library...', 'Cancel']}
+            cancelButtonIndex={2}
+            destructiveButtonIndex={1}
+            onPress={index => {
+              this.onActionSelectPhotoDone(index);
+            }}/>
+
+          {/* <TouchableOpacity
+            style={styles.button}
+            onPress={this.handleAdd}>
+            <Text>ADD</Text>
+          </TouchableOpacity> */}
+        </View>
+        </KeyboardAwareScrollView>
+      </SafeAreaView>)
   }
 }
 
@@ -481,6 +673,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#3399cc'
   },
+  spinnerTextStyle: {
+    color: '#FFF'
+  }
 });
 
 export default AddBanlistScreen;

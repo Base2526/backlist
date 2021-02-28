@@ -6,6 +6,8 @@
 
 #import <FBSDKCoreKit/FBSDKCoreKit.h>
 
+#import "RNSplashScreen.h"  // here
+
 #ifdef FB_SONARKIT_ENABLED
 #import <FlipperKit/FlipperClient.h>
 #import <FlipperKitLayoutPlugin/FlipperKitLayoutPlugin.h>
@@ -49,6 +51,10 @@ static void InitializeFlipper(UIApplication *application) {
   // You can skip this line if you have the latest version of the SDK installed
   [[FBSDKApplicationDelegate sharedInstance] application:application
       didFinishLaunchingWithOptions:launchOptions];
+  
+  [RNSplashScreen show];  // here
+  // or
+  //[RNSplashScreen showSplash:@"LaunchScreen" inRootView:rootView];
   
   return YES;
 }

@@ -18,6 +18,8 @@ import {
   TextInput,
   ActivityIndicator,
   Animated,
+  Platform,
+  FlatList
 } from 'react-native';
 
 // import {
@@ -40,222 +42,212 @@ import {API_URL, API_TOKEN} from "@env"
 
 import DropDownPicker from 'react-native-dropdown-picker';
 import Icon from 'react-native-vector-icons/Feather';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
+
+import { NumberFormat } from './Utils'
 
 class SearchScreen extends Component {
-
   constructor(props) {
     super(props);
-    this.state = {name: "", 
-                  surname: "", 
-                  id_card: "",
-                  bank_account: "", 
-                  ref_web: "",
-                  find_id: '1',
+    this.state = {key_word: "", 
+                  spinner: false, 
+                  
+                  execution_time:'', 
+                  count:'',
+                  datas:[], 
+                  offset: 0,
                 
-                
-                  spinner: false};
+                  loading: false}
 
-    this.handleSearch = this.handleSearch.bind(this);
+    this.handleSearch = this.handleSearch.bind(this)
   }
 
   componentDidMount(){
-    // this.props.navigation.dangerouslyGetParent().setOptions({
-    //   tabBarVisible: false
-    // });
+
   }
 
   handleSearch= () => {
-    // console.log(this.state.name);
-    // console.log(this.state.surname);
-    // console.log(this.state.bank_account);
+  
+    let {key_word, offset} = this.state
+    console.log(key_word)
 
-    // onPress={() => navigation.navigate('result')}
-
-    // (useNavigation()).navigate('result');
-
-    const { navigation } = this.props;
-    navigation.navigate('result');
-
-    // console.log('handleSearch > ' + this.state.find_id);
-
-    /*
-        this.state = {name: "", 
-                  surname: "", 
-                  id_card: "",
-                  bank_account: "", 
-                  ref_web: "",
-                  find_id: '1'};
-    */
-
-    switch(this.state.find_id){
-      case '1':{
-        console.log('find_id = ' + this.state.find_id +", name = "+this.state.name+", surname = "+this.state.surname);
-        break;
-      }
-      case '2':{
-        console.log('find_id = ' + this.state.find_id +", id_card = "+this.state.id_card);
-        break;
-      }
-      case '3':{
-        console.log('find_id = ' + this.state.find_id +", bank_account = "+this.state.bank_account);
-        break;
-      }
-      case '4':{
-        console.log('find_id = ' + this.state.find_id +", ref_web = "+this.state.ref_web);
-        break;
-      }
-    }
-    /*
-    axios.post(`${API_URL}/api/check_banlist?_format=json`, {
-      type: '1',
-      name: 'กิตติธัช',
-      surname: ''
-    }, {
-      headers: { 
-        'Authorization': `Basic ${API_TOKEN}` 
-      }
-    })
-    .then(function (response) {
-      let results = response.data
-      // console.log()
-      if(results.result){
-        // true
-        console.log('true');
-        // console.log(results);
-
-        let {execution_time, datas, count} = results;
-        console.log(execution_time);
-        console.log(count);
-        // console.log(datas);
-
+    let _this = this;
+    if(key_word.trim() == ""){
+      alert('Empty key word.');
+    }else{
+      if(!offset){
+        _this.setState({spinner: true, datas:[]})
       }else{
-        // false
-        console.log('false');
+        _this.setState({loading: true})
       }
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-    */
+      
+      axios.post(`${API_URL}/api/search?_format=json`, {
+        key_word,
+        offset
+      }, {
+        headers: { 
+          'Authorization': `Basic ${API_TOKEN}` 
+        }
+      })
+      .then(function (response) {
+        let results = response.data
+        // console.log()
+        if(results.result){
+          // true
+          console.log('true');
+          // console.log(results);
+  
+          let {execution_time, datas, count} = results;
+          // console.log(execution_time);
+          // console.log(count);
+          // console.log(datas);
+
+          if(datas && datas.length > 0){
+
+            console.log(datas)
+            _this.setState({spinner: false, execution_time, datas:[ ..._this.state.datas, ...datas], count, loading: false});
+          }else{
+
+            _this.setState({spinner: false, loading: false})
+            alert('Empty result.');
+          }
+          
+        }else{
+          // false
+          console.log(results);
+
+          _this.setState({spinner: false, loading: false})
+        }
+      })
+      .catch(function (error) {
+
+        _this.setState({spinner: false, loading: false})
+
+        console.log(error);
+      });
+    }
   }
 
-  radioHandler2 = () => {
-    console.log('radioHandler2');
+  renderItem = (item) =>{
+    console.log(item.id)
+    const { navigation } = this.props;
+    return (
+        <TouchableOpacity 
+            key={item.id}
+            style={{padding:5}}
+            onPress={()=>{
+              navigation.navigate('detail', {data:item})
+            }}
+          >
+          {/* <Image source={{uri:item.photo}}  style={{width:60, height:60,borderRadius:30}} /> */}
+          <View style={{ flex:1, backgroundColor:'#fff', padding:10 }}>
+            {/*      'name'    => $name, 
+                      'surname' => $surname,  */}
+            <View style={{flexDirection:'row'}}>
+              <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
+              <Text>{item.name} {item.surname}</Text>
+            </View>
+            <View style={{flexDirection:'row'}}>
+              <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
+              <Text>{item.title}</Text>
+            </View>
+            <View style={{flexDirection:'row'}}>
+              <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
+              <Text>{NumberFormat(Number(item.transfer_amount))}</Text>
+            </View>
+            <View style={{flexDirection:'row'}}>
+                    <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
+                    <Text>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
+                </View>
+            <View style={{flexDirection:'column'}}>
+              <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
+              <Text>{item.detail}</Text>
+            </View>
+            
+          </View>
+          {/* <TouchableOpacity style={{height:50,width:50, justifyContent:"center",alignItems:"center"}}>
+            <Text style={{color:"green"}}>Call</Text>
+          </TouchableOpacity> */}
+        </TouchableOpacity>
+      );
   }
+
+  renderFooter = () => {
+    let {loading, offset} = this.state
+    return (
+      //Footer View with Load More button
+      <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={()=>{
+
+            // this.setState({offset: offset+1})
+            this.setState({
+              offset: offset+1
+            },() => {
+              this.handleSearch();
+            });
+          }}
+          >
+          <View style={{backgroundColor:'#fff', alignItems: 'center', padding:10, margin:5}}> 
+            <View style={{flexDirection:'row'}}>
+              <Text>Load More</Text>
+              {loading ? (
+                <ActivityIndicator color="black" style={{marginLeft: 8}} />
+              ) : null}
+            </View>
+          </View>
+      </TouchableOpacity>
+    );
+  };
 
   render(){
-    console.log('--');
-
     const { navigation } = this.props;
-    
-    let v = <View />;
-    switch(this.state.find_id){
-      case '1':{
-        v = <View>
-              <Text>ชื่อ</Text>
-              <TextInput
-                style={{height: 40,
-                        borderWidth: .5,}}
-                ref= {(el) => { this.name = el; }}
-                onChangeText={(name) => this.setState({name})}
-                value={this.state.name}/>
 
-              <Text>นามสกุล</Text>
-              <TextInput
-                style={{height: 40, 
-                        borderWidth: .5,}}
-                ref= {(el) => { this.surname = el; }}
-                onChangeText={(surname) => this.setState({surname})}
-                value={this.state.surname}/>
-            </View>
-        break;
-      }
-      case '2':{
-        v = <View>
-              <Text>เลขบัตรประชาชน</Text>
-              <TextInput
-                style={{height: 40, 
-                        borderWidth: .5,}}
-                ref= {(el) => { this.id_card = el; }}
-                onChangeText={(id_card) => this.setState({id_card})}
-                value={this.state.id_card}/>
-            </View>
-        break;
-      }
-      case '3':{
-        v = <View>
-              <Text>บัญชีธนาคาร</Text>
-              <TextInput
-                style={{height: 40, 
-                        borderWidth: .5,}}
-                ref= {(el) => { this.bank_account = el; }}
-                onChangeText={(bank_account) => this.setState({bank_account})}
-                value={this.state.bank_account}/>
-            </View>
-        break;
-      }
-      case '4':{
-        v = <View>
-              <Text>เว็บไซด์ประกาศขายของ</Text>
-              <TextInput
-                style={{height: 40, 
-                        borderWidth: .5,}}
-                ref= {(el) => { this.ref_web = el; }}
-                onChangeText={(ref_web) => this.setState({ref_web})}
-                value={this.state.ref_web}/>
-            </View>
-        break;
-      }
+    let {datas, execution_time, count} = this.state
+
+    let v = <View />
+    if(datas && datas.length){
+      v = <View style={{flex:1}}>
+          <Text style={{padding:5}}>Search time : {execution_time} / {count}</Text>
+          {/* <Text>Count : {count}</Text> */}
+          <FlatList
+                style={{flex:1}}
+                data={datas}
+                renderItem={({ item }) => this.renderItem(item)}
+  
+                ListFooterComponent={this.renderFooter()}
+                keyExtractor={(item, index) => String(index)}
+            />
+          </View>
     }
-
     return (
+            <SafeAreaView style={{flex:1, marginTop:10}}>
             <View style={styles.container}>
-              {/* <ActivityIndicator /> */}
-
               <Spinner
                 visible={this.state.spinner}
                 textContent={'Loading...'}
-                textStyle={styles.spinnerTextStyle}
-              />
-
-              <Text style={{marginTop: 10,}}>ค้นหาจาก</Text>
-              <DropDownPicker
-                items={[
-                  {label: 'ชื่อ-นามสกุล', value: '1', icon: () => <Icon name="flag" size={18}  />, hidden: false},
-                  {label: 'เลขบัตรประชาชน', value: '2', icon: () => <Icon name="flag" size={18}  />},
-                  {label: 'บัญชีธนาคาร', value: '3', icon: () => <Icon name="flag" size={18}  />},
-                  {label: 'เว็บไซด์ประกาศขายของ', value: '4', icon: () => <Icon name="flag" size={18}  />},
-                ]}
-                defaultValue={this.state.find_id}
-                containerStyle={{height: 50}}
-                style={{backgroundColor: '#fafafa'}}
-                itemStyle={{
-                    justifyContent: 'flex-start'
-                }}
-                dropDownStyle={{backgroundColor: '#fafafa'}}
-                onChangeItem={item => this.setState({
-                  find_id: item.value
-                })}
-                labelStyle={{
-                  fontSize: 16,
-                  textAlign: 'left',
-                  color: '#000'
-                }}
-                />
-                {v}
+                textStyle={styles.spinnerTextStyle}/>  
+               <TextInput
+                style={{height: 40, 
+                        borderWidth: .5,
+                        paddingTop: 10}}
+                ref= {(el) => { this.key_word = el; }}
+                onChangeText={(key_word) => this.setState({key_word})}
+                value={this.state.key_word}
+                onSubmitEditing={
+                  this.handleSearch
+                }/>            
               <TouchableOpacity
                 style={styles.button}
                 onPress={this.handleSearch}>
                 <Text>Search</Text>
               </TouchableOpacity>
-
-              <ActionButton
-                buttonColor="rgba(231,76,60,1)"
-                onPress={() => { 
-                  navigation.navigate('add_banlist');
-                }}
-              />
-            </View>)
+              {/*  execution_time:'', 
+                  count:'', */}
+              
+              { v }
+            </View>
+            </SafeAreaView>)
   }
 }
 

@@ -9,18 +9,20 @@ services:
       - 80:80
       - 443:443
     environment:
-      - DB_HOST=postgres
+      - DB_HOST=139.59.116.246
       - DB_NAME=banlist
       - DB_USER_NAME=postgres
       - DB_PASSWORD=postgres
-    deploy:
-        resources:
-            limits:
-              cpus: '0.50'
-              memory: '512M'
-            reservations:
-              cpus: '0.25'
-              memory: '128M'
+
+      # - REDIS_HOSTS=139.59.235.247
+    # deploy:
+    #     resources:
+    #         limits:
+    #           cpus: '0.50'
+    #           memory: '512M'
+    #         reservations:
+    #           cpus: '0.25'
+    #           memory: '128M'
     volumes:
       # /opt/drupal/web/core/themes/bartik/templates/
       # /opt/drupal/web/core/themes/bartik/templates/classy/field
@@ -46,7 +48,21 @@ services:
       - ./composer.lock:/opt/drupal/composer.lock
 
       # Local
-      - ./files:/opt/drupal/web/sites/default/files
+      # - ./files:/opt/drupal/web/sites/default/files
+
+      # Cloud
+      - /mnt/volume_sgp1_09/banlist.info/files:/opt/drupal/web/sites/default/files
+
+      # SSL
+      # - ./000-default.conf:/etc/apache2/sites-available/000-default.conf
+      # - ./.well-known/acme-challenge:/opt/drupal/.well-known/acme-challenge
+      - ./etc/letsencrypt/live/banlist.info:/etc/letsencrypt/live/banlist.info
+      - ./letsencrypt.conf:/etc/apache2/conf-available/letsencrypt.conf
+      - ./ssl-params.conf:/etc/apache2/conf-available/ssl-params.conf
+
+
+      # google
+      - ./google4a78161938c3c95a.html:/opt/drupal/web/google4a78161938c3c95a.html
 
       # Cloud
       # - /mnt/volume_sgp1_09/banlist.info/files:/opt/drupal/web/sites/default/files
@@ -79,28 +95,29 @@ services:
   #     - "." 
   #   volumes:
   #     - ./nodejs:/usr/src/app
-  postgres:
-    image: postgres:10
-    container_name: pg_banlist
-    # volumes: 
-    #   - ./postgresql.conf:/etc/postgresql/postgresql.conf
-    environment:
-      POSTGRES_DB: banlist
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    restart: always
-  pgadmin:
-    image: dpage/pgadmin4:3.6
-    container_name: pgadmin_banlist
-    ports:
-      - 7777:80
-    volumes:
-      - ./pgadmin:/var/lib/pgadmin/storage
-    environment:
-      PGADMIN_DEFAULT_EMAIL: postgres
-      PGADMIN_DEFAULT_PASSWORD: postgres
-    hostname: pgadmin4
-    restart: always
+  # postgres:
+  #   image: postgres:10
+  #   container_name: pg_banlist
+  #   # volumes: 
+  #   #   - ./:/home
+  #   #   - ./postgresql.conf:/etc/postgresql/postgresql.conf
+  #   environment:
+  #     POSTGRES_DB: banlist
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #   restart: always
+  # pgadmin:
+  #   image: dpage/pgadmin4:3.6
+  #   container_name: pgadmin_banlist
+  #   ports:
+  #     - 7777:80
+  #   volumes:
+  #     - ./pgadmin:/var/lib/pgadmin/storage
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: postgres
+  #     PGADMIN_DEFAULT_PASSWORD: postgres
+  #   hostname: pgadmin4
+  #   restart: always
 
   # mongo1:
   #   hostname: mongo1
@@ -164,18 +181,18 @@ services:
   #   restart: always
 
   # Redis Master
-  master:
-    image: redis:5-alpine
-    volumes:
-      - ./redis/data:/data
-      # - /mnt/volume_sgp1_09/banlist.info/redis/data:/data
+  # master:
+  #   image: redis:5-alpine
+  #   volumes:
+  #     - ./redis/data:/data
+  #     # - /mnt/volume_sgp1_09/banlist.info/redis/data:/data
   
-  # Redis Slave
-  slave:
-    image: redis:5-alpine
-    command: redis-server --slaveof redis-master 6379
-    links:
-      - master:redis-master
+  # # Redis Slave
+  # slave:
+  #   image: redis:5-alpine
+  #   command: redis-server --slaveof redis-master 6379
+  #   links:
+  #     - master:redis-master
 
 #   redis-cluster:
 #     image: redis:latest
