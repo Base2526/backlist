@@ -255,6 +255,8 @@ class Profile extends Component {
     });
 
     this.uploadProfile = this.uploadProfile.bind(this);
+
+    this.handleLoginWithFacebook = this.handleLoginWithFacebook.bind(this)
   }
 
   //////////////////// MeScreen.js /////////////////////////
@@ -404,9 +406,12 @@ class Profile extends Component {
   handleLoginWithFacebook= () =>{
     // console.log('handleLoginWithFacebook')
 
+    let _this = this
     // Attempt a login using the Facebook login dialog asking for default permissions.
     LoginManager.logInWithPermissions(["public_profile"]).then(
       function(result) {
+        console.log('handleLoginWithFacebook')
+        console.log(result)
         if (result.isCancelled) {
           console.log("Login cancelled");
         } else {
@@ -414,6 +419,13 @@ class Profile extends Component {
             "Login success with permissions: " +
               result.grantedPermissions.toString()
           );
+
+
+          AccessToken.getCurrentAccessToken().then(
+            (data) => {
+                const accessToken = data.accessToken.toString()
+                _this.getInfoFromToken(accessToken)
+            })
         }
       },
       function(error) {
@@ -422,16 +434,78 @@ class Profile extends Component {
     );
   }
 
+
   handleLoginWithGoogle= () =>{
     console.log('handleLoginWithGoogle')
   }
 
   signInOnGoogle = async () => {
+
+    /*
+     {"idToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImZlZDgwZmVjNTZkYjk5MjMzZDRiNGY2MGZiYWZkYmFlYjkxODZjNzMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI2OTM3MjQ4NzA2MTUtbGNxYTV2OHVxczJvNmVmMXE3ZmNrN2gwaTEyZWVhcmouYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI2OTM3MjQ4NzA2MTUtMmhrbWtua2Uzc2o2cHVvOWM4OG5rNjdvdXV1OW04bDEuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTIzNzg3NTIxNTMxMDE1ODUzNDciLCJlbWFpbCI6ImFuZHJvaWQuc29ta2lkQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYW1lIjoiU29ta2lkIFNpbWFqYXJuIiwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hLS9BT2gxNEdqUkh5MXdRU3d0UlZna0NqOHhzNHVqVVp4THVDWVRsdnk0WS1CVHlnPXM5Ni1jIiwiZ2l2ZW5fbmFtZSI6IlNvbWtpZCIsImZhbWlseV9uYW1lIjoiU2ltYWphcm4iLCJsb2NhbGUiOiJlbiIsImlhdCI6MTYxNDUxOTYyMywiZXhwIjoxNjE0NTIzMjIzfQ.gMSuufqaSoYoTyyGg1FzHt75BhhA0uUQc9J8bYu_czNrvJTX1Xw4MWY5-LkIWlOldlirgYzX3-AwZTtgN5IrQUhYmPXTd2Ak3IFbIC6PQuJfFmFFUTYT1XTaQ3G4WPesUVh4bPYRloZL6mubQnOyoPDRiwF85tn9SeaH_mxmCJ1eG9ySRVw5DqcQShUQEVoPNbnigc5JxFvPH01H5IZY-PC6ccos5hjeu12wdiZKohzN6HRICI28HBgJOk2PthMBi35LB5utV4ikenyKjJaALAiCHmwaFFjtUxdc20eJC2t-IlpoyYUVO3kISE19sPxbjPAtVq5kWUne9CmlG3U0eQ", "scopes": ["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/moderator"], "serverAuthCode": "4/0AY0e-g6u51BezQYun8puGWyYg6VqnMJgIT2N3SelJ7fZfj_TSojaeBOI04F-ScTxChZOWA", "user": {"email": "android.somkid@gmail.com", "familyName": "Simajarn", "givenName": "Somkid", "id": "112378752153101585347", "name": "Somkid Simajarn", "photo": "https://lh3.googleusercontent.com/a-/AOh14GjRHy1wQSwtRVgkCj8xs4ujUZxLuCYTlvy4Y-BTyg=s96-c"}}
+    */
     try {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       console.log(userInfo)
       // setUser(userInfo)
+
+      /*
+      
+      "email": "android.somkid@gmail.com",
+ 		"familyName": "Simajarn",
+ 		"givenName": "Somkid",
+ 		"id": "112378752153101585347",
+ 		"name": "Somkid Simajarn",
+ 		"photo": "https://lh3.go*/
+
+      let {email, name, id, photo} = userInfo.user
+
+      ///////////////////////
+
+    
+      this.setState({spinner: true});
+
+      let _this =this
+
+      
+      axios.post(`${API_URL}/api/register?_format=json`, {
+        type: 2,
+        name,
+        email,
+        id,
+        photo
+      }/*, {
+        headers: { 
+          'Authorization': `Basic ${API_TOKEN}` 
+        }
+      }*/
+      )
+      .then(function (response) {
+        let results = response.data
+        console.log(results)
+        if(results.result){
+          // true
+          console.log('true');
+          console.log(results);
+
+          _this.props.navigation.pop();   
+          _this.setState({spinner: false})
+        }else{
+
+          _this.toast.show(results.message, 500);
+
+          _this.setState({spinner: false})
+        }
+      })
+      .catch(function (error) {
+
+        console.log(error)
+        _this.setState({spinner: false})
+      });
+
+      //////////////////////
+
     } catch (error) {
       console.log('Message', error.message);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
@@ -447,9 +521,14 @@ class Profile extends Component {
   }
 
   getInfoFromToken = token => {
+    let _this =this
+
+    this.setState({spinner: true});
+
     const PROFILE_REQUEST_PARAMS = {
       fields: {
-        string: 'id, name,  first_name, last_name',
+        // string: 'id, name,  first_name, last_name, email',
+        string: 'id, name, first_name, last_name, birthday, email'
       },
     };
     const profileRequest = new GraphRequest(
@@ -461,6 +540,42 @@ class Profile extends Component {
         } else {
           this.setState({userInfo: result});
           console.log('result:', result);
+          // result: {"first_name": "Next", "id": "10224198535420961", "last_name": "Si", "name": "Next Si"}
+        
+          let {name, id} = result
+
+          axios.post(`${API_URL}/api/register?_format=json`, {
+            type: 1,
+            name,
+            id
+          }/*, {
+            headers: { 
+              'Authorization': `Basic ${API_TOKEN}` 
+            }
+          }*/
+          )
+          .then(function (response) {
+            let results = response.data
+            console.log(results)
+            if(results.result){
+              // true
+              console.log('true');
+              console.log(results);
+
+              // _this.props.navigation.pop();   
+              // _this.setState({spinner: false})
+            }else{
+
+              _this.toast.show(results.message, 500);
+
+              _this.setState({spinner: false})
+            }
+          })
+          .catch(function (error) {
+
+            console.log(error)
+            _this.setState({spinner: false})
+          });
         }
       },
     );

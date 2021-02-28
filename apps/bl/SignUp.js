@@ -18,51 +18,27 @@ import {
   TextInput,
   ActivityIndicator,
   FlatList,
-<<<<<<< HEAD
   Image,
   Keyboard
 } from 'react-native';
 
-=======
-  Image 
-} from 'react-native';
-
-// import {
-//   Header,
-//   LearnMoreLinks,
-//   Colors,
-//   DebugInstructions,
-//   ReloadInstructions,
-// } from 'react-native/Libraries/NewAppScreen';
-
-
->>>>>>> 543b4b65ebf4a5141c5910cfb15d53f358107ce4
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
 
 import {API_URL, API_TOKEN} from "@env"
 
 import Spinner from 'react-native-loading-spinner-overlay';
-<<<<<<< HEAD
 import Toast, {DURATION} from 'react-native-easy-toast'
 
 import { ValidateEmail, isEmpty } from './Utils'
-=======
-
-// import { StyleSheet, Text, View, FlatList, Image, TouchableOpacity } from 'react-native';
->>>>>>> 543b4b65ebf4a5141c5910cfb15d53f358107ce4
 
 class SignUp extends Component {
   constructor(props) {
     super(props);
-<<<<<<< HEAD
     this.state = {name:'', 
                   email:'', 
                   password:'', 
                   confirm_password:''};
-=======
-    this.state = {name:'', email:'', password:'', confirm_password:''};
->>>>>>> 543b4b65ebf4a5141c5910cfb15d53f358107ce4
   }
 
   componentDidMount() {
@@ -70,7 +46,6 @@ class SignUp extends Component {
 
   handleSignUp= () =>{
     console.log('handleSignUp')
-<<<<<<< HEAD
      // Hide that keyboard!
     Keyboard.dismiss()
 
@@ -103,6 +78,7 @@ class SignUp extends Component {
 
       
       axios.post(`${API_URL}/api/register?_format=json`, {
+        type: 0,
         name,
         email,
         password
@@ -137,16 +113,11 @@ class SignUp extends Component {
         _this.setState({spinner: false})
       });
     }
-=======
->>>>>>> 543b4b65ebf4a5141c5910cfb15d53f358107ce4
   }
 
   render(){
     return (
-<<<<<<< HEAD
             <SafeAreaView style={{flex: 1}}>
-=======
->>>>>>> 543b4b65ebf4a5141c5910cfb15d53f358107ce4
             <View style={styles.container}>
                 <Text>Name</Text>
               <TextInput
@@ -185,7 +156,6 @@ class SignUp extends Component {
                 onPress={this.handleSignUp}>
                 <Text>Sign Up</Text>
               </TouchableOpacity>
-<<<<<<< HEAD
 
               <Spinner
                   visible={this.state.spinner}
@@ -200,9 +170,6 @@ class SignUp extends Component {
                 opacity={0.8}/>
             </View>
             </SafeAreaView>)
-=======
-            </View>)
->>>>>>> 543b4b65ebf4a5141c5910cfb15d53f358107ce4
   }
 }
 
@@ -251,10 +218,7 @@ const styles = StyleSheet.create({
   button: {
     alignItems: "center",
     backgroundColor: "#DDDDDD",
-<<<<<<< HEAD
     marginTop:10,
-=======
->>>>>>> 543b4b65ebf4a5141c5910cfb15d53f358107ce4
     padding: 10
   },
   listItem:{
