@@ -786,26 +786,6 @@ class API extends ControllerBase {
     }
   }
 
-  // public function EveryDay(Request $request){
-  //   $response = array();
-  //   $time1    = microtime(true);
-
-  //   $key = \Drupal::request()->query->get('key');
-  //   if(empty($key) || $key != 'YmFubGlzdC5pbmZv'){
-  //     $response['result']   = FALSE;
-  //     return new JsonResponse( $response );  
-  //   }
-
-  //   \Drupal::logger('EveryDay')->notice('Cron EveryDay > %time', array( '%time' => (new DateTime())->format('Y-m-d H:i:s') ));
-   
-  //   // Check is facebook long live token expired.
-  //   Utils::Expired_FBLongLivedAccessToken();
-
-  //   $response['result']   = TRUE;
-  //   $response['execution_time']   = microtime(true) - $time1;
-  //   return new JsonResponse( $response );  
-  // }
-
   public function SearchApi(Request $request){
     $response_array = array();
     try {
