@@ -1,4 +1,4 @@
-package com.bl;
+package mrx.bl;
 
 import android.app.Application;
 import android.content.Context;

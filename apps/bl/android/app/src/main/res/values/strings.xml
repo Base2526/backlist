@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">bl</string>
+    <string name="app_name">Banlist</string>
 
     <string name="server_client_id">693724870615-lcqa5v8uqs2o6ef1q7fck7h0i12eearj.apps.googleusercontent.com</string>
     <string name="facebook_app_id">792332228296675</string>
