@@ -60,7 +60,7 @@ class AddBanlistScreen extends Component {
                 
                   transfer_amount: "",
                 
-                  textInput : [],
+                  itemMerchantBank : [],
                 
                   selectedPhotoIndex: 0,
                   localPhotos: [],
@@ -246,44 +246,66 @@ class AddBanlistScreen extends Component {
     console.log('handDelete > ' + key);
   }
 
-  // https://stackoverflow.com/questions/45407581/how-to-dynamically-add-a-text-input-in-react-native/45407976
-  addTextInput = (key) => {
-    let textInput = this.state.textInput;
-    let items_merchant_bank_account = this.state.items_merchant_bank_account;
+  listMerchantBank = () =>{
+    let items_merchant_bank_account = {
+                                        1: 'ธนาคารกรุงศรีอยุธยา',
+                                        2: 'ธนาคารกรุงเทพ',
+                                        3: 'ธนาคารซีไอเอ็มบี' ,
+                                        4: 'ธนาคารออมสิน',
+                                        5: 'ธนาคารอิสลาม',
+                                        6: 'ธนาคารกสิกรไทย',
+                                        7: 'ธนาคารเกียรตินาคิน',
+                                        8: 'ธนาคารกรุงไทย',
+                                        9: 'ธนาคารไทยพาณิชย์',
+                                        10: 'Standard Chartered',
+                                        11: 'ธนาคารธนชาติ',
+                                        12: 'ทิสโก้แบงค์',
+                                        13: 'ธนาคารทหารไทย',
+                                        14: 'ธนาคารยูโอบี',
+                                        15: 'ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร',
+                                        16: 'True Wallet',
+                                        17: 'พร้อมเพย์ (PromptPay)',
+                                        18: 'ธนาคารอาคารสงเคราะห์',
+                                        19: 'AirPay (แอร์เพย์)',
+                                        20: 'mPay',
+                                        21: '123 เซอร์วิส',
+                                        22: 'ธ.ไทยเครดิตเพื่อรายย่อย',
+                                        23: 'ธนาคารแลนด์แอนด์เฮ้าส์',
+                                        24: 'เก็บเงินปลายทาง' 
+                                      }
 
-    var tifOptions = [];
-
-    Object.keys(items_merchant_bank_account).forEach(function(key) {
-      tifOptions.push({key, label: items_merchant_bank_account[key], value: key, icon: () => <Icon name="flag" size={18}  />, hidden: false})
+    var lists = [];
+    Object.keys(items_merchant_bank_account).forEach(function(i) {
+      lists.push({i, label: items_merchant_bank_account[i], value: i, icon: () => <Icon name="flag" size={18}  />, hidden: false})
     });
-    
-    textInput.push( <View key={{key}}>
-                      <View style={{ flexDirection:"row", marginTop:10}}>
-                        <Text>เลขบัญชี</Text> 
-                        <Button style={{backgroundColor:"#FF2400"}} title='-' onPress={()=>this.handleDelete(key)} />
-                      </View>
-                      <TextInput key={key}  style={{borderWidth: .5, height: 40}}/>
-                      <Text>ธนาคาร/ระบบ Wallet</Text>
-                      <DropDownPicker
-                        items={tifOptions}
-                        defaultValue={'1'}
-                        containerStyle={{height: 50}}
-                        style={{backgroundColor: '#fafafa'}}
-                        itemStyle={{
-                            justifyContent: 'flex-start'
-                        }}
-                        dropDownStyle={{backgroundColor: '#fafafa'}}
-                        onChangeItem={item => this.setState({
-                          find_id: item.value
-                        })}
-                        labelStyle={{
-                          fontSize: 16,
-                          textAlign: 'left',
-                          color: '#000'
-                        }}
-                        />
-                    </View>);
-    this.setState({ textInput })
+
+    return lists;
+  }
+
+  // https://stackoverflow.com/questions/45407581/how-to-dynamically-add-a-text-input-in-react-native/45407976
+  addItemMerchantBank = (key) => {
+    let itemMerchantBank = this.state.itemMerchantBank;
+
+    itemMerchantBank.push(<View key={{key}}>
+                            <View style={{ flexDirection:"row", marginTop:10}}>
+                              <Text>เลขบัญชี</Text> 
+                              <Button style={{backgroundColor:"#FF2400"}} title='-' onPress={()=>this.handleDelete(key)} />
+                            </View>
+                            <TextInput key={key}  style={{borderWidth: .5, height: 40}}/>
+                            <Text>ธนาคาร/ระบบ Wallet</Text>
+                            <DropDownPicker
+                              items={this.listMerchantBank()}
+                              defaultValue={'1'}
+                              containerStyle={{height: 50}}
+                              style={{backgroundColor: '#fafafa'}}
+                              itemStyle={{ justifyContent: 'flex-start' }}
+                              dropDownStyle={{backgroundColor: '#fafafa'}}
+                              onChangeItem={item => this.setState({
+                                find_id: item.value
+                              })}
+                              labelStyle={{ fontSize: 16, textAlign: 'left', color: '#000'}}/>
+                          </View>);
+    this.setState({ itemMerchantBank })
   }
 
   // Upload image
@@ -539,14 +561,16 @@ class AddBanlistScreen extends Component {
 
           <View style={{ flexDirection:"row", marginTop:10}}>
             <Text>บัญชีธนาคารคนขาย</Text>
-            <Button style={{height:5}} title='+' onPress={() => this.addTextInput(this.state.textInput.length)} />
+            <Button style={{height:5}} title='+' onPress={() => this.addItemMerchantBank(this.state.itemMerchantBank.length)} />
           </View>
           
-          {this.state.textInput.map((value, index) => {
-            return value
-          })}
-
-          {/*  */}
+          {
+          
+            this.state.itemMerchantBank.map((value, index) => {
+              return value
+            })
+          
+          }
           
           <ScrollView
             contentInsetAdjustmentBehavior="automatic"
