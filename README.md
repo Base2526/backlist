@@ -364,5 +364,10 @@ $result_transfer_amount = $result->getField('field_transfer_amount')->getValues(
 dpm($data);
 
  ////////////////
+ 
+ 
+ 
+ Animate card
+ https://github.com/jacklam718/react-native-modals
 
 
