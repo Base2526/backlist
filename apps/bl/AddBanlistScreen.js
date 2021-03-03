@@ -45,6 +45,10 @@ const axios = require('axios');
 var Buffer = require('buffer/').Buffer
 import {API_URL, API_TOKEN} from "@env"
 
+// toTimestamp
+
+import {toTimestamp, isEmpty} from './Utils'
+
 class AddBanlistScreen extends Component {
 
   constructor(props) {
@@ -60,39 +64,13 @@ class AddBanlistScreen extends Component {
                 
                   transfer_amount: "",
                 
-                  textInput : [],
+                  itemsMerchantBankAccount : [],
                 
                   selectedPhotoIndex: 0,
                   localPhotos: [],
                 
                   showDateTimePicker: false,
                   currentDateTimePicker: new Date(),
-                  items_merchant_bank_account : {
-                    1: 'ธนาคารกรุงศรีอยุธยา',
-                    2: 'ธนาคารกรุงเทพ',
-                    3: 'ธนาคารซีไอเอ็มบี' ,
-                    4: 'ธนาคารออมสิน',
-                    5: 'ธนาคารอิสลาม',
-                    6: 'ธนาคารกสิกรไทย',
-                    7: 'ธนาคารเกียรตินาคิน',
-                    8: 'ธนาคารกรุงไทย',
-                    9: 'ธนาคารไทยพาณิชย์',
-                    10: 'Standard Chartered',
-                    11: 'ธนาคารธนชาติ',
-                    12: 'ทิสโก้แบงค์',
-                    13: 'ธนาคารทหารไทย',
-                    14: 'ธนาคารยูโอบี',
-                    15: 'ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร',
-                    16: 'True Wallet',
-                    17: 'พร้อมเพย์ (PromptPay)',
-                    18: 'ธนาคารอาคารสงเคราะห์',
-                    19: 'AirPay (แอร์เพย์)',
-                    20: 'mPay',
-                    21: '123 เซอร์วิส',
-                    22: 'ธ.ไทยเครดิตเพื่อรายย่อย',
-                    23: 'ธนาคารแลนด์แอนด์เฮ้าส์',
-                    24: 'เก็บเงินปลายทาง' 
-                  },
                   spinner: false};  
   
     // const [date, setDate] = useState(new Date(1598051730000));
@@ -150,8 +128,6 @@ class AddBanlistScreen extends Component {
     $images         = $content['images'];            // รูปภาพประกอบ
     */
 
-    
-
     let { title, 
           transfer_amount, 
           name, 
@@ -159,12 +135,33 @@ class AddBanlistScreen extends Component {
           id_card_number, 
           selling_website,
           currentDateTimePicker,
-          detail} = this.state
+          detail,
 
+          itemsMerchantBankAccount,
+          localPhotos} = this.state
+
+
+    title = title.trim()
+    name = name.trim()
+    surname = surname.trim()
+    selling_website = selling_website.trim()
+    detail = detail.trim()
+
+    if( isEmpty(title) || 
+        isEmpty(transfer_amount) ||
+        isEmpty(name) ||
+        isEmpty(surname) ||
+        isEmpty(id_card_number) ||
+        isEmpty(selling_website) ||
+        isEmpty(detail) ){
+          
+      this.toast.show('product_type or person_name or person_surname or transfer_date or detail');
+
+      return;
+    }
     
-
     let _this = this
-    // this.setState({spinner: true})
+    this.setState({spinner: true})
 
     //_this.props.navigation.goBack() ;   
     
@@ -174,32 +171,54 @@ class AddBanlistScreen extends Component {
     // this.props.navigation.state.params.onSelect(status);
     // console.log(this.props.navigation.setParams({abc:'tes'}))
 
-    const { navigation } = this.props;
-    navigation.goBack();
-    navigation.state.params.onSelect({ selected: true });
+    // const { navigation } = this.props;
+    // navigation.goBack();
+    // navigation.state.params.onSelect({ selected: true });
+
+    // console.log(itemsMerchantBankAccount)  
+    console.log(localPhotos)
+
+    const data = new FormData();
+
+    data.append('product_type', title);
+    data.append('transfer_amount', transfer_amount);
+    data.append('person_name', name);
+    data.append('person_surname', surname);
+    data.append('id_card_number', id_card_number);
+    data.append('selling_website', selling_website);
+    data.append('transfer_date', toTimestamp(currentDateTimePicker));
+    data.append('detail', detail);
+    data.append('merchant_bank_account', JSON.stringify(itemsMerchantBankAccount));
+
+    localPhotos.map(buttonInfo => (
+      data.append("files[]", {uri: buttonInfo.path, type: buttonInfo.mime,name: buttonInfo.path.substring(buttonInfo.path.lastIndexOf('/')+1)})
+    ));
+
+    // console.log(data)
+
+    // return;
+
+    // console.log(title, transfer_amount, name, surname, id_card_number, selling_website, currentDateTimePicker)
+
+    
+    // axios.post(`${API_URL}/api/update_profile?_format=json`, data, {
+    //   headers: { 
+    //     'Authorization': `Basic ${API_TOKEN}` ,
+    //     'content-type': 'multipart/form-data'
+    //   }
+    // })
 
    
-    return;
-
-    console.log(title, transfer_amount, name, surname, id_card_number, selling_website, currentDateTimePicker)
-
-    axios.post(`${API_URL}/api/added_banlist?_format=json`, {
-      product_type: title,
-      transfer_amount,
-      person_name: name,
-      person_surname: surname,
-      id_card_number,
-      selling_website,
-      transfer_date: currentDateTimePicker,
-      details: detail
-    }, {
+    axios.post(`${API_URL}/api/added_banlist?_format=json`, data, {
       headers: { 
-        'Authorization': `Basic ${API_TOKEN}` 
+        'Authorization': `Basic ${API_TOKEN}`,
+        'content-type': 'multipart/form-data'
       }
     })
     .then(function (response) {
       let results = response.data
-      // console.log()
+      console.log(results)
+      
       if(results.result){
         // true
         console.log('true');
@@ -222,7 +241,7 @@ class AddBanlistScreen extends Component {
 
         _this.toast.show('เพิ่มรายงานเรียบร้อย');
 
-        _this.props.navigation.pop();        
+        // _this.props.navigation.pop();        
       }else{
         // false
         console.log('false');
@@ -236,54 +255,56 @@ class AddBanlistScreen extends Component {
 
       _this.setState({spinner: false})
 
-      _this.toast.show('ไม่สามารถเพิ่มรายงาน');
+      // _this.toast.show('ไม่สามารถเพิ่มรายงาน');
 
-      console.log(error);
+      console.log('Error >  ' + error);
     });
   }
 
-  handleDelete=(key)=>{
-    console.log('handDelete > ' + key);
-  }
-
-  // https://stackoverflow.com/questions/45407581/how-to-dynamically-add-a-text-input-in-react-native/45407976
-  addTextInput = (key) => {
-    let textInput = this.state.textInput;
-    let items_merchant_bank_account = this.state.items_merchant_bank_account;
+  getItemsMerchant = () =>{
+    let items_merchant_bank_account =  {
+      1: 'ธนาคารกรุงศรีอยุธยา',
+      2: 'ธนาคารกรุงเทพ',
+      3: 'ธนาคารซีไอเอ็มบี' ,
+      4: 'ธนาคารออมสิน',
+      5: 'ธนาคารอิสลาม',
+      6: 'ธนาคารกสิกรไทย',
+      7: 'ธนาคารเกียรตินาคิน',
+      8: 'ธนาคารกรุงไทย',
+      9: 'ธนาคารไทยพาณิชย์',
+      10: 'Standard Chartered',
+      11: 'ธนาคารธนชาติ',
+      12: 'ทิสโก้แบงค์',
+      13: 'ธนาคารทหารไทย',
+      14: 'ธนาคารยูโอบี',
+      15: 'ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร',
+      16: 'True Wallet',
+      17: 'พร้อมเพย์ (PromptPay)',
+      18: 'ธนาคารอาคารสงเคราะห์',
+      19: 'AirPay (แอร์เพย์)',
+      20: 'mPay',
+      21: '123 เซอร์วิส',
+      22: 'ธ.ไทยเครดิตเพื่อรายย่อย',
+      23: 'ธนาคารแลนด์แอนด์เฮ้าส์',
+      24: 'เก็บเงินปลายทาง' 
+    }
 
     var tifOptions = [];
 
     Object.keys(items_merchant_bank_account).forEach(function(key) {
       tifOptions.push({key, label: items_merchant_bank_account[key], value: key, icon: () => <Icon name="flag" size={18}  />, hidden: false})
     });
+    return tifOptions;
+  }
+
+  // https://stackoverflow.com/questions/45407581/how-to-dynamically-add-a-text-input-in-react-native/45407976
+  addItemsMerchantBankAccount = (id) => {
+    let itemsMerchantBankAccount = this.state.itemsMerchantBankAccount;
+
+    itemsMerchantBankAccount.push({key:Math.floor(Math.random() * 100000), bank_account: '',  bank_wallet: 0 })
     
-    textInput.push( <View key={{key}}>
-                      <View style={{ flexDirection:"row", marginTop:10}}>
-                        <Text>เลขบัญชี</Text> 
-                        <Button style={{backgroundColor:"#FF2400"}} title='-' onPress={()=>this.handleDelete(key)} />
-                      </View>
-                      <TextInput key={key}  style={{borderWidth: .5, height: 40}}/>
-                      <Text>ธนาคาร/ระบบ Wallet</Text>
-                      <DropDownPicker
-                        items={tifOptions}
-                        defaultValue={'1'}
-                        containerStyle={{height: 50}}
-                        style={{backgroundColor: '#fafafa'}}
-                        itemStyle={{
-                            justifyContent: 'flex-start'
-                        }}
-                        dropDownStyle={{backgroundColor: '#fafafa'}}
-                        onChangeItem={item => this.setState({
-                          find_id: item.value
-                        })}
-                        labelStyle={{
-                          fontSize: 16,
-                          textAlign: 'left',
-                          color: '#000'
-                        }}
-                        />
-                    </View>);
-    this.setState({ textInput })
+    console.log(itemsMerchantBankAccount)
+    this.setState({ itemsMerchantBankAccount })
   }
 
   // Upload image
@@ -415,6 +436,35 @@ class AddBanlistScreen extends Component {
     console.log('handleDatepicker');
     this.setState({showDateTimePicker:true})
   }
+
+  handleDelete=(key)=>{
+    let itemsMerchantBankAccount = this.state.itemsMerchantBankAccount;
+
+    let newItemsMerchantBankAccount = itemsMerchantBankAccount.filter(function(item){ return item.key !== key;})
+
+    this.setState({ itemsMerchantBankAccount: newItemsMerchantBankAccount  })
+  }
+
+  onChangeItemItemsMerchant = (item, key) =>{
+    let itemsMerchantBankAccount = [...this.state.itemsMerchantBankAccount];
+
+    let index = itemsMerchantBankAccount.findIndex(obj => obj.key === key);
+    let data = itemsMerchantBankAccount[index];
+    // console.log(itemsMerchantBankAccount, key)
+    itemsMerchantBankAccount[index]  = {...data, bank_wallet: item.value}
+
+    this.setState({itemsMerchantBankAccount})
+  }
+
+  handleChangeItemItemsMerchant = (item, key) =>{
+    let itemsMerchantBankAccount = [...this.state.itemsMerchantBankAccount];
+
+    let index = itemsMerchantBankAccount.findIndex(obj => obj.key === key);
+    let data = itemsMerchantBankAccount[index];
+    itemsMerchantBankAccount[index]  = {...data, bank_account: item}
+
+    this.setState({itemsMerchantBankAccount})
+  }
   
   render(){
 
@@ -539,14 +589,42 @@ class AddBanlistScreen extends Component {
 
           <View style={{ flexDirection:"row", marginTop:10}}>
             <Text>บัญชีธนาคารคนขาย</Text>
-            <Button style={{height:5}} title='+' onPress={() => this.addTextInput(this.state.textInput.length)} />
+            <Button style={{height:5}} title='+' onPress={() => this.addItemsMerchantBankAccount(this.state.itemsMerchantBankAccount.length)} />
           </View>
           
-          {this.state.textInput.map((value, index) => {
-            return value
-          })}
-
-          {/*  */}
+          {
+          this.state.itemsMerchantBankAccount.map((value, key) => {
+            key = value.key
+            return(
+              <View key={key}>
+                <View style={{ flexDirection:"row", marginTop:10}}>
+                    <Text>เลขบัญชี</Text> 
+                    <Button style={{backgroundColor:"#FF2400", }} title='-' onPress={()=>this.handleDelete(key)} />
+                </View>
+                <TextInput 
+                  key={key}  
+                  keyboardType="numeric"
+                  style={{borderWidth: .5, height: 40}}
+                  onChangeText={e => this.handleChangeItemItemsMerchant(e, key)}/>
+                <Text>ธนาคาร/ระบบ Wallet</Text>
+                
+                <DropDownPicker
+                  items={this.getItemsMerchant()}
+                  defaultValue={'1'}
+                  containerStyle={{height: 50}}
+                  style={{backgroundColor: '#fafafa', }}
+                  itemStyle={{justifyContent: 'flex-start'}}
+                  dropDownStyle={{backgroundColor: '#fafafa'}}
+                  onChangeItem={item => this.onChangeItemItemsMerchant(item, key)}
+                  labelStyle={{
+                      fontSize: 16,
+                      textAlign: 'left',
+                      color: '#000'
+                  }}/>
+              </View>
+            )
+          })
+          }
           
           <ScrollView
             contentInsetAdjustmentBehavior="automatic"
