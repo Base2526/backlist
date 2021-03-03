@@ -18,7 +18,8 @@ import {
   TextInput,
   ActivityIndicator,
   FlatList,
-  Image 
+  Image,
+  Alert
 } from 'react-native';
 
 // import {
@@ -36,7 +37,7 @@ const axios = require('axios');
 var Buffer = require('buffer/').Buffer
 
 import {API_URL, API_TOKEN} from "@env"
-
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-community/google-signin';
 
 import {
@@ -57,7 +58,9 @@ class MeScreen extends Component {
     this.state = {name: '', 
                   password: '', 
                 
-                  spinner: false, };
+                  spinner: false, 
+                
+                  is_login: false};
   }
 
   componentDidMount() {
@@ -68,29 +71,60 @@ class MeScreen extends Component {
       iosClientId: '693724870615-sctm232nea5uoce5us2l5le0mj7bi77p.apps.googleusercontent.com', // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
     });
     
-    this.isSignedIn()
+    // this.isSignedIn()
 
-    this.readData()
+    let _this = this
+    this.readLogin().then(res => {
+      console.log(res);
+      if(res){
+        _this.setState({is_login: true})
+      }
+    });
   }
 
-  readData = async () => {
+  readLogin = async () => {
     try {
-      const userAge = await AsyncStorage.getItem('save_age')
-  
-      console.log(userAge)
+      const user = await AsyncStorage.getItem('user')
+      console.log(user)
+      // JSON.parse
+
+      if(user){
+        return true
+      }
+      return false
     } catch (e) {
       console.log('Failed to fetch the data from storage')
     }
   }
 
-  isSignedIn = async () => {
-    const isSignedIn = await GoogleSignin.isSignedIn();
-    if (!!isSignedIn) {
-      this.getCurrentUserInfo()
-    } else {
-      console.log('Please Login')
+  saveLogin = async (user) => {
+    try {
+      await AsyncStorage.setItem('user', JSON.stringify(user))
+      console.log(user)
+      console.log('Data successfully saved')
+    } catch (e) {
+      console.log('Failed to save the data to the storage')
     }
-  };
+  }
+
+  saveLogout = async () => {
+    try {
+      await AsyncStorage.setItem('user', '')
+      console.log()
+      console.log('Data successfully saved')
+    } catch (e) {
+      console.log('Failed to save the data to the storage')
+    }
+  }
+
+  // isSignedIn = async () => {
+  //   const isSignedIn = await GoogleSignin.isSignedIn();
+  //   if (!!isSignedIn) {
+  //     this.getCurrentUserInfo()
+  //   } else {
+  //     console.log('Please Login')
+  //   }
+  // };
 
   getCurrentUserInfo = async () => {
     try {
@@ -116,17 +150,20 @@ class MeScreen extends Component {
 
   handleLogin= () =>{
     let {name, password} = this.state
-    if(name.trim() == "" && password.trim() == ""){
+
+    name = name.trim();
+    password = password.trim();
+    
+    if(name == "" && password == ""){
       this.toast.show('Name && Password empty');
-    }else if(name.trim() == ""){
+    }else if(name == ""){
       this.toast.show('Name empty');
-    }else if(password.trim() == ""){
+    }else if(password == ""){
       this.toast.show('Password empty');
     }else if(!ValidateEmail(name)){
       this.toast.show('Email Field is Invalid');
     }else{
       this.setState({spinner: true});
-
 
       let _this =this
 
@@ -139,16 +176,17 @@ class MeScreen extends Component {
       }*/)
       .then(function (response) {
         let results = response.data
-        // console.log()
+        console.log(results)
         if(results.result){
           // true
           console.log('true');
           // console.log(results);
   
-          let {execution_time, datas, count} = results;
+          let {execution_time, user, count} = results;
           // console.log(execution_time);
           // console.log(count);
-          // console.log(datas);
+          // console.log(user);
+          console.log(results);
 
           // if(datas && datas.length > 0){
 
@@ -159,21 +197,25 @@ class MeScreen extends Component {
           //   alert('Empty result.');
           // }
 
-          _this.setState({spinner: false})
-          
+          _this.saveLogin(user).then(()=>{
+            _this.setState({spinner: false, is_login: true})
+          })          
         }else{
+
+          _this.toast.show(results.message, 500);
+
           _this.setState({spinner: false})
         }
       })
       .catch(function (error) {
+
+        console.log(error)
         _this.setState({spinner: false})
       });
     }
   }
 
   handleForgotPassword= () =>{
-    // console.log('handleForgotPassword')
-
     const { navigation } = this.props;
     navigation.navigate('forgot_password');
   }
@@ -250,70 +292,119 @@ class MeScreen extends Component {
   };
 
   render(){
-    return (<View style={styles.container}>
+    let {is_login} = this.state
 
-              <Spinner
-                visible={this.state.spinner}
-                textContent={'Loading...'}
-                textStyle={styles.spinnerTextStyle}/> 
+    const { route, navigation } = this.props;
+    let _this = this
 
-              <Toast
-                ref={(toast) => this.toast = toast}
-                // style={{backgroundColor:'red'}}
-                position='top'
-                positionValue={200}
-                fadeInDuration={750}
-                fadeOutDuration={1000}
-                opacity={0.8}
-                // textStyle={{color:'red'}}
-                /> 
-
-              <Text>Email</Text>
-              <TextInput
-                style={{height: 40,
-                        borderWidth: .5,}}
-                ref= {(el) => { this.name = el; }}
-                onChangeText={(name) => this.setState({name})}
-                value={this.state.name}/>
-              <Text>Password</Text>
-              <TextInput
-                secureTextEntry={true}
-                style={{height: 40, 
-                        borderWidth: .5,}}
-                ref= {(el) => { this.password = el; }}
-                onChangeText={(password) => this.setState({password})}
-                value={this.state.password}/>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={this.handleLogin}>
-                <Text>Login</Text>
-              </TouchableOpacity>
-
-              <View style={{ flexDirection:"row",}}>
-                <TouchableOpacity
-                  style={{margin:5}}
-                  onPress={this.handleForgotPassword}>
-                  <Text>Forgot Password</Text>
+    if(is_login){
+      
+      navigation.setOptions({
+        headerRight: () => (
+            <View style={{flexDirection:'row'}}>
+                <TouchableOpacity 
+                    style={{ marginHorizontal: 10 }}
+                    onPress={()=>{
+                      Alert.alert(
+                        "Message",
+                        "Are you sure logout?",
+                        [
+                          {
+                            text: "Cancel",
+                            onPress: () => console.log("Cancel Pressed"),
+                            style: "cancel"
+                          },
+                          { text: "OK", onPress: () => {
+                            _this.saveLogout().then(()=>{_this.setState({is_login: false})})
+                          } 
+                          }
+                        ],
+                        { cancelable: false }
+                      );
+                      
+                    }}>
+                    {/* <Text style={{ fontSize:18 }}>Logout</Text> */}
+                    <Ionicons name="logout" size={28}  />
                 </TouchableOpacity>
+            </View>
+          )
+      })
+
+      return (<View>
+                  <Text>Login</Text>
+              </View>)
+    }else{
+
+      navigation.setOptions({
+        headerRight: () => (<View />)
+      })
+
+      return (<View style={styles.container}>
+                <Spinner
+                  visible={this.state.spinner}
+                  textContent={'Loading...'}
+                  textStyle={styles.spinnerTextStyle}/> 
+
+                <Toast
+                  ref={(toast) => this.toast = toast}
+                  // style={{backgroundColor:'red'}}
+                  position='top'
+                  positionValue={200}
+                  fadeInDuration={750}
+                  fadeOutDuration={1000}
+                  opacity={0.8}
+                  // textStyle={{color:'red'}}
+                  /> 
+
+                <Text>Email</Text>
+                <TextInput
+                  style={{height: 40,
+                          borderWidth: .5,}}
+                  ref= {(el) => { this.name = el; }}
+                  onChangeText={(name) => this.setState({name})}
+                  value={this.state.name}/>
+                <Text>Password</Text>
+                <TextInput
+                  secureTextEntry={true}
+                  style={{height: 40, 
+                          borderWidth: .5,}}
+                  ref= {(el) => { this.password = el; }}
+                  onChangeText={(password) => this.setState({password})}
+                  value={this.state.password}/>
                 <TouchableOpacity
-                  style={{margin:5}}
-                  onPress={this.handleSignUp}>
-                  <Text>Sign up</Text>
+                  style={styles.button}
+                  onPress={this.handleLogin}>
+                  <Text>Login</Text>
                 </TouchableOpacity>
-              </View>
 
-              <TouchableOpacity
-                style={styles.button}
-                onPress={this.handleLoginWithFacebook}>
-                <Text>Login with facebook</Text>
-              </TouchableOpacity>
+                <View style={{ flexDirection:"row",}}>
+                  <TouchableOpacity
+                    style={{margin:5}}
+                    onPress={this.handleForgotPassword}>
+                    <Text>Forgot Password</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{margin:5}}
+                    onPress={this.handleSignUp}>
+                    <Text>Sign up</Text>
+                  </TouchableOpacity>
+                </View>
 
-              <TouchableOpacity
-                style={styles.button}
-                onPress={this.signInOnGoogle}>
-                <Text>Login with google</Text>
-              </TouchableOpacity>
-            </View>)
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={this.handleLoginWithFacebook}>
+                  <Text>Login with facebook</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={this.signInOnGoogle}>
+                  <Text>Login with google</Text>
+                </TouchableOpacity>
+              </View>)
+
+              
+    }
   }
 }
 

@@ -66,18 +66,25 @@ class API extends ControllerBase {
     );
   }
 
+  /*
+   code : 
+    - 101 : 
+    - 102 : 
+    - 103 : 
+    - 104 : 
+  */
   public function Login(Request $request){
     $response_array = array();
     try {
-     
       $time1    = microtime(true);
   
       $content      = json_decode( $request->getContent(), TRUE );
-      $name         = trim( $content['name'] );
+      $name         = strtolower( trim( $content['name'] ) );
       $password     = trim( $content['password'] );
   
       if(empty($name) || empty($password)){
         $response_array['result']   = FALSE;
+        $response_array['code']     = '102';
         $response_array['message']  = 'Empty name or password.';
   
         return new JsonResponse( $response_array );
@@ -88,94 +95,324 @@ class API extends ControllerBase {
         if(\Drupal::service('email.validator')->isValid( $name )){
           $user_load = user_load_by_mail($name);
           if(!$user_load){
-            $response['result']   = FALSE;
-            $response['message']  = 'Unrecognized ' . $name;
-            return new JsonResponse( $response );
+            $response_array['result']     = FALSE;
+            $response_array['code']       = '103';
+            $response_array['message']    = 'Unrecognized ' . $name . '. please sign up';
+            return new JsonResponse( $response_array );
           }
-          $name = user_load_by_mail($name)->getUsername();
+          $name = user_load_by_mail($name)->getDisplayName();
         }
   
         $uid = \Drupal::service('user.auth')->authenticate($name, $password);
         if(!empty($uid)){
           $user = User::load($uid);
           $user_login_finalize = user_login_finalize($user);
+
+          $name    = $user->getDisplayName();
+          $email   = $user->getEmail();
+          $image_url = '';  
+          if (!$user->get('user_picture')->isEmpty()) {
+            $image_url = file_create_url($user->get('user_picture')->entity->getFileUri());
+          }
+
+          $user = array(
+                    'uid'       =>  $uid,
+                    'name'      =>  $name,
+                    'email'     =>  $email,
+                    'image_url' =>  $image_url
+                  );
+
+          $response_array['result']           = TRUE;
+          $response_array['execution_time']   = microtime(true) - $time1;
+          // $response_array['data']             = array('uid'=>$uid);
+          $response_array['user']             = $user;
+        }else{
+
+          $response_array['result']           = FALSE;
+          $response_array['code']             = '104';
+          $response_array['execution_time']   = microtime(true) - $time1;
+          $response_array['message']          = "Password incorrect";
         }
-  
-        $response_array['result']           = TRUE;
-        $response_array['execution_time']   = microtime(true) - $time1;
-  
         return new JsonResponse( $response_array );
       }
     } catch (\Throwable $e) {
       \Drupal::logger('Login')->notice($e->__toString());
 
       $response_array['result']   = FALSE;
+      $response_array['code']     = '101';
       $response_array['message']  = $e->__toString();
 
       return new JsonResponse( $response_array );
     }
   }
 
+  /*
+    type
+     0 : api
+     1 : facebook
+     2 : google
+  */
   public function Register(Request $request){
     $response_array = array();
     try {
       
       $time1    = microtime(true);
 
-      $content = json_decode( $request->getContent(), TRUE );
-      $name         = trim( $content['name'] );
-      $password     = trim( $content['password'] );
+      $content  = json_decode( $request->getContent(), TRUE );
+      $type    = trim( $content['type'] );
 
-      if(empty($name) || empty($password)){
-        $response_array['result']   = FALSE;
-        $response_array['message']  = 'Empty name or password.';
+      switch($type){
+        case 0:{
+          $email    = trim( $content['email'] );
+          $name     = trim( $content['name'] );
+          $password = trim( $content['password'] );
 
-        return new JsonResponse( $response_array );
-      }else{
-        
-        /*
-          * case is email with use user_load_by_mail reture name
-        */
-        if(!\Drupal::service('email.validator')->isValid( $name )){
-          $response_array['result']   = FALSE;
-          $response_array['message']  = t('The email address @email invalid.', array('@email' => $name))->__toString();
+          if(empty($email) || empty($name) || empty($password)){
+            $response_array['result']   = FALSE;
+            $response_array['message']  = 'Empty email and name and password.';
+
+            return new JsonResponse( $response_array );
+          }else{
+            
+            /*
+              * case is email with use user_load_by_mail reture name
+            */
+            if(!\Drupal::service('email.validator')->isValid( $email )){
+              $response_array['result']   = FALSE;
+              $response_array['message']  = t('The email address @email invalid.', array('@email' => $email))->__toString();
+              return new JsonResponse( $response_array );
+            }
+
+            $user = user_load_by_mail($email);
+            if(!empty($user)){
+              $response_array['result']   = FALSE;
+              $response_array['message']  = t('The email address @email is already taken.', array('@email' => $email))->__toString();
+              return new JsonResponse( $response_array );
+            }
+
+            // Create user
+            $user = User::create();
+
+            // Mandatory settings
+            $user->setPassword($password);
+            $user->set("langcode", 'en');
+            $user->enforceIsNew();
+            $user->setEmail($email);
+            $user->setUsername($name);
+            // $user->addRole('authenticated');
+            
+            // Optional settings
+            $user->activate();
+
+            // Save user
+            $user->save();
+
+            // User login
+            user_login_finalize($user);
+
+            _user_mail_notify('register_no_approval_required', $user, 'en');
+
+            $response_array['result']           = TRUE;
+            $response_array['execution_time']   = microtime(true) - $time1;
+            // $response_array['data']      = $user;
+
+            return new JsonResponse( $response_array );
+          }
+
+          break;
+        }
+        case 1: {
+          /*
+          name,
+            id
+          */
+          // $email      = trim( $content['email'] );
+          // $family_name= trim( $content['family_name'] );
+          // $given_name = trim( $content['given_name'] );
+          $id         = trim( $content['id'] );
+          $name       = trim( $content['name'] );
+          // $photo      = trim( $content['photo'] );
+
+          if( empty($id) && empty($name)){
+            $response_array['result']   = FALSE;
+            $response_array['message']  = 'Empty id and name.';
+
+            return new JsonResponse( $response_array );
+          }
+
+          $ids = \Drupal::entityQuery('user')
+                  ->condition('name', $id)
+                  ->range(0, 1)
+                  ->execute();
+
+          if(empty($ids)){
+            // Create user
+            $user = User::create();
+
+            // Mandatory settings
+            $user->setPassword(base64_encode($id));
+            $user->set("langcode", 'en');
+            $user->enforceIsNew();
+            $user->setEmail($id . '@local.local');
+            $user->setUsername($id);
+            // $user->addRole('authenticated');
+
+            $user->set('field_type_login', 29);
+
+            // Optional settings
+            $user->activate();
+
+            // Save user
+            $user->save();
+
+          }
+          
+          $uid = \Drupal::service('user.auth')->authenticate( $id, base64_encode($id));
+
+          $data = array(
+                        'uid'       =>  $uid,
+                        'name'      =>  $name,
+                        'email'     =>  $id . '@local.local',
+                        'image_url' => ''
+                      );
+
+          $user = User::load($uid);
+          // if(!empty($user)){
+          //   if(!Utils::is_404($photo)){
+          //     $path_parts = pathinfo($photo);
+  
+          //     $ext = pathinfo(
+          //         parse_url($photo, PHP_URL_PATH), 
+          //         PATHINFO_EXTENSION
+          //     ); 
+  
+          //     $filename = \Drupal::service('transliterate_filenames.sanitize_name')->sanitizeFilename($path_parts['filename']);
+          //     $file = file_save_data(file_get_contents($photo), 'public://'. $filename .'.'.$ext, FileSystemInterface::EXISTS_REPLACE);
+                   
+          //     $user->set('user_picture', $file->id());
+          //     $user->save();
+
+          //     $data['image_url'] = file_create_url($file->getFileUri());
+          //   }
+          // }
+
+          // User login
+          user_login_finalize($user);
+
+          // $response_array['image_url']  =  file_create_url($file->getFileUri());
+
+          /*
+          "email": "android.somkid@gmail.com",
+          "familyName": "Simajarn",
+          "givenName": "Somkid",
+          "id": "112378752153101585347",
+          "name": "Somkid Simajarn",
+          "photo": "https://lh3.googleusercontent.com/a-/AOh14GjRHy1wQSwtRVgkCj8xs4ujUZxLuCYTlvy4Y-BTyg=s96-c"
+          */
+
+          $response_array['result']           = TRUE;
+          $response_array['execution_time']   = microtime(true) - $time1;
+          $response_array['data']             = $data;
+
+          return new JsonResponse( $response_array );
+
+        }
+        case 2: {
+          $email      = trim( $content['email'] );
+          // $family_name= trim( $content['family_name'] );
+          // $given_name = trim( $content['given_name'] );
+          $id         = trim( $content['id'] );
+          $name       = trim( $content['name'] );
+          $photo      = trim( $content['photo'] );
+
+          if(empty($email) && empty($id) && empty($name) && empty($photo)){
+            $response_array['result']   = FALSE;
+            $response_array['message']  = 'Empty email and id and name and photo.';
+
+            return new JsonResponse( $response_array );
+          }
+
+          $ids = \Drupal::entityQuery('user')
+                  ->condition('name', $id)
+                  ->range(0, 1)
+                  ->execute();
+
+          if(empty($ids)){
+            // Create user
+            $user = User::create();
+
+            // Mandatory settings
+            $user->setPassword(base64_encode($id));
+            $user->set("langcode", 'en');
+            $user->enforceIsNew();
+            $user->setEmail($email);
+            $user->setUsername($id);
+            // $user->addRole('authenticated');
+
+            $user->set('field_type_login', 30);
+
+            // Optional settings
+            $user->activate();
+
+            // Save user
+            $user->save();
+
+          }
+          
+          $uid = \Drupal::service('user.auth')->authenticate( $id, base64_encode($id));
+
+          $data = array(
+                        'uid'       =>  $uid,
+                        'name'      =>  $name,
+                        'email'     =>  $email,
+                        'image_url' => ''
+                      );
+
+          $user = User::load($uid);
+          if(!empty($user)){
+            if(!Utils::is_404($photo)){
+              $path_parts = pathinfo($photo);
+  
+              $ext = pathinfo(
+                  parse_url($photo, PHP_URL_PATH), 
+                  PATHINFO_EXTENSION
+              ); 
+  
+              $filename = \Drupal::service('transliterate_filenames.sanitize_name')->sanitizeFilename($path_parts['filename']);
+              $file = file_save_data(file_get_contents($photo), 'public://'. $filename .'.'.$ext, FileSystemInterface::EXISTS_REPLACE);
+                   
+              $user->set('user_picture', $file->id());
+              $user->save();
+
+              $data['image_url'] = file_create_url($file->getFileUri());
+            }
+          }
+
+          // User login
+          user_login_finalize($user);
+
+          // $response_array['image_url']  =  file_create_url($file->getFileUri());
+
+          /*
+          "email": "android.somkid@gmail.com",
+          "familyName": "Simajarn",
+          "givenName": "Somkid",
+          "id": "112378752153101585347",
+          "name": "Somkid Simajarn",
+          "photo": "https://lh3.googleusercontent.com/a-/AOh14GjRHy1wQSwtRVgkCj8xs4ujUZxLuCYTlvy4Y-BTyg=s96-c"
+          */
+
+          $response_array['result']           = TRUE;
+          $response_array['execution_time']   = microtime(true) - $time1;
+          $response_array['data']             = $data;
+
           return new JsonResponse( $response_array );
         }
-
-        $user = user_load_by_mail($name);
-        if(!empty($user)){
+        default:{
           $response_array['result']   = FALSE;
-          $response_array['message']  = t('The email address @email is already taken.', array('@email' => $name))->__toString();
+          $response_array['message']  = 'Empty type.';
           return new JsonResponse( $response_array );
         }
-
-        // Create user
-        $user = User::create();
-
-        // Mandatory settings
-        $user->setPassword($password);
-        $user->set("langcode", 'en');
-        $user->enforceIsNew();
-        $user->setEmail($name);
-        $user->setUsername(explode("@", $name)[0]);
-        $user->addRole('authenticated');
-        
-        // Optional settings
-        $user->activate();
-
-        // Save user
-        $user->save();
-
-        // User login
-        user_login_finalize($user);
-
-        _user_mail_notify('register_no_approval_required', $user, 'en');
-
-        $response_array['result']   = TRUE;
-        $response_array['execution_time']   = microtime(true) - $time1;
-
-        $response_array['data']      = $user;
-        return new JsonResponse( $response_array );
       }
     } catch (\Throwable $e) {
       \Drupal::logger('Login')->notice($e->__toString());
@@ -208,28 +445,28 @@ class API extends ControllerBase {
       $time1    = microtime(true);
 
       $content = json_decode( $request->getContent(), TRUE );
-      $name = trim( $content['name']);
+      $email = strtolower(trim( $content['email']));
 
-      if( empty($name) ){
+      if( empty($email) ){
         $response_array['result'] = FALSE;
         return new JsonResponse( $response_array );
       }
 
       $user = NULL;
-      if(\Drupal::service('email.validator')->isValid( $name )){
-        $user = user_load_by_mail($name);
+      if(\Drupal::service('email.validator')->isValid( $email )){
+        $user = user_load_by_mail($email);
         if(empty( $user )){
           $response_array['result']   = FALSE;
-          $response_array['message']  = t('@email is not recognized an email address.', array('@email' => $name))->__toString();
+          $response_array['message']  = t('@email is not recognized an email address.', array('@email' => $email))->__toString();
           return new JsonResponse( $response_array );
         }
       }else{
-        $user = user_load_by_name($name);
-        if(empty( $user )){
+        // $user = user_load_by_name($email);
+        // if(empty( $user )){
           $response_array['result']   = FALSE;
-          $response_array['message']  = t('@email is not recognized as a username.', array('@email' => $name))->__toString();
+          $response_array['message']  = t('@email is not recognized as a username.', array('@email' => $email))->__toString();
           return new JsonResponse( $response_array );
-        }
+        // }
       }
 
       // $name = $this->requestStack->getCurrentRequest()->query->get('name');
@@ -243,9 +480,11 @@ class API extends ControllerBase {
       //   // No success, try to load by name.
       //   $users =  $this->entityTypeManager->getStorage('user')->loadByProperties(array('name' => $name));
       // }
-      $account = reset($user);
+      // $account = reset($user);
       // Mail one time login URL and instructions using current language.
-      $mail = _user_mail_notify('password_reset', $account, 'en');
+      // $mail = _user_mail_notify('password_reset', $account);
+
+      _user_mail_notify('password_reset', $user, 'en');
 
       // if (!empty($mail)) {
       //   $this->logger->notice('Password reset instructions mailed to %name at %email.', ['%name' => $account->getAccountName(), '%email' => $account->getEmail()]);
@@ -254,6 +493,7 @@ class API extends ControllerBase {
 
       $response_array['result']   = TRUE;
       $response_array['execution_time']   = microtime(true) - $time1;
+      $response_array['$account'] = $user;
       
       // $response['message']  = t('@id | @name |  @email', array('@id'=>$user->id(), '@name' => $user->getUsername(), '@email' => $user->getEmail()))->__toString();
       return new JsonResponse( $response_array );
@@ -468,7 +708,7 @@ class API extends ControllerBase {
       // $response['result']   = FALSE;
       // return new JsonResponse( $response );
     } catch (\Throwable $e) {
-      \Drupal::logger('ResetPassword')->notice($e->__toString());
+      \Drupal::logger('CheckBanlist')->notice($e->__toString());
 
       $response_array['result']   = FALSE;
       $response_array['message']  = $e->__toString();
@@ -556,6 +796,15 @@ class API extends ControllerBase {
       $selling_website = $field_selling_website[0]['value'];
     } 
     $data['selling_website'] = $selling_website;
+
+
+    // field_transfer_date
+    $transfer_date = '';
+    $field_transfer_date = $node->get('field_transfer_date')->getValue();
+    if(!empty($field_transfer_date)){
+      $transfer_date = $field_transfer_date[0]['value'];
+    } 
+    $data['transfer_date'] = $transfer_date;
 
     return $data;
   }
@@ -778,7 +1027,7 @@ class API extends ControllerBase {
       $response_array['execution_time']   = microtime(true) - $time1;
       return new JsonResponse( $response );  
     } catch (\Throwable $e) {
-      \Drupal::logger('ResetPassword')->notice($e->__toString());
+      \Drupal::logger('AddedBanlist')->notice($e->__toString());
 
       $response_array['result']   = FALSE;
       $response_array['message']  = $e->__toString();
@@ -810,13 +1059,7 @@ class API extends ControllerBase {
 
         // Set fulltext search keywords and fields.
         $query->keys($key_word);
-        $query->setFulltextFields([ 'title', 
-                                    'body', 
-                                    'field_sales_person_name', 
-                                    'field_sales_person_surname',
-                                    'field_transfer_amount',
-                                    'field_id_card_number',
-                                    'field_selling_website' ]);
+        // $query->setFulltextFields([ 'body']);
 
 
         // Set additional conditions.
@@ -853,32 +1096,79 @@ class API extends ControllerBase {
         $datas = array();
         foreach ($results as $result) {
 
+          // $title[0]->getText()
           $item = array();
-          $nid    = $result->getField('nid')->getValues();
-          $title  = $result->getField('title')->getValues();
-          $body   = $result->getField('body')->getValues();
-          $transfer_amount = $result->getField('field_transfer_amount')->getValues();  
           
-          $name = $result->getField('field_sales_person_name')->getValues();
-          $surname = $result->getField('field_sales_person_surname')->getValues();
+          $nid = 0;
+          $result_nid    = $result->getField('nid')->getValues();
+          if(!empty($result_nid)){
+            $nid = $result_nid[0];
+          }
+
+          $title  = '';
+          $result_title  = $result->getField('title')->getValues();
+          if(!empty($result_title)){
+            $title = $result_title[0];// ->getText();
+          }
+
+          $body   = '';
+          $result_body   = $result->getField('body')->getValues();
+          if(!empty($result_body)){
+            $body = $result_body[0];//->getText();
+          }
+
+          $transfer_amount = 0;
+          $result_transfer_amount = $result->getField('field_transfer_amount')->getValues();  
+          if(!empty($result_transfer_amount)){
+            $transfer_amount = $result_transfer_amount[0];
+          }
+
+          $name = '';
+          $result_name = $result->getField('field_sales_person_name')->getValues();
+          if(!empty($result_name)){
+            $name = $result_name[0];// ->getText();
+          }
+
+          $surname = '';
+          $result_surname = $result->getField('field_sales_person_surname')->getValues();
+          if(!empty($result_surname)){
+            $surname = $result_surname[0];// ->getText();
+          }
 
           // รูปภาพประกอบ
           $images = array();
-          foreach ($result->getField('field_images')->getValues() as $imi=>$imv){
-            try {
+          try {
+            foreach ($result->getField('field_images')->getValues() as $imi=>$imv){
               $images[] = Utils::get_file_url($imv) ;
-            } catch (\Throwable $e) {
-              \Drupal::logger('SearchApi')->notice($e->__toString());
+
+              \Drupal::logger('SearchApi')->notice($imv);
             }
+          } catch (\Throwable $e) {
+            \Drupal::logger('SearchApi')->notice($e->__toString());
           }
 
+          // field_transfer_date
+          $transfer_date = '';
+          $field_transfer_date = $result->getField('field_transfer_date')->getValues();
+          
+          if(!empty($field_transfer_date)){
+            $transfer_date = $field_transfer_date[0];
+            \Drupal::logger('SearchApi transfer_date')->notice( $transfer_date );
+            // foreach ($transfer_date as $key => $value){
+            //   \Drupal::logger('SearchApi transfer_date')->notice( 'key : ' . $key . ' value : ' . $value );
+            // }
+            
+          }
+
+          // ;
           $item = array('id'      => $nid, 
                         'name'    => $name, 
                         'surname' => $surname, 
                         'title'   => $title,
                         'detail'  => $body,
                         'transfer_amount' => $transfer_amount,
-                        'images'  => $images );
+                        'images'  => $images,
+                        'transfer_date' => empty($transfer_date) ? '' : date('Y-m-d', strtotime($transfer_date))  );
 
           $datas[] = $item;
           
@@ -906,7 +1196,7 @@ class API extends ControllerBase {
 
       return $response;
     } catch (\Throwable $e) {
-      \Drupal::logger('ResetPassword')->notice($e->__toString());
+      \Drupal::logger('SearchApi')->notice($e->__toString());
 
       $response_array['result']   = FALSE;
       $response_array['message']  = $e->__toString();
@@ -978,7 +1268,42 @@ class API extends ControllerBase {
 
       return $response;
     } catch (\Throwable $e) {
-      \Drupal::logger('ResetPassword')->notice($e->__toString());
+      \Drupal::logger('FetchApi')->notice($e->__toString());
+
+      $response_array['result']   = FALSE;
+      $response_array['message']  = $e->__toString();
+      return new JsonResponse( $response_array );
+    }
+  }
+
+  public function UpdateProfile(Request $request){
+    $response_array = array();
+    try {
+      $time1          = microtime(true);
+      $content        = json_decode( $request->getContent(), TRUE );
+      $uid            = trim( $_REQUEST['uid'] );
+
+      if(!empty($_FILES)){
+        $target = 'sites/default/files/'. $_FILES['file']['name'];
+        move_uploaded_file( $_FILES['file']['tmp_name'], $target);
+
+        $file = file_save_data( file_get_contents( $target ), 'public://'. date('m-d-Y_hia') .'_'.mt_rand().'.png' , FileSystemInterface::EXISTS_REPLACE);
+
+        $user = User::load($uid);
+        if(!empty($user)){
+          $user->set('user_picture', $file->id());
+          $user->save();
+        }
+
+        $response_array['image_url']  =  file_create_url($file->getFileUri());
+      }
+
+      $response_array['result']           = TRUE;
+      $response_array['execution_time']   = microtime(true) - $time1;
+      
+      return new JsonResponse( $response_array );
+    } catch (\Throwable $e) {
+      \Drupal::logger('UpdateProfile')->notice($e->__toString());
 
       $response_array['result']   = FALSE;
       $response_array['message']  = $e->__toString();

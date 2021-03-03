@@ -28,6 +28,10 @@ var Buffer = require('buffer/').Buffer
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
 import {API_URL, API_TOKEN} from "@env"
 
 import { NumberFormat } from './Utils'
@@ -50,11 +54,64 @@ class HomeScreen extends Component {
   componentDidMount() {
     // useEffect(() => this.getData(), []);
 
+    const { route, navigation } = this.props;
+
+    let _this = this
+    let _menu = null;
+    navigation.setOptions({
+        headerRight: () => (
+            <View style={{flexDirection:'row'}}>
+              <TouchableOpacity 
+                style={{ marginHorizontal: 10 }}
+                onPress={()=>{
+                  navigation.navigate('search')
+                }}>
+                <Ionicons name="search-outline" size={25} color={'grey'} />
+              </TouchableOpacity>
+              <View style={{}}>
+                        <Menu
+                        ref={(ref) => (_menu = ref)}
+                        button={
+                            <TouchableOpacity 
+                                style={{ marginHorizontal: 10 }}
+                                onPress={()=>{
+                                    _menu.show()
+                            }}>
+                            <MaterialIcons name="more-vert" size={25} color={'grey'}  />
+                            </TouchableOpacity>
+                        }>
+
+                        
+                        <MenuItem onPress={() => {
+                            _menu.hide();
+                            _this.refresh();
+                        }}>
+                            
+                            <View style={{flexDirection:'row', alignItems: 'center',}}>
+                                <MaterialIcons style={{padding:10}} name="cached" size={20} color={'grey'}  />
+                                <Text>Refresh</Text>
+                            </View>
+                        </MenuItem>
+                        </Menu>
+                    </View>
+            </View>
+          )
+    })
+
     this.getData()
 
     this.renderItem = this.renderItem.bind(this)
 
     this.saveData()
+  }
+
+  refresh = () =>{
+    this.setState({
+      data:[],
+      nid_last: 0,
+    },() => {
+      this.getData()
+    });
   }
 
   saveData = async () => {
@@ -152,8 +209,6 @@ class HomeScreen extends Component {
 
   renderItem = (item) =>{
       const { navigation } = this.props;
-
-      console.log(item.transfer_amount)
       return (
           <TouchableOpacity 
               key={Math.floor(Math.random() * 100) + 1}
@@ -175,6 +230,11 @@ class HomeScreen extends Component {
               <View style={{flexDirection:'row'}}>
                 <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
                 <Text>{item.transfer_amount}</Text>
+              </View>
+              {/* transfer_date */}
+              <View style={{flexDirection:'row'}}>
+                <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
+                <Text>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
               </View>
               <View style={{flexDirection:'column'}}>
                 <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>

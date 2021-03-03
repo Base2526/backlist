@@ -104,6 +104,7 @@ class SearchScreen extends Component {
 
           if(datas && datas.length > 0){
 
+            console.log(datas)
             _this.setState({spinner: false, execution_time, datas:[ ..._this.state.datas, ...datas], count, loading: false});
           }else{
 
@@ -113,7 +114,7 @@ class SearchScreen extends Component {
           
         }else{
           // false
-          console.log('false');
+          console.log(results);
 
           _this.setState({spinner: false, loading: false})
         }
@@ -154,6 +155,10 @@ class SearchScreen extends Component {
               <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
               <Text>{NumberFormat(Number(item.transfer_amount))}</Text>
             </View>
+            <View style={{flexDirection:'row'}}>
+                    <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
+                    <Text>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
+                </View>
             <View style={{flexDirection:'column'}}>
               <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
               <Text>{item.detail}</Text>

@@ -18,17 +18,9 @@ import {
   TextInput,
   ActivityIndicator,
   FlatList,
-  Image 
+  Image,
+  Keyboard
 } from 'react-native';
-
-// import {
-//   Header,
-//   LearnMoreLinks,
-//   Colors,
-//   DebugInstructions,
-//   ReloadInstructions,
-// } from 'react-native/Libraries/NewAppScreen';
-
 
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
@@ -36,13 +28,17 @@ var Buffer = require('buffer/').Buffer
 import {API_URL, API_TOKEN} from "@env"
 
 import Spinner from 'react-native-loading-spinner-overlay';
+import Toast, {DURATION} from 'react-native-easy-toast'
 
-// import { StyleSheet, Text, View, FlatList, Image, TouchableOpacity } from 'react-native';
+import { ValidateEmail, isEmpty } from './Utils'
 
 class SignUp extends Component {
   constructor(props) {
     super(props);
-    this.state = {name:'', email:'', password:'', confirm_password:''};
+    this.state = {name:'', 
+                  email:'', 
+                  password:'', 
+                  confirm_password:''};
   }
 
   componentDidMount() {
@@ -50,10 +46,78 @@ class SignUp extends Component {
 
   handleSignUp= () =>{
     console.log('handleSignUp')
+     // Hide that keyboard!
+    Keyboard.dismiss()
+
+    let {name, email, password, confirm_password} = this.state
+    name      = name.trim();
+    email     = email.trim();
+    password  = password.trim();
+    confirm_password = confirm_password.trim();
+
+    if( isEmpty(name) && isEmpty(email) && isEmpty(password) && isEmpty(confirm_password) ){
+      this.toast.show('Name && Email && Password && Confirm password empty');
+    }else if( isEmpty(name) ){
+      this.toast.show('Name empty');
+    }else if( isEmpty(email) ){
+      this.toast.show('Email empty');
+    }else if( isEmpty(password) && isEmpty(confirm_password) ){
+      this.toast.show('Password && Confirm password empty');
+    }else if( isEmpty(password) ){
+      this.toast.show('Password empty');
+    }else if( isEmpty(confirm_password) ){
+      this.toast.show('Confirm password empty');
+    }else if(password != confirm_password){
+      this.toast.show('Password && Confirm password not match');
+    }else if(!ValidateEmail(email)){
+      this.toast.show('Email Field is Invalid');
+    }else{
+      this.setState({spinner: true});
+
+      let _this =this
+
+      
+      axios.post(`${API_URL}/api/register?_format=json`, {
+        type: 0,
+        name,
+        email,
+        password
+      }/*, {
+        headers: { 
+          'Authorization': `Basic ${API_TOKEN}` 
+        }
+      }*/
+      )
+      .then(function (response) {
+        let results = response.data
+        console.log(results)
+        if(results.result){
+          // true
+          console.log('true');
+          console.log(results);
+  
+          _this.toast.show('Check email.');
+
+          _this.props.navigation.pop();   
+          _this.setState({spinner: false})
+        }else{
+
+          _this.toast.show(results.message, 500);
+
+          _this.setState({spinner: false})
+        }
+      })
+      .catch(function (error) {
+
+        console.log(error)
+        _this.setState({spinner: false})
+      });
+    }
   }
 
   render(){
     return (
+            <SafeAreaView style={{flex: 1}}>
             <View style={styles.container}>
                 <Text>Name</Text>
               <TextInput
@@ -92,7 +156,20 @@ class SignUp extends Component {
                 onPress={this.handleSignUp}>
                 <Text>Sign Up</Text>
               </TouchableOpacity>
-            </View>)
+
+              <Spinner
+                  visible={this.state.spinner}
+                  textContent={'Loading...'}
+                  textStyle={styles.spinnerTextStyle}/> 
+              <Toast
+                ref={(toast) => this.toast = toast}
+                position='bottom'
+                positionValue={200}
+                fadeInDuration={750}
+                fadeOutDuration={1000}
+                opacity={0.8}/>
+            </View>
+            </SafeAreaView>)
   }
 }
 
@@ -141,6 +218,7 @@ const styles = StyleSheet.create({
   button: {
     alignItems: "center",
     backgroundColor: "#DDDDDD",
+    marginTop:10,
     padding: 10
   },
   listItem:{

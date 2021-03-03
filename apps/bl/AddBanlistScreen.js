@@ -125,7 +125,7 @@ class AddBanlistScreen extends Component {
               </TouchableOpacity>
           </View>
         )
-  })
+    })
   }
 
   getNavigationParams() {

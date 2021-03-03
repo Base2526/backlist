@@ -22,6 +22,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\node\Entity\Node;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Session\AccountInterface;
 
 use Drupal\backlist\Utils\Utils;
 
@@ -215,6 +216,10 @@ function backlist_user_insert(EntityInterface $entity) {
       // $entity->setPassword( $entity->get('field_password')->getValue()[0]['value'] );
       $entity->set('field_type_login', 28);
       $entity->set('field_display_name', $entity->getDisplayName());
+
+      if($entity->isNew()) {
+        $entity->addRole(AccountInterface::AUTHENTICATED_ROLE);
+      }
       $entity->save();
       break;
     }
@@ -551,3 +556,9 @@ function backlist_preprocess_image_widget(&$variables) {
 function backlist_form_editor_image_dialog_alter(&$form, FormStateInterface $form_state, $form_id) {
   $form['attributes']['alt']['#required'] = FALSE;
 }
+
+// function backlist_user_presave(EntityInterface $entity) {
+//   if($entity->isNew()) {
+//     $entity->addRole(\Drupal\Core\Session\AccountInterface::AUTHENTICATED_ROLE);
+//   }
+// }

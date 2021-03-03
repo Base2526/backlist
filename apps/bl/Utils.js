@@ -15,3 +15,7 @@ export function ValidateEmail(email){
     }
     return true;
 }
+
+export function isEmpty(val){
+    return (val === undefined || val == null || val.length <= 0) ? true : false;
+}

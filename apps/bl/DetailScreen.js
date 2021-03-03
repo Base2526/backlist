@@ -14,6 +14,8 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 
 import Toast, {DURATION} from 'react-native-easy-toast'
 
+import Share from 'react-native-share';
+
 import { NumberFormat } from './Utils'
 
 // https://reactnativecode.com/popup-menu-overflow-menu-in-react-navigation/
@@ -54,7 +56,7 @@ export default class DetailScreen extends React.Component {
                         onPress={()=>{
                             _this.toast.show('favorite');
                         }}>
-                        <MaterialIcons name="star" size={28} color={'grey'}  />
+                        <MaterialIcons name="star" size={25} color={'grey'}  />
                     </TouchableOpacity>
                         <View style={{marginRight: 5}}>
                             <Menu
@@ -65,24 +67,64 @@ export default class DetailScreen extends React.Component {
                                     onPress={()=>{
                                         _menu.show()
                                 }}>
-                                <MaterialIcons name="more-vert" size={28} color={'grey'}  />
+                                <MaterialIcons name="more-vert" size={25} color={'grey'}  />
                                 </TouchableOpacity>
                             }>
+
+                            <MenuItem onPress={() => {
+                                _menu.hide();
+                                // _this.toast.show('Share');
+
+                                // Share.open(options)
+                                // .then((res) => {
+                                //     console.log(res);
+                                // })
+                                // .catch((err) => {
+                                //     err && console.log(err);
+                                // });
+
+
+                                const shareOptions = {
+                                    title: 'Share Banlist',
+                                    // email: 'email@example.com',
+                                    // social: Share.Social.EMAIL,
+                                    // failOnCancel: false,
+                                    // urls: [images.image1, images.image2],
+                                    url: route.params.data.link,
+                                    failOnCancel: false,
+                                };
+
+                                  Share.open(shareOptions)
+                                    .then((res) => {
+                                        console.log(res);
+                                    })
+                                    .catch((err) => {
+                                        err && console.log(err);
+                                    });
+                              
+                                //   try {
+                                //     const ShareResponse = await Share.open(shareOptions);
+                                //     setResult(JSON.stringify(ShareResponse, null, 2));
+                                //   } catch (error) {
+                                //     console.log('Error =>', error);
+                                //     setResult('error: '.concat(getErrorString(error)));
+                                //   }
+                            }}>
+                                <View style={{flexDirection:'row', alignItems: 'center',}}>
+                                    <MaterialIcons style={{paddingRight:10}} name="share" size={20} color={'grey'}  />
+                                    <Text>Share</Text>
+                                </View>
+                            </MenuItem>
                             <MenuItem onPress={() => {
                                 _menu.hide();
                                 _this.toast.show('report');
                             }}>
-                                Report
+                                
+                                <View style={{flexDirection:'row', alignItems: 'center',}}>
+                                    <MaterialIcons style={{paddingRight:10}} name="report" size={20} color={'grey'}  />
+                                    <Text>Report</Text>
+                                </View>
                             </MenuItem>
-                    
-                            {/* <MenuItem >Disabled Menu Item 2</MenuItem>
-                    
-                            <MenuDivider />
-                    
-                            <MenuItem onPress={() => {Alert.alert('PopUp Menu Button Clicked...')}}>
-                                Menu Item 3
-                            </MenuItem> */}
-                    
                             </Menu>
                         </View>
                 </View>
@@ -121,7 +163,7 @@ export default class DetailScreen extends React.Component {
                         this.setState({modalVisible: true, init_index: index})
                     }}>
                     <Image
-                        style={{width:80, height:80, resizeMode: 'cover',}}
+                        style={{width:80, height:80, resizeMode: 'cover', borderRadius: 15,}}
                         source={{
                             uri: item.url,
                         }}/>
@@ -154,6 +196,10 @@ export default class DetailScreen extends React.Component {
                 <View style={{flexDirection:'row'}}>
                     <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
                     <Text>{NumberFormat(Number(transfer_amount))}</Text>
+                </View>
+                <View style={{flexDirection:'row'}}>
+                    <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
+                    <Text>{data.transfer_date ==='' ? '-' : data.transfer_date}</Text>
                 </View>
                 <View style={{flexDirection:'column'}}>
                     <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
@@ -225,6 +271,7 @@ const styles = StyleSheet.create({
   },
   item: {
     // backgroundColor: '#4D243D',
+    
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,

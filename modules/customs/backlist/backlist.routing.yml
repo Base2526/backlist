@@ -152,6 +152,16 @@ api.reset_password:
   requirements:
     _permission: 'access content'
 
+api.update_profile:
+  path: '/api/update_profile'
+  methods: [POST]
+  defaults: 
+    _controller: '\Drupal\backlist\Controller\API::UpdateProfile'
+  requirements: 
+    _role: 'authenticated+administrator'
+  options:
+    _auth: ['basic_auth']
+
 # api.every_day:
 #   path: '/api/every_day'
 #   methods: [GET]

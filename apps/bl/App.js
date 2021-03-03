@@ -49,13 +49,17 @@ import DetailScreen from './DetailScreen'
 import MeScreen from './MeScreen'
 import ForgotPassword from './ForgotPassword'
 import SignUp from './SignUp'
+import Profile from './profile/Profile'
+
+import Setting from './setting/Setting'
 
 import {API_URL, API_TOKEN} from "@env"
-
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
 const MeStack = createStackNavigator();
+
+const ProfileStack = createStackNavigator()
 
 function HomeStackScreen({navigation, route}) {
   useLayoutEffect(() => {
@@ -93,7 +97,7 @@ function HomeStackScreen({navigation, route}) {
         <HomeStack.Screen
           name="search"
           component={SearchScreen}
-          options={{  title: 'Search' }}
+          options={{  title: 'Search',  /*headerStyle: { backgroundColor: 'gray',} */ }}
           // options={{ title: 'Banlist.info' }}
           // options={{
           //   title: 'My home',
@@ -187,7 +191,7 @@ function HomeStackScreen({navigation, route}) {
 function MeStackScreen({navigation, route}) {
   useLayoutEffect(() => {
     const routeName = getFocusedRouteNameFromRoute(route);
-    if ( routeName === "forgot_password" || routeName === "sign_up" ){
+    if ( routeName === "forgot_password" || routeName === "sign_up" || routeName == "setting" ){
         navigation.setOptions({tabBarVisible: false});
     }else {
         navigation.setOptions({tabBarVisible: true});
@@ -198,7 +202,7 @@ function MeStackScreen({navigation, route}) {
     <MeStack.Navigator>
         <MeStack.Screen 
           name="me" 
-          component={MeScreen} 
+          component={Profile} 
           options={{ title: 'Me', tabBarVisible: false, }}
         />
         <MeStack.Screen 
@@ -211,8 +215,30 @@ function MeStackScreen({navigation, route}) {
           component={SignUp} 
           options={{ title: 'Sign Up' }}
         />
+
+        {/* Profile */}
+        <MeStack.Screen 
+          name="setting" 
+          component={Setting} 
+          options={{ title: 'Setting' }}
+        />
     </MeStack.Navigator>
   );
+}
+
+function ProfileStackScreen() {
+  return (
+    <ProfileStack.Navigator
+      screenOptions={{
+        headerShown: false
+      }}
+    >
+      <ProfileStack.Screen 
+        options={{ title: 'Profile', tabBarVisible: false, }}
+        name="Profile" component={Profile} 
+      />
+    </ProfileStack.Navigator>
+  )
 }
 
 class App extends Component {
@@ -251,6 +277,7 @@ class App extends Component {
         }}>
           <Tab.Screen name="Home" component={HomeStackScreen} />
           <Tab.Screen name="Me" component={MeStackScreen} />
+          {/* <Tab.Screen name="Profile" component={ProfileStackScreen} /> */}
         </Tab.Navigator>
       </NavigationContainer>
     )

@@ -1,0 +1,28 @@
+version: "3"
+services:
+  postgres:
+    image: postgres:10
+    container_name: pg_banlist
+    # volumes: 
+    #   - ./:/home
+    #   - ./postgresql.conf:/etc/postgresql/postgresql.conf
+    volumes:
+      - ./postgresql:/var/lib/postgresql
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf
+    environment:
+      POSTGRES_DB: banlist
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    restart: always
+  pgadmin:
+    image: dpage/pgadmin4:3.6
+    container_name: pgadmin_banlist
+    ports:
+      - 7777:80
+    # volumes:
+    #   - ./pgadmin:/var/lib/pgadmin/storage
+    environment:
+      PGADMIN_DEFAULT_EMAIL: postgres
+      PGADMIN_DEFAULT_PASSWORD: postgres
+    hostname: pgadmin4
+    restart: always
