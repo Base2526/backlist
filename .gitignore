@@ -23,3 +23,4 @@ google4a78161938c3c95a.html
 .env
 config_db/.env
 apps/bl/.env
+redis/.env
