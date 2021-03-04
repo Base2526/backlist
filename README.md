@@ -370,3 +370,7 @@ dpm($data);
  https://github.com/jacklam718/react-native-modals
 
 
+ Delete file on git server
+ https://stackoverflow.com/questions/38983153/git-ignore-env-files-not-working
+
+
