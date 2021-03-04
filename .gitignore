@@ -4,7 +4,7 @@ vendor
 .git
 pgadmin
 var
-redis
+# redis
 
 apps/bl/node_modules
 apps/bl/ios/Pods
