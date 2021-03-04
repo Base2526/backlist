@@ -24,3 +24,6 @@ google4a78161938c3c95a.html
 config_db/.env
 apps/bl/.env
 redis/.env
+
+nodejs/node_modules
+nodejs/mongodb
