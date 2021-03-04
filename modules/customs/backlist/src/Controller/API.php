@@ -833,6 +833,16 @@ class API extends ControllerBase {
       
       $time1    = microtime(true);
 
+      // $response_array['result']   = TRUE;
+      // $response_array['_REQUEST'] = $_REQUEST;
+      // $response_array['_FILES']   = $_FILES;
+
+      // $response_array['items_merchant_bank_account']   =json_decode($_REQUEST['items_merchant_bank_account']);
+
+      // $response_array['total'] = count($_FILES['files']['name']);
+      // $response_array['execution_time']   = microtime(true) - $time1;
+      // return new JsonResponse( $response_array ); 
+
       // if ( Utils::verify($request, FALSE) ) {
 
 
@@ -928,18 +938,45 @@ class API extends ControllerBase {
       transfer_date  : วันโอนเงิน
       details        : รายละเอียดเพิ่มเติม
       */
-      $content        = json_decode( $request->getContent(), TRUE );
 
-      $product_type   = trim( $content['product_type'] );       // สินค้า/ประเภท
-      $transfer_amount= trim( $content['transfer_amount'] );    // ยอดเงิน
-      $person_name    = trim( $content['person_name'] );        // ชื่อบัญชี ผู้รับเงินโอน
-      $person_surname = trim( $content['person_surname'] );     // นามสกุล ผู้รับเงินโอน
-      $id_card_number = trim( $content['id_card_number'] );     // เลขบัตรประชาชนคนขาย
-      $selling_website= trim( $content['selling_website'] );    // เว็บไซด์ประกาศขายของ
-      $transfer_date  = trim( $content['transfer_date'] );      // วันโอนเงิน
-      $details        = trim( $content['details'] );            // รายละเอียดเพิ่มเติม
-      $merchant_bank_account   = $content['merchant_bank_account']; // บัญชีธนาคารคนขาย
-      $images         = $content['images'];            // รูปภาพประกอบ
+      /*
+      $uid            = trim( $_REQUEST['uid'] );
+
+      if(!empty($_FILES)){
+        $target = 'sites/default/files/'. $_FILES['file']['name'];
+        move_uploaded_file( $_FILES['file']['tmp_name'], $target);
+
+        $file = file_save_data( file_get_contents( $target ), 'public://'. date('m-d-Y_hia') .'_'.mt_rand().'.png' , FileSystemInterface::EXISTS_REPLACE);
+
+        $user = User::load($uid);
+        if(!empty($user)){
+          $user->set('user_picture', $file->id());
+          $user->save();
+        }
+
+        $response_array['image_url']  =  file_create_url($file->getFileUri());
+      }
+      */
+
+      // $content        = json_decode( $request->getContent(), TRUE );
+
+      $product_type   = trim( $_REQUEST['product_type'] );       // สินค้า/ประเภท
+      $transfer_amount= trim( $_REQUEST['transfer_amount'] );    // ยอดเงิน
+      $person_name    = trim( $_REQUEST['person_name'] );        // ชื่อบัญชี ผู้รับเงินโอน
+      $person_surname = trim( $_REQUEST['person_surname'] );     // นามสกุล ผู้รับเงินโอน
+      $id_card_number = trim( $_REQUEST['id_card_number'] );     // เลขบัตรประชาชนคนขาย
+      $selling_website= trim( $_REQUEST['selling_website'] );    // เว็บไซด์ประกาศขายของ
+      $transfer_date  = trim( $_REQUEST['transfer_date'] );      // วันโอนเงิน
+      $details        = trim( $_REQUEST['detail'] );            // รายละเอียดเพิ่มเติม
+      $merchant_bank_account   = json_decode($_REQUEST['merchant_bank_account']); // บัญชีธนาคารคนขาย
+      // $images         = $content['images'];            // รูปภาพประกอบ
+      
+      // $response_array['result']   = TRUE;
+      // $response_array['execution_time']   = microtime(true) - $time1;
+      // $response_array['merchant_bank_account'] = $merchant_bank_account;
+      // $response_array['eee'] = $_REQUEST['merchant_bank_account'];
+      // return new JsonResponse( $response_array ); 
+
       /*
           { "product_type"   : "product_type 1",
             "transfer_amount": 500,
@@ -963,6 +1000,11 @@ class API extends ControllerBase {
           empty(trim($details)) ){
 
         $response_array['result']   = FALSE;
+        $response_array['product_type']   = $product_type;
+        $response_array['person_name']   = $person_name;
+        $response_array['person_surname']   = $person_surname;
+        $response_array['transfer_date']   = $transfer_date;
+        $response_array['details']   = $details;
         $response_array['message']  = 'Empty product_type or person_name or person_surname or transfer_date or details';
         // $response['execution_time']   = microtime(true) - $time1;
         return new JsonResponse( $response_array );  
@@ -972,20 +1014,46 @@ class API extends ControllerBase {
       foreach ($merchant_bank_account as $ii=>$vv){
         $item_merchant = Paragraph::create([
           'type'                    => 'item_merchant_bank_account',
-          'field_bank_account'      => $vv["bank_account"],
-          'field_bank_wallet'       => $vv["bank_wallet"], 
+          'field_bank_account'      => $vv->bank_account,
+          'field_bank_wallet'       => $vv->bank_wallet, 
         ]);
         $item_merchant->save();
         $merchant_bank_account_paragraphs[] = array('target_id'=> $item_merchant->id(), 'target_revision_id' => $item_merchant->getRevisionId());
       }
       
+      // $images_fids = array();
+      // foreach ($images as $imi=>$imv){
+      //   $file = file_save_data(base64_decode($imv['image']), 'public://'. date('m-d-Y_hia') . '.' . ( empty($imv['extension']) ? 'png': $imv['extension']), FileSystemInterface::EXISTS_RENAME);
+      //   $images_fids[] = array(
+      //     'target_id' => $file->id(),
+      //     'alt' => '',
+      //     'title' => empty($imv['name']) ? '' : $imv['name']
+      //   );
+      // }
+
       $images_fids = array();
-      foreach ($images as $imi=>$imv){
-        $file = file_save_data(base64_decode($imv['image']), 'public://'. date('m-d-Y_hia') . '.' . ( empty($imv['extension']) ? 'png': $imv['extension']), FileSystemInterface::EXISTS_RENAME);
+
+      $total = count($_FILES['files']['name']);
+      // Loop through each file
+      for( $i=0 ; $i < $total ; $i++ ) {
+
+        $target = 'sites/default/files/'. $_FILES['files']['name'][$i];
+        move_uploaded_file( $_FILES['files']['tmp_name'][$i], $target);
+
+        $file = file_save_data( file_get_contents( $target ), 'public://'. date('m-d-Y_hia') .'_'.mt_rand().'.png' , FileSystemInterface::EXISTS_REPLACE);
+
+        // $user = User::load($uid);
+        // if(!empty($user)){
+        //   $user->set('user_picture', $file->id());
+        //   $user->save();
+        // }
+
+        // $response_array['image_url']  =  file_create_url($file->getFileUri());
+
         $images_fids[] = array(
           'target_id' => $file->id(),
           'alt' => '',
-          'title' => empty($imv['name']) ? '' : $imv['name']
+          'title' => empty($_FILES['files']['name'][$i]) ? '' : $_FILES['files']['name'][$i]
         );
       }
 
@@ -1025,7 +1093,7 @@ class API extends ControllerBase {
       $response_array['result']   = TRUE;
       // $response['content']  = $content;
       $response_array['execution_time']   = microtime(true) - $time1;
-      return new JsonResponse( $response );  
+      return new JsonResponse( $response_array );  
     } catch (\Throwable $e) {
       \Drupal::logger('AddedBanlist')->notice($e->__toString());
 
@@ -1034,26 +1102,6 @@ class API extends ControllerBase {
       return new JsonResponse( $response_array );
     }
   }
-
-  // public function EveryDay(Request $request){
-  //   $response = array();
-  //   $time1    = microtime(true);
-
-  //   $key = \Drupal::request()->query->get('key');
-  //   if(empty($key) || $key != 'YmFubGlzdC5pbmZv'){
-  //     $response['result']   = FALSE;
-  //     return new JsonResponse( $response );  
-  //   }
-
-  //   \Drupal::logger('EveryDay')->notice('Cron EveryDay > %time', array( '%time' => (new DateTime())->format('Y-m-d H:i:s') ));
-   
-  //   // Check is facebook long live token expired.
-  //   Utils::Expired_FBLongLivedAccessToken();
-
-  //   $response['result']   = TRUE;
-  //   $response['execution_time']   = microtime(true) - $time1;
-  //   return new JsonResponse( $response );  
-  // }
 
   public function SearchApi(Request $request){
     $response_array = array();

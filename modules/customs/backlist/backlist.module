@@ -242,6 +242,10 @@ function backlist_node_insert(Node $node) {
   }
 }
 
+function backlist_comment_insert(EntityInterface $entity) {
+  \Drupal::logger('backlist_comment_insert')->error( "1" );
+}
+
 /*
 * hook_ENTITY_TYPE_update()
 */

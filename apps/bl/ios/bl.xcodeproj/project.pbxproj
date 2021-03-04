@@ -761,7 +761,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.bl;
+				PRODUCT_BUNDLE_IDENTIFIER = mrx.bl;
 				PRODUCT_NAME = bl;
 				SWIFT_OBJC_BRIDGING_HEADER = "bl-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -784,7 +784,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.bl;
+				PRODUCT_BUNDLE_IDENTIFIER = mrx.bl;
 				PRODUCT_NAME = bl;
 				SWIFT_OBJC_BRIDGING_HEADER = "bl-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
