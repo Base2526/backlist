@@ -19,3 +19,5 @@ export function ValidateEmail(email){
 export function isEmpty(val){
     return (val === undefined || val == null || val.length <= 0) ? true : false;
 }
+
+export function toTimestamp(strDate){ var datum = Date.parse(strDate); return datum/1000;}
