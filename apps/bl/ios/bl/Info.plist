@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>bl</string>
+	<string>Banlist</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -23,18 +23,29 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>banlist.info</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>693724870615-sctm232nea5uoce5us2l5le0mj7bi77p.apps.googleusercontent.com</string>
+				<string>fb792332228296675</string>
 			</array>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>FacebookAdvertiserIDCollectionEnabled</key>
+	<string>TRUE</string>
+	<key>FacebookAppID</key>
+	<string>792332228296675</string>
+	<key>FacebookAutoLogAppEventsEnabled</key>
+	<string>TRUE</string>
+	<key>FacebookDisplayName</key>
+	<string>Banlist.info</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>fbapi</string>
+		<string>fb-messenger-share-api</string>
+		<string>fbauth2</string>
+		<string>fbshareextension</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -92,42 +103,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-  
-  <key>CFBundleURLTypes</key>
-  <array>
-    <dict>
-      <key>CFBundleURLSchemes</key>
-      <array>
-        <string>fb{your-app-id}</string>
-      </array>
-    </dict>
-  </array>
-  <key>FacebookAppID</key>
-  <string>792332228296675</string>
-  <key>FacebookDisplayName</key>
-  <string>Banlist.info</string>
-  
-  <key>CFBundleURLTypes</key>
-  <array>
-      <dict>
-          <key>CFBundleURLSchemes</key>
-          <array>
-              <string>fb792332228296675</string>
-          </array>
-      </dict>
-  </array>
-  <key>LSApplicationQueriesSchemes</key>
-  <array>
-    <string>fbapi</string>
-    <string>fb-messenger-share-api</string>
-    <string>fbauth2</string>
-    <string>fbshareextension</string>
-  </array>
-  
-  <key>FacebookAutoLogAppEventsEnabled</key>
-  <string>TRUE</string>
-  <key>FacebookAdvertiserIDCollectionEnabled</key>
-  <string>TRUE</string>
-  
 </dict>
 </plist>

@@ -1,4 +1,4 @@
-package com.bl;
+package mrx.bl;
 
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -32,7 +32,7 @@ public class MainActivity extends ReactActivity {
     super.onCreate(savedInstanceState);
 
     try {
-      PackageInfo info = getPackageManager().getPackageInfo("com.bl", PackageManager.GET_SIGNATURES);
+      PackageInfo info = getPackageManager().getPackageInfo("mrx.bl", PackageManager.GET_SIGNATURES);
       for (Signature signature : info.signatures) {
         MessageDigest md = MessageDigest.getInstance("SHA");
         md.update(signature.toByteArray());
