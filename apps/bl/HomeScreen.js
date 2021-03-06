@@ -32,6 +32,8 @@ import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
+
+
 import {API_URL, API_TOKEN} from "@env"
 
 import { NumberFormat } from './Utils'
@@ -47,7 +49,12 @@ class HomeScreen extends Component {
                   loading: false,
                   nid_last: 0,
 
-                  selected: false
+                  selected: false,
+
+
+
+                  chatMessage: "",
+                  chatMessages: []
                   };
   }
 
@@ -103,6 +110,7 @@ class HomeScreen extends Component {
     this.renderItem = this.renderItem.bind(this)
 
     this.saveData()
+
   }
 
   refresh = () =>{

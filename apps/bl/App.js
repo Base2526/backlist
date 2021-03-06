@@ -15,7 +15,8 @@ import {
   Text,
   StatusBar,
   TouchableOpacity,
-  Button
+  Button,
+  Platform
 } from 'react-native';
 
 import {
@@ -26,19 +27,17 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-// 
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
-
 const axios = require('axios');
 import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-
 import { SearchBar } from 'react-native-elements';
-
 import SplashScreen from 'react-native-splash-screen'
+import io from 'socket.io-client';
+var Buffer = require('buffer/').Buffer
+
+import { getUniqueId, getVersion } from 'react-native-device-info';
 
 import HomeScreen from './HomeScreen';
 import SearchScreen from './SearchScreen';
@@ -53,7 +52,9 @@ import Profile from './profile/Profile'
 
 import Setting from './setting/Setting'
 
-import {API_URL, API_TOKEN} from "@env"
+import {API_URL_SOCKET_IO} from "@env"
+
+import { Base64 } from './Utils'
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -245,17 +246,24 @@ class App extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {name: "", surname: "", bank_account: ""};
   }
 
   componentDidMount() {
     SplashScreen.hide();
+
+    this.onSocket()
   }
 
-  handleSearch= () => {
-    console.log(this.state.name);
-    console.log(this.state.surname);
-    console.log(this.state.bank_account);
+  // https://github.com/vinnyoodles/react-native-socket-io-example/blob/master/client/index.js
+  onSocket = () =>{
+
+    console.log(API_URL_SOCKET_IO)
+    this.socket = io(API_URL_SOCKET_IO, { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${Base64.btoa(getUniqueId())}&version=${getVersion()}` });
+    this.socket.on('message', (data)=>{
+      console.log('-message>')
+      console.log(data)
+      console.log('<message-')
+    });
   }
 
   render(){
@@ -281,25 +289,6 @@ class App extends Component {
         </Tab.Navigator>
       </NavigationContainer>
     )
-    // return (<NavigationContainer>
-    //           <Stack.Navigator>
-    //             <Stack.Screen
-    //               name="search"
-    //               component={SearchScreen}
-    //               options={{ title: 'Banlist.info' }}
-    //             />
-    //             <Stack.Screen 
-    //               name="result" 
-    //               component={ResultScreen}
-    //               options={{ title: 'Result Search' }}
-    //             />
-    //             <Stack.Screen 
-    //               name="add_banlist" 
-    //               component={AddBanlistScreen} 
-    //               options={{ title: 'Add Banlist' }}
-    //             />
-    //           </Stack.Navigator>
-    //         </NavigationContainer>)
   }
 }
 

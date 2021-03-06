@@ -25,6 +25,7 @@
     "react-native-action-button": "file:./modules/react-native-action-button",
     "react-native-actionsheet": "^2.4.2",
     "react-native-autocomplete-input": "^4.2.0",
+    "react-native-device-info": "^8.0.2",
     "react-native-dotenv": "^2.5.3",
     "react-native-dropdown-picker": "^3.8.0",
     "react-native-easy-toast": "^2.0.0",
@@ -45,7 +46,8 @@
     "react-native-vector-icons": "^7.1.0",
     "react-redux": "^7.2.2",
     "redux": "^4.0.5",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "socket.io-client": "^3.1.2"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",
