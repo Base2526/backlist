@@ -22,17 +22,6 @@ import {
   Image ,
 } from 'react-native';
 
-// import Modal, {
-//   ModalTitle,
-//   ModalContent,
-//   ModalFooter,
-//   ModalButton,
-//   SlideAnimation,
-//   ScaleAnimation,
-//   BottomModal,
-//   ModalPortal,
-// } from 'react-native-modals';
-
 import Modal from 'react-native-modal';
 
 import {
@@ -333,6 +322,93 @@ class HomeScreen extends Component {
     }
   }
 
+  modalLogin(){
+    return(
+      <Modal
+      testID={'modal'}
+      isVisible={this.state.bottomModalAndTitle}
+      onSwipeComplete={this.close}
+      // swipeDirection={['up', 'left', 'right', 'down']}
+      style={{justifyContent: 'flex-end', margin: 0,}}
+      backdropOpacity={0.5}
+      onBackdropPress={() => {
+        this.setState({ bottomModalAndTitle: false })
+      }}>
+      <SafeAreaView style={{backgroundColor: 'white'}}>
+      <View style={{ backgroundColor:'white', padding:10}}>
+
+      <View style={{ flexDirection: 'column', 
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      paddingBottom:10}}>
+       <Text style={{fontSize:24}}>
+         Sign up for Banlist
+       </Text>
+       <Text style={{ textAlign: 'center', fontSize:16}}>
+         Create a profile, favorite, share, report criminals and more...
+       </Text>
+      </View>
+
+      <TouchableOpacity
+          style={{   
+            marginTop:10,      
+            borderColor:'gray',
+            borderWidth:.5 
+          }}
+          onPress={()=>{
+
+            this.setState({ bottomModalAndTitle: false }, ()=>{
+              navigation.navigate('login')
+            })
+            
+          }}>
+          <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
+          <Ionicons name="person-outline" size={25} color={'grey'} />
+          <Text style={{paddingLeft:10}}>Use phone or email</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{   
+            marginTop:10,      
+            borderColor:'gray',
+            borderWidth:.5 
+          }}
+          onPress={()=>{
+
+            this.setState({ bottomModalAndTitle: false }, ()=>{
+              this.handleLoginWithFacebook()
+            })
+            
+          }}>
+          <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
+            <Ionicons name="logo-facebook" size={25} color={'grey'} />
+            <Text style={{paddingLeft:10}}>Login with facebook</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{   
+            marginTop:10,      
+            borderColor:'gray',
+            borderWidth:.5 
+          }}
+          onPress={()=>{
+
+            this.setState({ bottomModalAndTitle: false }, ()=>{
+              this.handleLoginWithGoogle()
+            })
+            
+          }}>
+          <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
+            <Ionicons name="logo-google" size={25} color={'grey'} />
+            <Text style={{paddingLeft:10}}>Login with google</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+      </SafeAreaView>
+    </Modal>
+    )
+  }
+
   render(){
       const { navigation } = this.props;
       return (
@@ -354,90 +430,7 @@ class HomeScreen extends Component {
                     this.setState({bottomModalAndTitle: true})
                   }}/>
                 
-                <Modal
-                    testID={'modal'}
-                    isVisible={this.state.bottomModalAndTitle}
-                    onSwipeComplete={this.close}
-                    // swipeDirection={['up', 'left', 'right', 'down']}
-                    style={{justifyContent: 'flex-end', margin: 0,}}
-                    backdropOpacity={0.5}
-                    onBackdropPress={() => {
-                      this.setState({ bottomModalAndTitle: false })
-                    }}>
-                    <SafeAreaView style={{backgroundColor: 'white'}}>
-                    <View style={{ backgroundColor:'white', padding:10}}>
-
-                    <View style={{ flexDirection: 'column', 
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    paddingBottom:10}}>
-                     <Text style={{fontSize:24}}>
-                       Sign up for Banlist
-                     </Text>
-                     <Text style={{ textAlign: 'center', fontSize:16}}>
-                       Create a profile, favorite, share, report criminals and more...
-                     </Text>
-                    </View>
-
-                    <TouchableOpacity
-                        style={{   
-                          marginTop:10,      
-                          borderColor:'gray',
-                          borderWidth:.5 
-                        }}
-                        onPress={()=>{
-
-                          this.setState({ bottomModalAndTitle: false }, ()=>{
-                            navigation.navigate('login')
-                          })
-                          
-                        }}>
-                        <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
-                        <Ionicons name="person-outline" size={25} color={'grey'} />
-                        <Text style={{paddingLeft:10}}>Use phone or email</Text>
-                        </View>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={{   
-                          marginTop:10,      
-                          borderColor:'gray',
-                          borderWidth:.5 
-                        }}
-                        onPress={()=>{
-
-                          this.setState({ bottomModalAndTitle: false }, ()=>{
-                            this.handleLoginWithFacebook()
-                          })
-                          
-                        }}>
-                        <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
-                          <Ionicons name="logo-facebook" size={25} color={'grey'} />
-                          <Text style={{paddingLeft:10}}>Login with facebook</Text>
-                        </View>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={{   
-                          marginTop:10,      
-                          borderColor:'gray',
-                          borderWidth:.5 
-                        }}
-                        onPress={()=>{
-
-                          this.setState({ bottomModalAndTitle: false }, ()=>{
-                            this.handleLoginWithGoogle()
-                          })
-                          
-                        }}>
-                        <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
-                          <Ionicons name="logo-google" size={25} color={'grey'} />
-                          <Text style={{paddingLeft:10}}>Login with google</Text>
-                        </View>
-                      </TouchableOpacity>
-                    </View>
-                    </SafeAreaView>
-                  </Modal>
-
-
+                {this.modalLogin()}
 {/* 
                 <BottomModal
                   visible={this.state.bottomModalAndTitle}

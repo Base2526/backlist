@@ -226,7 +226,9 @@ function HomeStackScreen({navigation, route}) {
 function MeStackScreen({navigation, route}) {
   useLayoutEffect(() => {
     const routeName = getFocusedRouteNameFromRoute(route);
-    if ( routeName === "forgot_password" || routeName === "sign_up" || routeName == "setting" ){
+    if (  routeName == "forgot_password" || 
+          routeName == "sign_up" || 
+          routeName == 'login'){
         navigation.setOptions({tabBarVisible: false});
     }else {
         navigation.setOptions({tabBarVisible: true});
@@ -256,6 +258,15 @@ function MeStackScreen({navigation, route}) {
           name="setting" 
           component={SettingsScreen} 
           options={{ title: 'Setting' }}
+        />
+        <MeStack.Screen 
+          name="login" 
+          component={LoginScreen}
+          // options={{ title: 'Result Search',  }}
+          options={{
+            title: 'Login',
+            tabBarVisible: false,
+          }}
         />
     </MeStack.Navigator>
   );
