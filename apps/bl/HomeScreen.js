@@ -21,6 +21,17 @@ import {
   Image ,
 } from 'react-native';
 
+import Modal, {
+  ModalTitle,
+  ModalContent,
+  ModalFooter,
+  ModalButton,
+  SlideAnimation,
+  ScaleAnimation,
+  BottomModal,
+  ModalPortal,
+} from 'react-native-modals';
+
 import ActionButton from 'react-native-action-button';
 
 const axios = require('axios');
@@ -31,8 +42,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
-
 
 import {API_URL, API_TOKEN} from "@env"
 
@@ -278,21 +287,75 @@ class HomeScreen extends Component {
   render(){
       const { navigation } = this.props;
       return (<View style={styles.container}>
-              <FlatList
-                style={{flex:1}}
-                data={this.state.data}
-                renderItem={({ item }) => this.renderItem(item)}
-                enableEmptySections={true}
-                ListFooterComponent={this.renderFooter()}
-                keyExtractor={(item, index) => String(index)}
-                />
-              <ActionButton
-                buttonColor="rgba(231,76,60,1)"
-                onPress={() => { 
-                  navigation.navigate('add_banlist');
-                }}
-              />
-              </View>)
+                <FlatList
+                  style={{flex:1}}
+                  data={this.state.data}
+                  renderItem={({ item }) => this.renderItem(item)}
+                  enableEmptySections={true}
+                  ListFooterComponent={this.renderFooter()}
+                  keyExtractor={(item, index) => String(index)}/>
+                <ActionButton
+                  buttonColor="rgba(231,76,60,1)"
+                  onPress={() => { 
+
+                    // console.log('add_banlist')
+                    // navigation.navigate('add_banlist');
+
+                    this.setState({bottomModalAndTitle: true})
+                  }}/>
+
+                <BottomModal
+                  visible={this.state.bottomModalAndTitle}
+                  onTouchOutside={() => this.setState({ bottomModalAndTitle: false })}
+                  height={0.4}
+                  width={1}
+                  onSwipeOut={() => this.setState({ bottomModalAndTitle: false })}
+                  // modalTitle={
+                  //   <ModalTitle
+                  //     title="Bottom Modal"
+                  //     hasTitleBar
+                  //   />
+                  // }
+                  >
+                  <ModalContent
+                    style={{
+                      flex: 1,
+                      backgroundColor: 'fff',
+                    }}
+                  >
+                  <View style={{flex:1}}>
+                    <View style={{ flexDirection:"row",}}>
+                      <TouchableOpacity
+                        style={{margin:5}}
+                        onPress={this.handleForgotPassword}>
+                        <Text>Forgot Password</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={{margin:5}}
+                        onPress={this.handleSignUp}>
+                        <Text>Sign up</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.button}
+                      onPress={this.handleLoginWithFacebook}>
+                      <Text>Use phone or email</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.button}
+                      onPress={this.handleLoginWithFacebook}>
+                      <Text>Login with facebook</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.button}
+                      onPress={this.signInOnGoogle}>
+                      <Text>Login with google</Text>
+                    </TouchableOpacity>
+                  </View>
+                  </ModalContent>
+                </BottomModal>
+                
+            </View>)
   }
 }
 
@@ -353,6 +416,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  button: {
+    alignItems: "center",
+    backgroundColor: "#DDDDDD",
+    padding: 10,
+    marginTop: 10
   },
 });
 

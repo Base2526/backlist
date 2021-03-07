@@ -27,6 +27,8 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
+import { ModalPortal } from 'react-native-modals';
+
 import Ionicons from 'react-native-vector-icons/Ionicons';
 const axios = require('axios');
 import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
@@ -274,8 +276,8 @@ class App extends Component {
           tabBarIcon: ({ focused, color, size }) => {
             if (route.name === 'Home') {
               return <Ionicons name={'home-outline'} size={size} color={color} />;
-            } else if (route.name === 'Me') {
-              return <Ionicons name={'person-outline'} size={size} color={color} />;
+            } else if (route.name === 'Setting') {
+              return <Ionicons name={'reorder-three-outline'} size={size} color={color} />;
             }        
           },
         })}
@@ -284,9 +286,11 @@ class App extends Component {
           inactiveTintColor: 'gray',
         }}>
           <Tab.Screen name="Home" component={HomeStackScreen} />
-          <Tab.Screen name="Me" component={MeStackScreen} />
+          <Tab.Screen name="Setting" component={MeStackScreen} />
           {/* <Tab.Screen name="Profile" component={ProfileStackScreen} /> */}
         </Tab.Navigator>
+
+        <ModalPortal />
       </NavigationContainer>
     )
   }

@@ -1,6 +1,6 @@
-const mongoose  = require( 'mongoose' );
-const Log       = require('../../models/log');
-const config    = require("./config")
+const mongoose  = require('mongoose');
+const Log       = require('./models/log');
+const config    = require('./config')
 
 mongoose.connect(config.mongo.url);
 

@@ -1,16 +1,18 @@
-version: "3"
+version: "3.3"
 services:
   # banlist:
   #   build: '.'
+  #   # env_file:
+  #   #   - .env
   #   container_name: ${PROJECT_NAME}
   #   ports:
   #     - 80:80
   #     - 443:443
   #   environment:
-  #     - DB_HOST=${DB_HOST}
-  #     - DB_NAME=${DB_NAME}
-  #     - DB_USER_NAME=${DB_USER_NAME}
-  #     - DB_PASSWORD=${DB_PASSWORD}
+  #     - DB_HOST=
+  #     - DB_NAME=
+  #     - DB_USER_NAME=
+  #     - DB_PASSWORD=
   #   volumes:
   #     - ./modules:/opt/drupal/web/sites/default/modules
   #     - ./libraries:/opt/drupal/web/sites/default/libraries
@@ -28,7 +30,7 @@ services:
   #     # - ./files:/opt/drupal/web/sites/default/files
 
   #     # Cloud
-  #     # - /mnt/volume_sgp1_09/banlist.info/files:/opt/drupal/web/sites/default/files
+  #     - /mnt/volume_sgp1_09/banlist.info/files:/opt/drupal/web/sites/default/files
 
   #     # SSL
   #     # - ./000-default.conf:/etc/apache2/sites-available/000-default.conf
@@ -36,68 +38,59 @@ services:
   #     - ./etc/letsencrypt/live/banlist.info:/etc/letsencrypt/live/banlist.info
   #     - ./letsencrypt.conf:/etc/apache2/conf-available/letsencrypt.conf
   #     - ./ssl-params.conf:/etc/apache2/conf-available/ssl-params.conf
-
   #     # google
   #     - ./google4a78161938c3c95a.html:/opt/drupal/web/google4a78161938c3c95a.html
   #   restart: always
 
-  nodejs:
+  njs:
+    image: "njs"
     build: './nodejs'
-    container_name: "nodejs"
+    # command: "node server.js"
+    # ports:
+    #   - "5000:5000"
     ports:
       - "3000:3000"
       - "3001:3001"
       - "9229:9229"
     command:
+      # - node
       - node
       - "--inspect-brk=0.0.0.0"
       - "." 
-    volumes:
-      - ./nodejs:/usr/src/app
-  mongo1:
-    hostname: mongo1
-    container_name: localmongo1
-    image: mongo:4.0-xenial
-    expose:
-      - 27017
-    volumes:
-      - ./nodejs/mongodb/mongo1:/data/db
+    depends_on:
+      - "mongo"
     restart: always
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
-  mongo2:
-    hostname: mongo2
-    container_name: localmongo2
-    image: mongo:4.0-xenial
-    expose:
-      - 27017
+
+  mongo:
+    image: "mongo"
+    # env_file:
+    #   - .env
+
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=
+      - MONGO_INITDB_ROOT_PASSWORD=
     volumes:
-      - ./nodejs/mongodb/mongo2:/data/db
-    restart: always
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
-  mongo3:
-    hostname: mongo3
-    container_name: localmongo3
-    image: mongo:4.0-xenial
-    expose:
-      - 27017
-    volumes:
-      - ./nodejs/mongodb/mongo3:/data/db
-    restart: always
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+      - './nodejs/mongo/data:/data/db'
+    ports:
+      - "27017:27017"
+  # mongo:
+  #   image: "mongo"
+  #   ports:
+  #     - "27017:27017"
+  #   environment:
+  #     - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+  #     - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+  #     - MONGO_INITDB_DATABASE=banlist
   mongo-express:
     image: mongo-express
-    restart: always
-    ports:
-      - 9966:8081
+    # env_file:
+    #   - .env
+    # env_file:  
+    #   - .env   
     environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${ME_CONFIG_MONGODB_ADMINUSERNAME}
-      ME_CONFIG_MONGODB_ADMINPASSWORD: ${ME_CONFIG_MONGODB_ADMINPASSWORD}
-      ME_CONFIG_MONGODB_SERVER: localmongo1  # กรณีเรา set replset เราต้องกำหนด  ME_CONFIG_MONGODB_SERVER ด้วย
-
-  redis:
-    image: redis
-    container_name: redis
-    volumes:
-      - ./nodejs/redis.conf:/usr/local/etc/redis/redis.conf
+      - ME_CONFIG_BASICAUTH_USERNAME=
+      - ME_CONFIG_BASICAUTH_PASSWORD=
+    depends_on:
+      - mongo
     ports:
-      - 6379:6379
+      - "8923:8081"

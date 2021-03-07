@@ -1,19 +1,12 @@
-# docker-nodejs-mongo
+# docker-node-mongo
 
-refer : https://itnext.io/dockerize-a-node-js-app-connected-to-mongodb-64fdeca94797
+## About
+This is a todo web application. It keeps track of chores you need to do and have already done. The purpose for building this web application was to learn about using docker compose to run multiple containers at once which can talk to eachother.
 
-สั่งรัน โดยคำสั่ง
-- npm install
-
-
-Mongoose and Change Streams
-https://thecodebarbarian.com/stock-price-notifications-with-mongoose-and-mongodb-change-streams
+## Running Application Locally
+* ```docker-compose build```
+* ```docker-compose up```
 
 
-สอน mongoose
-https://khasathan.in.th/archives/237/nodejs-and-mongoose-mongodb-odm
+https://github.com/vinnyoodles/react-native-socket-io-example
 
-
-สอน Socket.io : How to send multiple client using socket.id that are connected to socket (Nodejs, Socket.io)
-
-https://stackoverflow.com/questions/50602359/how-to-send-multiple-client-using-socket-id-that-are-connected-to-socket-nodejs
