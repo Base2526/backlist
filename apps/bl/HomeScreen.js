@@ -15,22 +15,25 @@ import {
   Text,
   StatusBar,
   TouchableOpacity,
+  TouchableNativeFeedback,
   TextInput,
   ActivityIndicator,
   FlatList,
   Image ,
 } from 'react-native';
 
-import Modal, {
-  ModalTitle,
-  ModalContent,
-  ModalFooter,
-  ModalButton,
-  SlideAnimation,
-  ScaleAnimation,
-  BottomModal,
-  ModalPortal,
-} from 'react-native-modals';
+// import Modal, {
+//   ModalTitle,
+//   ModalContent,
+//   ModalFooter,
+//   ModalButton,
+//   SlideAnimation,
+//   ScaleAnimation,
+//   BottomModal,
+//   ModalPortal,
+// } from 'react-native-modals';
+
+import Modal from 'react-native-modal';
 
 import {
   LoginButton,
@@ -51,7 +54,9 @@ import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import {API_URL, API_TOKEN} from "@env"
+import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-community/google-signin';
+
+import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID} from "@env"
 
 import { NumberFormat } from './Utils'
 
@@ -128,6 +133,13 @@ class HomeScreen extends Component {
 
     this.saveData()
 
+
+    GoogleSignin.configure({
+      webClientId: WEB_CLIENT_ID,
+      offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
+      forceCodeForRefreshToken: true, // [Android] related to `serverAuthCode`, read the docs link below *.
+      iosClientId: IOS_CLIENT_ID, // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
+    });
   }
 
   refresh = () =>{
@@ -162,23 +174,8 @@ class HomeScreen extends Component {
 //   detail
 
   getData = () => {
-    // console.log('getData');
-    // setLoading(true);
-  //   //Service to get the data from the server to render
-  //   fetch('https://aboutreact.herokuapp.com/getpost.php?offset=' + offset)
-  //     //Sending the currect offset with get request
-  //     .then((response) => response.json())
-  //     .then((responseJson) => {
-  //       // //Successful response from the API Call
-  //       // setOffset(offset + 1);
-  //       // //After the response increasing the offset for the next API call.
-  //       // setDataSource([...dataSource, ...responseJson.results]);
-  //       // setLoading(false);
-  //     })
-  //     .catch((error) => {
-  //       console.error(error);
-  //     });
-
+    console.log('getData');
+   
     let _this     = this;
     let {data, nid_last}  = _this.state;
 
@@ -188,6 +185,7 @@ class HomeScreen extends Component {
       nid_last = data[data.length - 1].id; 
     }
 
+    console.log(API_URL)
     axios.post(`${API_URL}/api/fetch?_format=json`, {
       nid_last,
     }, {
@@ -197,7 +195,7 @@ class HomeScreen extends Component {
     })
     .then(function (response) {
       let results = response.data
-      // console.log()
+      console.log(results)
       if(results.result){
         // true
         // console.log('true');
@@ -228,6 +226,7 @@ class HomeScreen extends Component {
       _this.setState({loading: false})
     })
     .catch(function (error) {
+      console.log(error)
       _this.setState({loading: false})
     });
   }
@@ -293,11 +292,12 @@ class HomeScreen extends Component {
   };
 
   handleLoginWithFacebook= () =>{
-    // console.log('handleLoginWithFacebook')
+    console.log('handleLoginWithFacebook')
 
     // Attempt a login using the Facebook login dialog asking for default permissions.
     LoginManager.logInWithPermissions(["public_profile"]).then(
       function(result) {
+        console.log(result)
         if (result.isCancelled) {
           console.log("Login cancelled");
         } else {
@@ -313,9 +313,30 @@ class HomeScreen extends Component {
     );
   }
 
+  handleLoginWithGoogle = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      console.log(userInfo)
+      // setUser(userInfo)
+    } catch (error) {
+      console.log('Message', error.message);
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        console.log('User Cancelled the Login Flow');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        console.log('Signing In');
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        console.log('Play Services Not Available or Outdated');
+      } else {
+        console.log('Some Other Error Happened');
+      }
+    }
+  }
+
   render(){
       const { navigation } = this.props;
-      return (<View style={styles.container}>
+      return (
+              <View style={styles.container}>
                 <FlatList
                   style={{flex:1}}
                   data={this.state.data}
@@ -332,20 +353,98 @@ class HomeScreen extends Component {
 
                     this.setState({bottomModalAndTitle: true})
                   }}/>
+                
+                <Modal
+                    testID={'modal'}
+                    isVisible={this.state.bottomModalAndTitle}
+                    onSwipeComplete={this.close}
+                    // swipeDirection={['up', 'left', 'right', 'down']}
+                    style={{justifyContent: 'flex-end', margin: 0,}}
+                    backdropOpacity={0.5}
+                    onBackdropPress={() => {
+                      this.setState({ bottomModalAndTitle: false })
+                    }}>
+                    <SafeAreaView style={{backgroundColor: 'white'}}>
+                    <View style={{ backgroundColor:'white', padding:10}}>
 
+                    <View style={{ flexDirection: 'column', 
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    paddingBottom:10}}>
+                     <Text style={{fontSize:24}}>
+                       Sign up for Banlist
+                     </Text>
+                     <Text style={{ textAlign: 'center', fontSize:16}}>
+                       Create a profile, favorite, share, report criminals and more...
+                     </Text>
+                    </View>
+
+                    <TouchableOpacity
+                        style={{   
+                          marginTop:10,      
+                          borderColor:'gray',
+                          borderWidth:.5 
+                        }}
+                        onPress={()=>{
+
+                          this.setState({ bottomModalAndTitle: false }, ()=>{
+                            navigation.navigate('login')
+                          })
+                          
+                        }}>
+                        <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
+                        <Ionicons name="person-outline" size={25} color={'grey'} />
+                        <Text style={{paddingLeft:10}}>Use phone or email</Text>
+                        </View>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={{   
+                          marginTop:10,      
+                          borderColor:'gray',
+                          borderWidth:.5 
+                        }}
+                        onPress={()=>{
+
+                          this.setState({ bottomModalAndTitle: false }, ()=>{
+                            this.handleLoginWithFacebook()
+                          })
+                          
+                        }}>
+                        <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
+                          <Ionicons name="logo-facebook" size={25} color={'grey'} />
+                          <Text style={{paddingLeft:10}}>Login with facebook</Text>
+                        </View>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={{   
+                          marginTop:10,      
+                          borderColor:'gray',
+                          borderWidth:.5 
+                        }}
+                        onPress={()=>{
+
+                          this.setState({ bottomModalAndTitle: false }, ()=>{
+                            this.handleLoginWithGoogle()
+                          })
+                          
+                        }}>
+                        <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
+                          <Ionicons name="logo-google" size={25} color={'grey'} />
+                          <Text style={{paddingLeft:10}}>Login with google</Text>
+                        </View>
+                      </TouchableOpacity>
+                    </View>
+                    </SafeAreaView>
+                  </Modal>
+
+
+{/* 
                 <BottomModal
                   visible={this.state.bottomModalAndTitle}
                   onTouchOutside={() => this.setState({ bottomModalAndTitle: false })}
                   height={0.4}
                   width={1}
-                  onSwipeOut={() => this.setState({ bottomModalAndTitle: false })}
-                  // modalTitle={
-                  //   <ModalTitle
-                  //     title="Bottom Modal"
-                  //     hasTitleBar
-                  //   />
-                  // }
-                  >
+                  onSwipeOut={() => this.setState({ bottomModalAndTitle: false })}>
                   <ModalContent
                     style={{
                       flex: 1,
@@ -365,50 +464,66 @@ class HomeScreen extends Component {
                      </Text>
                     </View>
                     <TouchableOpacity
-                      style={{
-                        alignItems: "center",
-                        backgroundColor: "#DDDDDD",
-                        padding: 10,
-                        flexDirection: 'row',
-                        borderRadius: 10
+                      style={{   
+                        marginTop:10,      
+                        borderColor:'gray',
+                        borderWidth:.5 ,
                       }}
-                      onPress={this.handleLoginWithPhoneOrEmail}>
-                      {/* <ion-icon name="person-outline"></ion-icon> */}
-                      <Ionicons name="person-outline" size={25} color={'grey'} />
-                      <Text>Use phone or email</Text>
+                      onPress={()=>{
+                        // this.handleLoginWithPhoneOrEmail()
+                        this.setState({ bottomModalAndTitle: false })
+                        navigation.navigate('login')
+                        }}>
+                      <TouchableOpacity onPress={()=>{
+                        // this.handleLoginWithPhoneOrEmail()
+                        this.setState({ bottomModalAndTitle: false })
+                        navigation.navigate('login')
+                        }}>
+                        <Ionicons name="person-outline" size={25} color={'grey'} />
+                        <Text style={{paddingLeft:10}}>Use phone or email</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                        onPress={()=>{
+                          // this.handleLoginWithPhoneOrEmail()
+                          this.setState({ bottomModalAndTitle: false })
+                          navigation.navigate('login')
+                          }}>
+                        <Text style={{paddingLeft:10}}>Use phone or email</Text>
+                        </TouchableOpacity>
+                  
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={{
-                        alignItems: "center",
-                        backgroundColor: "#DDDDDD",
-                        padding: 10,
-                        flexDirection: 'row',
-                        marginTop:10,
-                        borderRadius: 10
+                      style={{   
+                        marginTop:10,      
+                        borderColor:'gray',
+                        borderWidth:.5 
                       }}
-                      onPress={this.handleLoginWithFacebook}>
-                        {/* <ion-icon name="logo-facebook"></ion-icon> */}
-                      <Ionicons name="logo-facebook" size={25} color={'grey'} />
-                      <Text>Login with facebook</Text>
+                      onPress={()=>{
+                        this.handleLoginWithFacebook()
+                      }}>
+                      <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
+                        <Ionicons name="logo-facebook" size={25} color={'grey'} />
+                        <Text style={{paddingLeft:10}}>Login with facebook</Text>
+                      </View>
                     </TouchableOpacity>
                     <TouchableOpacity
-                       style={{
-                        alignItems: "center",
-                        backgroundColor: "#DDDDDD",
-                        padding: 10,
-                        flexDirection: 'row',
-                        marginTop:10,
-                        borderRadius: 10
+                      style={{   
+                        marginTop:10,      
+                        borderColor:'gray',
+                        borderWidth:.5 
                       }}
-                      onPress={this.signInOnGoogle}>
-                        {/* <ion-icon name="logo-google"></ion-icon> */}
-                      <Ionicons name="logo-google" size={25} color={'grey'} />
-                      <Text>Login with google</Text>
+                      onPress={()=>{
+                        this.handleLoginWithGoogle()
+                      }}>
+                      <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
+                        <Ionicons name="logo-google" size={25} color={'grey'} />
+                        <Text style={{paddingLeft:10}}>Login with google</Text>
+                      </View>
                     </TouchableOpacity>
                   </View>
                   </ModalContent>
                 </BottomModal>
-                
+                    */ }
             </View>)
   }
 }

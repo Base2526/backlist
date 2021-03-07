@@ -27,7 +27,7 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-import { ModalPortal } from 'react-native-modals';
+// import { ModalPortal } from 'react-native-modals';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 const axios = require('axios');
@@ -46,13 +46,16 @@ import SearchScreen from './SearchScreen';
 import ResultScreen from './ResultScreen';
 import AddBanlistScreen from './AddBanlistScreen';
 import DetailScreen from './DetailScreen'
+import LoginScreen from './LoginScreen'
+
+
 
 import MeScreen from './MeScreen'
 import ForgotPassword from './ForgotPassword'
 import SignUp from './SignUp'
 import Profile from './profile/Profile'
 
-import Setting from './setting/Setting'
+import SettingsScreen from './SettingsScreen'
 
 import {API_URL_SOCKET_IO} from "@env"
 
@@ -67,7 +70,13 @@ const ProfileStack = createStackNavigator()
 function HomeStackScreen({navigation, route}) {
   useLayoutEffect(() => {
     const routeName = getFocusedRouteNameFromRoute(route);
-    if ( routeName === "result" || routeName === "add_banlist" || routeName == "search" || routeName == "detail"){
+    if (  routeName == "result" || 
+          routeName == "add_banlist" || 
+          routeName == "search" || 
+          routeName == "detail" ||
+          routeName == "login" ||
+          routeName == "forgot_password" ||
+          routeName == "sign_up" ){
         navigation.setOptions({tabBarVisible: false});
     }else {
         navigation.setOptions({tabBarVisible: true});
@@ -187,6 +196,29 @@ function HomeStackScreen({navigation, route}) {
             tabBarVisible: false,
           }}
         />
+
+        {/* LoginScreen */}
+        <HomeStack.Screen 
+          name="login" 
+          component={LoginScreen}
+          // options={{ title: 'Result Search',  }}
+          options={{
+            title: 'Login',
+            tabBarVisible: false,
+          }}
+        />
+
+        <HomeStack.Screen 
+          name="forgot_password" 
+          component={ForgotPassword} 
+          options={{ title: 'Forgot password' }}
+        />
+        <HomeStack.Screen 
+          name="sign_up" 
+          component={SignUp} 
+          options={{ title: 'Sign Up' }}
+        />  
+
     </HomeStack.Navigator>
   );
 }
@@ -203,7 +235,7 @@ function MeStackScreen({navigation, route}) {
 
   return (
     <MeStack.Navigator>
-        <MeStack.Screen 
+        {/* <MeStack.Screen 
           name="me" 
           component={Profile} 
           options={{ title: 'Me', tabBarVisible: false, }}
@@ -217,12 +249,12 @@ function MeStackScreen({navigation, route}) {
           name="sign_up" 
           component={SignUp} 
           options={{ title: 'Sign Up' }}
-        />
+        /> */}
 
         {/* Profile */}
         <MeStack.Screen 
           name="setting" 
-          component={Setting} 
+          component={SettingsScreen} 
           options={{ title: 'Setting' }}
         />
     </MeStack.Navigator>
@@ -290,7 +322,7 @@ class App extends Component {
           {/* <Tab.Screen name="Profile" component={ProfileStackScreen} /> */}
         </Tab.Navigator>
 
-        <ModalPortal />
+        {/* <ModalPortal /> */}
       </NavigationContainer>
     )
   }
