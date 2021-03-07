@@ -32,6 +32,14 @@ import Modal, {
   ModalPortal,
 } from 'react-native-modals';
 
+import {
+  LoginButton,
+  AccessToken,
+  GraphRequest,
+  GraphRequestManager,
+  LoginManager
+} from 'react-native-fbsdk';
+
 import ActionButton from 'react-native-action-button';
 
 const axios = require('axios');
@@ -284,6 +292,27 @@ class HomeScreen extends Component {
     );
   };
 
+  handleLoginWithFacebook= () =>{
+    // console.log('handleLoginWithFacebook')
+
+    // Attempt a login using the Facebook login dialog asking for default permissions.
+    LoginManager.logInWithPermissions(["public_profile"]).then(
+      function(result) {
+        if (result.isCancelled) {
+          console.log("Login cancelled");
+        } else {
+          console.log(
+            "Login success with permissions: " +
+              result.grantedPermissions.toString()
+          );
+        }
+      },
+      function(error) {
+        console.log("Login fail with error: " + error);
+      }
+    );
+  }
+
   render(){
       const { navigation } = this.props;
       return (<View style={styles.container}>
@@ -324,31 +353,56 @@ class HomeScreen extends Component {
                     }}
                   >
                   <View style={{flex:1}}>
-                    <View style={{ flexDirection:"row",}}>
-                      <TouchableOpacity
-                        style={{margin:5}}
-                        onPress={this.handleForgotPassword}>
-                        <Text>Forgot Password</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={{margin:5}}
-                        onPress={this.handleSignUp}>
-                        <Text>Sign up</Text>
-                      </TouchableOpacity>
+                    <View style={{ flexDirection: 'column', 
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    paddingBottom:10}}>
+                     <Text style={{fontSize:24}}>
+                       Sign up for Banlist
+                     </Text>
+                     <Text style={{ textAlign: 'center', fontSize:16}}>
+                       Create a profile, favorite, share, report criminals and more...
+                     </Text>
                     </View>
                     <TouchableOpacity
-                      style={styles.button}
-                      onPress={this.handleLoginWithFacebook}>
+                      style={{
+                        alignItems: "center",
+                        backgroundColor: "#DDDDDD",
+                        padding: 10,
+                        flexDirection: 'row',
+                        borderRadius: 10
+                      }}
+                      onPress={this.handleLoginWithPhoneOrEmail}>
+                      {/* <ion-icon name="person-outline"></ion-icon> */}
+                      <Ionicons name="person-outline" size={25} color={'grey'} />
                       <Text>Use phone or email</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={styles.button}
+                      style={{
+                        alignItems: "center",
+                        backgroundColor: "#DDDDDD",
+                        padding: 10,
+                        flexDirection: 'row',
+                        marginTop:10,
+                        borderRadius: 10
+                      }}
                       onPress={this.handleLoginWithFacebook}>
+                        {/* <ion-icon name="logo-facebook"></ion-icon> */}
+                      <Ionicons name="logo-facebook" size={25} color={'grey'} />
                       <Text>Login with facebook</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={styles.button}
+                       style={{
+                        alignItems: "center",
+                        backgroundColor: "#DDDDDD",
+                        padding: 10,
+                        flexDirection: 'row',
+                        marginTop:10,
+                        borderRadius: 10
+                      }}
                       onPress={this.signInOnGoogle}>
+                        {/* <ion-icon name="logo-google"></ion-icon> */}
+                      <Ionicons name="logo-google" size={25} color={'grey'} />
                       <Text>Login with google</Text>
                     </TouchableOpacity>
                   </View>
