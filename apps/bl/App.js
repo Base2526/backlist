@@ -56,7 +56,7 @@ import SignUp from './SignUp'
 import Profile from './profile/Profile'
 
 import SettingsScreen from './SettingsScreen'
-import InappbrowserScreen from './InappbrowserScreen'
+// import InappbrowserScreen from './InappbrowserScreen'
 
 import {API_URL_SOCKET_IO} from "@env"
 
@@ -267,17 +267,6 @@ function MeStackScreen({navigation, route}) {
           // options={{ title: 'Result Search',  }}
           options={{
             title: 'Login',
-            tabBarVisible: false,
-          }}
-        />
-
-        {/* InappbrowserScreen */}
-        <MeStack.Screen 
-          name="inappbrowser" 
-          component={InappbrowserScreen}
-          // options={{ title: 'Result Search',  }}
-          options={{
-            title: 'Inappbrowser',
             tabBarVisible: false,
           }}
         />

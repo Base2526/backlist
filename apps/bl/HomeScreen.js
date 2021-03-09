@@ -19,8 +19,10 @@ import {
   TextInput,
   ActivityIndicator,
   FlatList,
-  Image ,
+  // Image
 } from 'react-native';
+
+// import { Image } from 'react-native-elements';
 
 import Modal from 'react-native-modal';
 
@@ -42,6 +44,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
+
+import FastImage from 'react-native-fast-image'
 
 import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-community/google-signin';
 
@@ -220,8 +224,291 @@ class HomeScreen extends Component {
     });
   }
 
+  renderImage = (item) =>{
+    // console.log(item.images)
+    switch(item.images.length){
+      case 0:{
+        return(<View />)
+        break;
+      }
+      case 1:{
+        return (<View style={{width: '100%', height: 300, flexDirection: 'row'}}>
+                  <View style={{flex: 1, flexDirection: 'row'}}>
+                    <View style={{flex: 1, margin: 2}} >
+                      <FastImage
+                        // style={{ StyleSheet.absoluteFill }}
+                        style={{ ...StyleSheet.absoluteFill, borderWidth:.3, borderColor:'gray' }}
+                        source={{
+                            uri: item.images[0],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                    </View>
+                  </View>
+                </View>)
+      }
+
+      case 2:{
+        return (<View style={{width: '100%', height: 300, flexDirection: 'row'}}>
+              <View style={{flex: 1, flexDirection: 'row'}}>
+                <View style={{flex: 1, margin: 2}} >
+                  <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: item.images[0],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                </View>
+                <View style={{flex: 1, backgroundColor: 'red', margin: 2}} >
+                  <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: item.images[1],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                </View>
+              </View>
+            </View>)
+
+      }
+
+      case 3:{
+        return (<View style={{width: '100%', height: 300, flexDirection: 'row'}}>
+              <View style={{flex: 1, flexDirection: 'column'}}>
+                <View style={{flex: 1, margin: 2}} >
+                  <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: item.images[0],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                </View>
+                <View style={{flex: 1,  margin: 2}} >
+                  <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: item.images[1],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                </View>
+              </View>
+              <View style={{flex: 1, flexDirection: 'row'}}>
+                <View style={{flex: 1,  margin: 2}} >
+                  <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: item.images[2],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                </View>
+              </View>
+            </View>)
+      }
+
+      case 4:{
+        return (<View style={{width: '100%', height: 300, flexDirection: 'column'}}>
+              <View style={{flex: 1, flexDirection: 'row'}}>
+                <View style={{flex: 1, margin: 2}} >
+                  <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: item.images[0],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                </View>
+                <View style={{flex: 1, margin: 2}} >
+                  <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: item.images[1],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                </View>
+              </View>
+              <View style={{flex: 1, flexDirection: 'row'}}>
+                <View style={{flex: 1,  margin: 2}} >
+                  <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: item.images[2],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                </View>
+                <View style={{flex: 1,  margin: 2}} >
+                  <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: item.images[3],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                </View>
+              </View>
+            </View>)
+      }
+
+      default:{
+        return (<View style={{width: '100%', height: 300, flexDirection: 'column'}}>
+                  <View style={{flex: 2, flexDirection: 'row'}}>
+                    <View style={{flex: 1, margin: 2, }} >
+                      <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: item.images[0],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                    </View>
+                    <View style={{flex: 1, margin: 2}} >
+                      <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: item.images[1],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                    </View>
+                  </View>
+                  <View style={{flex: 1, flexDirection: 'row'}}>
+                    <View style={{flex: 1, margin: 2}} >
+                      <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: item.images[2],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                    </View>
+                    <View style={{flex: 1, margin: 2}} >
+                      <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: item.images[3],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                    </View>
+                    <View style={{flex: 1, margin: 2}} >
+                      <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: item.images[4],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center',  opacity: 0.5, backgroundColor: 'black', }} >
+                          <Text style={{fontWeight:'bold', fontSize:33, color:'white'}}>+{item.images.length - 5}</Text>
+                        </View>
+                    </View>
+                  </View>
+                </View>)
+
+      }
+      // default:{
+      //   return (<View style={{width: '100%', height: 300, flexDirection: 'column'}}>
+      //             <View style={{flex: 2, flexDirection: 'row'}}>
+      //               <View style={{flex: 1, flexDirection: 'column'}}>
+      //                 <View style={{flex: 1, margin: 2}} >
+      //                   <Image
+      //                     source={{uri: item.images[0]}}
+      //                     style={{flex: 1, backgroundColor:'gray'}}
+      //                     resizeMode="cover" />
+      //                 </View>
+      //                 <View style={{flex: 1, margin: 2}} >
+      //                   <Image
+      //                     source={{uri: item.images[1]}}
+      //                     style={{flex: 1, backgroundColor:'gray'}}
+      //                     resizeMode="cover" />
+      //                 </View>
+      //               </View>
+      //               <View style={{flex: 2, margin: 2}} >
+      //                 <Image
+      //                   source={{uri: item.images[3]}}
+      //                   style={{flex: 1, backgroundColor:'gray'}}
+      //                   resizeMode="cover" />
+      //               </View>
+      //             </View>
+      //             <View style={{flex: 1, flexDirection: 'row'}}>
+      //               <View style={{flex: 1, margin: 2}} >
+      //                 <Image
+      //                   source={{uri: item.images[4]}}
+      //                   style={{flex: 1, backgroundColor:'gray'}}
+      //                   resizeMode="cover" />
+      //               </View>
+      //               <View style={{flex: 1, margin: 2}} >
+      //                 <Image
+      //                   source={{uri: item.images[5]}}
+      //                   style={{flex: 1, backgroundColor:'gray'}}
+      //                   resizeMode="cover" />
+      //               </View>
+      //               <View style={{flex: 1, margin: 2}} >
+      //                 <Image
+      //                   source={{uri: item.images[6]}}
+      //                   style={{flex: 1, backgroundColor:'gray'}}
+      //                   resizeMode="cover" />
+      //               </View>
+      //             </View>
+      //           </View>)
+      
+      // }
+    }
+  }
+
   renderItem = (item) =>{
       const { navigation } = this.props;
+      
       return (
           <TouchableOpacity 
               key={Math.floor(Math.random() * 100) + 1}
@@ -232,22 +519,31 @@ class HomeScreen extends Component {
             {/* <Image source={{uri:item.photo}}  style={{width:60, height:60,borderRadius:30}} /> */}
             <View style={{flex:1}}>
               {/* <Text style={{fontWeight:"bold"}}>{item.name} {item.surname}</Text> */}
+              
               <View style={{flexDirection:'row'}}>
-                <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
-                <Text>{item.name} {item.surname}</Text>
+                
+                <View>
+                  <View style={{flexDirection:'row'}}>
+                    <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
+                    <Text>{item.name} {item.surname}</Text>
+                  </View>
+                  <View style={{flexDirection:'row'}}>
+                    <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
+                    <Text>{item.title}</Text>
+                  </View>
+                  <View style={{flexDirection:'row'}}>
+                    <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
+                    <Text>{item.transfer_amount}</Text>
+                  </View>
+                  {/* transfer_date */}
+                  <View style={{flexDirection:'row'}}>
+                    <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
+                    <Text>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
+                  </View>
+                </View>
               </View>
-              <View style={{flexDirection:'row'}}>
-                <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
-                <Text>{item.title}</Text>
-              </View>
-              <View style={{flexDirection:'row'}}>
-                <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
-                <Text>{item.transfer_amount}</Text>
-              </View>
-              {/* transfer_date */}
-              <View style={{flexDirection:'row'}}>
-                <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
-                <Text>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
+              <View style={{paddingRight:5, paddingBottom:5}}>
+                {this.renderImage(item)}
               </View>
               <View style={{flexDirection:'column'}}>
                 <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>

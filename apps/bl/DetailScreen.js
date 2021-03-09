@@ -16,6 +16,8 @@ import Toast, {DURATION} from 'react-native-easy-toast'
 
 import Share from 'react-native-share';
 
+import FastImage from 'react-native-fast-image'
+
 import { NumberFormat } from './Utils'
 
 // https://reactnativecode.com/popup-menu-overflow-menu-in-react-navigation/
@@ -162,11 +164,21 @@ export default class DetailScreen extends React.Component {
                     onPress={()=>{
                         this.setState({modalVisible: true, init_index: index})
                     }}>
-                    <Image
+                    {/* <Image
                         style={{width:80, height:80, resizeMode: 'cover', borderRadius: 15,}}
                         source={{
                             uri: item.url,
-                        }}/>
+                        }}/> */}
+                    <FastImage
+                        // style={{ StyleSheet.absoluteFill }}
+                        style={{ width:80, height:80, borderRadius: 15, borderWidth:.3, borderColor:'gray' }}
+                        source={{
+                            uri: item.url,
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
                 </TouchableOpacity>
             </View>
         );
@@ -257,7 +269,8 @@ export default class DetailScreen extends React.Component {
                         data={formatData(images, numColumns)}
                         style={styles.container}
                         renderItem={this.renderItem}
-                        numColumns={numColumns}/>
+                        numColumns={numColumns}
+                        keyExtractor={(item, index) => String(index)}/>
                 </SafeAreaView>)
     }
 }
