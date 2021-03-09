@@ -40,14 +40,15 @@ const axios = require('axios');
 var Buffer = require('buffer/').Buffer
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
 import FastImage from 'react-native-fast-image'
+import Toast, {DURATION} from 'react-native-easy-toast'
 
 import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-community/google-signin';
+
+import Share from 'react-native-share';
 
 import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID} from "@env"
 
@@ -81,10 +82,16 @@ class HomeScreen extends Component {
     let _this = this
     let _menu = null;
     navigation.setOptions({
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => console.log('Button is Pressed!') }>
+            <Text style={{ fontSize: 20, paddingLeft:10}}>Home</Text>
+          </TouchableOpacity>
+        ),
         headerRight: () => (
             <View style={{flexDirection:'row'}}>
               <TouchableOpacity 
-                style={{ marginHorizontal: 10 }}
+                style={{  }}
                 onPress={()=>{
                   navigation.navigate('search')
                 }}>
@@ -507,54 +514,117 @@ class HomeScreen extends Component {
   }
 
   renderItem = (item) =>{
-      const { navigation } = this.props;
-      
-      return (
-          <TouchableOpacity 
-              key={Math.floor(Math.random() * 100) + 1}
-              style={styles.listItem}
-              onPress={()=>{
-                navigation.navigate('detail', {data:item})
-              }}>
-            {/* <Image source={{uri:item.photo}}  style={{width:60, height:60,borderRadius:30}} /> */}
-            <View style={{flex:1}}>
-              {/* <Text style={{fontWeight:"bold"}}>{item.name} {item.surname}</Text> */}
-              
-              <View style={{flexDirection:'row'}}>
-                
-                <View>
-                  <View style={{flexDirection:'row'}}>
-                    <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
-                    <Text>{item.name} {item.surname}</Text>
-                  </View>
-                  <View style={{flexDirection:'row'}}>
-                    <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
-                    <Text>{item.title}</Text>
-                  </View>
-                  <View style={{flexDirection:'row'}}>
-                    <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
-                    <Text>{item.transfer_amount}</Text>
-                  </View>
-                  {/* transfer_date */}
-                  <View style={{flexDirection:'row'}}>
-                    <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
-                    <Text>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
-                  </View>
+    const { navigation } = this.props;
+
+    let _this = this
+    let _menu = null;
+    return (
+        <TouchableOpacity 
+            key={Math.floor(Math.random() * 100) + 1}
+            style={styles.listItem}
+            onPress={()=>{
+              navigation.navigate('detail', {data:item})
+            }}>
+          {/* <Image source={{uri:item.photo}}  style={{width:60, height:60,borderRadius:30}} /> */}
+          <View style={{flex:1}}>
+            {/* <Text style={{fontWeight:"bold"}}>{item.name} {item.surname}</Text> */}
+            
+            <View style={{flexDirection:'row'}}>
+              <View style={{position:'absolute', right: 0, flexDirection:'row'}}>
+                <TouchableOpacity 
+                  style={{ padding:3,}}
+                  onPress={()=>{
+                    _this.toast.show('Follow');
+                  }}>
+                  {/* <Ionicons name="shield-checkmark" size={25} color={'grey'} /> */}
+                  <Ionicons name="shield-checkmark-outline" size={25} color={'red'} />
+
+                </TouchableOpacity>
+                {/* <TouchableOpacity 
+                      style={{ }}
+                      onPress={()=>{}}>
+                  <MaterialIcons name="more-vert" size={25} color={'grey'}  />
+                </TouchableOpacity> */}
+                <View style={{justifyContent:'center'}}>
+                  <Menu
+                    ref={(ref) => (_menu = ref)}
+                    button={
+                      <TouchableOpacity 
+                        style={{ paddingLeft:3, }}
+                        onPress={()=>{
+                          _menu.show()
+                        }}>
+                      <MaterialIcons name="more-vert" size={25} color={'grey'}  />
+                      </TouchableOpacity>
+                    }>
+                    <MenuItem onPress={() => {
+                            _menu.hide();
+                            const shareOptions = {
+                                title: 'Share Banlist',
+                                url: item.link,
+                                failOnCancel: false,
+                            };
+
+                            Share.open(shareOptions)
+                            .then((res) => {
+                                console.log(res);
+                            })
+                            .catch((err) => {
+                                err && console.log(err);
+                            });
+                          }} style={{flex:1, justifyContent:'center'}}>
+                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                          <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="share" size={25} color={'grey'}  />
+                          <Text style={{ textAlign: 'center' }}>Share</Text>
+                        </View>
+                    </MenuItem>
+
+                    <MenuItem onPress={() => {
+                            _menu.hide();
+                            _this.toast.show('Report');
+                            
+                          }} style={{flex:1, justifyContent:'center'}}>
+                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
+                          <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="report" size={25} color={'grey'}  />
+                          <Text style={{ textAlign: 'center' }}>Report</Text>
+                        </View>
+                    </MenuItem>
+                  </Menu>
                 </View>
               </View>
-              <View style={{paddingRight:5, paddingBottom:5}}>
-                {this.renderImage(item)}
-              </View>
-              <View style={{flexDirection:'column'}}>
-                <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
-                <Text>{item.detail}</Text>
+              <View>
+                <View style={{flexDirection:'row'}}>
+                  <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
+                  <Text>{item.name} {item.surname}</Text>
+                </View>
+                <View style={{flexDirection:'row'}}>
+                  <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
+                  <Text>{item.title}</Text>
+                </View>
+                <View style={{flexDirection:'row'}}>
+                  <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
+                  <Text>{item.transfer_amount}</Text>
+                </View>
+                {/* transfer_date */}
+                <View style={{flexDirection:'row'}}>
+                  <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
+                  <Text>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
+                </View>
               </View>
             </View>
-            {/* <TouchableOpacity style={{height:50,width:50, justifyContent:"center",alignItems:"center"}}>
-              <Text style={{color:"green"}}>Call</Text>
-            </TouchableOpacity> */}
-          </TouchableOpacity>
-        );
+            <View style={{paddingRight:5, paddingBottom:5}}>
+              {this.renderImage(item)}
+            </View>
+            <View style={{flexDirection:'column'}}>
+              <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
+              <Text>{item.detail}</Text>
+            </View>
+          </View>
+          {/* <TouchableOpacity style={{height:50,width:50, justifyContent:"center",alignItems:"center"}}>
+            <Text style={{color:"green"}}>Call</Text>
+          </TouchableOpacity> */}
+        </TouchableOpacity>
+      );
   }
 
   renderFooter = () => {
@@ -727,92 +797,15 @@ class HomeScreen extends Component {
                   }}/>
                 
                 {this.modalLogin()}
-{/* 
-                <BottomModal
-                  visible={this.state.bottomModalAndTitle}
-                  onTouchOutside={() => this.setState({ bottomModalAndTitle: false })}
-                  height={0.4}
-                  width={1}
-                  onSwipeOut={() => this.setState({ bottomModalAndTitle: false })}>
-                  <ModalContent
-                    style={{
-                      flex: 1,
-                      backgroundColor: 'fff',
-                    }}
-                  >
-                  <View style={{flex:1}}>
-                    <View style={{ flexDirection: 'column', 
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    paddingBottom:10}}>
-                     <Text style={{fontSize:24}}>
-                       Sign up for Banlist
-                     </Text>
-                     <Text style={{ textAlign: 'center', fontSize:16}}>
-                       Create a profile, favorite, share, report criminals and more...
-                     </Text>
-                    </View>
-                    <TouchableOpacity
-                      style={{   
-                        marginTop:10,      
-                        borderColor:'gray',
-                        borderWidth:.5 ,
-                      }}
-                      onPress={()=>{
-                        // this.handleLoginWithPhoneOrEmail()
-                        this.setState({ bottomModalAndTitle: false })
-                        navigation.navigate('login')
-                        }}>
-                      <TouchableOpacity onPress={()=>{
-                        // this.handleLoginWithPhoneOrEmail()
-                        this.setState({ bottomModalAndTitle: false })
-                        navigation.navigate('login')
-                        }}>
-                        <Ionicons name="person-outline" size={25} color={'grey'} />
-                        <Text style={{paddingLeft:10}}>Use phone or email</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                        onPress={()=>{
-                          // this.handleLoginWithPhoneOrEmail()
-                          this.setState({ bottomModalAndTitle: false })
-                          navigation.navigate('login')
-                          }}>
-                        <Text style={{paddingLeft:10}}>Use phone or email</Text>
-                        </TouchableOpacity>
-                  
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={{   
-                        marginTop:10,      
-                        borderColor:'gray',
-                        borderWidth:.5 
-                      }}
-                      onPress={()=>{
-                        this.handleLoginWithFacebook()
-                      }}>
-                      <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
-                        <Ionicons name="logo-facebook" size={25} color={'grey'} />
-                        <Text style={{paddingLeft:10}}>Login with facebook</Text>
-                      </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={{   
-                        marginTop:10,      
-                        borderColor:'gray',
-                        borderWidth:.5 
-                      }}
-                      onPress={()=>{
-                        this.handleLoginWithGoogle()
-                      }}>
-                      <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
-                        <Ionicons name="logo-google" size={25} color={'grey'} />
-                        <Text style={{paddingLeft:10}}>Login with google</Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                  </ModalContent>
-                </BottomModal>
-                    */ }
+
+                <Toast
+                  ref={(toast) => this.toast = toast}
+                  position='bottom'
+                  positionValue={220}
+                  fadeInDuration={750}
+                  fadeOutDuration={1000}
+                  opacity={0.8}
+                  />
             </View>)
   }
 }
@@ -821,7 +814,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    paddingHorizontal: 10
+    // paddingHorizontal: 5
   },
   engine: {
     position: 'absolute',

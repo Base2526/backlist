@@ -10,7 +10,9 @@ import {SafeAreaView,
         TouchableOpacity} from 'react-native';
         
 import ImageViewer from 'react-native-image-zoom-viewer';
+
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import Toast, {DURATION} from 'react-native-easy-toast'
 
@@ -54,11 +56,11 @@ export default class DetailScreen extends React.Component {
             headerRight: () => (
                 <View style={{flexDirection:'row'}}>
                     <TouchableOpacity 
-                        style={{ marginHorizontal: 10 }}
+                        style={{  }}
                         onPress={()=>{
                             _this.toast.show('favorite');
                         }}>
-                        <MaterialIcons name="star" size={25} color={'grey'}  />
+                        <Ionicons name="shield-checkmark-outline" size={25} color={'grey'} />
                     </TouchableOpacity>
                         <View style={{marginRight: 5}}>
                             <Menu
@@ -75,42 +77,19 @@ export default class DetailScreen extends React.Component {
 
                             <MenuItem onPress={() => {
                                 _menu.hide();
-                                // _this.toast.show('Share');
-
-                                // Share.open(options)
-                                // .then((res) => {
-                                //     console.log(res);
-                                // })
-                                // .catch((err) => {
-                                //     err && console.log(err);
-                                // });
-
-
                                 const shareOptions = {
                                     title: 'Share Banlist',
-                                    // email: 'email@example.com',
-                                    // social: Share.Social.EMAIL,
-                                    // failOnCancel: false,
-                                    // urls: [images.image1, images.image2],
                                     url: route.params.data.link,
                                     failOnCancel: false,
                                 };
 
-                                  Share.open(shareOptions)
-                                    .then((res) => {
-                                        console.log(res);
-                                    })
-                                    .catch((err) => {
-                                        err && console.log(err);
-                                    });
-                              
-                                //   try {
-                                //     const ShareResponse = await Share.open(shareOptions);
-                                //     setResult(JSON.stringify(ShareResponse, null, 2));
-                                //   } catch (error) {
-                                //     console.log('Error =>', error);
-                                //     setResult('error: '.concat(getErrorString(error)));
-                                //   }
+                                Share.open(shareOptions)
+                                .then((res) => {
+                                    console.log(res);
+                                })
+                                .catch((err) => {
+                                    err && console.log(err);
+                                });
                             }}>
                                 <View style={{flexDirection:'row', alignItems: 'center',}}>
                                     <MaterialIcons style={{paddingRight:10}} name="share" size={20} color={'grey'}  />

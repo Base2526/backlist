@@ -38,6 +38,16 @@ class SettingsScreen extends Component {
     }
 
     componentDidMount() {
+        const { route, navigation } = this.props;
+        navigation.setOptions({
+            headerLeft: () => (
+              <TouchableOpacity
+                onPress={() => console.log('Button is Pressed!') }>
+                <Text style={{ fontSize: 20, paddingLeft:10}}>Setting</Text>
+              </TouchableOpacity>
+            )
+        })
+
         GoogleSignin.configure({
             webClientId: WEB_CLIENT_ID,
             offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER

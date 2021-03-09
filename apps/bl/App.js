@@ -90,7 +90,7 @@ function HomeStackScreen({navigation, route}) {
         <HomeStack.Screen
           name="home"
           component={HomeScreen} 
-          options={{  title: 'Home', 
+          options={{  title: '', 
                       headerShown: true, 
                       headerBackTitle: 'Back', 
                       // headerMode: "screen",
@@ -259,7 +259,7 @@ function MeStackScreen({navigation, route}) {
         <MeStack.Screen 
           name="setting" 
           component={SettingsScreen} 
-          options={{ title: 'Setting' }}
+          options={{ title: '' }}
         />
         <MeStack.Screen 
           name="login" 
