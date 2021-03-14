@@ -22,14 +22,6 @@ import {
   FlatList
 } from 'react-native';
 
-// import {
-//   Header,
-//   LearnMoreLinks,
-//   Colors,
-//   DebugInstructions,
-//   ReloadInstructions,
-// } from 'react-native/Libraries/NewAppScreen';
-
 import { useNavigation } from '@react-navigation/native';
 
 const axios = require('axios');

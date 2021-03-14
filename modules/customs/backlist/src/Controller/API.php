@@ -1127,7 +1127,7 @@ class API extends ControllerBase {
 
         // Set fulltext search keywords and fields.
         $query->keys($key_word);
-        // $query->setFulltextFields([ 'body']);
+        $query->setFulltextFields([ 'title', 'field_sales_person_name', 'field_sales_person_surname', 'body', 'field_selling_website']);
 
 
         // Set additional conditions.
@@ -1372,6 +1372,43 @@ class API extends ControllerBase {
       return new JsonResponse( $response_array );
     } catch (\Throwable $e) {
       \Drupal::logger('UpdateProfile')->notice($e->__toString());
+
+      $response_array['result']   = FALSE;
+      $response_array['message']  = $e->__toString();
+      return new JsonResponse( $response_array );
+    }
+  }
+
+  public function Report(Request $request){
+    $response_array = array();
+    try {
+      $time1          = microtime(true);
+
+      $content = json_decode( $request->getContent(), TRUE );
+      $chioce  = json_decode($content['chioce']);
+      $message = trim( $content['message'] );
+
+      // $offset= trim( $content['offset'] );
+
+      if( empty($chioce) || empty($message) ){
+        $response_array['result']           = FALSE;
+        $response_array['execution_time']   = microtime(true) - $time1;
+        return new JsonResponse( $response_array );
+      }
+
+      \Drupal::logger('report')->notice('chioce : %chioce, message: %message',
+      array(
+          '%chioce' => $content['chioce'],
+          '%message' => $message,
+      ));
+
+      $response_array['result']           = TRUE;
+      $response_array['execution_time']   = microtime(true) - $time1;
+      
+      return new JsonResponse( $response_array );
+
+    } catch (\Throwable $e) {
+      \Drupal::logger('SearchApi')->notice($e->__toString());
 
       $response_array['result']   = FALSE;
       $response_array['message']  = $e->__toString();

@@ -162,8 +162,10 @@ span.add-list-button a{
 
 /* mobile */
 @media (max-width: 768px){
-  
-    
-    
+
+}
+
+.col-sm-3{
+    display: inline
 }
  

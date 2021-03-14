@@ -173,3 +173,28 @@ api.update_profile:
 #   #   _auth: ['basic_auth']
 #   requirements:
 #     _access: 'TRUE'
+
+# modal_form_controller.form:
+#   path: '/admin/config/consent_modal_form_controller/{type}'
+#   defaults:
+#     _title: 'Modal Form'
+#     type: NULL
+#     _controller: '\Drupal\backlist\Controller\ModalFormController::openModalForm'
+#   # requirements:
+#   #   _permission: 'administer site configuration'
+#   #   # _permission: 'access content'
+#   # options:
+#   #   _admin_route: TRUE
+#   requirements:
+#     _role: 'anonymous+bigcard_administrator+administrator+authenticated'
+
+# search
+api.report:
+  path: '/api/report'
+  methods: [POST]
+  defaults: 
+    _controller: '\Drupal\backlist\Controller\API::Report'
+  requirements: 
+    _role: 'authenticated+administrator'
+  options:
+    _auth: ['basic_auth']

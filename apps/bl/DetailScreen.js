@@ -38,7 +38,7 @@ const formatData = (data, numColumns) => {
 };
 // headerRight
 const numColumns = 3;
-export default class DetailScreen extends React.Component {
+class DetailScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {  data:null, 
@@ -58,56 +58,57 @@ export default class DetailScreen extends React.Component {
                     <TouchableOpacity 
                         style={{  }}
                         onPress={()=>{
-                            _this.toast.show('favorite');
+                            _this.toast.show('Follow');
                         }}>
-                        <Ionicons name="shield-checkmark-outline" size={25} color={'grey'} />
+                        <Ionicons name="shield-checkmark-outline" size={25} color={'red'} />
                     </TouchableOpacity>
-                        <View style={{marginRight: 5}}>
-                            <Menu
-                            ref={(ref) => (_menu = ref)}
-                            button={
-                                <TouchableOpacity 
-                                    style={{ marginHorizontal: 10 }}
-                                    onPress={()=>{
-                                        _menu.show()
-                                }}>
-                                <MaterialIcons name="more-vert" size={25} color={'grey'}  />
-                                </TouchableOpacity>
-                            }>
-
-                            <MenuItem onPress={() => {
-                                _menu.hide();
-                                const shareOptions = {
-                                    title: 'Share Banlist',
-                                    url: route.params.data.link,
-                                    failOnCancel: false,
-                                };
-
-                                Share.open(shareOptions)
-                                .then((res) => {
-                                    console.log(res);
-                                })
-                                .catch((err) => {
-                                    err && console.log(err);
-                                });
+                    <View style={{marginRight: 5}}>
+                        <Menu
+                        ref={(ref) => (_menu = ref)}
+                        button={
+                            <TouchableOpacity 
+                                style={{ marginHorizontal: 10 }}
+                                onPress={()=>{
+                                    _menu.show()
                             }}>
-                                <View style={{flexDirection:'row', alignItems: 'center',}}>
-                                    <MaterialIcons style={{paddingRight:10}} name="share" size={20} color={'grey'}  />
-                                    <Text>Share</Text>
-                                </View>
-                            </MenuItem>
-                            <MenuItem onPress={() => {
-                                _menu.hide();
-                                _this.toast.show('report');
-                            }}>
-                                
-                                <View style={{flexDirection:'row', alignItems: 'center',}}>
-                                    <MaterialIcons style={{paddingRight:10}} name="report" size={20} color={'grey'}  />
-                                    <Text>Report</Text>
-                                </View>
-                            </MenuItem>
-                            </Menu>
-                        </View>
+                            <MaterialIcons name="more-vert" size={25} color={'grey'}  />
+                            </TouchableOpacity>
+                        }>
+
+                        <MenuItem onPress={() => {
+                            _menu.hide();
+                            const shareOptions = {
+                                title: 'Share Banlist',
+                                url: route.params.data.link,
+                                failOnCancel: false,
+                            };
+
+                            Share.open(shareOptions)
+                            .then((res) => {
+                                console.log(res);
+                            })
+                            .catch((err) => {
+                                err && console.log(err);
+                            });
+                        }}>
+                            <View style={{flexDirection:'row', alignItems: 'center',}}>
+                                <MaterialIcons style={{paddingRight:10}} name="share" size={20} color={'grey'}  />
+                                <Text>Share</Text>
+                            </View>
+                        </MenuItem>
+                        <MenuItem onPress={() => {
+                            _menu.hide();
+                            // _this.toast.show('report');
+                            navigation.navigate('report', {data:route.params.data})
+                        }}>
+                            
+                            <View style={{flexDirection:'row', alignItems: 'center',}}>
+                                <MaterialIcons style={{paddingRight:10}} name="report" size={20} color={'grey'}  />
+                                <Text>Report</Text>
+                            </View>
+                        </MenuItem>
+                        </Menu>
+                    </View>
                 </View>
               )
         })
@@ -136,21 +137,14 @@ export default class DetailScreen extends React.Component {
         }
 
         return (
-            <View
-                style={styles.item}>
-                {/* <Text style={styles.itemText}>{item.key}</Text> */}
+            <View style={styles.item}>
                 <TouchableOpacity 
+                    style={{  }}
                     onPress={()=>{
                         this.setState({modalVisible: true, init_index: index})
                     }}>
-                    {/* <Image
-                        style={{width:80, height:80, resizeMode: 'cover', borderRadius: 15,}}
-                        source={{
-                            uri: item.url,
-                        }}/> */}
                     <FastImage
-                        // style={{ StyleSheet.absoluteFill }}
-                        style={{ width:80, height:80, borderRadius: 15, borderWidth:.3, borderColor:'gray' }}
+                        style={{ width:80, height:80,  borderRadius: 15, borderWidth:.3, borderColor:'gray'}}
                         source={{
                             uri: item.url,
                             headers: { Authorization: 'someAuthToken' },
@@ -286,3 +280,5 @@ const styles = StyleSheet.create({
     margin: 10
   }
 });
+
+export default DetailScreen

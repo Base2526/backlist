@@ -56,7 +56,7 @@ import SignUp from './SignUp'
 import Profile from './profile/Profile'
 
 import SettingsScreen from './SettingsScreen'
-// import InappbrowserScreen from './InappbrowserScreen'
+import ReportScreen from './ReportScreen'
 
 import {API_URL_SOCKET_IO} from "@env"
 
@@ -77,7 +77,8 @@ function HomeStackScreen({navigation, route}) {
           routeName == "detail" ||
           routeName == "login" ||
           routeName == "forgot_password" ||
-          routeName == "sign_up" ){
+          routeName == "sign_up" ||
+          routeName == "report" ){
         navigation.setOptions({tabBarVisible: false});
     }else {
         navigation.setOptions({tabBarVisible: true});
@@ -220,6 +221,11 @@ function HomeStackScreen({navigation, route}) {
           options={{ title: 'Sign Up' }}
         />  
 
+        <HomeStack.Screen 
+          name="report" 
+          component={ReportScreen} 
+          options={{ title: 'Report' }}
+        />  
     </HomeStack.Navigator>
   );
 }
@@ -330,8 +336,26 @@ class App extends Component {
           activeTintColor: 'tomato',
           inactiveTintColor: 'gray',
         }}>
-          <Tab.Screen name="Home" component={HomeStackScreen} />
-          <Tab.Screen name="Setting" component={MeStackScreen} />
+          <Tab.Screen 
+            name="Home" 
+            component={HomeStackScreen}
+            // listeners={({ navigation, route }) => ({
+            //   tabPress: e => {
+            //     // e.preventDefault(); // Use this to navigate somewhere else
+            //     console.log("button pressed : Home")
+            //   },
+            // })}
+            />
+          <Tab.Screen 
+            name="Setting" 
+            component={MeStackScreen} 
+            // listeners={({ navigation, route }) => ({
+            //   tabPress: e => {
+            //     // e.preventDefault(); // Use this to navigate somewhere else
+            //     console.log("button pressed : Setting")
+            //   },
+            // })}
+            />
           {/* <Tab.Screen name="Profile" component={ProfileStackScreen} /> */}
         </Tab.Navigator>
 

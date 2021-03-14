@@ -140,6 +140,7 @@ function backlist_cron(){
 
       Utils::Cron_Twitter_Delete();
 
+      Utils::Syc_Blacklistseller();
       break;
     }
     default:{
@@ -332,7 +333,7 @@ function backlist_theme($existing, $type, $theme, $path) {
 function backlist_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   $form['#attached']['library'][] = 'backlist/backlist_js';
 
-  // dpm( $form_id );
+  dpm( $form_id );
   $form['revision_information']['#access'] = false;
   if($form_id == 'user_login_form'){
     // dpm($form);
@@ -385,25 +386,84 @@ function backlist_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       }
     }
 
-    $field_allow_login_with_google      = $banlist->get('field_allow_login_with_google')->getValue();
-    if(!empty($field_allow_login_with_google)){
-      if(!empty($field_allow_login_with_google[0]['value'])){
-        $form['actions']['login_with_google'] = [
-          '#type' => 'link',
-          '#title' => t('Login with google'),
-          // Example of a Url object from a route. See the documentation
-          // for more methods that may help generate a Url object.
-          '#url' => Url::fromUri( Utils::GoogleLogin() ),
-          '#options'=>array(
-            'attributes'=>array(
-                'class'=>array('button')
-            ),
-          ),
-          '#weight' => 1000,
-        ];
-      }
-    }
+    // $field_allow_login_with_google      = $banlist->get('field_allow_login_with_google')->getValue();
+    // if(!empty($field_allow_login_with_google)){
+    //   if(!empty($field_allow_login_with_google[0]['value'])){
+    //     $form['actions']['login_with_google'] = [
+    //       '#type' => 'link',
+    //       '#title' => t('Login with google'),
+    //       // Example of a Url object from a route. See the documentation
+    //       // for more methods that may help generate a Url object.
+    //       '#url' => Url::fromUri( Utils::GoogleLogin() ),
+    //       '#options'=>array(
+    //         'attributes'=>array(
+    //             'class'=>array('button')
+    //         ),
+    //       ),
+    //       '#weight' => 1000,
+    //     ];
+    //   }
+    // }
   }  
+
+  if (strpos($form_id, 'contact_message_') !== FALSE) {
+    $form['actions']['preview']['#access'] = FALSE;
+  }
+
+  // $form['link'] = [
+  //   '#markup' => \Drupal::l('Make mine a modal', Url::fromRoute('modal_form_controller.form', [], [
+  //     'attributes' => [
+  //       'class' => ['use-ajax'],
+  //       'data-dialog-type' => 'modal',
+  //       'data-dialog-options' => json_encode(['height' => 400, 'width' => 700]),
+  //     ],
+  //    ]))
+  // ];
+
+
+  // node_back_list_edit_form
+  if ( $form_id == 'node_back_list_edit_form') {
+    $node = $form_state->getFormObject()->getEntity();
+
+    if(!empty($node)){
+      $form['report_modal'] = [
+        '#type' => 'link',
+        '#title' => 'Report',
+        '#url' => Url::fromRoute('modal_form_controller.form', ['type' => $node->id()]),
+        '#attributes' => [
+          'class' => [
+            'use-ajax',
+            'button',
+          ],
+        ],
+      ];
+    }
+    
+  
+    $form['actions']['submit']['save_data'] = array(
+      '#type' => 'submit',
+      '#name' => 'save_data',
+      '#value' => 'บันทึก cccc',
+      '#prefix' => '',
+      '#suffix' => '',
+      // '#submit' => ['submitAjax'],
+      // '#ajax' => [
+      //   'callback' => 'callbackAjax',
+      //   // 'wrapper' => 'user-login-form',
+      //   'progress' => array(
+      //     // Graphic shown to indicate ajax. Options: 'throbber' (default), 'bar'.
+      //     'type' => 'fullscreen',
+      //     // Message to show along progress graphic. Default: 'Please wait...'.
+      //     'message' => NULL,
+      //   ),
+      // ],
+      // '#weight'=> 10000,
+      //'#limit_validation_errors' => array(),
+    );
+  }
+
+  
+
 }
 
 function backlist_node_view(array &$build, EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display, $view_mode) {

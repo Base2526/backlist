@@ -272,7 +272,7 @@ class SettingsScreen extends Component {
                 <SettingsList.Header headerStyle={{marginTop:-5}}/>
                 <SettingsList.Item
                 hasNavArrow={false}
-                title='Banlist info'
+                title='Info'
                 titleStyle={{color:'#009688', marginBottom:10, fontWeight:'bold'}}
                 itemWidth={70}
                 borderHide={'Both'}
