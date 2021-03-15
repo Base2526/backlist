@@ -36,6 +36,8 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import Icon from 'react-native-vector-icons/Feather';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
+import Toast, {DURATION} from 'react-native-easy-toast'
+
 import { NumberFormat } from './Utils'
 
 class SearchScreen extends Component {
@@ -55,17 +57,17 @@ class SearchScreen extends Component {
   }
 
   componentDidMount(){
-
   }
 
   handleSearch= () => {
-  
     let {key_word, offset} = this.state
     console.log(key_word)
 
     let _this = this;
     if(key_word.trim() == ""){
-      alert('Empty key word.');
+      alert('กรุณากรอกคำค้น.');
+    }else if(key_word.trim().length < 4){
+      alert('ต้องมากกว่า 3 ตัวอักษร');
     }else{
       if(!offset){
         _this.setState({spinner: true, datas:[]})
@@ -101,7 +103,9 @@ class SearchScreen extends Component {
           }else{
 
             _this.setState({spinner: false, loading: false})
-            alert('Empty result.');
+            // alert('Empty result.');
+
+            _this.toast.show('Empty result.');
           }
           
         }else{
@@ -137,23 +141,31 @@ class SearchScreen extends Component {
                       'surname' => $surname,  */}
             <View style={{flexDirection:'row'}}>
               <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
-              <Text>{item.name} {item.surname}</Text>
+              {/* <Text>{item.name} {item.surname}</Text> */}
+
+              <TouchableOpacity 
+                style={{ }}
+                onPress={()=>{
+                  navigation.navigate('filter', {data:item})
+                }}>
+                <Text style={{color:'gray'}}>{item.name} {item.surname}</Text>
+              </TouchableOpacity>
             </View>
             <View style={{flexDirection:'row'}}>
               <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
-              <Text>{item.title}</Text>
+              <Text style={{color:'gray'}}>{item.title}</Text>
             </View>
             <View style={{flexDirection:'row'}}>
               <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
-              <Text>{NumberFormat(Number(item.transfer_amount))}</Text>
+              <Text style={{color:'gray'}}>{NumberFormat(Number(item.transfer_amount))}</Text>
             </View>
             <View style={{flexDirection:'row'}}>
                     <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
-                    <Text>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
+                    <Text style={{color:'gray'}}>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
                 </View>
             <View style={{flexDirection:'column'}}>
               <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
-              <Text>{item.detail}</Text>
+              <Text style={{color:'gray'}}>{item.detail}</Text>
             </View>
             
           </View>
@@ -226,6 +238,7 @@ class SearchScreen extends Component {
                 ref= {(el) => { this.key_word = el; }}
                 onChangeText={(key_word) => this.setState({key_word})}
                 value={this.state.key_word}
+                placeholder="มากกว่า 3 ตัวอักษร"
                 onSubmitEditing={
                   this.handleSearch
                 }/>            
@@ -238,6 +251,15 @@ class SearchScreen extends Component {
                   count:'', */}
               
               { v }
+
+              <Toast
+                ref={(toast) => this.toast = toast}
+                position='bottom'
+                positionValue={220}
+                fadeInDuration={750}
+                fadeOutDuration={1000}
+                opacity={0.8}
+                />
             </View>
             </SafeAreaView>)
   }

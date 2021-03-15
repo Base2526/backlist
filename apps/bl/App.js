@@ -16,7 +16,8 @@ import {
   StatusBar,
   TouchableOpacity,
   Button,
-  Platform
+  Platform,
+  BackHandler
 } from 'react-native';
 
 import {
@@ -47,7 +48,7 @@ import ResultScreen from './ResultScreen';
 import AddBanlistScreen from './AddBanlistScreen';
 import DetailScreen from './DetailScreen'
 import LoginScreen from './LoginScreen'
-
+import FilterScreen from './FilterScreen'
 
 
 import MeScreen from './MeScreen'
@@ -59,6 +60,8 @@ import SettingsScreen from './SettingsScreen'
 import ReportScreen from './ReportScreen'
 
 import {API_URL_SOCKET_IO} from "@env"
+
+import Toast, {DURATION} from 'react-native-easy-toast'
 
 import { Base64 } from './Utils'
 
@@ -78,7 +81,8 @@ function HomeStackScreen({navigation, route}) {
           routeName == "login" ||
           routeName == "forgot_password" ||
           routeName == "sign_up" ||
-          routeName == "report" ){
+          routeName == "report" ||
+          routeName == "filter" ){
         navigation.setOptions({tabBarVisible: false});
     }else {
         navigation.setOptions({tabBarVisible: true});
@@ -203,29 +207,26 @@ function HomeStackScreen({navigation, route}) {
         <HomeStack.Screen 
           name="login" 
           component={LoginScreen}
-          // options={{ title: 'Result Search',  }}
           options={{
             title: 'Login',
             tabBarVisible: false,
-          }}
-        />
-
+          }}/>
         <HomeStack.Screen 
           name="forgot_password" 
           component={ForgotPassword} 
-          options={{ title: 'Forgot password' }}
-        />
+          options={{ title: 'Forgot password' }}/>
         <HomeStack.Screen 
           name="sign_up" 
           component={SignUp} 
-          options={{ title: 'Sign Up' }}
-        />  
-
+          options={{ title: 'Sign Up' }}/>  
         <HomeStack.Screen 
           name="report" 
           component={ReportScreen} 
-          options={{ title: 'Report' }}
-        />  
+          options={{ title: 'Report' }}/>  
+        <HomeStack.Screen 
+          name="filter" 
+          component={FilterScreen} 
+          options={{ title: '' }}/>  
     </HomeStack.Navigator>
   );
 }
@@ -299,12 +300,38 @@ class App extends Component {
 
   constructor(props) {
     super(props);
+    this.state={
+      isloggedin: false,
+      backPressed: 0
+    }
   }
 
   componentDidMount() {
     SplashScreen.hide();
 
     this.onSocket()
+
+    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
+  }
+
+  componentWillUnmount() {
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton());
+  }
+
+  handleBackButton(){
+    let {backPressed} = this.state
+    if(backPressed > 0){
+      this.setState({backPressed: 0})
+      BackHandler.exitApp();
+    }else {
+      this.setState({backPressed: backPressed+1 })
+      this.toast.show('Press Again To Exit');
+      setTimeout( () => { 
+        this.setState({backPressed: 0})
+      }, 2000);
+    }
+
+    return true;
   }
 
   // https://github.com/vinnyoodles/react-native-socket-io-example/blob/master/client/index.js
@@ -358,6 +385,15 @@ class App extends Component {
             />
           {/* <Tab.Screen name="Profile" component={ProfileStackScreen} /> */}
         </Tab.Navigator>
+
+        <Toast
+          ref={(toast) => this.toast = toast}
+          position='bottom'
+          positionValue={220}
+          fadeInDuration={750}
+          fadeOutDuration={1000}
+          opacity={0.8}
+          />
 
         {/* <ModalPortal /> */}
       </NavigationContainer>

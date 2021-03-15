@@ -102,7 +102,6 @@ class SettingsScreen extends Component {
 
     modalLogin(){
         let { navigation } = this.props;
-        let {bottomModalAndTitle} = this.state
         return(
             <Modal
             testID={'modal'}
@@ -111,8 +110,9 @@ class SettingsScreen extends Component {
             // swipeDirection={['up', 'left', 'right', 'down']}
             style={{justifyContent: 'flex-end', margin: 0,}}
             backdropOpacity={0.5}
+            useNativeDriver={true}
             onBackdropPress={() => {
-            this.setState({ bottomModalAndTitle: false })
+                this.setState({ bottomModalAndTitle: false })
             }}>
             <SafeAreaView style={{backgroundColor: 'white'}}>
             <View style={{ backgroundColor:'white', padding:10}}>

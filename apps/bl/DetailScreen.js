@@ -22,6 +22,10 @@ import FastImage from 'react-native-fast-image'
 
 import { NumberFormat } from './Utils'
 
+import {API_URL} from "@env"
+
+// API_URL
+
 // https://reactnativecode.com/popup-menu-overflow-menu-in-react-navigation/
 import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
 
@@ -77,11 +81,14 @@ class DetailScreen extends React.Component {
 
                         <MenuItem onPress={() => {
                             _menu.hide();
+
                             const shareOptions = {
                                 title: 'Share Banlist',
-                                url: route.params.data.link,
+                                url:  API_URL + '/node/' + route.params.data.id,
                                 failOnCancel: false,
                             };
+
+                            console.log(route.params.data.id)
 
                             Share.open(shareOptions)
                             .then((res) => {
@@ -99,6 +106,7 @@ class DetailScreen extends React.Component {
                         <MenuItem onPress={() => {
                             _menu.hide();
                             // _this.toast.show('report');
+
                             navigation.navigate('report', {data:route.params.data})
                         }}>
                             
@@ -172,23 +180,23 @@ class DetailScreen extends React.Component {
             <View style={{flex:1, padding:10}} >
                 <View style={{flexDirection:'row'}}>
                     <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
-                    <Text>{data.name} {data.surname}</Text>
+                    <Text style={{color:'gray'}}>{data.name} {data.surname}</Text>
                 </View>
                 <View style={{flexDirection:'row'}}>
                     <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
-                    <Text>{data.title}</Text>
+                    <Text style={{color:'gray'}}>{data.title}</Text>
                 </View>
                 <View style={{flexDirection:'row'}}>
                     <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
-                    <Text>{NumberFormat(Number(transfer_amount))}</Text>
+                    <Text style={{color:'gray'}}>{NumberFormat(Number(transfer_amount))}</Text>
                 </View>
                 <View style={{flexDirection:'row'}}>
                     <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
-                    <Text>{data.transfer_date ==='' ? '-' : data.transfer_date}</Text>
+                    <Text style={{color:'gray'}}>{data.transfer_date ==='' ? '-' : data.transfer_date}</Text>
                 </View>
                 <View style={{flexDirection:'column'}}>
                     <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
-                    <Text>{data.detail}</Text>
+                    <Text style={{color:'gray'}}>{data.detail}</Text>
                 </View>
             </View>
         )

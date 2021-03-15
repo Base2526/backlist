@@ -81,21 +81,20 @@ class ReportScreen extends Component {
         let { route, navigation } = this.props;
 
         const chioce = chioces.filter(obj => obj.selected );
-        // console.log('--1--')
-        // console.log(chioce)
-        // console.log('--2--')
 
         message = message.trim()
-        if( isEmpty(chioce) || isEmpty(message) ){
+        if( isEmpty(chioce) && isEmpty(message) ){
             this.toast.show('กรุณาเลือก หรือ กรอกข้อความ.');
+            return;
+        }else  if(isEmpty(chioce)){
+            this.toast.show('กรุณาเลือก.');
+            return;
+        }else if(isEmpty(message)){
+            this.toast.show('กรุณากรอกข้อความ.');
             return;
         }
     
-        // console.log(route.params.data.id)
-        // console.log(this.state.message)
-
         _this.setState({spinner: true})
-
         axios.post(`${API_URL}/api/report?_format=json`, {
             chioce: JSON.stringify(chioce),
             message,
@@ -106,38 +105,25 @@ class ReportScreen extends Component {
         })
         .then(function (response) {
             let results = response.data
-            console.log(results)
-            
+            // console.log(results)
             if(results.result){
                 // true
-                console.log('true');
-                console.log(results);
+                // console.log('true');
+                // console.log(results);
                 _this.toast.show('แจ้งเรียบร้อย');   
-                
                 navigation.pop();
             }else{
                 // false
-                console.log('false');
-        
+                // console.log('false');
                 _this.toast.show('ไม่สามารถแจ้ง');
             }
-
             _this.setState({spinner: false})
         })
         .catch(function (error) {
-    
             _this.setState({spinner: false})
-
             if (error.response) {
-                // console.log(error.response.data.message);
-                // console.log(error.response.status);
-                // console.log(error.response.headers);
-
                 _this.toast.show(error.response.data.message);
             }
-        
-           
-        
             console.log('Error >  ' + error);
         });
     }
@@ -149,21 +135,12 @@ class ReportScreen extends Component {
     }
 
     onRadioBtnClick = (item) => {
-        // let updatedState = isLiked.map((isLikedItem) =>
-        //   isLikedItem.id === item.id
-        //     ? { ...isLikedItem, selected: true }
-        //     : { ...isLikedItem, selected: false }
-        // );
-        // setIsLiked(updatedState);
-        // console.log(item)
-
         let {chioces} = this.state
         chioces =  chioces.map((isLikedItem)=>
             isLikedItem.id === item.id
             ? { ...isLikedItem, selected: true }
             : { ...isLikedItem, selected: false }
         )
-
         this.setState({chioces})
     }
  
@@ -179,8 +156,10 @@ class ReportScreen extends Component {
                         fadeInDuration={750}
                         fadeOutDuration={1000}
                         opacity={0.8}/>
-                    <View style={{borderColor:'gray', borderWidth:.3, margin:10, padding:5}}>
-                        <Text style={{fontWeight:'bold', fontSize:18, padding:5}}>เลือก</Text>
+                    
+                    <Text style={{fontWeight:'bold', fontSize:18, padding:5, marginLeft:10}}>เลือก</Text>
+                    <View style={{margin:10, padding:5}}>
+                        
                         <View>
                         {
                         chioces.map((item) => (
@@ -193,26 +172,25 @@ class ReportScreen extends Component {
                             </RadioButton>
                         ))
                         }
-
-
                         </View>
                     </View>
+
+                    <Text style={{fontWeight:'bold', fontSize:18, padding:5, marginLeft:10}}>รายละเอียด</Text>
                     <View style={{borderColor:'gray', borderWidth:.3, margin:10, padding:5}}>
-                    <Text style={{fontWeight:'bold', fontSize:18, padding:5}}>รายละเอียด</Text>
-                    <TextInput
-                        style={styles.postInput}
-                        onChangeText={text=> {
-                                this.setState({message: text});
+                        <TextInput
+                            style={styles.postInput}
+                            onChangeText={text=> {
+                                    this.setState({message: text});
+                                }
                             }
-                        }
-                        multiline={true}
-                        numberOfLines={3}
-                        placeholder="ข้อความ"
-                        value={message}
-                        underlineColorAndroid='transparent'
-                        require={true}
-                        textAlignVertical='top'
-                        />
+                            multiline={true}
+                            numberOfLines={3}
+                            placeholder="ข้อความ"
+                            value={message}
+                            underlineColorAndroid='transparent'
+                            require={true}
+                            textAlignVertical='top'
+                            />
                     </View>
                 </View>)
     }
@@ -223,6 +201,7 @@ const styles = StyleSheet.create({
         flex: 1,
         // justifyContent: "center",
         // paddingHorizontal: 10
+        backgroundColor:'#fff'
     },
     engine: {
         position: 'absolute',
@@ -304,7 +283,7 @@ const styles = StyleSheet.create({
       radioButton: {
         height: 20,
         width: 20,
-        backgroundColor: "#F8F8F8",
+        backgroundColor: "gray",
         borderRadius: 10,
         borderWidth: 1,
         borderColor: "#E6E6E6",

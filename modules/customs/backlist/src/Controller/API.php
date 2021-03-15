@@ -740,8 +740,12 @@ class API extends ControllerBase {
     $data['surname']  = $sales_person_surname;
 
     // รายละเอียด
-    $detail = $node->get('body')->getValue()[0]['value'];
-    $data['detail']  = htmlspecialchars($detail) ;
+    $detail = '';
+    $body = $node->get('body')->getValue()[0]['value'];
+    if(!empty($body)){
+      $detail = htmlspecialchars($body[0]['value']);
+    }
+    $data['detail']  = $detail;
 
     $merchant_bank_accounts = array();
     foreach ($node->get('field_merchant_bank_account')->getValue() as $mi=>$mv){
@@ -1111,7 +1115,8 @@ class API extends ControllerBase {
       $content = json_decode( $request->getContent(), TRUE );
       $key_word= trim( $content['key_word'] );
 
-      $offset= trim( $content['offset'] );
+      $offset  = trim( $content['offset'] );
+      $type    = trim( $content['type'] );
 
       if(!empty($key_word)){
 
@@ -1125,10 +1130,66 @@ class API extends ControllerBase {
 
         $query->addCondition('type', 'back_list');
 
-        // Set fulltext search keywords and fields.
-        $query->keys($key_word);
-        $query->setFulltextFields([ 'title', 'field_sales_person_name', 'field_sales_person_surname', 'body', 'field_selling_website']);
+        /*
+        $query->addCondition('field_sales_person_name', 'ทัศนีย์');
+        $query->addCondition('field_sales_person_surname', 'แย้มกลาง');
+        */
 
+        /*
+        type : 
+           default : all
+           1 : title
+           2 : name
+           3 : surname
+           4 : detail
+           5 : name & surname
+        */
+
+        switch($type){
+          case 1:{
+            $query->addCondition('title', $key_word);
+
+            break;
+          }
+
+          case 2:{
+            $query->addCondition('field_sales_person_name', $key_word);
+            break;
+          }
+
+          case 3:{
+            $query->addCondition('field_sales_person_surname', $key_word);
+            break;
+          }
+
+          case 4:{
+            $query->addCondition('body', $key_word);
+            break;
+          }
+
+          case 5:{
+            $ky = explode("&", $key_word);
+            if(count($ky) > 1){
+              $query->addCondition('field_sales_person_name', $ky[0]);
+              $query->addCondition('field_sales_person_surname', $ky[1]);
+            }else{
+              $query->addCondition('field_sales_person_name', $ky[0]);
+            }
+
+            break;
+          }
+
+          default:{
+            // Set fulltext search keywords and fields.
+            $query->keys($key_word);
+            $query->setFulltextFields([ 'title', 'field_sales_person_name', 'field_sales_person_surname', 'body', 'field_selling_website']);
+
+            break;
+          }
+
+        }
+
+        
 
         // Set additional conditions.
         //$query->addCondition('status', 1);

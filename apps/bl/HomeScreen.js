@@ -56,23 +56,15 @@ import ReadMore from '@fawazahmed/react-native-read-more';
 
 import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID} from "@env"
 
-import { NumberFormat } from './Utils'
-import { color } from 'react-native-reanimated';
-
 class HomeScreen extends Component {
   constructor(props) {
       super(props);
-
-      // useEffect(() => this.getData(), []);
-
       this.state = {
                   data:[],
                   loading: false,
                   nid_last: 0,
 
                   selected: false,
-
-
 
                   chatMessage: "",
                   chatMessages: []
@@ -489,10 +481,7 @@ class HomeScreen extends Component {
             onPress={()=>{
               navigation.navigate('detail', {data:item})
             }}>
-          {/* <Image source={{uri:item.photo}}  style={{width:60, height:60,borderRadius:30}} /> */}
           <View style={{flex:1}}>
-            {/* <Text style={{fontWeight:"bold"}}>{item.name} {item.surname}</Text> */}
-            
             <View style={{flexDirection:'row'}}>
               <View style={{position:'absolute', right: 0, flexDirection:'row'}}>
                 <TouchableOpacity 
@@ -500,15 +489,8 @@ class HomeScreen extends Component {
                   onPress={()=>{
                     _this.toast.show('Follow');
                   }}>
-                  {/* <Ionicons name="shield-checkmark" size={25} color={'grey'} /> */}
                   <Ionicons name="shield-checkmark-outline" size={25} color={'red'} />
-
                 </TouchableOpacity>
-                {/* <TouchableOpacity 
-                      style={{ }}
-                      onPress={()=>{}}>
-                  <MaterialIcons name="more-vert" size={25} color={'grey'}  />
-                </TouchableOpacity> */}
                 <View style={{justifyContent:'center'}}>
                   <Menu
                     ref={(ref) => (_menu = ref)}
@@ -545,9 +527,7 @@ class HomeScreen extends Component {
 
                     <MenuItem onPress={() => {
                             _menu.hide();
-
                             navigation.navigate('report', {data:item})
-
                           }} style={{flex:1, justifyContent:'center'}}>
                         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
                           <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="report" size={25} color={'grey'}  />
@@ -560,7 +540,13 @@ class HomeScreen extends Component {
               <View>
                 <View style={{flexDirection:'row'}}>
                   <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
-                  <Text style={{color:'gray'}}>{item.name} {item.surname}</Text>
+                  <TouchableOpacity 
+                    style={{ }}
+                    onPress={()=>{
+                      navigation.navigate('filter', {data:item})
+                    }}>
+                    <Text style={{color:'gray'}}>{item.name} {item.surname}</Text>
+                  </TouchableOpacity>
                 </View>
                 <View style={{flexDirection:'row'}}>
                   <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
@@ -663,6 +649,8 @@ class HomeScreen extends Component {
   }
 
   modalLogin(){
+    let { navigation } = this.props;
+
     return(
       <ReactNativeModal
       testID={'modal'}
@@ -671,6 +659,7 @@ class HomeScreen extends Component {
       // swipeDirection={['up', 'left', 'right', 'down']}
       style={{justifyContent: 'flex-end', margin: 0,}}
       backdropOpacity={0.5}
+      useNativeDriver={true}
       onBackdropPress={() => {
         this.setState({ bottomModalAndTitle: false })
       }}>
