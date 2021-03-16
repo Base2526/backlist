@@ -1117,6 +1117,8 @@ class API extends ControllerBase {
 
       $offset  = trim( $content['offset'] );
       $type    = trim( $content['type'] );
+      
+      \Drupal::logger('SearchApi')->notice( serialize($content) );
 
       if(!empty($key_word)){
 
