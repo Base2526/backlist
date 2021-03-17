@@ -140,6 +140,7 @@ function backlist_cron(){
 
       Utils::Cron_Twitter_Delete();
 
+      Utils::Syc_Blacklistseller();
       break;
     }
     default:{
@@ -244,6 +245,18 @@ function backlist_node_insert(Node $node) {
 
 function backlist_comment_insert(EntityInterface $entity) {
   \Drupal::logger('backlist_comment_insert')->error( "1" );
+
+  $bundle = $entity->bundle();
+
+  if(  $bundle  == 'comment'){
+    $commentId = $entity->id();
+    $nodeId    = $entity->get('entity_id')->target_id;
+
+    \Drupal::logger('backlist_comment_insert 1')->error( $entity->get('entity_id')->target_id );
+    \Drupal::logger('backlist_comment_insert 2')->error( serialize($bundle) );
+    \Drupal::logger('backlist_comment_insert 3')->error( $entity->id() );
+    \Drupal::logger('backlist_comment_insert 4')->error( serialize($entity->get('entity_id')->getValue()) );
+  }
 }
 
 /*
@@ -404,6 +417,62 @@ function backlist_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       }
     }
   }  
+
+  if (strpos($form_id, 'contact_message_') !== FALSE) {
+    $form['actions']['preview']['#access'] = FALSE;
+  }
+
+  // $form['link'] = [
+  //   '#markup' => \Drupal::l('Make mine a modal', Url::fromRoute('modal_form_controller.form', [], [
+  //     'attributes' => [
+  //       'class' => ['use-ajax'],
+  //       'data-dialog-type' => 'modal',
+  //       'data-dialog-options' => json_encode(['height' => 400, 'width' => 700]),
+  //     ],
+  //    ]))
+  // ];
+
+
+  // node_back_list_edit_form
+  if ( $form_id == 'node_back_list_edit_form') {
+    $node = $form_state->getFormObject()->getEntity();
+
+    if(!empty($node)){
+      $form['report_modal'] = [
+        '#type' => 'link',
+        '#title' => 'Report',
+        '#url' => Url::fromRoute('modal_form_controller.form', ['type' => $node->id()]),
+        '#attributes' => [
+          'class' => [
+            'use-ajax',
+            'button',
+          ],
+        ],
+      ];
+    }
+    
+  
+    $form['actions']['submit']['save_data'] = array(
+      '#type' => 'submit',
+      '#name' => 'save_data',
+      '#value' => 'บันทึก cccc',
+      '#prefix' => '',
+      '#suffix' => '',
+      // '#submit' => ['submitAjax'],
+      // '#ajax' => [
+      //   'callback' => 'callbackAjax',
+      //   // 'wrapper' => 'user-login-form',
+      //   'progress' => array(
+      //     // Graphic shown to indicate ajax. Options: 'throbber' (default), 'bar'.
+      //     'type' => 'fullscreen',
+      //     // Message to show along progress graphic. Default: 'Please wait...'.
+      //     'message' => NULL,
+      //   ),
+      // ],
+      // '#weight'=> 10000,
+      //'#limit_validation_errors' => array(),
+    );
+  }
 }
 
 function backlist_node_view(array &$build, EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display, $view_mode) {
@@ -556,9 +625,3 @@ function backlist_preprocess_image_widget(&$variables) {
 function backlist_form_editor_image_dialog_alter(&$form, FormStateInterface $form_state, $form_id) {
   $form['attributes']['alt']['#required'] = FALSE;
 }
-
-// function backlist_user_presave(EntityInterface $entity) {
-//   if($entity->isNew()) {
-//     $entity->addRole(\Drupal\Core\Session\AccountInterface::AUTHENTICATED_ROLE);
-//   }
-// }

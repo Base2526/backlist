@@ -3,11 +3,11 @@ https://gist.github.com/gilyes/525cc0f471aafae18c3857c27519fc4b
 Backup:
 docker exec -t -u postgres your-db-container pg_dumpall -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
 
-docker exec -t -u postgres ca041243ff5b pg_dumpall -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
+docker exec -t -u postgres 49b9509f7e98 pg_dumpall -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
 
 
 Restore:
-cat dump_06-03-2021_00_19_49.sql | docker exec -i 49b9509f7e98 psql -Upostgres
+cat backlist_21122020_2106.sql | docker exec -i 17f16008f1ac psql -Upostgres
 
 
 Facebook Login
@@ -377,5 +377,13 @@ dpm($data);
 
  React native  Layout image
  https://stackoverflow.com/questions/61528156/trying-to-merge-4-table-cell-of-33-image-grid-in-react-native
+
+
+---- Search api ----
+https://medium.com/@easternstandard/how-to-configure-drupal-8-text-search-to-return-better-more-intuitive-search-results-fe0a78136ad7
+
+https://gist.github.com/WengerK/9523cb4ce9f7e6c220ce0b20773a3ce8
+
+---- Search api ----
 
 

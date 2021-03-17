@@ -19,12 +19,13 @@ import {
   TextInput,
   ActivityIndicator,
   FlatList,
-  // Image
+  Modal,
+  RefreshControl
 } from 'react-native';
 
 // import { Image } from 'react-native-elements';
 
-import Modal from 'react-native-modal';
+import ReactNativeModal from 'react-native-modal';
 
 import {
   LoginButton,
@@ -40,25 +41,27 @@ const axios = require('axios');
 var Buffer = require('buffer/').Buffer
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
 import FastImage from 'react-native-fast-image'
+import Toast, {DURATION} from 'react-native-easy-toast'
+
+import ImageViewer from 'react-native-image-zoom-viewer';
 
 import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-community/google-signin';
 
+import Share from 'react-native-share';
+
+import ReadMore from '@fawazahmed/react-native-read-more';
+
 import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID} from "@env"
 
-import { NumberFormat } from './Utils'
+import { ValidateEmail, isEmpty, checkLogin } from './Utils'
 
 class HomeScreen extends Component {
   constructor(props) {
       super(props);
-
-      // useEffect(() => this.getData(), []);
-
       this.state = {
                   data:[],
                   loading: false,
@@ -66,10 +69,10 @@ class HomeScreen extends Component {
 
                   selected: false,
 
-
-
                   chatMessage: "",
-                  chatMessages: []
+                  chatMessages: [],
+
+                  refreshing: false,
                   };
   }
 
@@ -81,6 +84,12 @@ class HomeScreen extends Component {
     let _this = this
     let _menu = null;
     navigation.setOptions({
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => console.log('Button is Pressed!') }>
+            <Text style={{ fontSize: 20, paddingLeft:10}}>Home</Text>
+          </TouchableOpacity>
+        ),
         headerRight: () => (
             <View style={{flexDirection:'row'}}>
               <TouchableOpacity 
@@ -90,7 +99,7 @@ class HomeScreen extends Component {
                 }}>
                 <Ionicons name="search-outline" size={25} color={'grey'} />
               </TouchableOpacity>
-              <View style={{}}>
+              {/* <View style={{}}>
                         <Menu
                         ref={(ref) => (_menu = ref)}
                         button={
@@ -102,22 +111,19 @@ class HomeScreen extends Component {
                             <MaterialIcons name="more-vert" size={25} color={'grey'}  />
                             </TouchableOpacity>
                         }>
-
-                        
                         <MenuItem onPress={() => {
                             _menu.hide();
                             _this.refresh();
-                        }}>
-                            
-                            <View style={{flexDirection:'row', alignItems: 'center',}}>
-                                <MaterialIcons style={{padding:10}} name="cached" size={20} color={'grey'}  />
-                                <Text>Refresh</Text>
-                            </View>
+                        }}> 
+                          <View style={{flexDirection:'row', alignItems: 'center',}}>
+                              <MaterialIcons style={{padding:10}} name="cached" size={20} color={'grey'}  />
+                              <Text>Refresh</Text>
+                          </View>
                         </MenuItem>
                         </Menu>
-                    </View>
+                    </View> */}
             </View>
-          )
+        )
     })
 
     this.getData()
@@ -126,7 +132,6 @@ class HomeScreen extends Component {
 
     this.saveData()
 
-
     GoogleSignin.configure({
       webClientId: WEB_CLIENT_ID,
       offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
@@ -134,7 +139,7 @@ class HomeScreen extends Component {
       iosClientId: IOS_CLIENT_ID, // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
     });
   }
-
+  
   refresh = () =>{
     this.setState({
       data:[],
@@ -178,7 +183,6 @@ class HomeScreen extends Component {
       nid_last = data[data.length - 1].id; 
     }
 
-    console.log(API_URL)
     axios.post(`${API_URL}/api/fetch?_format=json`, {
       nid_last,
     }, {
@@ -234,6 +238,10 @@ class HomeScreen extends Component {
       case 1:{
         return (<View style={{width: '100%', height: 300, flexDirection: 'row'}}>
                   <View style={{flex: 1, flexDirection: 'row'}}>
+                    <TouchableOpacity
+                    onPress={()=>{
+                      this.setState({modalVisible: true})
+                    }}>
                     <View style={{flex: 1, margin: 2}} >
                       <FastImage
                         // style={{ StyleSheet.absoluteFill }}
@@ -246,6 +254,7 @@ class HomeScreen extends Component {
                         resizeMode={FastImage.resizeMode.cover}
                         />
                     </View>
+                    </TouchableOpacity>
                   </View>
                 </View>)
       }
@@ -253,7 +262,7 @@ class HomeScreen extends Component {
       case 2:{
         return (<View style={{width: '100%', height: 300, flexDirection: 'row'}}>
               <View style={{flex: 1, flexDirection: 'row'}}>
-                <View style={{flex: 1, margin: 2}} >
+                <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
                   <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -264,8 +273,8 @@ class HomeScreen extends Component {
                         }}
                         resizeMode={FastImage.resizeMode.cover}
                         />
-                </View>
-                <View style={{flex: 1, backgroundColor: 'red', margin: 2}} >
+                </TouchableOpacity>
+                <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
                   <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -276,7 +285,7 @@ class HomeScreen extends Component {
                         }}
                         resizeMode={FastImage.resizeMode.cover}
                         />
-                </View>
+                </TouchableOpacity>
               </View>
             </View>)
 
@@ -285,7 +294,7 @@ class HomeScreen extends Component {
       case 3:{
         return (<View style={{width: '100%', height: 300, flexDirection: 'row'}}>
               <View style={{flex: 1, flexDirection: 'column'}}>
-                <View style={{flex: 1, margin: 2}} >
+                <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
                   <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -296,8 +305,8 @@ class HomeScreen extends Component {
                         }}
                         resizeMode={FastImage.resizeMode.cover}
                         />
-                </View>
-                <View style={{flex: 1,  margin: 2}} >
+                </TouchableOpacity>
+                <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
                   <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -308,10 +317,10 @@ class HomeScreen extends Component {
                         }}
                         resizeMode={FastImage.resizeMode.cover}
                         />
-                </View>
+                </TouchableOpacity>
               </View>
               <View style={{flex: 1, flexDirection: 'row'}}>
-                <View style={{flex: 1,  margin: 2}} >
+                <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
                   <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -322,7 +331,7 @@ class HomeScreen extends Component {
                         }}
                         resizeMode={FastImage.resizeMode.cover}
                         />
-                </View>
+                </TouchableOpacity>
               </View>
             </View>)
       }
@@ -330,7 +339,7 @@ class HomeScreen extends Component {
       case 4:{
         return (<View style={{width: '100%', height: 300, flexDirection: 'column'}}>
               <View style={{flex: 1, flexDirection: 'row'}}>
-                <View style={{flex: 1, margin: 2}} >
+                <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
                   <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -341,8 +350,8 @@ class HomeScreen extends Component {
                         }}
                         resizeMode={FastImage.resizeMode.cover}
                         />
-                </View>
-                <View style={{flex: 1, margin: 2}} >
+                </TouchableOpacity>
+                <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
                   <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -353,10 +362,10 @@ class HomeScreen extends Component {
                         }}
                         resizeMode={FastImage.resizeMode.cover}
                         />
-                </View>
+                </TouchableOpacity>
               </View>
               <View style={{flex: 1, flexDirection: 'row'}}>
-                <View style={{flex: 1,  margin: 2}} >
+                <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
                   <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -367,8 +376,8 @@ class HomeScreen extends Component {
                         }}
                         resizeMode={FastImage.resizeMode.cover}
                         />
-                </View>
-                <View style={{flex: 1,  margin: 2}} >
+                </TouchableOpacity>
+                <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
                   <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -379,7 +388,7 @@ class HomeScreen extends Component {
                         }}
                         resizeMode={FastImage.resizeMode.cover}
                         />
-                </View>
+                </TouchableOpacity>
               </View>
             </View>)
       }
@@ -387,7 +396,9 @@ class HomeScreen extends Component {
       default:{
         return (<View style={{width: '100%', height: 300, flexDirection: 'column'}}>
                   <View style={{flex: 2, flexDirection: 'row'}}>
-                    <View style={{flex: 1, margin: 2, }} >
+                    <TouchableOpacity onPress={()=>{
+                      this.setState({modalVisible: true})
+                    }} style={{flex: 1, margin: 2, }} >
                       <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -398,8 +409,8 @@ class HomeScreen extends Component {
                         }}
                         resizeMode={FastImage.resizeMode.cover}
                         />
-                    </View>
-                    <View style={{flex: 1, margin: 2}} >
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
                       <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -410,10 +421,10 @@ class HomeScreen extends Component {
                         }}
                         resizeMode={FastImage.resizeMode.cover}
                         />
-                    </View>
+                    </TouchableOpacity>
                   </View>
                   <View style={{flex: 1, flexDirection: 'row'}}>
-                    <View style={{flex: 1, margin: 2}} >
+                    <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
                       <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -424,8 +435,8 @@ class HomeScreen extends Component {
                         }}
                         resizeMode={FastImage.resizeMode.cover}
                         />
-                    </View>
-                    <View style={{flex: 1, margin: 2}} >
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
                       <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -436,8 +447,8 @@ class HomeScreen extends Component {
                         }}
                         resizeMode={FastImage.resizeMode.cover}
                         />
-                    </View>
-                    <View style={{flex: 1, margin: 2}} >
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
                       <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -451,110 +462,129 @@ class HomeScreen extends Component {
                         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center',  opacity: 0.5, backgroundColor: 'black', }} >
                           <Text style={{fontWeight:'bold', fontSize:33, color:'white'}}>+{item.images.length - 5}</Text>
                         </View>
-                    </View>
+                    </TouchableOpacity>
                   </View>
                 </View>)
-
       }
-      // default:{
-      //   return (<View style={{width: '100%', height: 300, flexDirection: 'column'}}>
-      //             <View style={{flex: 2, flexDirection: 'row'}}>
-      //               <View style={{flex: 1, flexDirection: 'column'}}>
-      //                 <View style={{flex: 1, margin: 2}} >
-      //                   <Image
-      //                     source={{uri: item.images[0]}}
-      //                     style={{flex: 1, backgroundColor:'gray'}}
-      //                     resizeMode="cover" />
-      //                 </View>
-      //                 <View style={{flex: 1, margin: 2}} >
-      //                   <Image
-      //                     source={{uri: item.images[1]}}
-      //                     style={{flex: 1, backgroundColor:'gray'}}
-      //                     resizeMode="cover" />
-      //                 </View>
-      //               </View>
-      //               <View style={{flex: 2, margin: 2}} >
-      //                 <Image
-      //                   source={{uri: item.images[3]}}
-      //                   style={{flex: 1, backgroundColor:'gray'}}
-      //                   resizeMode="cover" />
-      //               </View>
-      //             </View>
-      //             <View style={{flex: 1, flexDirection: 'row'}}>
-      //               <View style={{flex: 1, margin: 2}} >
-      //                 <Image
-      //                   source={{uri: item.images[4]}}
-      //                   style={{flex: 1, backgroundColor:'gray'}}
-      //                   resizeMode="cover" />
-      //               </View>
-      //               <View style={{flex: 1, margin: 2}} >
-      //                 <Image
-      //                   source={{uri: item.images[5]}}
-      //                   style={{flex: 1, backgroundColor:'gray'}}
-      //                   resizeMode="cover" />
-      //               </View>
-      //               <View style={{flex: 1, margin: 2}} >
-      //                 <Image
-      //                   source={{uri: item.images[6]}}
-      //                   style={{flex: 1, backgroundColor:'gray'}}
-      //                   resizeMode="cover" />
-      //               </View>
-      //             </View>
-      //           </View>)
-      
-      // }
     }
   }
 
   renderItem = (item) =>{
-      const { navigation } = this.props;
-      
-      return (
-          <TouchableOpacity 
-              key={Math.floor(Math.random() * 100) + 1}
-              style={styles.listItem}
-              onPress={()=>{
-                navigation.navigate('detail', {data:item})
-              }}>
-            {/* <Image source={{uri:item.photo}}  style={{width:60, height:60,borderRadius:30}} /> */}
-            <View style={{flex:1}}>
-              {/* <Text style={{fontWeight:"bold"}}>{item.name} {item.surname}</Text> */}
-              
-              <View style={{flexDirection:'row'}}>
-                
-                <View>
-                  <View style={{flexDirection:'row'}}>
-                    <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
-                    <Text>{item.name} {item.surname}</Text>
-                  </View>
-                  <View style={{flexDirection:'row'}}>
-                    <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
-                    <Text>{item.title}</Text>
-                  </View>
-                  <View style={{flexDirection:'row'}}>
-                    <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
-                    <Text>{item.transfer_amount}</Text>
-                  </View>
-                  {/* transfer_date */}
-                  <View style={{flexDirection:'row'}}>
-                    <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
-                    <Text>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
-                  </View>
+    const { navigation } = this.props;
+
+    let _this = this
+    let _menu = null;
+    return (
+        <TouchableOpacity 
+            key={Math.floor(Math.random() * 100) + 1}
+            style={styles.listItem}
+            onPress={()=>{
+              navigation.navigate('detail', {data:item})
+            }}>
+          <View style={{flex:1}}>
+            <View style={{flexDirection:'row'}}>
+              <View style={{position:'absolute', right: 0, flexDirection:'row'}}>
+                <TouchableOpacity 
+                  style={{ padding:3,}}
+                  onPress={()=>{
+                    _this.toast.show('Follow');
+                  }}>
+                  <Ionicons name="shield-checkmark-outline" size={25} color={'red'} />
+                </TouchableOpacity>
+                <View style={{justifyContent:'center'}}>
+                  <Menu
+                    ref={(ref) => (_menu = ref)}
+                    button={
+                      <TouchableOpacity 
+                        style={{ paddingLeft:3, }}
+                        onPress={()=>{
+                          _menu.show()
+                        }}>
+                      <MaterialIcons name="more-vert" size={25} color={'grey'}  />
+                      </TouchableOpacity>
+                    }>
+                    <MenuItem onPress={() => {
+                            _menu.hide();
+                            const shareOptions = {
+                                title: 'Share Banlist',
+                                url: item.link,
+                                failOnCancel: false,
+                            };
+
+                            Share.open(shareOptions)
+                            .then((res) => {
+                                console.log(res);
+                            })
+                            .catch((err) => {
+                                err && console.log(err);
+                            });
+                          }} style={{flex:1, justifyContent:'center'}}>
+                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                          <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="share" size={25} color={'grey'}  />
+                          <Text style={{ textAlign: 'center' }}>Share</Text>
+                        </View>
+                    </MenuItem>
+
+                    <MenuItem onPress={() => {
+                            _menu.hide();
+                            navigation.navigate('report', {data:item})
+                          }} style={{flex:1, justifyContent:'center'}}>
+                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
+                          <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="report" size={25} color={'grey'}  />
+                          <Text style={{ textAlign: 'center' }}>Report</Text>
+                        </View>
+                    </MenuItem>
+                  </Menu>
                 </View>
               </View>
-              <View style={{paddingRight:5, paddingBottom:5}}>
-                {this.renderImage(item)}
-              </View>
-              <View style={{flexDirection:'column'}}>
-                <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
-                <Text>{item.detail}</Text>
+              <View>
+                <View style={{flexDirection:'row'}}>
+                  <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
+                  <TouchableOpacity 
+                    style={{ }}
+                    onPress={()=>{
+                      navigation.navigate('filter', {data:item})
+                    }}>
+                    <Text style={{color:'gray'}}>{item.name} {item.surname}</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={{flexDirection:'row'}}>
+                  <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
+                  <Text style={{color:'gray'}}>{item.title}</Text>
+                </View>
+                <View style={{flexDirection:'row'}}>
+                  <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
+                  <Text style={{color:'gray'}}>{item.transfer_amount}</Text>
+                </View>
+                {/* transfer_date */}
+                <View style={{flexDirection:'row'}}>
+                  <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
+                  <Text style={{color:'gray'}}>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
+                </View>
               </View>
             </View>
-            {/* <TouchableOpacity style={{height:50,width:50, justifyContent:"center",alignItems:"center"}}>
-              <Text style={{color:"green"}}>Call</Text>
-            </TouchableOpacity> */}
-          </TouchableOpacity>
-        );
+            <View style={{paddingRight:5, paddingBottom:5}}>
+              {this.renderImage(item)}
+            </View>
+            <View style={{flexDirection:'column'}}>
+              <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
+              <View style={styles.root}>
+                <ReadMore 
+                  ellipsis={''} 
+                  seeMoreText={'See More'} 
+                  seeLessText={''}
+                  animate={false} 
+                  numberOfLines={3} 
+                  seeMoreStyle={{color:'black'}}
+                  style={styles.textStyle}>{ item.detail == '' ? '-' : item.detail}</ReadMore>
+              </View>
+            </View>
+          </View>
+          {/* <TouchableOpacity style={{height:50,width:50, justifyContent:"center",alignItems:"center"}}>
+            <Text style={{color:"green"}}>Call</Text>
+          </TouchableOpacity> */}
+        </TouchableOpacity>
+      );
   }
 
   renderFooter = () => {
@@ -619,14 +649,17 @@ class HomeScreen extends Component {
   }
 
   modalLogin(){
+    let { navigation } = this.props;
+
     return(
-      <Modal
+      <ReactNativeModal
       testID={'modal'}
       isVisible={this.state.bottomModalAndTitle}
       onSwipeComplete={this.close}
       // swipeDirection={['up', 'left', 'right', 'down']}
       style={{justifyContent: 'flex-end', margin: 0,}}
       backdropOpacity={0.5}
+      useNativeDriver={true}
       onBackdropPress={() => {
         this.setState({ bottomModalAndTitle: false })
       }}>
@@ -637,10 +670,10 @@ class HomeScreen extends Component {
                       alignItems: 'center',
                       justifyContent: 'center',
                       paddingBottom:10}}>
-       <Text style={{fontSize:24}}>
+       <Text style={{fontSize:20}}>
          Sign up for Banlist
        </Text>
-       <Text style={{ textAlign: 'center', fontSize:16}}>
+       <Text style={{ textAlign: 'center', fontSize:14, color:'gray'}}>
          Create a profile, favorite, share, report criminals and more...
        </Text>
       </View>
@@ -701,8 +734,42 @@ class HomeScreen extends Component {
         </TouchableOpacity>
       </View>
       </SafeAreaView>
-    </Modal>
+    </ReactNativeModal>
     )
+  }
+
+  viewImageViewer = () =>{
+
+    const images = [{
+                        // Simplest usage.
+                        url: 'https://avatars2.githubusercontent.com/u/7970947?v=3&s=460',
+                    
+                        // width: number
+                        // height: number
+                        // Optional, if you know the image size, you can set the optimization performance
+                    
+                        // You can pass props to <Image />.
+                        props: {
+                            // headers: ...
+                        }
+                    },]
+    return  <Modal 
+              visible={this.state.modalVisible}
+              transparent={true}
+              onRequestClose={() => this.setState({ modalVisible: false })}>
+              <ImageViewer 
+                  // imageUrls={images.filter(function(item){return item.empty !== true;})}
+                  // index={init_index}
+                  imageUrls={images}
+                  // renderHeader={this.renderHeaderImageViewer}
+                  // renderFooter={this.renderFooterImageViewer}
+                  onSwipeDown={() => {
+                      this.setState({modalVisible: false})
+                  }}
+                  onMove={data => console.log(data)}
+                  enableSwipeDown={true}/>
+              {/* {this.renderFooterImageViewer()} */}
+            </Modal>
   }
 
   render(){
@@ -710,109 +777,44 @@ class HomeScreen extends Component {
       return (
               <View style={styles.container}>
                 <FlatList
+                  ref={(ref) => this.flatlistref = ref}
                   style={{flex:1}}
                   data={this.state.data}
                   renderItem={({ item }) => this.renderItem(item)}
                   enableEmptySections={true}
                   ListFooterComponent={this.renderFooter()}
-                  keyExtractor={(item, index) => String(index)}/>
+                  keyExtractor={(item, index) => String(index)}
+                  refreshControl={
+                    <RefreshControl
+                        refreshing={this.state.refreshing}
+                        onRefresh={this.refresh}
+                    />
+                }/>
                 <ActionButton
                   buttonColor="rgba(231,76,60,1)"
                   onPress={() => { 
-
-                    // console.log('add_banlist')
-                    // navigation.navigate('add_banlist');
-
-                    this.setState({bottomModalAndTitle: true})
+                    checkLogin().then(res => {
+                      console.log(res)
+                      if(isEmpty(res)){
+                        this.setState({bottomModalAndTitle: true})
+                      }else{
+                        navigation.navigate('add_banlist');
+                      }
+                    }) 
                   }}/>
                 
                 {this.modalLogin()}
-{/* 
-                <BottomModal
-                  visible={this.state.bottomModalAndTitle}
-                  onTouchOutside={() => this.setState({ bottomModalAndTitle: false })}
-                  height={0.4}
-                  width={1}
-                  onSwipeOut={() => this.setState({ bottomModalAndTitle: false })}>
-                  <ModalContent
-                    style={{
-                      flex: 1,
-                      backgroundColor: 'fff',
-                    }}
-                  >
-                  <View style={{flex:1}}>
-                    <View style={{ flexDirection: 'column', 
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    paddingBottom:10}}>
-                     <Text style={{fontSize:24}}>
-                       Sign up for Banlist
-                     </Text>
-                     <Text style={{ textAlign: 'center', fontSize:16}}>
-                       Create a profile, favorite, share, report criminals and more...
-                     </Text>
-                    </View>
-                    <TouchableOpacity
-                      style={{   
-                        marginTop:10,      
-                        borderColor:'gray',
-                        borderWidth:.5 ,
-                      }}
-                      onPress={()=>{
-                        // this.handleLoginWithPhoneOrEmail()
-                        this.setState({ bottomModalAndTitle: false })
-                        navigation.navigate('login')
-                        }}>
-                      <TouchableOpacity onPress={()=>{
-                        // this.handleLoginWithPhoneOrEmail()
-                        this.setState({ bottomModalAndTitle: false })
-                        navigation.navigate('login')
-                        }}>
-                        <Ionicons name="person-outline" size={25} color={'grey'} />
-                        <Text style={{paddingLeft:10}}>Use phone or email</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                        onPress={()=>{
-                          // this.handleLoginWithPhoneOrEmail()
-                          this.setState({ bottomModalAndTitle: false })
-                          navigation.navigate('login')
-                          }}>
-                        <Text style={{paddingLeft:10}}>Use phone or email</Text>
-                        </TouchableOpacity>
-                  
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={{   
-                        marginTop:10,      
-                        borderColor:'gray',
-                        borderWidth:.5 
-                      }}
-                      onPress={()=>{
-                        this.handleLoginWithFacebook()
-                      }}>
-                      <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
-                        <Ionicons name="logo-facebook" size={25} color={'grey'} />
-                        <Text style={{paddingLeft:10}}>Login with facebook</Text>
-                      </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={{   
-                        marginTop:10,      
-                        borderColor:'gray',
-                        borderWidth:.5 
-                      }}
-                      onPress={()=>{
-                        this.handleLoginWithGoogle()
-                      }}>
-                      <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
-                        <Ionicons name="logo-google" size={25} color={'grey'} />
-                        <Text style={{paddingLeft:10}}>Login with google</Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                  </ModalContent>
-                </BottomModal>
-                    */ }
+
+                <Toast
+                  ref={(toast) => this.toast = toast}
+                  position='bottom'
+                  positionValue={220}
+                  fadeInDuration={750}
+                  fadeOutDuration={1000}
+                  opacity={0.8}
+                  />
+
+                {this.viewImageViewer}
             </View>)
   }
 }
@@ -821,7 +823,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    paddingHorizontal: 10
+    // paddingHorizontal: 5
   },
   engine: {
     position: 'absolute',
@@ -880,6 +882,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#DDDDDD",
     padding: 10,
     marginTop: 10
+  },
+  root: {
+    flex: 1,
+    // padding: 16,
+  },
+  textStyle: {
+    fontSize: 14,
+    color:'gray'
   },
 });
 

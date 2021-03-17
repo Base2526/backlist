@@ -1,96 +1,69 @@
 version: "3.3"
 services:
-  # banlist:
-  #   build: '.'
-  #   # env_file:
-  #   #   - .env
-  #   container_name: ${PROJECT_NAME}
-  #   ports:
-  #     - 80:80
-  #     - 443:443
-  #   environment:
-  #     - DB_HOST=
-  #     - DB_NAME=
-  #     - DB_USER_NAME=
-  #     - DB_PASSWORD=
-  #   volumes:
-  #     - ./modules:/opt/drupal/web/sites/default/modules
-  #     - ./libraries:/opt/drupal/web/sites/default/libraries
-  #     - ./themes:/opt/drupal/web/themes
-  #     - ./settings.php:/opt/drupal/web/sites/default/settings.php
-  #     - ./services.yml:/opt/drupal/web/sites/default/services.yml
-  #     - ./settings.local.php:/opt/drupal/web/sites/settings.local.php
-  #     - ./php.ini:/usr/local/etc/php/php.ini
-  #     - ./info.php:/opt/drupal/web/info.php
-  #     - ./vendor:/opt/drupal/vendor
-  #     - ./composer.json:/opt/drupal/composer.json
-  #     - ./composer.lock:/opt/drupal/composer.lock
-
-  #     # Local
-  #     # - ./files:/opt/drupal/web/sites/default/files
-
-  #     # Cloud
-  #     - /mnt/volume_sgp1_09/banlist.info/files:/opt/drupal/web/sites/default/files
-
-  #     # SSL
-  #     # - ./000-default.conf:/etc/apache2/sites-available/000-default.conf
-  #     # - ./.well-known/acme-challenge:/opt/drupal/.well-known/acme-challenge
-  #     - ./etc/letsencrypt/live/banlist.info:/etc/letsencrypt/live/banlist.info
-  #     - ./letsencrypt.conf:/etc/apache2/conf-available/letsencrypt.conf
-  #     - ./ssl-params.conf:/etc/apache2/conf-available/ssl-params.conf
-  #     # google
-  #     - ./google4a78161938c3c95a.html:/opt/drupal/web/google4a78161938c3c95a.html
-  #   restart: always
-
-  njs:
-    image: "njs"
-    build: './nodejs'
-    # command: "node server.js"
-    # ports:
-    #   - "5000:5000"
+  banlist:
+    build: '.'
+    # env_file:
+    #   - .env
+    container_name: ${PROJECT_NAME}
     ports:
-      - "3000:3000"
-      - "3001:3001"
-      - "9229:9229"
-    command:
-      # - node
-      - node
-      - "--inspect-brk=0.0.0.0"
-      - "." 
-    depends_on:
-      - "mongo"
+      - 80:80
+      - 443:443
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=banlist
+      - DB_USER_NAME=postgres
+      - DB_PASSWORD=postgres
+    volumes:
+      - ./modules:/opt/drupal/web/sites/default/modules
+      - ./libraries:/opt/drupal/web/sites/default/libraries
+      - ./themes:/opt/drupal/web/themes
+      - ./settings.php:/opt/drupal/web/sites/default/settings.php
+      - ./services.yml:/opt/drupal/web/sites/default/services.yml
+      - ./settings.local.php:/opt/drupal/web/sites/settings.local.php
+      - ./php.ini:/usr/local/etc/php/php.ini
+      - ./info.php:/opt/drupal/web/info.php
+      - ./vendor:/opt/drupal/vendor
+      - ./composer.json:/opt/drupal/composer.json
+      - ./composer.lock:/opt/drupal/composer.lock
+
+      # Local
+      # - ./files:/opt/drupal/web/sites/default/files
+
+      # Cloud
+      # - /mnt/volume_sgp1_09/banlist.info/files:/opt/drupal/web/sites/default/files
+
+      # SSL
+      # - ./000-default.conf:/etc/apache2/sites-available/000-default.conf
+      # - ./.well-known/acme-challenge:/opt/drupal/.well-known/acme-challenge
+      - ./etc/letsencrypt/live/banlist.info:/etc/letsencrypt/live/banlist.info
+      - ./letsencrypt.conf:/etc/apache2/conf-available/letsencrypt.conf
+      - ./ssl-params.conf:/etc/apache2/conf-available/ssl-params.conf
+      # google
+      - ./google4a78161938c3c95a.html:/opt/drupal/web/google4a78161938c3c95a.html
     restart: always
 
-  mongo:
-    image: "mongo"
-    # env_file:
-    #   - .env
+  postgres:
+    image: postgres:11
+    container_name: postgres_bg
+    environment:
+      POSTGRES_DB: banlist
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    # volumes:
+    #  - ./private/var/lib/postgresql:/var/lib/postgresql
+    restart: always
+  pgadmin:
+    image: dpage/pgadmin4:4.18
+    container_name: bigcard_pgadmin4
+#     container_name: pgadmin4_bg
+    ports:
+      - 7778:80
+    # volumes:
+    #   - ./pgadmin:/var/lib/pgadmin/storage
+    environment:
+      PGADMIN_DEFAULT_EMAIL: postgres
+      PGADMIN_DEFAULT_PASSWORD: postgres
+    hostname: pgadmin4
+    restart: always
 
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=
-      - MONGO_INITDB_ROOT_PASSWORD=
-    volumes:
-      - './nodejs/mongo/data:/data/db'
-    ports:
-      - "27017:27017"
-  # mongo:
-  #   image: "mongo"
-  #   ports:
-  #     - "27017:27017"
-  #   environment:
-  #     - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
-  #     - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
-  #     - MONGO_INITDB_DATABASE=banlist
-  mongo-express:
-    image: mongo-express
-    # env_file:
-    #   - .env
-    # env_file:  
-    #   - .env   
-    environment:
-      - ME_CONFIG_BASICAUTH_USERNAME=
-      - ME_CONFIG_BASICAUTH_PASSWORD=
-    depends_on:
-      - mongo
-    ports:
-      - "8923:8081"
+ 

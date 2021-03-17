@@ -108,6 +108,8 @@ class API extends ControllerBase {
           $user = User::load($uid);
           $user_login_finalize = user_login_finalize($user);
 
+          \Drupal::logger('Login')->notice(serialize($user_login_finalize));
+
           $name    = $user->getDisplayName();
           $email   = $user->getEmail();
           $image_url = '';  
@@ -119,12 +121,12 @@ class API extends ControllerBase {
                     'uid'       =>  $uid,
                     'name'      =>  $name,
                     'email'     =>  $email,
-                    'image_url' =>  $image_url
+                    'image_url' =>  $image_url,
+                    'session'   =>  \Drupal::service('session')->getId()
                   );
 
           $response_array['result']           = TRUE;
           $response_array['execution_time']   = microtime(true) - $time1;
-          // $response_array['data']             = array('uid'=>$uid);
           $response_array['user']             = $user;
         }else{
 
@@ -740,8 +742,12 @@ class API extends ControllerBase {
     $data['surname']  = $sales_person_surname;
 
     // รายละเอียด
-    $detail = $node->get('body')->getValue()[0]['value'];
-    $data['detail']  = htmlspecialchars($detail) ;
+    $detail = '';
+    $body = $node->get('body')->getValue()[0]['value'];
+    if(!empty($body)){
+      $detail = htmlspecialchars($body[0]['value']);
+    }
+    $data['detail']  = $detail;
 
     $merchant_bank_accounts = array();
     foreach ($node->get('field_merchant_bank_account')->getValue() as $mi=>$mv){
@@ -1111,9 +1117,15 @@ class API extends ControllerBase {
       $content = json_decode( $request->getContent(), TRUE );
       $key_word= trim( $content['key_word'] );
 
-      $offset= trim( $content['offset'] );
+      $offset  = trim( $content['offset'] );
+      $type    = trim( $content['type'] );
+      
+      \Drupal::logger('SearchApi')->notice( serialize($content) );
 
       if(!empty($key_word)){
+
+        \Drupal::logger('SearchApi')->notice( 'offset = %offset, type = %type, key_word = %key_word', 
+                                              array('%offset'=>$offset, '%type'=>$type, '%key_word'=>$key_word));
 
         $index = Index::load('content_back_list');
         $query = $index->query();
@@ -1125,10 +1137,66 @@ class API extends ControllerBase {
 
         $query->addCondition('type', 'back_list');
 
-        // Set fulltext search keywords and fields.
-        $query->keys($key_word);
-        // $query->setFulltextFields([ 'body']);
+        /*
+        $query->addCondition('field_sales_person_name', 'ทัศนีย์');
+        $query->addCondition('field_sales_person_surname', 'แย้มกลาง');
+        */
 
+        /*
+        type : 
+           default : all
+           1 : title
+           2 : name
+           3 : surname
+           4 : detail
+           5 : name & surname
+        */
+
+        switch($type){
+          case 1:{
+            $query->addCondition('title', $key_word);
+
+            break;
+          }
+
+          case 2:{
+            $query->addCondition('field_sales_person_name', $key_word);
+            break;
+          }
+
+          case 3:{
+            $query->addCondition('field_sales_person_surname', $key_word);
+            break;
+          }
+
+          case 4:{
+            $query->addCondition('body', $key_word);
+            break;
+          }
+
+          case 5:{
+            $ky = explode("&", $key_word);
+            if(count($ky) > 1){
+              $query->addCondition('field_sales_person_name', $ky[0]);
+              $query->addCondition('field_sales_person_surname', $ky[1]);
+            }else{
+              $query->addCondition('field_sales_person_name', $ky[0]);
+            }
+
+            break;
+          }
+
+          default:{
+            // Set fulltext search keywords and fields.
+            $query->keys($key_word);
+            $query->setFulltextFields([ 'title', 'field_sales_person_name', 'field_sales_person_surname', 'body', 'field_selling_website']);
+
+            break;
+          }
+
+        }
+
+        
 
         // Set additional conditions.
         //$query->addCondition('status', 1);
@@ -1372,6 +1440,43 @@ class API extends ControllerBase {
       return new JsonResponse( $response_array );
     } catch (\Throwable $e) {
       \Drupal::logger('UpdateProfile')->notice($e->__toString());
+
+      $response_array['result']   = FALSE;
+      $response_array['message']  = $e->__toString();
+      return new JsonResponse( $response_array );
+    }
+  }
+
+  public function Report(Request $request){
+    $response_array = array();
+    try {
+      $time1          = microtime(true);
+
+      $content = json_decode( $request->getContent(), TRUE );
+      $chioce  = json_decode($content['chioce']);
+      $message = trim( $content['message'] );
+
+      // $offset= trim( $content['offset'] );
+
+      if( empty($chioce) || empty($message) ){
+        $response_array['result']           = FALSE;
+        $response_array['execution_time']   = microtime(true) - $time1;
+        return new JsonResponse( $response_array );
+      }
+
+      \Drupal::logger('report')->notice('chioce : %chioce, message: %message',
+      array(
+          '%chioce' => $content['chioce'],
+          '%message' => $message,
+      ));
+
+      $response_array['result']           = TRUE;
+      $response_array['execution_time']   = microtime(true) - $time1;
+      
+      return new JsonResponse( $response_array );
+
+    } catch (\Throwable $e) {
+      \Drupal::logger('SearchApi')->notice($e->__toString());
 
       $response_array['result']   = FALSE;
       $response_array['message']  = $e->__toString();

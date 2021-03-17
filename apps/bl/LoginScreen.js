@@ -21,7 +21,8 @@
    Image,
    Keyboard
  } from 'react-native';
- 
+ import AsyncStorage from '@react-native-async-storage/async-storage';
+
  const axios = require('axios');
  var Buffer = require('buffer/').Buffer
  
@@ -30,22 +31,64 @@
  import Spinner from 'react-native-loading-spinner-overlay';
  import Toast, {DURATION} from 'react-native-easy-toast'
  
- import { ValidateEmail, isEmpty } from './Utils'
+ import { ValidateEmail, isEmpty, checkLogin, login } from './Utils'
  
  class LoginScreen extends Component {
-   constructor(props) {
-     super(props);
-     this.state = {name:'', 
-                   email:'', 
-                   password:'', 
-                   confirm_password:''};
-   }
- 
-   componentDidMount() {
-   }
+  constructor(props) {
+    super(props);
+    this.state = {name:'', 
+                  password:'',
 
-  
-   handleForgotPassword= () =>{
+                  spinner: false};
+  }
+
+  componentDidMount() {
+  }
+
+  handleLogin = () =>{
+    let { navigation } = this.props;
+    let { name, password } = this.state
+    name = name.trim()
+    password = password.trim()
+
+    if( isEmpty(name) && isEmpty(password) ){
+      this.toast.show('email && password empty');
+    }else if( isEmpty(name) ) {
+      this.toast.show('email empty');
+    }else if( isEmpty(password) ) {
+      this.toast.show('password empty');
+    }else if( !ValidateEmail(name) ){
+      this.toast.show('email invalidate.');
+    }else{
+
+      this.setState({spinner: true})
+
+      let _this = this
+      axios.post(`${API_URL}/api/login?_format=json`, {
+        name, password
+      })
+      .then(function (response) {
+        let results = response.data
+        console.log(results)
+        
+        if(results.result){
+          login(results.user).then(()=>{
+            _this.setState({spinner: false}) 
+
+            navigation.pop(); 
+          })  
+        }else{
+          _this.toast.show(results.message);
+          _this.setState({spinner: false})
+        }
+      })
+      .catch(function (error) {
+        _this.setState({spinner: false})
+      });
+    }
+  }
+
+  handleForgotPassword= () =>{
     const { navigation } = this.props;
     navigation.navigate('forgot_password');
   }
@@ -55,7 +98,7 @@
     navigation.navigate('sign_up');
   }
  
-   render(){
+  render(){
      return (
              <SafeAreaView style={{flex: 1}}>
              <View style={styles.container}>
@@ -106,7 +149,7 @@
                     opacity={0.8}/>
                 </View>
              </SafeAreaView>)
-   }
+  }
  }
  
  const styles = StyleSheet.create({

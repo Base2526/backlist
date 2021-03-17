@@ -2,6 +2,7 @@
 // export function TestFunc1() {
 //     return 'TestFunc1';
 // }
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function NumberFormat(number) {
     return number.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
@@ -62,5 +63,37 @@ export const Base64 = {
     }
 
     return output;
+  }
+}
+
+export const checkLogin = async () => {
+  try {
+    const user = await AsyncStorage.getItem('user')
+    if(user){
+      return JSON.parse(user)
+    }
+    return ''
+  } catch (e) {
+    console.log('Failed to fetch the data from storage')
+  }
+}
+
+export const login = async (user) => {
+  try {
+    await AsyncStorage.setItem('user', JSON.stringify(user))
+    console.log(user)
+    console.log('Data successfully saved : login')
+  } catch (e) {
+    console.log('Failed to save the data to the storage')
+  }
+}
+
+export const logout = async () => {
+  try {
+    await AsyncStorage.setItem('user', '')
+    console.log('Data successfully saved : logout')
+    return {}
+  } catch (e) {
+    console.log('Failed to save the data to the storage')
   }
 }
