@@ -133,7 +133,6 @@ io.on('connection', (socket) => {
     }
   })
 
-
   socket.on('disconnect', () => {
     // users = users.splice(users.indexOf(unique_id), 1); 
     // console.log(users)
