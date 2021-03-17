@@ -19,7 +19,8 @@ import {
   TextInput,
   ActivityIndicator,
   FlatList,
-  Modal
+  Modal,
+  RefreshControl
 } from 'react-native';
 
 // import { Image } from 'react-native-elements';
@@ -56,6 +57,8 @@ import ReadMore from '@fawazahmed/react-native-read-more';
 
 import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID} from "@env"
 
+import { ValidateEmail, isEmpty, checkLogin } from './Utils'
+
 class HomeScreen extends Component {
   constructor(props) {
       super(props);
@@ -67,7 +70,9 @@ class HomeScreen extends Component {
                   selected: false,
 
                   chatMessage: "",
-                  chatMessages: []
+                  chatMessages: [],
+
+                  refreshing: false,
                   };
   }
 
@@ -88,13 +93,13 @@ class HomeScreen extends Component {
         headerRight: () => (
             <View style={{flexDirection:'row'}}>
               <TouchableOpacity 
-                style={{  }}
+                style={{ marginHorizontal: 10 }}
                 onPress={()=>{
                   navigation.navigate('search')
                 }}>
                 <Ionicons name="search-outline" size={25} color={'grey'} />
               </TouchableOpacity>
-              <View style={{}}>
+              {/* <View style={{}}>
                         <Menu
                         ref={(ref) => (_menu = ref)}
                         button={
@@ -106,20 +111,17 @@ class HomeScreen extends Component {
                             <MaterialIcons name="more-vert" size={25} color={'grey'}  />
                             </TouchableOpacity>
                         }>
-
-                        
                         <MenuItem onPress={() => {
                             _menu.hide();
                             _this.refresh();
-                        }}>
-                            
-                            <View style={{flexDirection:'row', alignItems: 'center',}}>
-                                <MaterialIcons style={{padding:10}} name="cached" size={20} color={'grey'}  />
-                                <Text>Refresh</Text>
-                            </View>
+                        }}> 
+                          <View style={{flexDirection:'row', alignItems: 'center',}}>
+                              <MaterialIcons style={{padding:10}} name="cached" size={20} color={'grey'}  />
+                              <Text>Refresh</Text>
+                          </View>
                         </MenuItem>
                         </Menu>
-                    </View>
+                    </View> */}
             </View>
         )
     })
@@ -130,7 +132,6 @@ class HomeScreen extends Component {
 
     this.saveData()
 
-
     GoogleSignin.configure({
       webClientId: WEB_CLIENT_ID,
       offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
@@ -138,7 +139,7 @@ class HomeScreen extends Component {
       iosClientId: IOS_CLIENT_ID, // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
     });
   }
-
+  
   refresh = () =>{
     this.setState({
       data:[],
@@ -182,7 +183,6 @@ class HomeScreen extends Component {
       nid_last = data[data.length - 1].id; 
     }
 
-    console.log(API_URL)
     axios.post(`${API_URL}/api/fetch?_format=json`, {
       nid_last,
     }, {
@@ -670,10 +670,10 @@ class HomeScreen extends Component {
                       alignItems: 'center',
                       justifyContent: 'center',
                       paddingBottom:10}}>
-       <Text style={{fontSize:24}}>
+       <Text style={{fontSize:20}}>
          Sign up for Banlist
        </Text>
-       <Text style={{ textAlign: 'center', fontSize:16}}>
+       <Text style={{ textAlign: 'center', fontSize:14, color:'gray'}}>
          Create a profile, favorite, share, report criminals and more...
        </Text>
       </View>
@@ -777,20 +777,30 @@ class HomeScreen extends Component {
       return (
               <View style={styles.container}>
                 <FlatList
+                  ref={(ref) => this.flatlistref = ref}
                   style={{flex:1}}
                   data={this.state.data}
                   renderItem={({ item }) => this.renderItem(item)}
                   enableEmptySections={true}
                   ListFooterComponent={this.renderFooter()}
-                  keyExtractor={(item, index) => String(index)}/>
+                  keyExtractor={(item, index) => String(index)}
+                  refreshControl={
+                    <RefreshControl
+                        refreshing={this.state.refreshing}
+                        onRefresh={this.refresh}
+                    />
+                }/>
                 <ActionButton
                   buttonColor="rgba(231,76,60,1)"
                   onPress={() => { 
-
-                    // console.log('add_banlist')
-                    // navigation.navigate('add_banlist');
-
-                    this.setState({bottomModalAndTitle: true})
+                    checkLogin().then(res => {
+                      console.log(res)
+                      if(isEmpty(res)){
+                        this.setState({bottomModalAndTitle: true})
+                      }else{
+                        navigation.navigate('add_banlist');
+                      }
+                    }) 
                   }}/>
                 
                 {this.modalLogin()}

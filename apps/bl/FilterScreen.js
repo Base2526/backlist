@@ -58,6 +58,8 @@ class FilterScreen extends Component {
 
             let data = route.params.data;
 
+            
+
             this.setState({
                 type:    5,
                 offset:  0,
@@ -71,6 +73,8 @@ class FilterScreen extends Component {
     search = () =>{
         let {type, offset, key_word} = this.state
 
+        console.log(type, offset, key_word)
+
         let _this = this;
         _this.setState({loading: true})
         
@@ -83,7 +87,7 @@ class FilterScreen extends Component {
         })
         .then(function (response) {
             let results = response.data
-            // console.log()
+            console.log(results)
             if(results.result){
                 // true
                 console.log('true');
@@ -95,14 +99,9 @@ class FilterScreen extends Component {
                 // console.log(datas);
     
                 if(datas && datas.length > 0){
-    
-                console.log(datas)
                     _this.setState({execution_time, datas:[ ..._this.state.datas, ...datas], count, loading: false});
                 }else{
-    
-                _this.setState({loading: false})
-                    // alert('Empty result.');
-
+                    _this.setState({loading: false})
                     _this.toast.show('Empty result.');
                 }
                 
@@ -193,6 +192,8 @@ class FilterScreen extends Component {
     
         let {datas, execution_time, count} = this.state
         return (<SafeAreaView style={{flex:1, marginTop:10}}>
+                    {datas.length > 0 && <Text style={{padding:5}}>Search time : {execution_time} / {count}</Text> }
+                    
                     <View style={styles.container}>
                         <FlatList
                             style={{flex:1}}
@@ -218,7 +219,7 @@ class FilterScreen extends Component {
  const styles = StyleSheet.create({
    container: {
      flex: 1,
-     paddingHorizontal: 10
+    //  paddingHorizontal: 10
    },
    engine: {
      position: 'absolute',

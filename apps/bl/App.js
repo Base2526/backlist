@@ -309,6 +309,7 @@ class App extends Component {
   componentDidMount() {
     SplashScreen.hide();
 
+    console.log(API_URL_SOCKET_IO)
     this.onSocket()
 
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));

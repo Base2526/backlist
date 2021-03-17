@@ -108,6 +108,8 @@ class API extends ControllerBase {
           $user = User::load($uid);
           $user_login_finalize = user_login_finalize($user);
 
+          \Drupal::logger('Login')->notice(serialize($user_login_finalize));
+
           $name    = $user->getDisplayName();
           $email   = $user->getEmail();
           $image_url = '';  
@@ -119,12 +121,12 @@ class API extends ControllerBase {
                     'uid'       =>  $uid,
                     'name'      =>  $name,
                     'email'     =>  $email,
-                    'image_url' =>  $image_url
+                    'image_url' =>  $image_url,
+                    'session'   =>  \Drupal::service('session')->getId()
                   );
 
           $response_array['result']           = TRUE;
           $response_array['execution_time']   = microtime(true) - $time1;
-          // $response_array['data']             = array('uid'=>$uid);
           $response_array['user']             = $user;
         }else{
 
@@ -1119,6 +1121,9 @@ class API extends ControllerBase {
       $type    = trim( $content['type'] );
 
       if(!empty($key_word)){
+
+        \Drupal::logger('SearchApi')->notice( 'offset = %offset, type = %type, key_word = %key_word', 
+                                              array('%offset'=>$offset, '%type'=>$type, '%key_word'=>$key_word));
 
         $index = Index::load('content_back_list');
         $query = $index->query();

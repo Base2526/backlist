@@ -30,11 +30,13 @@ import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-commu
 
 
 import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID} from "@env"
+
+import { ValidateEmail, isEmpty, checkLogin, logout } from './Utils'
   
 class SettingsScreen extends Component {
     constructor(props) {
         super(props);
-        this.state = {bottomModalAndTitle: false}
+        this.state = {bottomModalAndTitle: false, isLogin:false, laps: ['1', '2', '3']}
     }
 
     componentDidMount() {
@@ -54,6 +56,14 @@ class SettingsScreen extends Component {
             forceCodeForRefreshToken: true, // [Android] related to `serverAuthCode`, read the docs link below *.
             iosClientId: IOS_CLIENT_ID, // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
         });
+
+        checkLogin().then(res => {
+            if(isEmpty(res)){
+                this.setState({isLogin: false})
+            }else{
+                this.setState({isLogin: true})
+            }
+          })
 
         this.modalLogin = this.modalLogin.bind(this)
     }
@@ -249,13 +259,76 @@ class SettingsScreen extends Component {
         }
     }
 
+    lapsList() {
+        let { isLogin } = this.state
+        let laps = [{'id': 0, 'title': 'Profile', 'icon_name': "person-outline" }, 
+                    {'id': 1, 'title': 'My post', 'icon_name': "add-circle-outline" },
+                    {'id': 2, 'title': 'My following', 'icon_name': "at-circle-outline" },
+                    {'id': 3, 'title': 'Logout', 'icon_name': "log-out-outline" },]
+
+        if(isLogin){
+            return laps.map((data) => {
+                console.log(data)
+                return (
+                  <SettingsList.Item
+                          icon={
+                              <View style={styles.imageStyle}>
+                                  <Ionicons name={data.icon_name} size={20} color={'grey'} />
+                              </View>
+                          }
+                          title={data.title} 
+                          itemWidth={70}
+                          titleStyle={{color:'black', fontSize: 16}}
+                          hasNavArrow={false}
+                          onPress={()=>{
+                            switch(data.id){
+                                case 0:{
+
+                                    break;
+                                }
+
+                                case 1:{
+                                    
+                                    break;
+                                }
+
+                                case 2:{
+                                    
+                                    break;
+                                }
+
+                                case 3:{
+                                     Alert.alert(
+                                                "Comfirm",
+                                                "Are you sure logout?",
+                                                [
+                                                    {
+                                                    text: "Cancel",
+                                                    onPress: () => console.log("Cancel Pressed"),
+                                                    style: "cancel"
+                                                    },
+                                                    { text: "Logout", onPress: () => {
+                                                        logout().then(res => {
+                                                            this.setState({isLogin: false})
+                                                        })
+                                                    } }
+                                                ]
+                                                );
+                                    break;
+                                }
+                            }
+                          }}/>
+                )
+            })
+        }
+    }
+
     render() {
         let { navigation } = this.props;
+        let { isLogin } = this.state
+        
         return (
         <View style={{backgroundColor:'#f6f6f6',flex:1}}>
-            {/* <View style={{borderBottomWidth:1, backgroundColor:'#263238',borderColor:'#c8c7cc'}}>
-            <Text style={{color:'white',marginTop:15,marginBottom:15, marginLeft:15,fontWeight:'bold',fontSize:20}}>Settings</Text>
-            </View> */}
             <SettingsList borderColor='#d6d5d9' defaultItemSize={50}>
                 <SettingsList.Item
                 hasNavArrow={false}
@@ -264,10 +337,13 @@ class SettingsScreen extends Component {
                 itemWidth={70}
                 borderHide={'Both'}
                 onPress={()=>{
-                    console.log('Banlist info >> ')
-                    this.setState({ bottomModalAndTitle: true })
+                    if(!isLogin){
+                        this.setState({bottomModalAndTitle: true})
+                    }
                 }}
                 />
+
+                { this.lapsList() }
                
                 <SettingsList.Header headerStyle={{marginTop:-5}}/>
                 <SettingsList.Item
@@ -277,21 +353,20 @@ class SettingsScreen extends Component {
                 itemWidth={70}
                 borderHide={'Both'}
                 />
-                  <SettingsList.Item
-                icon={
-                    <View style={styles.imageStyle}>
-                        <Ionicons name="bug-outline" size={20} color={'grey'} />
-                    </View>
-                }
-                title='For developer'
-                itemWidth={70}
-                titleStyle={{color:'black', fontSize: 16}}
-                hasNavArrow={false}
-                onPress={()=>{
-                    // navigation.navigate('inappbrowser')
-                    this.openLink('https://banlist.info/node/151')
-                }}
-                />
+                <SettingsList.Item
+                    icon={
+                        <View style={styles.imageStyle}>
+                            <Ionicons name="bug-outline" size={20} color={'grey'} />
+                        </View>
+                    }
+                    title='For developer'
+                    itemWidth={70}
+                    titleStyle={{color:'black', fontSize: 16}}
+                    hasNavArrow={false}
+                    onPress={()=>{
+                        // navigation.navigate('inappbrowser')
+                        this.openLink('https://banlist.info/node/151')
+                    }}/>
                 <SettingsList.Item
                 icon={
                     <View style={styles.imageStyle}>

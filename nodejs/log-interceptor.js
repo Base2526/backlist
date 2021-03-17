@@ -1,8 +1,8 @@
-const mongoose  = require('mongoose');
+// const mongoose  = require('mongoose');
 const Log       = require('./models/log');
 const config    = require('./config')
 
-mongoose.connect(config.mongo.url);
+// const connection = require("./connection")
 
 // https://gist.github.com/pguillory/729616
 function hook_stdout(callback) {

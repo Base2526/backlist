@@ -72,18 +72,7 @@ class AddBanlistScreen extends Component {
                   showDateTimePicker: false,
                   currentDateTimePicker: new Date(),
                   spinner: false};  
-  
-    // const [date, setDate] = useState(new Date(1598051730000));
-    // const [mode, setMode] = useState('date');
-    // const [show, setShow] = useState(false);
-
-    // this.state = {
-    //   logs: 'ahihi',
-    //   selectedPhotoIndex: 0,
-    //   localPhotos: []
-    // };
     this.onDoUploadPress = this.onDoUploadPress.bind(this);
-
   }
 
   componentDidMount() {
@@ -99,7 +88,7 @@ class AddBanlistScreen extends Component {
                   onPress={()=>{
                     _this.handleAdd()
                   }}>
-                  <Text style={{ fontSize:18 }}>ADD</Text>
+                  <Text style={{ fontSize: 18, paddingRight:10, color:'#0288D1'}}>ADD</Text>
               </TouchableOpacity>
           </View>
         )
@@ -111,23 +100,6 @@ class AddBanlistScreen extends Component {
   }
 
   handleAdd= () => {
-    // console.log(this.state.name);
-    // console.log(this.state.surname);
-    // console.log(this.state.bank_account);
-
-    /*
-    $product_type   = trim( $content['product_type'] );       // สินค้า/ประเภท
-    $transfer_amount= trim( $content['transfer_amount'] );    // ยอดเงิน
-    $person_name    = trim( $content['person_name'] );        // ชื่อบัญชี ผู้รับเงินโอน
-    $person_surname = trim( $content['person_surname'] );     // นามสกุล ผู้รับเงินโอน
-    $id_card_number = trim( $content['id_card_number'] );     // เลขบัตรประชาชนคนขาย
-    $selling_website= trim( $content['selling_website'] );    // เว็บไซด์ประกาศขายของ
-    $transfer_date  = trim( $content['transfer_date'] );      // วันโอนเงิน
-    $details        = trim( $content['details'] );            // รายละเอียดเพิ่มเติม
-    $merchant_bank_account   = $content['merchant_bank_account']; // บัญชีธนาคารคนขาย
-    $images         = $content['images'];            // รูปภาพประกอบ
-    */
-
     let { title, 
           transfer_amount, 
           name, 
@@ -139,7 +111,6 @@ class AddBanlistScreen extends Component {
 
           itemsMerchantBankAccount,
           localPhotos} = this.state
-
 
     title = title.trim()
     name = name.trim()
