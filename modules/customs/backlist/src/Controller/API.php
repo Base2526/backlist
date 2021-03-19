@@ -55,7 +55,6 @@ class API extends ControllerBase {
     $this->entityTypeManager = $entityTypeManager;
   }
 
-  
   /**
    * {@inheritdoc}
    */
@@ -148,6 +147,104 @@ class API extends ControllerBase {
     }
   }
 
+  // public function LoginWithSocial(Request $request){
+  //   $response_array = array();
+  //   try {
+
+  //     $time1    = microtime(true);
+  
+  //     $content      = json_decode( $request->getContent(), TRUE );
+  //     $name         = strtolower( trim( $content['name'] ) );
+  //     // $password     = trim( $content['password'] );
+
+  //     $ids = \Drupal::entityQuery('user')
+  //           ->condition('name', $name)
+  //           ->range(0, 1)
+  //           ->execute();
+
+  //     if(empty($ids)){
+  //       // register new member
+  //       // #1 register
+  //       $user = User::create();
+
+  //       //Mandatory settings
+  //       $user->setUsername( $name );
+  //       $user->setPassword( md5($name) );
+  //       $user->enforceIsNew();
+  //       $user->setEmail($name . '@banlist.local');
+    
+  //       //Optional settings
+  //       $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+  //       $user->set("init", 'email');
+  //       $user->set("langcode", $language);
+  //       $user->set("preferred_langcode", $language);
+  //       $user->set("preferred_admin_langcode", $language);  
+  //       $user->activate();
+  //       // $user->addRole('authenticated');
+  //       //Save user
+  //       $user->save();
+  //     }
+
+  //     $uid = \Drupal::service('user.auth')->authenticate( $name, md5($name) );
+      
+  //     \Drupal::logger('bigcard')->notice('login_form > uid : %uid, name : %name.', array( '%uid' => $uid ));
+  //     if($uid){
+  //       // $user = User::load($uid);
+
+  //       /*
+  //       $_SESSION["auth_token"]   = $data->authToken;
+  //       $_SESSION["bigcard"]      = $data->bigcard;
+  //       $_SESSION["id_card"]      = $data->idCard;
+  //       $_SESSION["mobile_phone"] = $data->mobilePhone;
+  //       $_SESSION["is_online_register"] = $data->isOnlineRegister;
+  //       */
+
+  //       // $user->set('field_auth_token', $data->authToken);
+  //       // $user->set('field_bigcard', $data->bigcard);
+  //       // $user->set('field_id_card', $data->idCard);
+  //       // $user->set('field_mobile_phone', $data->mobilePhone);
+  //       // $user->set('field_is_online_register', $data->isOnlineRegister);
+  //       // $user->save();
+
+  //       $user = User::load($uid);
+  //       $user_login_finalize = user_login_finalize($user);
+
+  //       \Drupal::logger('Login')->notice(serialize($user_login_finalize));
+
+  //       $name    = $user->getDisplayName();
+  //       $email   = $user->getEmail();
+  //       $image_url = '';  
+  //       if (!$user->get('user_picture')->isEmpty()) {
+  //         $image_url = file_create_url($user->get('user_picture')->entity->getFileUri());
+  //       }
+
+  //       user_login_finalize($user);
+
+  //       $response_array['result']           = TRUE;
+  //       $response_array['execution_time']   = microtime(true) - $time1;
+  //       $response_array['user']             = array(  'uid'       =>  $uid,
+  //                                                     'name'      =>  $name,
+  //                                                     'email'     =>  $email,
+  //                                                     'image_url' =>  $image_url,
+  //                                                     'session'   =>  \Drupal::service('session')->getId()
+  //                                                   );
+  //     }else{
+  //       $response_array['result']           = FALSE;
+  //       $response_array['execution_time']   = microtime(true) - $time1;
+  //     }
+  //     return new JsonResponse( $response_array );
+
+  //   } catch (\Throwable $e) {
+  //     \Drupal::logger('Login')->notice($e->__toString());
+
+  //     $response_array['result']   = FALSE;
+  //     $response_array['code']     = '101';
+  //     $response_array['message']  = $e->__toString();
+
+  //     return new JsonResponse( $response_array );
+  //   }
+  // }
+
   /*
     type
      0 : api
@@ -157,11 +254,9 @@ class API extends ControllerBase {
   public function Register(Request $request){
     $response_array = array();
     try {
-      
       $time1    = microtime(true);
-
       $content  = json_decode( $request->getContent(), TRUE );
-      $type    = trim( $content['type'] );
+      $type     = trim( $content['type'] );
 
       switch($type){
         case 0:{
@@ -815,24 +910,6 @@ class API extends ControllerBase {
     return $data;
   }
 
-   /*
-    use Drupal\backlist\Utils\Utils;
-
-    $img = file_get_contents('sites/default/files/styles/large/public/2021-01/61270_135689222_2883573958549573_1784928971614446312_n.jpg');
-
-    $data = base64_encode($img);
-    // dpm($data); 
-
-    // dpm(base64_decode($data)); 
-
-    // $data = base64_decode($data);
-    // dpm($data);
-
-    $file = file_save_data(base64_decode($data), 'public://'. date('m-d-Y_hia') .'.png', FILE_EXISTS_RENAME);
-    // dpm( $file );
-
-    dpm(Utils::get_file_url($file->id()));
-   */
   public function AddedBanlist(Request $request){
     $response_array = array();
     try {

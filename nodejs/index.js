@@ -112,7 +112,6 @@ io.on('connection', (socket) => {
   console.log(`Socket ${socket.id} connection`)
 
   // console.log(socket)
-
   // users[unique_id] = socket;
 
   socket.emit('message', { unique_id: unique_id });
@@ -148,18 +147,15 @@ io.on('connection', (socket) => {
   // var _sockets = await sockets.findOne({ uniqueId: unique_id });
   // console.log(_sockets)
 
-  const filter = { uniqueId: unique_id };
-  const update = { uniqueId: unique_id, socketId: socket.id, platform};
   // `doc` is the document _after_ `update` was applied because of
   // `new: true`
-  socketsModel.findOneAndUpdate(filter, update, {
+  socketsModel.findOneAndUpdate({ uniqueId: unique_id }, { uniqueId: unique_id, socketId: socket.id, platform}, {
     new: true,
     upsert: true 
-    },function( error, result){
-      // In this moment, you recive a result object or error
-      console.log(result)
-      // ... Your code when have result ... //
-    });
+  },function( error, result){
+    // In this moment, you recive a result object or error
+    console.log(result)
+  });
 
   socket.on('disconnect', () => {
     // users = users.splice(users.indexOf(unique_id), 1); 
@@ -179,18 +175,15 @@ io.on('connection', (socket) => {
     //   }
     // });
 
-    const filter = { uniqueId: unique_id };
-    const update = { socketId: ''};
     // `doc` is the document _after_ `update` was applied because of
     // `new: true`
-    socketsModel.findOneAndUpdate(filter, update, {
+    socketsModel.findOneAndUpdate({ uniqueId: unique_id }, { socketId: ''}, {
       new: true,
       upsert: true 
-      },function( error, result){
-        // In this moment, you recive a result object or error
-        console.log(result)
-        // ... Your code when have result ... //
-      });
+    },function( error, result){
+      // In this moment, you recive a result object or error
+      console.log(result)
+    });
   });
 });
 

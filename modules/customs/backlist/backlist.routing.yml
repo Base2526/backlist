@@ -136,6 +136,15 @@ api.login:
   requirements:
     _permission: 'access content'
 
+# LoginWithSocial
+# api.login_with_social:
+#   path: '/api/login_with_social'
+#   methods: [POST]
+#   defaults: 
+#     _controller: '\Drupal\backlist\Controller\API::LoginWithSocial'
+#   requirements:
+#     _permission: 'access content'
+
 api.register:
   path: '/api/register'
   methods: [POST]
