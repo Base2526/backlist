@@ -27,3 +27,4 @@ redis/.env
 
 nodejs/node_modules
 nodejs/mongodb
+nodejs/mongo

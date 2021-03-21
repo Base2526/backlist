@@ -387,3 +387,11 @@ https://gist.github.com/WengerK/9523cb4ce9f7e6c220ce0b20773a3ce8
 ---- Search api ----
 
 
+Node kill post : 3000
+ps -ef | grep node
+# or 
+ps aux | grep node
+
+kill -9 PROCESS_ID 
+
+

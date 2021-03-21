@@ -10,3 +10,12 @@ This is a todo web application. It keeps track of chores you need to do and have
 
 https://github.com/vinnyoodles/react-native-socket-io-example
 
+
+
+
+// จะส่งไปทุกๆ  socket.on('FromAPI', (messageNew) => ในส่วน reactjs
+// socket.emit("FromAPI", response);
+
+// จะส่งไปตามแต่ละ socket.id
+// io.to('vwMRV1tla8OILFnWAAAC').emit('FromAPI', 'for your eyes only');
+

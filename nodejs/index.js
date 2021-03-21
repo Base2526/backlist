@@ -68,6 +68,7 @@ var server = http.Server(app);
 var io = socketio(server);
 
 const socketsModel  = require('./models/sockets');
+const usersModel    = require('./models/users');
 
 const connection = require("./connection")
 
@@ -79,6 +80,14 @@ connection().then((db) => {
 
 server.listen(3000, () => console.log('listening on *:3000'));
 
+// For POST-Support
+let bodyParser = require('body-parser');
+let multer = require('multer');
+let upload = multer();
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 app.get('/api/hello', (req, res) => {
   // db.collection('sockets').insert(res, (err, message) => {
   //   console.log(err)
@@ -88,6 +97,121 @@ app.get('/api/hello', (req, res) => {
 
   res.send({ express: config.mongo.url });
 });
+
+
+// case login will add uid to socketsModel and logout will clear uid for socketsModel
+app.post('/api/login', (req, res) => {
+  try {
+    console.log(req.body)
+    
+    let {unique_id, uid} = req.body
+    if(!unique_id || !uid){    
+      res.status(404).send({'message': 'ERROR'});
+    }else{
+
+      socketsModel.findOneAndUpdate({ uniqueId: unique_id }, { uid }, {
+        new: true,
+        upsert: true 
+      },function( error, result){
+        // In this moment, you recive a result object or error
+        console.log(result)
+      });
+
+      res.status(200).send({'message': 'OK'});
+    }
+  } catch (err) {
+    res.status(500).send({errors: err});
+  }
+});
+
+app.post('/api/logout', (req, res) => {
+  try {
+    console.log(req.body)
+    
+    let {unique_id, uid} = req.body
+    if(!unique_id || !uid){    
+      res.status(404).send({'message': 'ERROR'});
+    }else{
+
+      socketsModel.findOneAndUpdate({ uniqueId: unique_id, uid }, { uid: '' }, {
+        new: true,
+        upsert: true 
+      },function( error, result){
+        // In this moment, you recive a result object or error
+        console.log(result)
+      });
+
+      res.status(200).send({'message': 'OK'});
+    }
+  } catch (err) {
+    res.status(500).send({errors: err});
+  }
+});
+
+
+app.post('/api/favorite', async (req, res) => {
+  try {
+    console.log(req.body)
+    
+    // let {unique_id, uid} = req.body
+    // if(!unique_id || !uid){    
+    //   res.status(404).send({'message': 'ERROR'});
+    // }else{
+
+    //   socketsModel.findOneAndUpdate({ uniqueId: unique_id, uid }, { uid: '' }, {
+    //     new: true,
+    //     upsert: true 
+    //   },function( error, result){
+    //     // In this moment, you recive a result object or error
+    //     console.log(result)
+    //   });
+
+    //   res.status(200).send({'message': 'OK'});
+    // }  
+    let { uid, id_favorite, unique_id } = req.body
+    if(!uid || !id_favorite || !unique_id){    
+      res.status(404).send({'message': 'ERROR'});
+    }else{
+      let user = await usersModel.findOne({ uid });
+      
+      if ( user === null ){
+        await new usersModel({ uid, favorites: [id_favorite]}).save()
+      }else{
+        var favorites = user.favorites.toObject();
+        
+        if(favorites.includes(id_favorite)){
+          favorites = favorites.filter((v) => {return v != id_favorite})
+        }else{
+          favorites = [...favorites, id_favorite]
+        }
+
+        usersModel.findOneAndUpdate({ uid }, { uid, favorites }, {
+          new: true,
+          upsert: true 
+        },async function( error, result){
+          // In this moment, you recive a result object or error
+          
+          if ( error === null ){
+            console.log(result)
+
+            let fs = await socketsModel.findOne({ unique_id });
+            if ( fs !== null ){
+              if(fs.socketId){
+                console.log(fs.socketId)
+                io.to(fs.socketId).emit('FromAPI', 'for your eyes only');
+              }
+            }
+          }
+        });
+      }
+    }
+    
+    res.status(200).send({'message': 'OK'});
+  } catch (err) {
+    res.status(500).send({errors: err});
+  }
+});
+
 
 // Mapping objects to easily map sockets and users.
 var clients = {};

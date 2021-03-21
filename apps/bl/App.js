@@ -63,7 +63,7 @@ import {API_URL_SOCKET_IO} from "@env"
 
 import Toast, {DURATION} from 'react-native-easy-toast'
 
-import { Base64 } from './Utils'
+import { Base64, checkLogin } from './Utils'
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -339,7 +339,20 @@ class App extends Component {
   onSocket = () =>{
 
     console.log(API_URL_SOCKET_IO)
-    this.socket = io(API_URL_SOCKET_IO, { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${Base64.btoa(getUniqueId())}&version=${getVersion()}` });
+
+    let cL = checkLogin()
+    console.log(cL)
+
+    /*
+    if login = TRUE will send uid to socket io
+    */
+
+    // if(login = TRUE){
+      // this.socket = io(API_URL_SOCKET_IO, { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${Base64.btoa(getUniqueId())}&version=${getVersion()}&uid=123` });
+    // }else{
+      this.socket = io(API_URL_SOCKET_IO, { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${Base64.btoa(getUniqueId())}&version=${getVersion()}` });
+    // }
+    
     this.socket.on('message', (data)=>{
       console.log('-message>')
       console.log(data)

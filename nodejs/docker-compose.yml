@@ -22,6 +22,8 @@ services:
     command: mongod --port 27099
     ports:
       - "27099:27099"
+    volumes:
+      - "./mongo/data:/data/db"
     # environment:
     #   - MONGO_INITDB_ROOT_USERNAME=root
     #   - MONGO_INITDB_ROOT_PASSWORD=YWRtaW4=
