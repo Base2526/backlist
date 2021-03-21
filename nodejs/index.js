@@ -148,7 +148,6 @@ app.post('/api/logout', (req, res) => {
   }
 });
 
-
 app.post('/api/favorite', async (req, res) => {
   try {
     console.log(req.body)
@@ -165,9 +164,9 @@ app.post('/api/favorite', async (req, res) => {
     //     // In this moment, you recive a result object or error
     //     console.log(result)
     //   });
-
     //   res.status(200).send({'message': 'OK'});
     // }  
+
     let { uid, id_favorite, unique_id } = req.body
     if(!uid || !id_favorite || !unique_id){    
       res.status(404).send({'message': 'ERROR'});
@@ -189,8 +188,6 @@ app.post('/api/favorite', async (req, res) => {
           new: true,
           upsert: true 
         },async function( error, result){
-          // In this moment, you recive a result object or error
-          
           if ( error === null ){
             console.log(result)
 
@@ -211,7 +208,6 @@ app.post('/api/favorite', async (req, res) => {
     res.status(500).send({errors: err});
   }
 });
-
 
 // Mapping objects to easily map sockets and users.
 var clients = {};

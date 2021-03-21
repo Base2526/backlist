@@ -354,10 +354,16 @@ class App extends Component {
     // }
     
     this.socket.on('message', (data)=>{
-      console.log('-message>')
+      console.log('message>')
       console.log(data)
-      console.log('<message-')
+      console.log('<message')
     });
+
+    this.socket.on('FromAPI', (data)=>{
+      console.log('FromAPI>')
+      console.log(data)
+      console.log('<FromAPI')
+    })
   }
 
   render(){
