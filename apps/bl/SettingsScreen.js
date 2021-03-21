@@ -36,7 +36,9 @@ import { ValidateEmail, isEmpty, checkLogin, logout } from './Utils'
 class SettingsScreen extends Component {
     constructor(props) {
         super(props);
-        this.state = {bottomModalAndTitle: false, isLogin:false, laps: ['1', '2', '3']}
+        this.state = {bottomModalAndTitle: false, 
+                      isLogin:false, 
+                      laps: ['1', '2', '3']}
     }
 
     componentDidMount() {
@@ -67,6 +69,10 @@ class SettingsScreen extends Component {
 
         this.modalLogin = this.modalLogin.bind(this)
     }
+
+    onSelect = data => {
+        this.setState(data);
+    };
 
     handleLoginWithFacebook= () =>{
         console.log('handleLoginWithFacebook')
@@ -148,7 +154,8 @@ class SettingsScreen extends Component {
                 onPress={()=>{
 
                 this.setState({ bottomModalAndTitle: false }, ()=>{
-                    navigation.navigate('login')
+                    navigation.navigate('login', { onSelect: this.onSelect })
+                    
                 })
                 
                 }}>
@@ -260,11 +267,15 @@ class SettingsScreen extends Component {
     }
 
     lapsList() {
+
+        let { navigation } = this.props;
+
         let { isLogin } = this.state
-        let laps = [{'id': 0, 'title': 'Profile', 'icon_name': "person-outline" }, 
+        let laps = [{'id': 0, 'title': 'My Account', 'icon_name': "person-outline" }, 
                     {'id': 1, 'title': 'My post', 'icon_name': "add-circle-outline" },
                     {'id': 2, 'title': 'My following', 'icon_name': "at-circle-outline" },
-                    {'id': 3, 'title': 'Logout', 'icon_name': "log-out-outline" },]
+                    // {'id': 3, 'title': 'Logout', 'icon_name': "log-out-outline" },
+                ]
 
         if(isLogin){
             return laps.map((data) => {
@@ -283,16 +294,19 @@ class SettingsScreen extends Component {
                           onPress={()=>{
                             switch(data.id){
                                 case 0:{
+                                    navigation.navigate('profile')
 
                                     break;
                                 }
 
                                 case 1:{
+                                    navigation.navigate('mypost')
                                     
                                     break;
                                 }
 
                                 case 2:{
+                                    navigation.navigate('myfollowing')
                                     
                                     break;
                                 }

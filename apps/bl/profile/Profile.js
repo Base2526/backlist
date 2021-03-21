@@ -676,9 +676,9 @@ class Profile extends Component {
           <View style={styles.userNameRow}>
             <Text style={styles.userNameText}>{name}</Text>
           </View>
-          <View style={styles.userBioRow}>
+          {/* <View style={styles.userBioRow}>
             <Text style={styles.userBioText}>{bio}</Text>
-          </View>
+          </View> */}
         </View>
         {/* 
         <View style={styles.socialRow}>
@@ -824,64 +824,64 @@ class Profile extends Component {
 
     if(Object.keys(user).length > 0){
 
-      navigation.setOptions({
-        headerRight: () => (
-          <View style={{flexDirection:'row'}}>
-            <View style={{marginRight: 5}}>
-                <Menu
-                ref={(ref) => (_menu = ref)}
-                button={
-                    <TouchableOpacity 
-                        style={{ marginHorizontal: 10 }}
-                        onPress={()=>{
-                            _menu.show()
-                    }}>
-                    <MaterialIcons name="more-vert" size={25} color={'grey'}  />
-                    </TouchableOpacity>
-                }>
+      // navigation.setOptions({
+      //   headerRight: () => (
+      //     <View style={{flexDirection:'row'}}>
+      //       <View style={{marginRight: 5}}>
+      //           <Menu
+      //           ref={(ref) => (_menu = ref)}
+      //           button={
+      //               <TouchableOpacity 
+      //                   style={{ marginHorizontal: 10 }}
+      //                   onPress={()=>{
+      //                       _menu.show()
+      //               }}>
+      //               <MaterialIcons name="more-vert" size={25} color={'grey'}  />
+      //               </TouchableOpacity>
+      //           }>
 
-                <MenuItem onPress={() => {
-                  _menu.hide();
+      //           <MenuItem onPress={() => {
+      //             _menu.hide();
                     
-                }}>
-                   <View style={{flexDirection:'row', alignItems: 'center',}}>
-                      <MaterialIcons style={{padding:5}} name="cached" size={20} color={'grey'}  />
-                      <Text>Refresh</Text>
-                  </View>
-                </MenuItem>
-                <MenuItem onPress={() => {
-                    _menu.hide();
+      //           }}>
+      //              <View style={{flexDirection:'row', alignItems: 'center',}}>
+      //                 <MaterialIcons style={{padding:5}} name="cached" size={20} color={'grey'}  />
+      //                 <Text>Refresh</Text>
+      //             </View>
+      //           </MenuItem>
+      //           <MenuItem onPress={() => {
+      //               _menu.hide();
                     
-                    Alert.alert(
-                      "Message",
-                      "Are you sure logout?",
-                      [
-                        {
-                          text: "Cancel",
-                          onPress: () => console.log("Cancel Pressed"),
-                          style: "cancel"
-                        },
-                        { text: "OK", onPress: () => {
-                          _this.saveLogout().then(()=>{
-                            _this.setState({user: {}})
-                          })
-                        } 
-                        }
-                      ],
-                      { cancelable: false }
-                    );
-                }}>
+      //               Alert.alert(
+      //                 "Message",
+      //                 "Are you sure logout?",
+      //                 [
+      //                   {
+      //                     text: "Cancel",
+      //                     onPress: () => console.log("Cancel Pressed"),
+      //                     style: "cancel"
+      //                   },
+      //                   { text: "OK", onPress: () => {
+      //                     _this.saveLogout().then(()=>{
+      //                       _this.setState({user: {}})
+      //                     })
+      //                   } 
+      //                   }
+      //                 ],
+      //                 { cancelable: false }
+      //               );
+      //           }}>
                     
-                    <View style={{flexDirection:'row', alignItems: 'center',}}>
-                        <MaterialIcons style={{padding:5}} name="logout" size={20} color={'grey'}  />
-                        <Text>Logout</Text>
-                    </View>
-                </MenuItem>
-                </Menu>
-            </View>
-          </View>
-        )
-      })
+      //               <View style={{flexDirection:'row', alignItems: 'center',}}>
+      //                   <MaterialIcons style={{padding:5}} name="logout" size={20} color={'grey'}  />
+      //                   <Text>Logout</Text>
+      //               </View>
+      //           </MenuItem>
+      //           </Menu>
+      //       </View>
+      //     </View>
+      //   )
+      // })
 
       return (
         <ScrollView style={styles.scroll}>
@@ -898,13 +898,13 @@ class Profile extends Component {
               />
             <View style={styles.cardContainer}>
               {this.renderContactHeader()}
-              {/* <TabView
+              <TabView
                 style={[styles.tabContainer, this.props.tabContainerStyle]}
                 navigationState={this.state.tabs}
                 renderScene={this.renderScene}
                 renderTabBar={this.renderTabBar}
                 onIndexChange={this.handleIndexChange}
-              /> */}
+              />
             </View>
 
             <ActionSheet

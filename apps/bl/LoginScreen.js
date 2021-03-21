@@ -46,7 +46,7 @@
   }
 
   handleLogin = () =>{
-    let { navigation } = this.props;
+    let { navigation, route } = this.props;
     let { name, password } = this.state
     name = name.trim()
     password = password.trim()
@@ -75,7 +75,11 @@
           login(results.user).then(()=>{
             _this.setState({spinner: false}) 
 
-            navigation.pop(); 
+            // navigation.pop(); 
+
+            // const { navigation, route } = this.props;
+            navigation.pop();
+            route.params.onSelect({ isLogin: true });
           })  
         }else{
           _this.toast.show(results.message);

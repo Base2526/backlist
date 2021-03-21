@@ -1,57 +1,3 @@
-// const express = require('express');
-// const path = require('path');
-// const bodyParser = require('body-parser');
-
-// const socket = require("socket.io");
-
-// const PORT = process.env.PORT || 3000;
-// const app = express();
-
-// const http  = require('http');
-// const server= http.createServer(app);
-// let io = require('socket.io')(server);
-
-// app.use(bodyParser.urlencoded({ extended: false }))
-// app.use(bodyParser.json())
-// app.use(express.static(__dirname + '/public'));
-
-// app.get('/todo', (req, res) => {
-//   ToDo.find()
-//     .then((toDos) => res.status(200).send(toDos))
-//     .catch((err) => res.status(400).send(err));
-// });
-
-// app.post('/todo', (req, res) => {
-//   const body = req.body;
-//   const toDo = new ToDo({
-//     text: body.text,
-//   });
-//   toDo.save(toDo)
-//     .then((savedToDo) => res.status(201).send(savedToDo))
-//     .catch((err) => res.status(400).send(err));
-// });
-
-// app.patch('/todo/:id', (req, res) => {
-//   const { id } = req.params;
-//   ToDo.findOneAndUpdate({ _id: id }, { done: true })
-//     .then((toDo) => res.status(200).send(toDo))
-//     .catch((err) => res.status(400).send(err));
-// });
-
-// const mongoose = require('mongoose');
-// const ToDo = require('./toDoModel.js').ToDo;
-// const DB_URI = 'mongodb://mongo:27017/toDoApp';
-
-// mongoose.connect(DB_URI).then(() => {
-//   console.log('Listening on port: ' + PORT);
-//   app.listen(PORT);
-// });
-
-// io.on('connection', (socket) => { 
-//   let handshake = socket.handshake;
-
-//   console.log('connection')
-// });
 const mongoose = require("mongoose");
 var express = require('express');
 var http = require('http')
@@ -97,7 +43,6 @@ app.get('/api/hello', (req, res) => {
 
   res.send({ express: config.mongo.url });
 });
-
 
 // case login will add uid to socketsModel and logout will clear uid for socketsModel
 app.post('/api/login', (req, res) => {
@@ -152,24 +97,9 @@ app.post('/api/favorite', async (req, res) => {
   try {
     console.log(req.body)
     
-    // let {unique_id, uid} = req.body
-    // if(!unique_id || !uid){    
-    //   res.status(404).send({'message': 'ERROR'});
-    // }else{
-
-    //   socketsModel.findOneAndUpdate({ uniqueId: unique_id, uid }, { uid: '' }, {
-    //     new: true,
-    //     upsert: true 
-    //   },function( error, result){
-    //     // In this moment, you recive a result object or error
-    //     console.log(result)
-    //   });
-    //   res.status(200).send({'message': 'OK'});
-    // }  
-
     let { uid, id_favorite, unique_id } = req.body
     if(!uid || !id_favorite || !unique_id){    
-      res.status(404).send({'message': 'ERROR'});
+      return res.status(200).send({'result': false, 'message': 'Error params'});
     }else{
       let user = await usersModel.findOne({ uid });
       
@@ -191,10 +121,9 @@ app.post('/api/favorite', async (req, res) => {
           if ( error === null ){
             console.log(result)
 
-            let fs = await socketsModel.findOne({ unique_id });
+            let fs = await socketsModel.findOne({ uniqueId: unique_id });
             if ( fs !== null ){
               if(fs.socketId){
-                console.log(fs.socketId)
                 io.to(fs.socketId).emit('FromAPI', 'for your eyes only');
               }
             }
@@ -203,9 +132,9 @@ app.post('/api/favorite', async (req, res) => {
       }
     }
     
-    res.status(200).send({'message': 'OK'});
+    return res.status(200).send({'message': 'OK'});
   } catch (err) {
-    res.status(500).send({errors: err});
+    return res.status(500).send({errors: err});
   }
 });
 
@@ -226,12 +155,13 @@ io.on('connection', (socket) => {
   let handshake = socket.handshake;
   console.log(handshake.query.unique_id)
 
+  var uid = handshake.query.uid;
   var unique_id = handshake.query.unique_id;
   var platform = handshake.query.platform;
 
   console.log(`Socket ${socket.id} connection`)
 
-  // console.log(socket)
+  console.log(`uid :  ${uid}`)
   // users[unique_id] = socket;
 
   socket.emit('message', { unique_id: unique_id });
@@ -269,7 +199,8 @@ io.on('connection', (socket) => {
 
   // `doc` is the document _after_ `update` was applied because of
   // `new: true`
-  socketsModel.findOneAndUpdate({ uniqueId: unique_id }, { uniqueId: unique_id, socketId: socket.id, platform}, {
+  
+  socketsModel.findOneAndUpdate({ uniqueId: unique_id }, { uniqueId: unique_id, socketId: socket.id, platform, uid: (uid !== undefined  ? uid : 0) }, {
     new: true,
     upsert: true 
   },function( error, result){

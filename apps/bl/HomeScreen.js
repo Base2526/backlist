@@ -55,9 +55,11 @@ import Share from 'react-native-share';
 
 import ReadMore from '@fawazahmed/react-native-read-more';
 
-import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID} from "@env"
+import { getUniqueId, getVersion } from 'react-native-device-info';
 
-import { ValidateEmail, isEmpty, checkLogin } from './Utils'
+import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID, API_URL_SOCKET_IO} from "@env"
+
+import { Base64, ValidateEmail, isEmpty, checkLogin } from './Utils'
 
 class HomeScreen extends Component {
   constructor(props) {
@@ -472,6 +474,10 @@ class HomeScreen extends Component {
   renderItem = (item) =>{
     const { navigation } = this.props;
 
+    // console.log(item.id)
+
+    let { id } = item
+
     let _this = this
     let _menu = null;
     return (
@@ -486,8 +492,39 @@ class HomeScreen extends Component {
               <View style={{position:'absolute', right: 0, flexDirection:'row'}}>
                 <TouchableOpacity 
                   style={{ padding:3,}}
-                  onPress={()=>{
-                    _this.toast.show('Follow');
+                  onPress={ async ()=>{
+                    // _this.toast.show('Follow');
+                    // /api/favorite'
+
+                    let cL = await checkLogin()
+
+                    console.log(cL)
+
+                    // uid, id_favorite, unique_id 
+
+                    // console.log(API_URL_SOCKET_IO)
+                    axios.post(`${API_URL_SOCKET_IO}/api/favorite`, {
+                      uid: cL.uid,
+                      id_favorite: id,
+                      unique_id: Base64.btoa(getUniqueId())
+                    }, {
+                      headers: { 
+                        'Content-Type': 'application/json',
+                      }
+                    })
+                    .then(function (response) {
+                      let {result, message} = response.data
+
+                      if(result){
+
+                      }else{
+                        _this.toast.show(message);
+                      }
+                    })
+                    .catch(function (error) {
+                      console.log(error)
+                      // _this.setState({loading: false})
+                    });
                   }}>
                   <Ionicons name="shield-checkmark-outline" size={25} color={'red'} />
                 </TouchableOpacity>

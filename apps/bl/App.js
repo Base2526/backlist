@@ -54,7 +54,9 @@ import FilterScreen from './FilterScreen'
 import MeScreen from './MeScreen'
 import ForgotPassword from './ForgotPassword'
 import SignUp from './SignUp'
-import Profile from './profile/Profile'
+import Profile from './Profile1/index'
+import MyPost from './MyPost'
+import MyFollowing from './MyFollowing'
 
 import SettingsScreen from './SettingsScreen'
 import ReportScreen from './ReportScreen'
@@ -63,7 +65,7 @@ import {API_URL_SOCKET_IO} from "@env"
 
 import Toast, {DURATION} from 'react-native-easy-toast'
 
-import { Base64, checkLogin } from './Utils'
+import { Base64, checkLogin, isEmpty} from './Utils'
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -237,7 +239,10 @@ function MeStackScreen({navigation, route}) {
     if (  routeName == "forgot_password" || 
           routeName == "sign_up" || 
           routeName == 'login' ||
-          routeName == 'inappbrowser' ){
+          routeName == 'inappbrowser' ||
+          routeName == 'profile' ||
+          routeName == 'mypost' ||
+          routeName == 'myfollowing' ){
         navigation.setOptions({tabBarVisible: false});
     }else {
         navigation.setOptions({tabBarVisible: true});
@@ -277,6 +282,33 @@ function MeStackScreen({navigation, route}) {
             tabBarVisible: false,
           }}
         />
+        <MeStack.Screen 
+          name="profile" 
+          component={Profile}
+          // options={{ title: 'Result Search',  }}
+          options={{
+            title: 'My Account',
+            tabBarVisible: false,
+          }}
+        />
+        <MeStack.Screen 
+          name="mypost" 
+          component={MyPost}
+          options={{
+            title: 'My Post',
+            tabBarVisible: false,
+          }}
+        />
+        <MeStack.Screen 
+          name="myfollowing" 
+          component={MyFollowing}
+          options={{
+            title: 'My Following',
+            tabBarVisible: false,
+          }}
+        />
+
+        {/*  */}
     </MeStack.Navigator>
   );
 }
@@ -336,22 +368,16 @@ class App extends Component {
   }
 
   // https://github.com/vinnyoodles/react-native-socket-io-example/blob/master/client/index.js
-  onSocket = () =>{
+  onSocket = async () =>{
 
+    // let API_URL_SOCKET_IO='http://localhost:3000'
     console.log(API_URL_SOCKET_IO)
-
-    let cL = checkLogin()
-    console.log(cL)
-
-    /*
-    if login = TRUE will send uid to socket io
-    */
-
-    // if(login = TRUE){
-      // this.socket = io(API_URL_SOCKET_IO, { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${Base64.btoa(getUniqueId())}&version=${getVersion()}&uid=123` });
-    // }else{
+    let cL = await checkLogin()
+    if(!isEmpty(cL)){    
+      this.socket = io(API_URL_SOCKET_IO, { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${Base64.btoa(getUniqueId())}&version=${getVersion()}&uid=${cL.uid}` });
+    }else{
       this.socket = io(API_URL_SOCKET_IO, { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${Base64.btoa(getUniqueId())}&version=${getVersion()}` });
-    // }
+    }
     
     this.socket.on('message', (data)=>{
       console.log('message>')
