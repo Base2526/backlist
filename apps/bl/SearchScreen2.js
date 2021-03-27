@@ -529,6 +529,16 @@ export default class Search extends React.PureComponent {
               onBlur={() => {
                 this.setState({isFocused: false})
               }}
+
+              leftIcon={
+                <Feather name="arrow-left" size={25} color="gray" />
+                // <Icon
+                //   name={focus ? "arrow-right" : "magnify"}
+                //   type="material-community"
+                //   color="rgba(0, 0, 0, 0.54)"
+                //   onPress={focus && this.searchbar && this.searchbar.cancel}
+                // />
+              }
             />
           </View>
           <SectionList

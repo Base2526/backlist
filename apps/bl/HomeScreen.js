@@ -23,10 +23,8 @@ import {
   RefreshControl
 } from 'react-native';
 
-// import { Image } from 'react-native-elements';
-
+import { connect } from 'react-redux';
 import ReactNativeModal from 'react-native-modal';
-
 import {
   LoginButton,
   AccessToken,
@@ -61,10 +59,13 @@ import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID, API_URL_SOCKET_IO} fro
 
 import { Base64, ValidateEmail, isEmpty, checkLogin } from './Utils'
 
+import { fetchDataAll, testFetchData, checkFetchData, clearDataALL } from './actions/app';
+
 class HomeScreen extends Component {
   constructor(props) {
       super(props);
       this.state = {
+                  isLogin:false,
                   data:[],
                   loading: false,
                   nid_last: 0,
@@ -78,10 +79,10 @@ class HomeScreen extends Component {
                   };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     // useEffect(() => this.getData(), []);
 
-    const { route, navigation } = this.props;
+    const { route, navigation, fetchDataAll } = this.props;
 
     let _this = this
     let _menu = null;
@@ -97,7 +98,9 @@ class HomeScreen extends Component {
               <TouchableOpacity 
                 style={{ marginHorizontal: 10 }}
                 onPress={()=>{
-                  navigation.navigate('search')
+                  // navigation.navigate('search')
+
+                  fetchDataAll()
                 }}>
                 <Ionicons name="search-outline" size={25} color={'grey'} />
               </TouchableOpacity>
@@ -140,6 +143,19 @@ class HomeScreen extends Component {
       forceCodeForRefreshToken: true, // [Android] related to `serverAuthCode`, read the docs link below *.
       iosClientId: IOS_CLIENT_ID, // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
     });
+
+    let cL = await checkLogin()
+    if(!isEmpty(cL)){
+      this.setState({isLogin: true})
+    }
+
+    let {user} = this.props.user;
+
+    console.log('user : ', user)
+  }
+
+  componentDidUpdate(prevProps){
+    console.log('componentDidUpdate : ', prevProps)
   }
   
   refresh = () =>{
@@ -161,9 +177,8 @@ class HomeScreen extends Component {
   }
 
   onSelect = data => {
-
-    console.log('onSelect');
-  };
+    this.setState(data);
+  }
 
   handleSearch= () => {
       console.log(this.state.name);
@@ -472,9 +487,8 @@ class HomeScreen extends Component {
   }
 
   renderItem = (item) =>{
-    const { navigation } = this.props;
-
-    // console.log(item.id)
+    let { navigation } = this.props;
+    let { isLogin }   = this.state
 
     let { id } = item
 
@@ -497,37 +511,36 @@ class HomeScreen extends Component {
                     // /api/favorite'
 
                     let cL = await checkLogin()
+                    if(isEmpty(cL)){
+                      this.setState({ bottomModalAndTitle: true })
+                    }else{
+                      axios.post(`${API_URL_SOCKET_IO}/api/favorite`, {
+                        uid: cL.uid,
+                        id_favorite: id,
+                        unique_id: Base64.btoa(getUniqueId())
+                      }, {
+                        headers: { 
+                          'Content-Type': 'application/json',
+                        }
+                      })
+                      .then(function (response) {
+                        let {result, message} = response.data
 
-                    console.log(cL)
+                        if(result){
 
-                    // uid, id_favorite, unique_id 
-
-                    // console.log(API_URL_SOCKET_IO)
-                    axios.post(`${API_URL_SOCKET_IO}/api/favorite`, {
-                      uid: cL.uid,
-                      id_favorite: id,
-                      unique_id: Base64.btoa(getUniqueId())
-                    }, {
-                      headers: { 
-                        'Content-Type': 'application/json',
-                      }
-                    })
-                    .then(function (response) {
-                      let {result, message} = response.data
-
-                      if(result){
-
-                      }else{
-                        _this.toast.show(message);
-                      }
-                    })
-                    .catch(function (error) {
-                      console.log(error)
-                      // _this.setState({loading: false})
-                    });
+                        }else{
+                          _this.toast.show(message);
+                        }
+                      })
+                      .catch(function (error) {
+                        console.log(error)
+                        // _this.setState({loading: false})
+                      });
+                    }
                   }}>
-                  <Ionicons name="shield-checkmark-outline" size={25} color={'red'} />
+                  <Ionicons name="shield-checkmark-outline" size={25} color={'gray'} />
                 </TouchableOpacity>
+                
                 <View style={{justifyContent:'center'}}>
                   <Menu
                     ref={(ref) => (_menu = ref)}
@@ -562,9 +575,15 @@ class HomeScreen extends Component {
                         </View>
                     </MenuItem>
 
-                    <MenuItem onPress={() => {
+                    <MenuItem onPress={ async () => {
                             _menu.hide();
-                            navigation.navigate('report', {data:item})
+                            
+                            let cL = await checkLogin()
+                            if(isEmpty(cL)){
+                              this.setState({ bottomModalAndTitle: true })
+                            }else{
+                              navigation.navigate('report', {data:item})
+                            }
                           }} style={{flex:1, justifyContent:'center'}}>
                         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
                           <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="report" size={25} color={'grey'}  />
@@ -724,7 +743,7 @@ class HomeScreen extends Component {
           onPress={()=>{
 
             this.setState({ bottomModalAndTitle: false }, ()=>{
-              navigation.navigate('login')
+              navigation.navigate('login', { onSelect: this.onSelect })
             })
             
           }}>
@@ -830,16 +849,13 @@ class HomeScreen extends Component {
                 <ActionButton
                   buttonColor="rgba(231,76,60,1)"
                   onPress={() => { 
-                    checkLogin().then(res => {
-                      console.log(res)
-                      if(isEmpty(res)){
-                        this.setState({bottomModalAndTitle: true})
-                      }else{
-                        navigation.navigate('add_banlist');
-                      }
-                    }) 
+                    console.log(this.props.user)
+                    if(isEmpty(this.props.user)){
+                      this.setState({bottomModalAndTitle: true})
+                    }else{
+                      navigation.navigate('add_banlist');
+                    }
                   }}/>
-                
                 {this.modalLogin()}
 
                 <Toast
@@ -930,4 +946,27 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+const mapStateToProps = state => {
+
+  // console.log('mapStateToProps>')
+  // console.log( state )
+  
+  console.log('mapStateToProps : ', state)
+  return{
+    data: state.app.data,
+    test: state.app.test,
+    user: state.user.data
+  }
+}
+
+/*
+ is function call by user
+*/
+const mapDispatchToProps = {
+  fetchDataAll,
+  testFetchData,
+  checkFetchData,
+  clearDataALL
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen)

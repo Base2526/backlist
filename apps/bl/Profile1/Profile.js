@@ -10,12 +10,224 @@ import {
   StyleSheet,
   Text,
   View,
+  TouchableOpacity,
+  Alert,
 } from 'react-native'
 import PropTypes from 'prop-types'
+
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import Email from './Email'
 import Separator from './Separator'
 import Tel from './Tel'
+
+import contactData from '../profile/contact.json'
+
+import { isEmpty } from '../Utils'
+
+class Profile extends Component {
+  // static propTypes = {
+  //   avatar: PropTypes.string.isRequired,
+  //   avatarBackground: PropTypes.string.isRequired,
+  //   name: PropTypes.string.isRequired,
+  //   address: PropTypes.shape({
+  //     city: PropTypes.string.isRequired,
+  //     country: PropTypes.string.isRequired,
+  //   }).isRequired,
+  //   emails: PropTypes.arrayOf(
+  //     PropTypes.shape({
+  //       email: PropTypes.string.isRequired,
+  //       id: PropTypes.number.isRequired,
+  //       name: PropTypes.string.isRequired,
+  //     })
+  //   ).isRequired,
+  //   tels: PropTypes.arrayOf(
+  //     PropTypes.shape({
+  //       id: PropTypes.number.isRequired,
+  //       name: PropTypes.string.isRequired,
+  //       number: PropTypes.string.isRequired,
+  //     })
+  //   ).isRequired,
+  // }
+
+  constructor(props) {
+    super(props);
+    this.state = {contactData:{}}
+  }
+
+  componentDidMount() {
+    const { route, navigation} = this.props;
+
+    navigation.setOptions({
+        headerRight: () => (
+          <View style={{flexDirection:'row'}}>
+            <TouchableOpacity 
+              style={{ marginHorizontal: 10 }}
+              onPress={()=>{
+                Alert.alert(
+                  "Comfirm",
+                  "Are you sure logout?",
+                  [
+                      {
+                      text: "Cancel",
+                      onPress: () => console.log("Cancel Pressed"),
+                      style: "cancel"
+                      },
+                      { text: "Logout", onPress: () => {
+                        // logout().then(res => {
+                        //     this.setState({isLogin: false})
+                        // })
+                        console.log('logout')
+                      }}
+                  ]
+                  );
+              }}>
+              <Ionicons name="log-out-outline" size={25} color={'grey'} />
+            </TouchableOpacity>
+          </View>
+        )
+    })
+
+    this.setState({contactData})
+    // console.log(contactData)
+  }
+
+  onPressPlace = () => {
+    console.log('place')
+  }
+
+  onPressTel = number => {
+    Linking.openURL(`tel://${number}`).catch(err => console.log('Error:', err))
+  }
+
+  onPressSms = () => {
+    console.log('sms')
+  }
+
+  onPressEmail = email => {
+    Linking.openURL(`mailto://${email}?subject=subject&body=body`).catch(err =>
+      console.log('Error:', err)
+    )
+  }
+
+  renderHeader = () => {
+    let {
+      avatar,
+      avatarBackground,
+      name,
+      address,
+      // address: { city, country },
+    } = this.state.contactData
+
+    // let { city, country } = address
+    console.log(avatar)
+    // console.log(city, country)
+    // return <View />
+    // if(isEmpty(this.state.contactData)){
+    //   return <View />
+    // }
+
+    // const {
+    //   avatar,
+    //   avatarBackground,
+    //   name,
+    //   address: { city, country },
+    // } = this.state.contactData
+
+    return (
+      <View style={styles.headerContainer}>
+        <ImageBackground
+          style={styles.headerBackgroundImage}
+          blurRadius={10}
+          source={{uri: avatarBackground}}
+        >
+          <View style={styles.headerColumn}>
+            <Image
+              style={styles.userImage}
+              source={{uri: avatar}}
+            />
+            <Text style={styles.userNameText}>{name}</Text>
+            <View style={styles.userAddressRow}>
+              <View>
+                <Icon
+                  name="place"
+                  underlayColor="transparent"
+                  iconStyle={styles.placeIcon}
+                  onPress={this.onPressPlace}
+                />
+              </View>
+              <View style={styles.userCityRow}>
+                <Text style={styles.userCityText}>
+                  city, country
+                </Text>
+              </View>
+            </View>
+          </View>
+        </ImageBackground>
+      </View>
+    )
+  }
+
+  renderTel = () => (
+    
+    <FlatList
+      contentContainerStyle={styles.telContainer}
+      data={this.state.contactData.tels}
+      renderItem={(list) => {
+        const { id, name, number } = list.item
+
+        return (
+          <Tel
+            key={`tel-${id}`}
+            index={list.index}
+            name={name}
+            number={number}
+            onPressSms={this.onPressSms}
+            onPressTel={this.onPressTel}
+          />
+        )
+      }}
+    />
+  )
+
+  renderEmail = () => (
+    <FlatList
+      contentContainerStyle={styles.emailContainer}
+      data={this.state.contactData.emails}
+      renderItem={(list) => {
+        const { email, id, name } = list.item
+
+        return (
+          <Email
+            key={`email-${id}`}
+            index={list.index}
+            name={name}
+            email={email}
+            onPressEmail={this.onPressEmail}
+          />
+        )
+      }}
+    />
+  )
+
+  render() {
+    if(isEmpty(this.state.contactData)){
+      return <View />
+    }
+    return (
+      <ScrollView style={styles.scroll}>
+        <View style={styles.container}>
+          <Card containerStyle={styles.cardContainer}>
+            {this.renderHeader()}
+            {this.renderTel()}
+            {Separator()}
+            {this.renderEmail()}
+          </Card>
+        </View>
+      </ScrollView>
+    )
+  }
+}
 
 const styles = StyleSheet.create({
   cardContainer: {
@@ -93,146 +305,4 @@ const styles = StyleSheet.create({
   },
 })
 
-class Contact extends Component {
-  // static propTypes = {
-  //   avatar: PropTypes.string.isRequired,
-  //   avatarBackground: PropTypes.string.isRequired,
-  //   name: PropTypes.string.isRequired,
-  //   address: PropTypes.shape({
-  //     city: PropTypes.string.isRequired,
-  //     country: PropTypes.string.isRequired,
-  //   }).isRequired,
-  //   emails: PropTypes.arrayOf(
-  //     PropTypes.shape({
-  //       email: PropTypes.string.isRequired,
-  //       id: PropTypes.number.isRequired,
-  //       name: PropTypes.string.isRequired,
-  //     })
-  //   ).isRequired,
-  //   tels: PropTypes.arrayOf(
-  //     PropTypes.shape({
-  //       id: PropTypes.number.isRequired,
-  //       name: PropTypes.string.isRequired,
-  //       number: PropTypes.string.isRequired,
-  //     })
-  //   ).isRequired,
-  // }
-
-  onPressPlace = () => {
-    console.log('place')
-  }
-
-  onPressTel = number => {
-    Linking.openURL(`tel://${number}`).catch(err => console.log('Error:', err))
-  }
-
-  onPressSms = () => {
-    console.log('sms')
-  }
-
-  onPressEmail = email => {
-    Linking.openURL(`mailto://${email}?subject=subject&body=body`).catch(err =>
-      console.log('Error:', err)
-    )
-  }
-
-  renderHeader = () => {
-    const {
-      avatar,
-      avatarBackground,
-      name,
-      address: { city, country },
-    } = this.props
-
-    return (
-      <View style={styles.headerContainer}>
-        <ImageBackground
-          style={styles.headerBackgroundImage}
-          blurRadius={10}
-          source={{uri: avatarBackground}}
-        >
-          <View style={styles.headerColumn}>
-            <Image
-              style={styles.userImage}
-              source={{uri: avatar}}
-            />
-            <Text style={styles.userNameText}>{name}</Text>
-            <View style={styles.userAddressRow}>
-              <View>
-                <Icon
-                  name="place"
-                  underlayColor="transparent"
-                  iconStyle={styles.placeIcon}
-                  onPress={this.onPressPlace}
-                />
-              </View>
-              <View style={styles.userCityRow}>
-                <Text style={styles.userCityText}>
-                  {city}, {country}
-                </Text>
-              </View>
-            </View>
-          </View>
-        </ImageBackground>
-      </View>
-    )
-  }
-
-  renderTel = () => (
-    <FlatList
-      contentContainerStyle={styles.telContainer}
-      data={this.props.tels}
-      renderItem={(list) => {
-        const { id, name, number } = list.item
-
-        return (
-          <Tel
-            key={`tel-${id}`}
-            index={list.index}
-            name={name}
-            number={number}
-            onPressSms={this.onPressSms}
-            onPressTel={this.onPressTel}
-          />
-        )
-      }}
-    />
-  )
-
-  renderEmail = () => (
-    <FlatList
-      contentContainerStyle={styles.emailContainer}
-      data={this.props.emails}
-      renderItem={(list) => {
-        const { email, id, name } = list.item
-
-        return (
-          <Email
-            key={`email-${id}`}
-            index={list.index}
-            name={name}
-            email={email}
-            onPressEmail={this.onPressEmail}
-          />
-        )
-      }}
-    />
-  )
-
-  render() {
-    return (
-      <ScrollView style={styles.scroll}>
-        <View style={styles.container}>
-          <Card containerStyle={styles.cardContainer}>
-            {this.renderHeader()}
-            {this.renderTel()}
-            {Separator()}
-            {this.renderEmail()}
-          </Card>
-        </View>
-      </ScrollView>
-    )
-  }
-}
-
-export default Contact
+export default Profile

@@ -121,7 +121,8 @@ class API extends ControllerBase {
                     'name'      =>  $name,
                     'email'     =>  $email,
                     'image_url' =>  $image_url,
-                    'session'   =>  \Drupal::service('session')->getId()
+                    'session'   =>  \Drupal::service('session')->getId(),
+                    'basic_auth'=>  base64_encode(sprintf('%s:%s', $name, $password))
                   );
 
           $response_array['result']           = TRUE;
@@ -342,12 +343,13 @@ class API extends ControllerBase {
                   ->range(0, 1)
                   ->execute();
 
+          $password = base64_encode($id);
           if(empty($ids)){
             // Create user
             $user = User::create();
 
             // Mandatory settings
-            $user->setPassword(base64_encode($id));
+            $user->setPassword($password);
             $user->set("langcode", 'en');
             $user->enforceIsNew();
             $user->setEmail($id . '@local.local');
@@ -370,7 +372,8 @@ class API extends ControllerBase {
                         'uid'       =>  $uid,
                         'name'      =>  $name,
                         'email'     =>  $id . '@local.local',
-                        'image_url' => ''
+                        'image_url' => '',
+                        'basic_auth'=>  base64_encode(sprintf('%s:%s', $id, $password))
                       );
 
           $user = User::load($uid);
@@ -434,12 +437,13 @@ class API extends ControllerBase {
                   ->range(0, 1)
                   ->execute();
 
+          $password = base64_encode($id);
           if(empty($ids)){
             // Create user
             $user = User::create();
 
             // Mandatory settings
-            $user->setPassword(base64_encode($id));
+            $user->setPassword($password);
             $user->set("langcode", 'en');
             $user->enforceIsNew();
             $user->setEmail($email);
@@ -462,7 +466,8 @@ class API extends ControllerBase {
                         'uid'       =>  $uid,
                         'name'      =>  $name,
                         'email'     =>  $email,
-                        'image_url' => ''
+                        'image_url' => '',
+                        'basic_auth'=>  base64_encode(sprintf('%s:%s', $id, $password))
                       );
 
           $user = User::load($uid);
@@ -1550,6 +1555,66 @@ class API extends ControllerBase {
       $response_array['result']           = TRUE;
       $response_array['execution_time']   = microtime(true) - $time1;
       
+      return new JsonResponse( $response_array );
+
+    } catch (\Throwable $e) {
+      \Drupal::logger('SearchApi')->notice($e->__toString());
+
+      $response_array['result']   = FALSE;
+      $response_array['message']  = $e->__toString();
+      return new JsonResponse( $response_array );
+    }
+  }
+
+  // fetchMyPost
+  public function FetchMyPost(Request $request){
+    $response_array = array();
+    try {
+      $time1          = microtime(true);
+
+      $content = json_decode( $request->getContent(), TRUE );
+      // $chioce  = json_decode($content['chioce']);
+      // $message = trim( $content['message'] );
+
+      // // $offset= trim( $content['offset'] );
+
+      // if( empty($chioce) || empty($message) ){
+      //   $response_array['result']           = FALSE;
+      //   $response_array['execution_time']   = microtime(true) - $time1;
+      //   return new JsonResponse( $response_array );
+      // }
+
+      // \Drupal::logger('report')->notice('chioce : %chioce, message: %message',
+      // array(
+      //     '%chioce' => $content['chioce'],
+      //     '%message' => $message,
+      // ));
+
+      // $node = Node::load($parent->id());
+      // $datas[] = API::GetFieldNode($node);
+
+      // $storage = \Drupal::entityTypeManager()->getStorage('node');
+
+      $storage = $this->entityTypeManager->getStorage('node');
+      $query   = $storage->getQuery();
+      // $query->condition('status', \Drupal\node\NodeInterface::PUBLISHED);
+      $query->condition('type', 'back_list');
+
+      $query->condition('uid', \Drupal::currentUser()->id());
+      $nids = $query->execute();
+
+      $datas = array();
+      foreach ($storage->loadMultiple($nids) as $node) {
+        $datas[] = API::GetFieldNode($node);
+      }
+
+      // dpm(count($nids));
+
+      $response_array['result']           = TRUE;
+      $response_array['execution_time']   = microtime(true) - $time1;
+      // $response_array['uid']              = \Drupal::currentUser()->id();
+      // $response_array['session']          = \Drupal::service('session')->getId();
+      $response_array['datas']               = $datas;
       return new JsonResponse( $response_array );
 
     } catch (\Throwable $e) {

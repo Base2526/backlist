@@ -207,3 +207,13 @@ api.report:
     _role: 'authenticated+administrator'
   options:
     _auth: ['basic_auth']
+
+api.fetch_mypost:
+  path: '/api/fetch_mypost'
+  methods: [POST]
+  defaults: 
+    _controller: '\Drupal\backlist\Controller\API::FetchMyPost'
+  requirements: 
+    _role: 'authenticated+administrator'
+  options:
+    _auth: ['basic_auth']

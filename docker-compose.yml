@@ -9,10 +9,10 @@ services:
       - 80:80
       - 443:443
     environment:
-      - DB_HOST=postgres
+      - DB_HOST=139.59.116.246
       - DB_NAME=banlist
       - DB_USER_NAME=postgres
-      - DB_PASSWORD=postgres
+      - DB_PASSWORD=U29ta2lkMDU4ODQ4Mzkx
     volumes:
       - ./modules:/opt/drupal/web/sites/default/modules
       - ./libraries:/opt/drupal/web/sites/default/libraries
@@ -30,7 +30,7 @@ services:
       # - ./files:/opt/drupal/web/sites/default/files
 
       # Cloud
-      # - /mnt/volume_sgp1_09/banlist.info/files:/opt/drupal/web/sites/default/files
+      - /mnt/volume_sgp1_09/banlist.info/files:/opt/drupal/web/sites/default/files
 
       # SSL
       # - ./000-default.conf:/etc/apache2/sites-available/000-default.conf
@@ -42,28 +42,26 @@ services:
       - ./google4a78161938c3c95a.html:/opt/drupal/web/google4a78161938c3c95a.html
     restart: always
 
-  postgres:
-    image: postgres:11
-    container_name: postgres_bg
-    environment:
-      POSTGRES_DB: banlist
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    # volumes:
-    #  - ./private/var/lib/postgresql:/var/lib/postgresql
-    restart: always
-  pgadmin:
-    image: dpage/pgadmin4:4.18
-    container_name: bigcard_pgadmin4
-#     container_name: pgadmin4_bg
-    ports:
-      - 7778:80
-    # volumes:
-    #   - ./pgadmin:/var/lib/pgadmin/storage
-    environment:
-      PGADMIN_DEFAULT_EMAIL: postgres
-      PGADMIN_DEFAULT_PASSWORD: postgres
-    hostname: pgadmin4
-    restart: always
-
- 
+#   postgres:
+#     image: postgres:11
+#     container_name: postgres_bg
+#     environment:
+#       POSTGRES_DB: banlist
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#     # volumes:
+#     #  - ./private/var/lib/postgresql:/var/lib/postgresql
+#     restart: always
+#   pgadmin:
+#     image: dpage/pgadmin4:4.18
+#     container_name: bigcard_pgadmin4
+# #     container_name: pgadmin4_bg
+#     ports:
+#       - 7778:80
+#     # volumes:
+#     #   - ./pgadmin:/var/lib/pgadmin/storage
+#     environment:
+#       PGADMIN_DEFAULT_EMAIL: postgres
+#       PGADMIN_DEFAULT_PASSWORD: postgres
+#     hostname: pgadmin4
+#     restart: always

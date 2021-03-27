@@ -152,12 +152,9 @@ class SettingsScreen extends Component {
                 borderWidth:.5 
                 }}
                 onPress={()=>{
-
-                this.setState({ bottomModalAndTitle: false }, ()=>{
-                    navigation.navigate('login', { onSelect: this.onSelect })
-                    
-                })
-                
+                    this.setState({ bottomModalAndTitle: false }, ()=>{
+                        navigation.navigate('login', { onSelect: this.onSelect })
+                    })
                 }}>
                 <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
                 <Ionicons name="person-outline" size={25} color={'grey'} />
@@ -267,15 +264,15 @@ class SettingsScreen extends Component {
     }
 
     lapsList() {
-
         let { navigation } = this.props;
 
         let { isLogin } = this.state
-        let laps = [{'id': 0, 'title': 'My Account', 'icon_name': "person-outline" }, 
-                    {'id': 1, 'title': 'My post', 'icon_name': "add-circle-outline" },
-                    {'id': 2, 'title': 'My following', 'icon_name': "at-circle-outline" },
-                    // {'id': 3, 'title': 'Logout', 'icon_name': "log-out-outline" },
+        let laps = [{'id': 0, 'title': 'Account', 'icon_name': "person-outline" }, 
+                    {'id': 1, 'title': 'Post', 'icon_name': "add-circle-outline" },
+                    {'id': 2, 'title': 'Following', 'icon_name': "at-circle-outline" },
+                    // {'id': 3, 'title': 'Followers', 'icon_name': "people-outline" },
                 ]
+                // <ion-icon name="people-outline"></ion-icon>
 
         if(isLogin){
             return laps.map((data) => {

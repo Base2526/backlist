@@ -28,6 +28,9 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 
 import DropDownPicker from 'react-native-dropdown-picker';
+
+import ModalSelector from 'react-native-modal-selector'
+
 import Icon from 'react-native-vector-icons/Feather';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
@@ -73,6 +76,8 @@ class AddBanlistScreen extends Component {
                   currentDateTimePicker: new Date(),
                   spinner: false};  
     this.onDoUploadPress = this.onDoUploadPress.bind(this);
+
+    this.addItemsMerchantBankAccount = this.addItemsMerchantBankAccount.bind(this);
   }
 
   componentDidMount() {
@@ -236,6 +241,44 @@ class AddBanlistScreen extends Component {
     console.log('handDelete > ' + key);
   }
 
+  // getItemsMerchant
+  // { key: 1, /*section: true,*/  label: 'Fruits' },
+  getItemsMerchant = () =>{
+    let items_merchant_bank_account = {
+      1: 'ธนาคารกรุงศรีอยุธยา',
+      2: 'ธนาคารกรุงเทพ',
+      3: 'ธนาคารซีไอเอ็มบี' ,
+      4: 'ธนาคารออมสิน',
+      5: 'ธนาคารอิสลาม',
+      6: 'ธนาคารกสิกรไทย',
+      7: 'ธนาคารเกียรตินาคิน',
+      8: 'ธนาคารกรุงไทย',
+      9: 'ธนาคารไทยพาณิชย์',
+      10: 'Standard Chartered',
+      11: 'ธนาคารธนชาติ',
+      12: 'ทิสโก้แบงค์',
+      13: 'ธนาคารทหารไทย',
+      14: 'ธนาคารยูโอบี',
+      15: 'ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร',
+      16: 'True Wallet',
+      17: 'พร้อมเพย์ (PromptPay)',
+      18: 'ธนาคารอาคารสงเคราะห์',
+      19: 'AirPay (แอร์เพย์)',
+      20: 'mPay',
+      21: '123 เซอร์วิส',
+      22: 'ธ.ไทยเครดิตเพื่อรายย่อย',
+      23: 'ธนาคารแลนด์แอนด์เฮ้าส์',
+      24: 'เก็บเงินปลายทาง' 
+    }
+
+    var lists = [];
+    Object.keys(items_merchant_bank_account).forEach(function(i) {
+      lists.push({key:i, label: items_merchant_bank_account[i] })
+    });
+
+    return lists;
+  }
+
   listMerchantBank = () =>{
     let items_merchant_bank_account = {
                                         1: 'ธนาคารกรุงศรีอยุธยา',
@@ -268,6 +311,8 @@ class AddBanlistScreen extends Component {
     Object.keys(items_merchant_bank_account).forEach(function(i) {
       lists.push({i, label: items_merchant_bank_account[i], value: i, icon: () => <Icon name="flag" size={18}  />, hidden: false})
     });
+
+    console.log(lists)
 
     return lists;
   }
@@ -456,6 +501,18 @@ class AddBanlistScreen extends Component {
 
     this.setState({itemsMerchantBankAccount})
   }
+
+  addItemsMerchantBankAccount = (length) => {
+
+    // let itemsMerchantBankAccount = this.state.itemsMerchantBankAccount.push(length);
+    // this.state.myArray.push('new value')
+
+    let itemsMerchantBankAccount = [...this.state.itemsMerchantBankAccount, {key: length}];
+
+
+
+    this.setState({itemsMerchantBankAccount})
+  }
   
   render(){
 
@@ -578,9 +635,12 @@ class AddBanlistScreen extends Component {
             // autoFocus={true}
             autoCapitalize={'sentences'}/>
 
-          <View style={{ flexDirection:"row", marginTop:10}}>
+          <View style={{ flexDirection:"row", alignItems:'center', marginTop:5}}>
             <Text>บัญชีธนาคารคนขาย</Text>
-            <Button style={{height:5}} title='+' onPress={() => this.addItemsMerchantBankAccount(this.state.itemsMerchantBankAccount.length)} />
+            <TouchableOpacity style={{marginLeft:5, backgroundColor:'#3399cc', borderRadius:5, width: 30, height: 30, justifyContent:'center', alignItems:'center'}} 
+              onPress={() => this.addItemsMerchantBankAccount(this.state.itemsMerchantBankAccount.length)} >
+              <Text style={{ color:'white' }}>+</Text>
+            </TouchableOpacity>
           </View>
           
           {
@@ -588,9 +648,14 @@ class AddBanlistScreen extends Component {
             key = value.key
             return(
               <View key={key}>
-                <View style={{ flexDirection:"row", marginTop:10}}>
+                <View style={{ flexDirection:"row", padding: 5}}>
                     <Text>เลขบัญชี</Text> 
-                    <Button style={{backgroundColor:"#FF2400", }} title='-' onPress={()=>this.handleDelete(key)} />
+                    {/* <Button style={{backgroundColor:"#FF2400", }} title='-' onPress={()=>this.handleDelete(key)} /> */}
+
+                    <TouchableOpacity style={{backgroundColor:'red', borderRadius:20, width: 25, height: 25, alignItems:'center', justifyContent:'center', marginLeft:5}} 
+                      onPress={() => this.handleDelete(key)} >
+                      <Text style={{ color:'white'}}>-</Text>
+                    </TouchableOpacity>
                 </View>
                 <TextInput 
                   key={key}  
@@ -599,8 +664,9 @@ class AddBanlistScreen extends Component {
                   onChangeText={e => this.handleChangeItemItemsMerchant(e, key)}/>
                 <Text>ธนาคาร/ระบบ Wallet</Text>
                 
-                <DropDownPicker
-                  items={this.getItemsMerchant()}
+                {/* <DropDownPicker
+                  // items={this.getItemsMerchant()}
+                  items={this.listMerchantBank()}
                   defaultValue={'1'}
                   containerStyle={{height: 50}}
                   style={{backgroundColor: '#fafafa', }}
@@ -611,7 +677,23 @@ class AddBanlistScreen extends Component {
                       fontSize: 16,
                       textAlign: 'left',
                       color: '#000'
-                  }}/>
+                  }}/> */}
+                   <ModalSelector
+                    data={ /*[
+                            { key: 1,   label: 'Fruits' },
+                            { key: 2, label: 'Red Apples' },
+                            { key: 3, label: 'Cherries' },
+                            { key: 4, label: 'Cranberries', accessibilityLabel: 'Tap here for cranberries' },
+                            // etc...
+                            // Can also add additional custom keys which are passed to the onChange callback
+                            // { key: 5, label: 'Vegetable', customKey: 'Not a fruit' }
+                          ]
+                          */ 
+                          this.getItemsMerchant()
+                        }
+                    initValue="เลือกธนาคาร/ระบบ Wallet"
+                    onChange={(option)=>{ console.log(`${option.label} (${option.key}) nom nom nom`) }} />
+                    
               </View>
             )
           })
@@ -734,8 +816,8 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     color: Colors.white,
-    fontWeight: 'bold',
-    fontSize: 30
+    // fontWeight: 'bold',
+    fontSize: 25
   },
   addButton: {
     alignItems: 'center',

@@ -6,43 +6,44 @@
  * @flow strict-local
  */
 
- import React, {Component} from 'react';
- import {
-   SafeAreaView,
-   StyleSheet,
-   ScrollView,
-   View,
-   Text,
-   StatusBar,
-   TouchableOpacity,
-   TextInput,
-   ActivityIndicator,
-   FlatList,
-   Image,
-   Keyboard
- } from 'react-native';
- import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, {Component} from 'react';
+import {
+  SafeAreaView,
+  StyleSheet,
+  ScrollView,
+  View,
+  Text,
+  StatusBar,
+  TouchableOpacity,
+  TextInput,
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Keyboard
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { connect } from 'react-redux';
+const axios = require('axios');
+var Buffer = require('buffer/').Buffer
+ 
+import {API_URL, API_TOKEN} from "@env"
+import Spinner from 'react-native-loading-spinner-overlay';
+import Toast, {DURATION} from 'react-native-easy-toast'
+import { ValidateEmail, isEmpty, checkLogin, login } from './Utils'
+import { userLogin } from './actions/user';
 
- const axios = require('axios');
- var Buffer = require('buffer/').Buffer
- 
- import {API_URL, API_TOKEN} from "@env"
- 
- import Spinner from 'react-native-loading-spinner-overlay';
- import Toast, {DURATION} from 'react-native-easy-toast'
- 
- import { ValidateEmail, isEmpty, checkLogin, login } from './Utils'
- 
- class LoginScreen extends Component {
+
+class LoginScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {name:'', 
                   password:'',
-
                   spinner: false};
   }
 
   componentDidMount() {
+    let {user} = this.props.user;
+    console.log('user : ', user)
   }
 
   handleLogin = () =>{
@@ -72,15 +73,20 @@
         console.log(results)
         
         if(results.result){
-          login(results.user).then(()=>{
-            _this.setState({spinner: false}) 
+          // login(results.user).then(()=>{
+          //   _this.setState({spinner: false}) 
 
-            // navigation.pop(); 
+          //   // navigation.pop(); 
 
-            // const { navigation, route } = this.props;
-            navigation.pop();
-            route.params.onSelect({ isLogin: true });
-          })  
+          //   // const { navigation, route } = this.props;
+          //   navigation.pop();
+          //   route.params.onSelect({ isLogin: true });
+          // })  
+
+          _this.props.userLogin(results.user)
+          _this.setState({spinner: false}) 
+          navigation.pop();
+          route.params.onSelect({ isLogin: true });
         }else{
           _this.toast.show(results.message);
           _this.setState({spinner: false})
@@ -206,5 +212,20 @@
    }
  });
  
- export default LoginScreen;
+// export default LoginScreen;
+const mapStateToProps = state => {  
+  console.log('mapStateToProps : ', state)
+  return{
+    user: state.user.data
+  }
+}
+
+/*
+ is function call by user
+*/
+const mapDispatchToProps = {
+  userLogin
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(LoginScreen)
  

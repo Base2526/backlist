@@ -40,6 +40,9 @@ import SplashScreen from 'react-native-splash-screen'
 import io from 'socket.io-client';
 var Buffer = require('buffer/').Buffer
 
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react'
+
 import { getUniqueId, getVersion } from 'react-native-device-info';
 
 import HomeScreen from './HomeScreen';
@@ -56,7 +59,7 @@ import SearchScreen2 from './SearchScreen2'
 import MeScreen from './MeScreen'
 import ForgotPassword from './ForgotPassword'
 import SignUp from './SignUp'
-import Profile from './Profile1/index'
+import Profile from './Profile1/Profile'
 import MyPost from './MyPost'
 import MyFollowing from './MyFollowing'
 
@@ -68,6 +71,8 @@ import {API_URL_SOCKET_IO} from "@env"
 import Toast, {DURATION} from 'react-native-easy-toast'
 
 import { Base64, checkLogin, isEmpty} from './Utils'
+
+import {store, persistor} from './reduxStore'
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -182,7 +187,9 @@ function MeStackScreen({navigation, route}) {
           routeName == 'inappbrowser' ||
           routeName == 'profile' ||
           routeName == 'mypost' ||
-          routeName == 'myfollowing' ){
+          routeName == 'myfollowing' ||
+          routeName == 'detail' ||
+          routeName == 'add_banlist' ){
         navigation.setOptions({tabBarVisible: false});
     }else {
         navigation.setOptions({tabBarVisible: true});
@@ -246,6 +253,22 @@ function MeStackScreen({navigation, route}) {
             title: 'My Following',
             tabBarVisible: false,
           }}
+        />
+
+        <MeStack.Screen 
+            name="detail" 
+            component={DetailScreen}
+            // options={{ title: 'Result Search',  }}
+            options={{
+              title: 'Detail',
+              tabBarVisible: false,
+            }}
+          />
+
+        <MeStack.Screen 
+          name="add_banlist" 
+          component={AddBanlistScreen} 
+          options={{ title: 'Add Banlist' }}
         />
 
         {/*  */}
@@ -333,56 +356,67 @@ class App extends Component {
   }
 
   render(){
+    if(isEmpty(store)){
+      console.log('store >> ', store)
+      // return <View />;
+    }
+    
     return(
-      <NavigationContainer>
-        <Tab.Navigator
-         screenOptions={({ route }) => ({
-          tabBarIcon: ({ focused, color, size }) => {
-            if (route.name === 'Home') {
-              return <Ionicons name={'home-outline'} size={size} color={color} />;
-            } else if (route.name === 'Setting') {
-              return <Ionicons name={'reorder-three-outline'} size={size} color={color} />;
-            }        
-          },
-        })}
-        tabBarOptions={{
-          activeTintColor: 'tomato',
-          inactiveTintColor: 'gray',
-        }}>
-          <Tab.Screen 
-            name="Home" 
-            component={HomeStackScreen}
-            // listeners={({ navigation, route }) => ({
-            //   tabPress: e => {
-            //     // e.preventDefault(); // Use this to navigate somewhere else
-            //     console.log("button pressed : Home")
-            //   },
-            // })}
-            />
-          <Tab.Screen 
-            name="Setting" 
-            component={MeStackScreen} 
-            // listeners={({ navigation, route }) => ({
-            //   tabPress: e => {
-            //     // e.preventDefault(); // Use this to navigate somewhere else
-            //     console.log("button pressed : Setting")
-            //   },
-            // })}
-            />
-          {/* <Tab.Screen name="Profile" component={ProfileStackScreen} /> */}
-        </Tab.Navigator>
+      <View style={{flex:1}}>
+      <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <NavigationContainer>
+          <Tab.Navigator
+          screenOptions={({ route }) => ({
+            tabBarIcon: ({ focused, color, size }) => {
+              if (route.name === 'Home') {
+                return <Ionicons name={'home-outline'} size={size} color={color} />;
+              } else if (route.name === 'Setting') {
+                return <Ionicons name={'reorder-three-outline'} size={size} color={color} />;
+              }        
+            },
+          })}
+          tabBarOptions={{
+            activeTintColor: 'tomato',
+            inactiveTintColor: 'gray',
+          }}>
+            <Tab.Screen 
+              name="Home" 
+              component={HomeStackScreen}
+              // listeners={({ navigation, route }) => ({
+              //   tabPress: e => {
+              //     // e.preventDefault(); // Use this to navigate somewhere else
+              //     console.log("button pressed : Home")
+              //   },
+              // })}
+              />
+            <Tab.Screen 
+              name="Setting" 
+              component={MeStackScreen} 
+              // listeners={({ navigation, route }) => ({
+              //   tabPress: e => {
+              //     // e.preventDefault(); // Use this to navigate somewhere else
+              //     console.log("button pressed : Setting")
+              //   },
+              // })}
+              />
+            {/* <Tab.Screen name="Profile" component={ProfileStackScreen} /> */}
+          </Tab.Navigator>
 
-        <Toast
-          ref={(toast) => this.toast = toast}
-          position='bottom'
-          positionValue={220}
-          fadeInDuration={750}
-          fadeOutDuration={1000}
-          opacity={0.8}
-          />
+          <Toast
+            ref={(toast) => this.toast = toast}
+            position='bottom'
+            positionValue={220}
+            fadeInDuration={750}
+            fadeOutDuration={1000}
+            opacity={0.8}
+            />
 
-        {/* <ModalPortal /> */}
-      </NavigationContainer>
+          {/* <ModalPortal /> */}
+        </NavigationContainer>
+      </PersistGate>
+      </Provider>
+      </View>
     )
   }
 }

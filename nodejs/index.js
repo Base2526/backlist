@@ -99,7 +99,7 @@ app.post('/api/favorite', async (req, res) => {
     
     let { uid, id_favorite, unique_id } = req.body
     if(!uid || !id_favorite || !unique_id){    
-      return res.status(200).send({'result': false, 'message': 'Error params'});
+      return res.status(404).send({'message': 'ERROR'});
     }else{
       let user = await usersModel.findOne({ uid });
       
@@ -108,8 +108,11 @@ app.post('/api/favorite', async (req, res) => {
       }else{
         var favorites = user.favorites.toObject();
         
+        var message = 'Follow'
         if(favorites.includes(id_favorite)){
           favorites = favorites.filter((v) => {return v != id_favorite})
+
+          var message = 'Unfollow'
         }else{
           favorites = [...favorites, id_favorite]
         }
@@ -121,14 +124,17 @@ app.post('/api/favorite', async (req, res) => {
           if ( error === null ){
             console.log(result)
 
-            let fs = await socketsModel.findOne({ uniqueId: unique_id });
+            let fs = await socketsModel.findOne({ unique_id });
             if ( fs !== null ){
               if(fs.socketId){
+                console.log(fs.socketId)
                 io.to(fs.socketId).emit('FromAPI', 'for your eyes only');
               }
             }
           }
         });
+
+        return res.status(200).send({'message': message});
       }
     }
     

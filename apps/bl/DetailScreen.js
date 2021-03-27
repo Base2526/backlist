@@ -10,21 +10,27 @@ import {SafeAreaView,
         TouchableOpacity} from 'react-native';
         
 import ImageViewer from 'react-native-image-zoom-viewer';
-
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
 import Toast, {DURATION} from 'react-native-easy-toast'
-
 import Share from 'react-native-share';
-
 import FastImage from 'react-native-fast-image'
+import ReactNativeModal from 'react-native-modal';
+import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-community/google-signin';
+import {
+    LoginButton,
+    AccessToken,
+    GraphRequest,
+    GraphRequestManager,
+    LoginManager
+} from 'react-native-fbsdk';
 
-import { NumberFormat } from './Utils'
+const axios = require('axios');
 
-import {API_URL} from "@env"
+import { getUniqueId, getVersion } from 'react-native-device-info';
 
-// API_URL
+import { NumberFormat, checkLogin, isEmpty, Base64 } from './Utils'
+import {API_URL, API_URL_SOCKET_IO} from "@env"
 
 // https://reactnativecode.com/popup-menu-overflow-menu-in-react-navigation/
 import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
@@ -48,11 +54,23 @@ class DetailScreen extends React.Component {
         this.state = {  data:null, 
                         modalVisible: false,
                         init_index: 0,
-                        images:[]}
+                        images: [],
+                        bottomModalAndTitle: false,
+
+                        isLogin:false,
+                    }
     }
 
-    componentDidMount(){
-        const { route, navigation } = this.props;
+    async componentDidMount(){
+        let { navigation, route } = this.props;
+
+        let cL = await checkLogin()
+        if(!isEmpty(cL)){
+            this.setState({isLogin: true})
+        }
+
+        let data =  route.params.data;
+        // console.log(data)
 
         let _this = this
         let _menu = null;
@@ -61,11 +79,41 @@ class DetailScreen extends React.Component {
                 <View style={{flexDirection:'row'}}>
                     <TouchableOpacity 
                         style={{  }}
-                        onPress={()=>{
-                            _this.toast.show('Follow');
+                        onPress={ async()=>{
+                            // _this.toast.show('Follow');
+                            let cL = await checkLogin()
+                            if(isEmpty(cL)){
+                                _this.setState({bottomModalAndTitle: true})
+                            }else{
+                                axios.post(`${API_URL_SOCKET_IO}/api/favorite`, {
+                                    uid: cL.uid,
+                                    id_favorite: data.id,
+                                    unique_id: Base64.btoa(getUniqueId())
+                                    }, {
+                                    headers: { 
+                                        'Content-Type': 'application/json',
+                                    }
+                                })
+                                .then(function (response) {
+                                    let {result, message} = response.data
+                
+                                    console.log(response.data)
+                                    if(result){
+            
+                                    }else{
+                                        _this.toast.show(message);
+                                    }
+                                })
+                                .catch(function (error) {
+                                    console.log(error)
+                                    // _this.setState({loading: false})
+                                });
+                            }
+                            
                         }}>
-                        <Ionicons name="shield-checkmark-outline" size={25} color={'red'} />
+                        <Ionicons name="shield-checkmark-outline" size={25} color={'gray'} />
                     </TouchableOpacity>
+                    
                     <View style={{marginRight: 5}}>
                         <Menu
                         ref={(ref) => (_menu = ref)}
@@ -122,15 +170,27 @@ class DetailScreen extends React.Component {
         })
 
         let images = []
-        if (route.params.data.images){
-            route.params.data.images.map(function(url){
+        if (data.images){
+            data.images.map(function(url){
                 images.push({url});
             })
         }
         
-        this.setState({data: route.params.data, images})
+        this.setState({data, images})
         this.renderFooterImageViewer = this.renderFooterImageViewer.bind(this)
+
+        GoogleSignin.configure({
+            webClientId: WEB_CLIENT_ID,
+            offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
+            forceCodeForRefreshToken: true, // [Android] related to `serverAuthCode`, read the docs link below *.
+            iosClientId: IOS_CLIENT_ID, // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
+        });
     }
+
+    onSelect = data => {
+        this.setState(data);
+    }
+    
 
     onLayout = () => { 
         const {width} = Dimensions.get('window')
@@ -214,6 +274,138 @@ class DetailScreen extends React.Component {
         let {images, init_index} = this.state
         return <Text style={styles.footerText}>{init_index + 1} / {images.length}</Text>
     }
+
+    handleLoginWithFacebook= () =>{
+        console.log('handleLoginWithFacebook')
+    
+        // Attempt a login using the Facebook login dialog asking for default permissions.
+        LoginManager.logInWithPermissions(["public_profile"]).then(
+          function(result) {
+            console.log(result)
+            if (result.isCancelled) {
+              console.log("Login cancelled");
+            } else {
+              console.log(
+                "Login success with permissions: " +
+                  result.grantedPermissions.toString()
+              );
+            }
+          },
+          function(error) {
+            console.log("Login fail with error: " + error);
+          }
+        );
+    }
+
+    handleLoginWithGoogle = async () => {
+    try {
+        await GoogleSignin.hasPlayServices();
+        const userInfo = await GoogleSignin.signIn();
+        console.log(userInfo)
+        // setUser(userInfo)
+    } catch (error) {
+        console.log('Message', error.message);
+        if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        console.log('User Cancelled the Login Flow');
+        } else if (error.code === statusCodes.IN_PROGRESS) {
+        console.log('Signing In');
+        } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        console.log('Play Services Not Available or Outdated');
+        } else {
+        console.log('Some Other Error Happened');
+        }
+    }
+    }
+
+    modalLogin(){
+        let { navigation } = this.props;
+    
+        return(
+          <ReactNativeModal
+          testID={'modal'}
+          isVisible={this.state.bottomModalAndTitle}
+          onSwipeComplete={this.close}
+          // swipeDirection={['up', 'left', 'right', 'down']}
+          style={{justifyContent: 'flex-end', margin: 0,}}
+          backdropOpacity={0.5}
+          useNativeDriver={true}
+          onBackdropPress={() => {
+            this.setState({ bottomModalAndTitle: false })
+          }}>
+          <SafeAreaView style={{backgroundColor: 'white'}}>
+          <View style={{ backgroundColor:'white', padding:10}}>
+    
+          <View style={{ flexDirection: 'column', 
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          paddingBottom:10}}>
+           <Text style={{fontSize:20}}>
+             Sign up for Banlist
+           </Text>
+           <Text style={{ textAlign: 'center', fontSize:14, color:'gray'}}>
+             Create a profile, favorite, share, report criminals and more...
+           </Text>
+          </View>
+    
+          <TouchableOpacity
+              style={{   
+                marginTop:10,      
+                borderColor:'gray',
+                borderWidth:.5 
+              }}
+              onPress={()=>{
+    
+                this.setState({ bottomModalAndTitle: false }, ()=>{
+                  navigation.navigate('login', { onSelect: this.onSelect })
+                })
+                
+              }}>
+              <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
+              <Ionicons name="person-outline" size={25} color={'grey'} />
+              <Text style={{paddingLeft:10}}>Use phone or email</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{   
+                marginTop:10,      
+                borderColor:'gray',
+                borderWidth:.5 
+              }}
+              onPress={()=>{
+    
+                this.setState({ bottomModalAndTitle: false }, ()=>{
+                  this.handleLoginWithFacebook()
+                })
+                
+              }}>
+              <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
+                <Ionicons name="logo-facebook" size={25} color={'grey'} />
+                <Text style={{paddingLeft:10}}>Login with facebook</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{   
+                marginTop:10,      
+                borderColor:'gray',
+                borderWidth:.5 
+              }}
+              onPress={()=>{
+    
+                this.setState({ bottomModalAndTitle: false }, ()=>{
+                  this.handleLoginWithGoogle()
+                })
+                
+              }}>
+              <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
+                <Ionicons name="logo-google" size={25} color={'grey'} />
+                <Text style={{paddingLeft:10}}>Login with google</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+          </SafeAreaView>
+        </ReactNativeModal>
+        )
+    }
         
     render() {
         let {images, init_index} = this.state
@@ -252,6 +444,8 @@ class DetailScreen extends React.Component {
                         renderItem={this.renderItem}
                         numColumns={numColumns}
                         keyExtractor={(item, index) => String(index)}/>
+
+                    {this.modalLogin()}
                 </SafeAreaView>)
     }
 }
