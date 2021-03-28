@@ -33,7 +33,7 @@ import {
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
 
-import {API_URL, API_TOKEN} from "@env"
+import {API_URL, API_TOKEN} from "./constants"
 
 // import { StyleSheet, Text, View, FlatList, Image, TouchableOpacity } from 'react-native';
 

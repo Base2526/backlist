@@ -30,7 +30,7 @@ var Buffer = require('buffer/').Buffer
 import ActionButton from 'react-native-action-button';
 import Spinner from 'react-native-loading-spinner-overlay';
 
-import {API_URL, API_TOKEN} from "@env"
+import {API_URL, API_TOKEN} from "./constants"
 import Toast, {DURATION} from 'react-native-easy-toast'
 
 import { NumberFormat } from './Utils'

@@ -25,13 +25,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { connect } from 'react-redux';
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
+import { getUniqueId } from 'react-native-device-info';
  
-import {API_URL, API_TOKEN} from "@env"
+import {API_URL, API_TOKEN} from "./constants"
 import Spinner from 'react-native-loading-spinner-overlay';
 import Toast, {DURATION} from 'react-native-easy-toast'
-import { ValidateEmail, isEmpty, checkLogin, login } from './Utils'
-import { userLogin } from './actions/user';
-
+import { ValidateEmail, isEmpty, Base64 } from './Utils'
+import { userLogin, followUp, fetchMyApps } from './actions/user';
 
 class LoginScreen extends Component {
   constructor(props) {
@@ -66,24 +66,17 @@ class LoginScreen extends Component {
 
       let _this = this
       axios.post(`${API_URL}/api/login?_format=json`, {
-        name, password
+        name, password, unique_id: Base64.btoa(getUniqueId())
       })
       .then(function (response) {
         let results = response.data
-        console.log(results)
+        console.log('/api/login : ', results)
         
-        if(results.result){
-          // login(results.user).then(()=>{
-          //   _this.setState({spinner: false}) 
-
-          //   // navigation.pop(); 
-
-          //   // const { navigation, route } = this.props;
-          //   navigation.pop();
-          //   route.params.onSelect({ isLogin: true });
-          // })  
-
+        if(results.result){ 
           _this.props.userLogin(results.user)
+          _this.props.followUp(JSON.parse(results.follow_ups)) // follow_ups
+          _this.props.fetchMyApps(results.user.basic_auth)
+
           _this.setState({spinner: false}) 
           navigation.pop();
           route.params.onSelect({ isLogin: true });
@@ -224,7 +217,9 @@ const mapStateToProps = state => {
  is function call by user
 */
 const mapDispatchToProps = {
-  userLogin
+  userLogin,
+  followUp,
+  fetchMyApps
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginScreen)

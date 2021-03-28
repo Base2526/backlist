@@ -80,8 +80,9 @@ class API extends ControllerBase {
       $content      = json_decode( $request->getContent(), TRUE );
       $name         = strtolower( trim( $content['name'] ) );
       $password     = trim( $content['password'] );
+      $unique_id    = trim( $content['unique_id'] );
   
-      if(empty($name) || empty($password)){
+      if(empty($name) || empty($password) || empty($unique_id) ){
         $response_array['result']   = FALSE;
         $response_array['code']     = '102';
         $response_array['message']  = 'Empty name or password.';
@@ -128,6 +129,64 @@ class API extends ControllerBase {
           $response_array['result']           = TRUE;
           $response_array['execution_time']   = microtime(true) - $time1;
           $response_array['user']             = $user;
+
+          $response_array['follow_ups']       = array();
+
+          // /api/login , unique_id
+
+          // ------------
+          $data_obj = [
+            "uid" => $uid,
+            "unique_id" => $unique_id
+          ];
+          $ch = curl_init();
+          curl_setopt_array($ch, array(
+            CURLOPT_URL => "http://143.198.223.146:3000/api/login",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HEADER => true,
+            //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => json_encode($data_obj),
+            CURLOPT_HTTPHEADER => array(
+              // "Authorization: Basic " . $basic_auth,
+              "Accept: application/json",
+              "Content-Type: application/json",
+            ),
+          ));
+
+          $response = curl_exec($ch);
+          // dpm($response);
+          // \Drupal::logger('Login : response')->notice( serialize($response) );
+          $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+          // dpm($httpcode);
+          // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
+
+          // \Drupal::logger('Login : response')->notice( serialize($response) );
+          $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+          dpm($httpcode);
+          // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
+
+          if($httpcode == 200){
+            // $response = json_decode($response);
+            $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+            $header = substr($response, 0, $header_size);
+            $body = substr($response, $header_size);
+            $body = json_decode($body);
+
+            $response_array['follow_ups'] = $body->followUps;
+          }
+          curl_close($ch);
+
+          // ------------
+
+          // ------------
+          $storage = $this->entityTypeManager->getStorage('node');
+          $query   = $storage->getQuery();
+          $query->condition('type', 'back_list');
+          $query->condition('uid', '59');
+
+          $response_array['my_apps'] = json_encode(array_values($query->execute()));
+          // ------------
         }else{
 
           $response_array['result']           = FALSE;
@@ -147,104 +206,6 @@ class API extends ControllerBase {
       return new JsonResponse( $response_array );
     }
   }
-
-  // public function LoginWithSocial(Request $request){
-  //   $response_array = array();
-  //   try {
-
-  //     $time1    = microtime(true);
-  
-  //     $content      = json_decode( $request->getContent(), TRUE );
-  //     $name         = strtolower( trim( $content['name'] ) );
-  //     // $password     = trim( $content['password'] );
-
-  //     $ids = \Drupal::entityQuery('user')
-  //           ->condition('name', $name)
-  //           ->range(0, 1)
-  //           ->execute();
-
-  //     if(empty($ids)){
-  //       // register new member
-  //       // #1 register
-  //       $user = User::create();
-
-  //       //Mandatory settings
-  //       $user->setUsername( $name );
-  //       $user->setPassword( md5($name) );
-  //       $user->enforceIsNew();
-  //       $user->setEmail($name . '@banlist.local');
-    
-  //       //Optional settings
-  //       $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
-  //       $user->set("init", 'email');
-  //       $user->set("langcode", $language);
-  //       $user->set("preferred_langcode", $language);
-  //       $user->set("preferred_admin_langcode", $language);  
-  //       $user->activate();
-  //       // $user->addRole('authenticated');
-  //       //Save user
-  //       $user->save();
-  //     }
-
-  //     $uid = \Drupal::service('user.auth')->authenticate( $name, md5($name) );
-      
-  //     \Drupal::logger('bigcard')->notice('login_form > uid : %uid, name : %name.', array( '%uid' => $uid ));
-  //     if($uid){
-  //       // $user = User::load($uid);
-
-  //       /*
-  //       $_SESSION["auth_token"]   = $data->authToken;
-  //       $_SESSION["bigcard"]      = $data->bigcard;
-  //       $_SESSION["id_card"]      = $data->idCard;
-  //       $_SESSION["mobile_phone"] = $data->mobilePhone;
-  //       $_SESSION["is_online_register"] = $data->isOnlineRegister;
-  //       */
-
-  //       // $user->set('field_auth_token', $data->authToken);
-  //       // $user->set('field_bigcard', $data->bigcard);
-  //       // $user->set('field_id_card', $data->idCard);
-  //       // $user->set('field_mobile_phone', $data->mobilePhone);
-  //       // $user->set('field_is_online_register', $data->isOnlineRegister);
-  //       // $user->save();
-
-  //       $user = User::load($uid);
-  //       $user_login_finalize = user_login_finalize($user);
-
-  //       \Drupal::logger('Login')->notice(serialize($user_login_finalize));
-
-  //       $name    = $user->getDisplayName();
-  //       $email   = $user->getEmail();
-  //       $image_url = '';  
-  //       if (!$user->get('user_picture')->isEmpty()) {
-  //         $image_url = file_create_url($user->get('user_picture')->entity->getFileUri());
-  //       }
-
-  //       user_login_finalize($user);
-
-  //       $response_array['result']           = TRUE;
-  //       $response_array['execution_time']   = microtime(true) - $time1;
-  //       $response_array['user']             = array(  'uid'       =>  $uid,
-  //                                                     'name'      =>  $name,
-  //                                                     'email'     =>  $email,
-  //                                                     'image_url' =>  $image_url,
-  //                                                     'session'   =>  \Drupal::service('session')->getId()
-  //                                                   );
-  //     }else{
-  //       $response_array['result']           = FALSE;
-  //       $response_array['execution_time']   = microtime(true) - $time1;
-  //     }
-  //     return new JsonResponse( $response_array );
-
-  //   } catch (\Throwable $e) {
-  //     \Drupal::logger('Login')->notice($e->__toString());
-
-  //     $response_array['result']   = FALSE;
-  //     $response_array['code']     = '101';
-  //     $response_array['message']  = $e->__toString();
-
-  //     return new JsonResponse( $response_array );
-  //   }
-  // }
 
   /*
     type
@@ -1048,6 +1009,8 @@ class API extends ControllerBase {
 
       // $content        = json_decode( $request->getContent(), TRUE );
 
+      // $basic_auth     = trim( $_REQUEST['basic_auth'] );
+
       $product_type   = trim( $_REQUEST['product_type'] );       // สินค้า/ประเภท
       $transfer_amount= trim( $_REQUEST['transfer_amount'] );    // ยอดเงิน
       $person_name    = trim( $_REQUEST['person_name'] );        // ชื่อบัญชี ผู้รับเงินโอน
@@ -1177,9 +1140,37 @@ class API extends ControllerBase {
         'field_images'            => $images_fids      // รูปภาพประกอบ
       ]);
       $node->save();
+
+
+      // ------------
+      $data_obj = [
+        "uid" => \Drupal::currentUser()->id()
+      ];
+      $ch = curl_init();
+      curl_setopt_array($ch, array(
+        CURLOPT_URL => "http://143.198.223.146:3000/api/my_apps",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HEADER => true,
+        //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => json_encode($data_obj),
+        CURLOPT_HTTPHEADER => array(
+          // "Authorization: Basic " . $basic_auth,
+          "Accept: application/json",
+          "Content-Type: application/json",
+        ),
+      ));
+  
+      $response = curl_exec($ch);
+      // dpm($response);
+      $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+      // dpm($httpcode);
+      curl_close($ch);
+
+      // ------------
       
       $response_array['result']   = TRUE;
-      // $response['content']  = $content;
+      // $response_array['content']  = json_decode( $request->getContent(), TRUE );;
       $response_array['execution_time']   = microtime(true) - $time1;
       return new JsonResponse( $response_array );  
     } catch (\Throwable $e) {
@@ -1606,6 +1597,56 @@ class API extends ControllerBase {
       $datas = array();
       foreach ($storage->loadMultiple($nids) as $node) {
         $datas[] = API::GetFieldNode($node);
+      }
+
+      // dpm(count($nids));
+
+      $response_array['result']           = TRUE;
+      $response_array['execution_time']   = microtime(true) - $time1;
+      // $response_array['uid']              = \Drupal::currentUser()->id();
+      // $response_array['session']          = \Drupal::service('session')->getId();
+      $response_array['datas']               = $datas;
+      return new JsonResponse( $response_array );
+
+    } catch (\Throwable $e) {
+      \Drupal::logger('SearchApi')->notice($e->__toString());
+
+      $response_array['result']   = FALSE;
+      $response_array['message']  = $e->__toString();
+      return new JsonResponse( $response_array );
+    }
+  }
+
+  public function FetchPostById(Request $request){
+    $response_array = array();
+    try {
+      $time1          = microtime(true);
+
+      $content = json_decode( $request->getContent(), TRUE );
+      // $chioce  = json_decode($content['chioce']);
+      // $message = trim( $content['message'] );
+
+      $data = json_decode($content['data']);
+
+      /*
+      $storage = $this->entityTypeManager->getStorage('node');
+      $query   = $storage->getQuery();
+      // $query->condition('status', \Drupal\node\NodeInterface::PUBLISHED);
+      $query->condition('type', 'back_list');
+
+      $query->condition('uid', \Drupal::currentUser()->id());
+      $nids = $query->execute();
+
+      $datas = array();
+      foreach ($storage->loadMultiple($nids) as $node) {
+        $datas[] = API::GetFieldNode($node);
+      }
+      */
+
+
+      $datas = array();
+      foreach ($data as $nid) {
+        $datas[] = API::GetFieldNode(Node::load($nid));
       }
 
       // dpm(count($nids));

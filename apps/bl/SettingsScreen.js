@@ -10,6 +10,7 @@ import {
     Alert,
     StatusBar,
 } from 'react-native';
+import { connect } from 'react-redux';
   
 import SettingsList from 'react-native-settings-list';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -29,20 +30,21 @@ import {
 import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-community/google-signin';
 
 
-import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID} from "@env"
+import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID} from "./constants"
 
-import { ValidateEmail, isEmpty, checkLogin, logout } from './Utils'
+import { ValidateEmail, isEmpty, logout } from './Utils'
   
 class SettingsScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {bottomModalAndTitle: false, 
-                      isLogin:false, 
+                    //   isLogin:false, 
                       laps: ['1', '2', '3']}
     }
 
     componentDidMount() {
-        const { route, navigation } = this.props;
+        const { route, navigation, my_apps } = this.props;
+        console.log('my_apps : ', my_apps)
         navigation.setOptions({
             headerLeft: () => (
               <TouchableOpacity
@@ -59,13 +61,14 @@ class SettingsScreen extends Component {
             iosClientId: IOS_CLIENT_ID, // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
         });
 
-        checkLogin().then(res => {
-            if(isEmpty(res)){
-                this.setState({isLogin: false})
-            }else{
-                this.setState({isLogin: true})
-            }
-          })
+        // checkLogin().then(res => {
+        //     if(isEmpty(res)){
+        //         this.setState({isLogin: false})
+        //     }else{
+        //         this.setState({isLogin: true})
+        //     }
+        //   })
+
 
         this.modalLogin = this.modalLogin.bind(this)
     }
@@ -264,24 +267,26 @@ class SettingsScreen extends Component {
     }
 
     lapsList() {
-        let { navigation } = this.props;
+        let { navigation, user, follow_ups, my_apps } = this.props;
 
-        let { isLogin } = this.state
-        let laps = [{'id': 0, 'title': 'Account', 'icon_name': "person-outline" }, 
-                    {'id': 1, 'title': 'Post', 'icon_name': "add-circle-outline" },
-                    {'id': 2, 'title': 'Following', 'icon_name': "at-circle-outline" },
+        console.log('follow_ups : ',  follow_ups)
+
+        let laps = [{'id': 0, 'title': 'Account', 'icon_name': "person-outline", 'color': 'gray'}, 
+                    {'id': 1, 'title': 'Post ( ' + (!isEmpty(my_apps) ? my_apps.length : '0')  + ' )', 'icon_name': "add-circle-outline", 'color': 'gray' },
+                    {'id': 2, 'title': 'Follow up ( ' + (!isEmpty(follow_ups) ? follow_ups.length: '0') + ' )', 'icon_name': "shield-checkmark-outline", 'color': 'red' },
                     // {'id': 3, 'title': 'Followers', 'icon_name': "people-outline" },
                 ]
+                // <Ionicons name="shield-checkmark-outline"
                 // <ion-icon name="people-outline"></ion-icon>
 
-        if(isLogin){
+        if(!isEmpty(user)){
             return laps.map((data) => {
                 console.log(data)
                 return (
                   <SettingsList.Item
                           icon={
                               <View style={styles.imageStyle}>
-                                  <Ionicons name={data.icon_name} size={20} color={'grey'} />
+                                  <Ionicons name={data.icon_name} size={20} color={data.color} />
                               </View>
                           }
                           title={data.title} 
@@ -303,7 +308,7 @@ class SettingsScreen extends Component {
                                 }
 
                                 case 2:{
-                                    navigation.navigate('myfollowing')
+                                    navigation.navigate('followups')
                                     
                                     break;
                                 }
@@ -319,9 +324,9 @@ class SettingsScreen extends Component {
                                                     style: "cancel"
                                                     },
                                                     { text: "Logout", onPress: () => {
-                                                        logout().then(res => {
-                                                            this.setState({isLogin: false})
-                                                        })
+                                                        // logout().then(res => {
+                                                        //     // this.setState({isLogin: false})
+                                                        // })
                                                     } }
                                                 ]
                                                 );
@@ -335,8 +340,8 @@ class SettingsScreen extends Component {
     }
 
     render() {
-        let { navigation } = this.props;
-        let { isLogin } = this.state
+        let { navigation, user } = this.props;
+        // let { isLogin } = this.state
         
         return (
         <View style={{backgroundColor:'#f6f6f6',flex:1}}>
@@ -348,13 +353,13 @@ class SettingsScreen extends Component {
                 itemWidth={70}
                 borderHide={'Both'}
                 onPress={()=>{
-                    if(!isLogin){
+                    if(!isEmpty(user)){
                         this.setState({bottomModalAndTitle: true})
                     }
                 }}
                 />
 
-                { this.lapsList() }
+                { !isEmpty(user) && this.lapsList() }
                
                 <SettingsList.Header headerStyle={{marginTop:-5}}/>
                 <SettingsList.Item
@@ -428,4 +433,16 @@ imageStyle:{
 }
 });
 
-export default SettingsScreen;
+// export default SettingsScreen;
+
+const mapStateToProps = state => {
+    return{
+      data: state.app.data,
+      user: state.user.data,
+      follow_ups: state.user.follow_ups,
+      my_apps: state.user.my_apps
+    }
+}
+// 
+  
+export default connect(mapStateToProps, null)(SettingsScreen)

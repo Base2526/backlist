@@ -24,7 +24,7 @@ import {
     Alert
 } from 'react-native';
 
-// import { Image } from 'react-native-elements';
+import { connect } from 'react-redux';
 
 import ReactNativeModal from 'react-native-modal';
 
@@ -50,7 +50,9 @@ import Share from 'react-native-share';
 
 import ReadMore from '@fawazahmed/react-native-read-more';
 
-import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID} from "@env"
+import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID} from "./constants"
+
+import { fetchData } from './actions/app';
  
 class MyPost extends Component {
     constructor(props) {
@@ -70,6 +72,34 @@ class MyPost extends Component {
     }
     
     componentDidMount() {
+      let _this = this
+
+    let {data, my_apps} = this.props
+    // 
+    // let new_data = data.filter(item => (follow_ups.includes(item.id)))
+
+    console.log('my_apps > ', my_apps)
+
+    let {basic_auth} = this.props.user
+
+    axios.post(`${API_URL}/api/fetch_post_by_id?_format=json`, {
+      data: JSON.stringify(my_apps)
+    }, {
+      headers: { 
+        'Authorization': `Basic ${basic_auth}` 
+      }
+    })
+    .then(function (response) {
+      let results = response.data
+      if(results.result){
+        let {datas} = results
+
+        _this.props.fetchData(datas)
+      }
+    })
+    .catch(function (error) {
+      console.log(error)
+    });
     }
 
     renderItem = (item) =>{
@@ -190,21 +220,21 @@ class MyPost extends Component {
                       onPress={()=>{
                         navigation.navigate('filter', {data:item})
                       }}>
-                      <Text style={{color:'gray'}}>-</Text>
+                      <Text style={{color:'gray'}}>{item.name} {item.surname}</Text>
                     </TouchableOpacity>
                   </View>
                   <View style={{flexDirection:'row'}}>
                     <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
-                    <Text style={{color:'gray'}}>-</Text>
+                    <Text style={{color:'gray'}}>{item.title}</Text>
                   </View>
                   <View style={{flexDirection:'row'}}>
                     <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
-                    <Text style={{color:'gray'}}>-</Text>
+                    <Text style={{color:'gray'}}>{item.transfer_amount}</Text>
                   </View>
                   {/* transfer_date */}
                   <View style={{flexDirection:'row'}}>
                     <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
-                    <Text style={{color:'gray'}}>-</Text>
+                    <Text style={{color:'gray'}}>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
                   </View>
                 </View>
               </View>
@@ -218,7 +248,7 @@ class MyPost extends Component {
                     animate={false} 
                     numberOfLines={3} 
                     seeMoreStyle={{color:'black'}}
-                    style={styles.textStyle}>-</ReadMore>
+                    style={styles.textStyle}>{ item.detail == '' ? '-' : item.detail}</ReadMore>
                 </View>
               </View>
             </View>
@@ -227,12 +257,12 @@ class MyPost extends Component {
     }
 
     render(){
-        const { navigation } = this.props;
+        const { navigation, data } = this.props;
         return (<View style={styles.container}>
                   <FlatList
                     ref={(ref) => this.flatlistref = ref}
                     style={{flex:1}}
-                    data={['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']}
+                    data={data}
                     renderItem={({ item }) => this.renderItem(item)}
                     enableEmptySections={true}
                     // ListFooterComponent={this.renderFooter()}
@@ -330,4 +360,18 @@ const styles = StyleSheet.create({
 });
   
 
-export default MyPost;
+// export default MyPost;
+const mapStateToProps = state => {
+  return{
+    data: state.app.data.filter(item => (state.user.my_apps.includes(item.id))),
+    user: state.user.data,
+    my_apps: state.user.my_apps
+  }
+}
+
+// fetchData
+const mapDispatchToProps = {
+  fetchData
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(MyPost)

@@ -30,7 +30,7 @@ var Buffer = require('buffer/').Buffer
 import ActionButton from 'react-native-action-button';
 import Spinner from 'react-native-loading-spinner-overlay';
 
-import {API_URL, API_TOKEN} from "@env"
+import {API_URL, API_TOKEN} from "./constants"
 
 import DropDownPicker from 'react-native-dropdown-picker';
 import Icon from 'react-native-vector-icons/Feather';

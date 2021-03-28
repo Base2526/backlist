@@ -26,7 +26,7 @@ import {
   Header,
   Colors,
 } from 'react-native/Libraries/NewAppScreen';
-
+import { connect } from 'react-redux';
 import DropDownPicker from 'react-native-dropdown-picker';
 
 import ModalSelector from 'react-native-modal-selector'
@@ -46,7 +46,9 @@ import Toast, {DURATION} from 'react-native-easy-toast'
 
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
-import {API_URL, API_TOKEN} from "@env"
+import {API_URL, API_TOKEN} from "./constants"
+
+import { followUp, fetchMyApps } from './actions/user';
 
 // toTimestamp
 
@@ -154,8 +156,11 @@ class AddBanlistScreen extends Component {
     // console.log(itemsMerchantBankAccount)  
     console.log(localPhotos)
 
+    let {basic_auth} = this.props.user
+
     const data = new FormData();
 
+    // data.append('basic_auth', basic_auth);
     data.append('product_type', title);
     data.append('transfer_amount', transfer_amount);
     data.append('person_name', name);
@@ -183,11 +188,10 @@ class AddBanlistScreen extends Component {
     //     'content-type': 'multipart/form-data'
     //   }
     // })
-
    
     axios.post(`${API_URL}/api/added_banlist?_format=json`, data, {
       headers: { 
-        'Authorization': `Basic ${API_TOKEN}`,
+        'Authorization': `Basic ${basic_auth}`,
         'content-type': 'multipart/form-data'
       }
     })
@@ -213,9 +217,12 @@ class AddBanlistScreen extends Component {
         //   alert('Empty result.');
         // }
 
+        let {navigation, route} = _this.props;
 
+        navigation.pop();
+        route.params.onSelect({});
 
-        _this.toast.show('เพิ่มรายงานเรียบร้อย');
+        // _this.toast.show('เพิ่มรายงานเรียบร้อย');
 
         // _this.props.navigation.pop();        
       }else{
@@ -487,7 +494,7 @@ class AddBanlistScreen extends Component {
     let index = itemsMerchantBankAccount.findIndex(obj => obj.key === key);
     let data = itemsMerchantBankAccount[index];
     // console.log(itemsMerchantBankAccount, key)
-    itemsMerchantBankAccount[index]  = {...data, bank_wallet: item.value}
+    itemsMerchantBankAccount[index]  = {...data, bank_wallet: item}
 
     this.setState({itemsMerchantBankAccount})
   }
@@ -503,20 +510,15 @@ class AddBanlistScreen extends Component {
   }
 
   addItemsMerchantBankAccount = (length) => {
+    let itemsMerchantBankAccount = this.state.itemsMerchantBankAccount;
+    itemsMerchantBankAccount.push({key:length, bank_account: '', bank_wallet:''});
 
-    // let itemsMerchantBankAccount = this.state.itemsMerchantBankAccount.push(length);
-    // this.state.myArray.push('new value')
-
-    let itemsMerchantBankAccount = [...this.state.itemsMerchantBankAccount, {key: length}];
-
-
-
-    this.setState({itemsMerchantBankAccount})
+    this.setState({itemsMerchantBankAccount});
   }
   
   render(){
 
-    console.log(this.state.currentDateTimePicker)
+    // console.log(this.state.currentDateTimePicker)
     return (
       <SafeAreaView >
         <KeyboardAwareScrollView contentContainerStyle={{ flexGrow: 1 }} enableOnAndroid={true}>
@@ -692,7 +694,10 @@ class AddBanlistScreen extends Component {
                           this.getItemsMerchant()
                         }
                     initValue="เลือกธนาคาร/ระบบ Wallet"
-                    onChange={(option)=>{ console.log(`${option.label} (${option.key}) nom nom nom`) }} />
+                    onChange={(option)=>{ 
+                      console.log(`${option.label} (${option.key})`, option) 
+                      this.onChangeItemItemsMerchant(option.key, key)
+                    }} />
                     
               </View>
             )
@@ -829,4 +834,15 @@ const styles = StyleSheet.create({
   }
 });
 
-export default AddBanlistScreen;
+const mapStateToProps = state => {
+  return{
+    user: state.user.data
+  }
+}
+
+const mapDispatchToProps = {
+  followUp,
+  fetchMyApps
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(AddBanlistScreen)

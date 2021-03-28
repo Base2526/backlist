@@ -27,7 +27,7 @@ import Toast, {DURATION} from 'react-native-easy-toast'
 
 import {toTimestamp, isEmpty} from './Utils'
  
-import {API_URL, API_TOKEN} from "@env"
+import {API_URL, API_TOKEN} from "./constants"
 
 const RadioButton = ({ onPress, selected, children }) => {
     return (

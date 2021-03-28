@@ -1,4 +1,11 @@
-import { FETCH_ALL_DATA, TEST_DATA, CHECK_DATA, CLEAR_DATA } from '../constants/app';
+const axios = require('axios');
+
+import { FETCH_DATA, FETCH_ALL_DATA, TEST_DATA, CHECK_DATA, CLEAR_DATA } from '../constants/app';
+
+export const _fetchData = data => ({
+  type: FETCH_DATA,
+  data,
+});
 
 const dataFetch = data => ({
   type: FETCH_ALL_DATA,
@@ -15,10 +22,23 @@ const checkData = data => ({
   data,
 });
 
-const clearData = data => ({
+const _clearData = data => ({
   type: CLEAR_DATA,
   data,
 });
+
+export const fetchData = (data) => dispatch => {
+  // axios.get('https://jsonplaceholder.typicode.com/users')
+  //   .then((response) => {
+  //     let results = response.data
+  //     if(results.result){
+  //       let {execution_time, datas, count} = results;
+
+        
+  //     }
+  //   })
+  dispatch(_fetchData(data));
+}
 
 export const fetchDataAll = () => dispatch => {
   // axios.get('https://jsonplaceholder.typicode.com/users')
@@ -49,12 +69,6 @@ export const checkFetchData = (data) => dispatch => {
   dispatch(checkData({}))
 }
 
-export const clearDataALL = (data) => dispatch => {
-  // axios.get('https://jsonplaceholder.typicode.com/users')
-  //   .then((response) => {
-  //     console.log('fetchDataAll >>>> ' , response.data)
-  //     dispatch(dataFetch(response.data));
-  //   })
-
-  dispatch(clearData({}))
+export const clearData = () => dispatch => {
+  dispatch(_clearData())
 }

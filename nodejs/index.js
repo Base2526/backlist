@@ -45,7 +45,7 @@ app.get('/api/hello', (req, res) => {
 });
 
 // case login will add uid to socketsModel and logout will clear uid for socketsModel
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async(req, res) => {
   try {
     console.log(req.body)
     
@@ -62,7 +62,17 @@ app.post('/api/login', (req, res) => {
         console.log(result)
       });
 
-      res.status(200).send({'message': 'OK'});
+      let user = await usersModel.findOne({ uid });
+      var followUps = user.followUps.toObject();
+      // let fs = await socketsModel.findOne({ uniqueId: unique_id });
+      // if ( fs !== null ){
+      //   if(fs.socketId){
+      //     console.log(fs.socketId)
+      //     io.to(fs.socketId).emit('follow_up', JSON.stringify(followUps));
+      //   }
+      // }
+
+      res.status(200).send({'result': true, 'message': 'OK', 'followUps': JSON.stringify(followUps)});
     }
   } catch (err) {
     res.status(500).send({errors: err});
@@ -93,48 +103,71 @@ app.post('/api/logout', (req, res) => {
   }
 });
 
-app.post('/api/favorite', async (req, res) => {
+app.post('/api/follow_up', async (req, res) => {
   try {
     console.log(req.body)
     
-    let { uid, id_favorite, unique_id } = req.body
-    if(!uid || !id_favorite || !unique_id){    
+    let { uid, id_follow_up, unique_id } = req.body
+    if(!uid || !id_follow_up || !unique_id){    
       return res.status(404).send({'message': 'ERROR'});
     }else{
       let user = await usersModel.findOne({ uid });
       
       if ( user === null ){
-        await new usersModel({ uid, favorites: [id_favorite]}).save()
+        await new usersModel({ uid, followUps: [id_follow_up]}).save()
       }else{
-        var favorites = user.favorites.toObject();
+        var followUps = user.followUps.toObject();
         
-        var message = 'Follow'
-        if(favorites.includes(id_favorite)){
-          favorites = favorites.filter((v) => {return v != id_favorite})
+        var message = 'Follow up'
+        if(followUps.includes(id_follow_up)){
+          followUps = followUps.filter((v) => {return v != id_follow_up})
 
-          var message = 'Unfollow'
+          var message = 'Upfollow up'
         }else{
-          favorites = [...favorites, id_favorite]
+          followUps = [...followUps, id_follow_up]
         }
 
-        usersModel.findOneAndUpdate({ uid }, { uid, favorites }, {
+        usersModel.findOneAndUpdate({ uid }, { uid, followUps }, {
           new: true,
           upsert: true 
         },async function( error, result){
           if ( error === null ){
             console.log(result)
 
-            let fs = await socketsModel.findOne({ unique_id });
+            let fs = await socketsModel.findOne({ uniqueId: unique_id });
             if ( fs !== null ){
               if(fs.socketId){
                 console.log(fs.socketId)
-                io.to(fs.socketId).emit('FromAPI', 'for your eyes only');
+                io.to(fs.socketId).emit('follow_up', JSON.stringify(followUps));
               }
             }
           }
         });
 
         return res.status(200).send({'message': message});
+      }
+    }
+    
+    return res.status(200).send({'message': 'OK'});
+  } catch (err) {
+    return res.status(500).send({errors: err});
+  }
+});
+
+// my_apps
+app.post('/api/my_apps', async (req, res) => {
+  try {
+    console.log(req.body)
+    
+    let { uid } = req.body
+    if(!uid){    
+      return res.status(404).send({'message': 'ERROR'});
+    }else{
+      let fs = await socketsModel.findOne({ uid });
+      if ( fs !== null ){
+        if(fs.socketId){
+          io.to(fs.socketId).emit('my_apps', 'for your eyes only');
+        }
       }
     }
     

@@ -19,6 +19,7 @@ import {
   Platform,
   BackHandler
 } from 'react-native';
+import { connect } from 'react-redux';
 
 import {
   Header,
@@ -55,24 +56,26 @@ import FilterScreen from './FilterScreen'
 
 import SearchScreen2 from './SearchScreen2'
 
-
 import MeScreen from './MeScreen'
 import ForgotPassword from './ForgotPassword'
 import SignUp from './SignUp'
 import Profile from './Profile1/Profile'
 import MyPost from './MyPost'
-import MyFollowing from './MyFollowing'
+import FollowUps from './FollowUps'
 
 import SettingsScreen from './SettingsScreen'
 import ReportScreen from './ReportScreen'
 
-import {API_URL_SOCKET_IO} from "@env"
+import {API_URL_SOCKET_IO} from "./constants"
 
 import Toast, {DURATION} from 'react-native-easy-toast'
 
 import { Base64, checkLogin, isEmpty} from './Utils'
 
 import {store, persistor} from './reduxStore'
+
+import { followUp, fetchMyApps } from './actions/user';
+
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -187,7 +190,7 @@ function MeStackScreen({navigation, route}) {
           routeName == 'inappbrowser' ||
           routeName == 'profile' ||
           routeName == 'mypost' ||
-          routeName == 'myfollowing' ||
+          routeName == 'followups' ||
           routeName == 'detail' ||
           routeName == 'add_banlist' ){
         navigation.setOptions({tabBarVisible: false});
@@ -247,10 +250,10 @@ function MeStackScreen({navigation, route}) {
           }}
         />
         <MeStack.Screen 
-          name="myfollowing" 
-          component={MyFollowing}
+          name="followups" 
+          component={FollowUps}
           options={{
-            title: 'My Following',
+            title: 'Follow ups',
             tabBarVisible: false,
           }}
         />
@@ -304,7 +307,7 @@ class App extends Component {
   componentDidMount() {
     SplashScreen.hide();
 
-    console.log(API_URL_SOCKET_IO)
+    console.log(API_URL_SOCKET_IO())
     this.onSocket()
 
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
@@ -334,12 +337,12 @@ class App extends Component {
   onSocket = async () =>{
 
     // let API_URL_SOCKET_IO='http://localhost:3000'
-    console.log(API_URL_SOCKET_IO)
-    let cL = await checkLogin()
+    let cL = this.props.user
+    console.log('cL : ', cL)
     if(!isEmpty(cL)){    
-      this.socket = io(API_URL_SOCKET_IO, { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${Base64.btoa(getUniqueId())}&version=${getVersion()}&uid=${cL.uid}` });
+      this.socket = io(API_URL_SOCKET_IO(), { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${Base64.btoa(getUniqueId())}&version=${getVersion()}&uid=${cL.uid}` });
     }else{
-      this.socket = io(API_URL_SOCKET_IO, { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${Base64.btoa(getUniqueId())}&version=${getVersion()}` });
+      this.socket = io(API_URL_SOCKET_IO(), { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${Base64.btoa(getUniqueId())}&version=${getVersion()}` });
     }
     
     this.socket.on('message', (data)=>{
@@ -348,10 +351,13 @@ class App extends Component {
       console.log('<message')
     });
 
-    this.socket.on('FromAPI', (data)=>{
-      console.log('FromAPI>')
-      console.log(data)
-      console.log('<FromAPI')
+    this.socket.on('follow_up', (data)=>{
+      console.log('follow_up >>>> ', data)
+      this.props.followUp(JSON.parse(data))
+    })
+
+    this.socket.on('my_apps', (data)=>{
+      this.props.fetchMyApps(cL.basic_auth)
     })
   }
 
@@ -363,8 +369,8 @@ class App extends Component {
     
     return(
       <View style={{flex:1}}>
-      <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
+      {/* <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}> */}
         <NavigationContainer>
           <Tab.Navigator
           screenOptions={({ route }) => ({
@@ -414,8 +420,8 @@ class App extends Component {
 
           {/* <ModalPortal /> */}
         </NavigationContainer>
-      </PersistGate>
-      </Provider>
+      {/* </PersistGate>
+      </Provider> */}
       </View>
     )
   }
@@ -465,4 +471,16 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+// export default App;
+const mapStateToProps = state => {
+  return{
+    user: state.user.data
+  }
+}
+
+const mapDispatchToProps = {
+  followUp,
+  fetchMyApps
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App)

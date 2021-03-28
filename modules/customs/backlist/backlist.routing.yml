@@ -217,3 +217,14 @@ api.fetch_mypost:
     _role: 'authenticated+administrator'
   options:
     _auth: ['basic_auth']
+
+# /api/fetch_post_by_id
+api.fetch_post_by_id:
+  path: '/api/fetch_post_by_id'
+  methods: [POST]
+  defaults: 
+    _controller: '\Drupal\backlist\Controller\API::FetchPostById'
+  requirements: 
+    _role: 'authenticated+administrator'
+  options:
+    _auth: ['basic_auth']

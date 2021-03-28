@@ -97,3 +97,26 @@ export const logout = async () => {
     console.log('Failed to save the data to the storage')
   }
 }
+
+// this.mergeArrays([{"id":1},{"id":2},{"id":3},{"id":3},{"id":3}], [{"id":1},{"id":4},{"id":5},{"id":2}])
+export const mergeArrays = (...arrays) => {
+  let jointArray = []
+
+  arrays.forEach(array => {
+      jointArray = [...jointArray, ...array]
+  })
+  const uniqueArray = jointArray.reduce((newArray, item) =>{
+      let found = newArray.find(({ id }) => id === item.id);
+      if (found){
+          return newArray
+      } else {
+          return [...newArray, item]
+      }
+  }, [])
+  return uniqueArray
+}
+
+export const compare2Arrays = (a, b) =>{
+  return a.length === b.length && b.length > 0 && b.every(item => a.indexOf(item) > -1)
+}
+// 

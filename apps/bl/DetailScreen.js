@@ -9,6 +9,7 @@ import {SafeAreaView,
         Image,
         TouchableOpacity} from 'react-native';
         
+import { connect } from 'react-redux';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -29,8 +30,8 @@ const axios = require('axios');
 
 import { getUniqueId, getVersion } from 'react-native-device-info';
 
-import { NumberFormat, checkLogin, isEmpty, Base64 } from './Utils'
-import {API_URL, API_URL_SOCKET_IO} from "@env"
+import { NumberFormat, isEmpty, Base64, compare2Arrays } from './Utils'
+import {API_URL, API_URL_SOCKET_IO, WEB_CLIENT_ID, IOS_CLIENT_ID} from "./constants"
 
 // https://reactnativecode.com/popup-menu-overflow-menu-in-react-navigation/
 import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
@@ -57,20 +58,52 @@ class DetailScreen extends React.Component {
                         images: [],
                         bottomModalAndTitle: false,
 
-                        isLogin:false,
+                        // isLogin:false,
                     }
     }
 
-    async componentDidMount(){
-        let { navigation, route } = this.props;
+    componentDidMount(){
+        let { navigation, route, user, follow_ups} = this.props;
 
-        let cL = await checkLogin()
-        if(!isEmpty(cL)){
-            this.setState({isLogin: true})
-        }
+        // let cL = await checkLogin()
+        // if(!isEmpty(cL)){
+        //     this.setState({isLogin: true})
+        // }
 
         let data =  route.params.data;
-        // console.log(data)
+        console.log('user >>>', user)
+
+        this.updateNavigation();
+
+        let images = []
+        if (data.images){
+            data.images.map(function(url){
+                images.push({url});
+            })
+        }
+        
+        this.setState({data, images})
+        this.renderFooterImageViewer = this.renderFooterImageViewer.bind(this)
+
+        GoogleSignin.configure({
+            webClientId: WEB_CLIENT_ID,
+            offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
+            forceCodeForRefreshToken: true, // [Android] related to `serverAuthCode`, read the docs link below *.
+            iosClientId: IOS_CLIENT_ID, // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
+        });
+    }
+
+    componentDidUpdate(prevProps){
+        if(!compare2Arrays(prevProps.follow_ups, this.props.follow_ups)){
+            this.updateNavigation()
+        }
+    }
+
+    updateNavigation(){
+        let { navigation, route, user, follow_ups} = this.props;
+
+        let data =  route.params.data;
+        console.log('user >>>', user)
 
         let _this = this
         let _menu = null;
@@ -81,14 +114,16 @@ class DetailScreen extends React.Component {
                         style={{  }}
                         onPress={ async()=>{
                             // _this.toast.show('Follow');
-                            let cL = await checkLogin()
+                            let cL = this.props.user
+                            console.log(cL.uid, data.id, Base64.btoa(getUniqueId()), API_URL_SOCKET_IO())
+                  
                             if(isEmpty(cL)){
                                 _this.setState({bottomModalAndTitle: true})
                             }else{
-                                axios.post(`${API_URL_SOCKET_IO}/api/favorite`, {
-                                    uid: cL.uid,
-                                    id_favorite: data.id,
-                                    unique_id: Base64.btoa(getUniqueId())
+                                axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
+                                        uid: cL.uid,
+                                        id_follow_up: data.id,
+                                        unique_id: Base64.btoa(getUniqueId())
                                     }, {
                                     headers: { 
                                         'Content-Type': 'application/json',
@@ -111,7 +146,7 @@ class DetailScreen extends React.Component {
                             }
                             
                         }}>
-                        <Ionicons name="shield-checkmark-outline" size={25} color={'gray'} />
+                        <Ionicons name="shield-checkmark-outline" size={25} color={isEmpty(follow_ups.find( f => f === data.id )) ? 'gray' : 'red'} />
                     </TouchableOpacity>
                     
                     <View style={{marginRight: 5}}>
@@ -168,23 +203,6 @@ class DetailScreen extends React.Component {
                 </View>
               )
         })
-
-        let images = []
-        if (data.images){
-            data.images.map(function(url){
-                images.push({url});
-            })
-        }
-        
-        this.setState({data, images})
-        this.renderFooterImageViewer = this.renderFooterImageViewer.bind(this)
-
-        GoogleSignin.configure({
-            webClientId: WEB_CLIENT_ID,
-            offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
-            forceCodeForRefreshToken: true, // [Android] related to `serverAuthCode`, read the docs link below *.
-            iosClientId: IOS_CLIENT_ID, // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
-        });
     }
 
     onSelect = data => {
@@ -483,4 +501,23 @@ const styles = StyleSheet.create({
   }
 });
 
-export default DetailScreen
+// export default DetailScreen
+const mapStateToProps = state => {
+    return{
+        user: state.user.data,
+        follow_ups: state.user.follow_ups
+    }
+}
+
+/*
+is function call by user
+*/
+const mapDispatchToProps = {
+    // fetchData,
+    // fetchDataAll,
+    // testFetchData,
+    // checkFetchData,
+    // clearData
+}
+
+export default connect(mapStateToProps, null)(DetailScreen)

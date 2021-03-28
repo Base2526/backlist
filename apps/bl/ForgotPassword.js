@@ -25,7 +25,7 @@ import {
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
 
-import {API_URL, API_TOKEN} from "@env"
+import {API_URL, API_TOKEN} from "./constants"
 
 import Spinner from 'react-native-loading-spinner-overlay';
 import Toast, {DURATION} from 'react-native-easy-toast'

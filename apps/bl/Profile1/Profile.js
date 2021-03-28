@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native'
-import PropTypes from 'prop-types'
+import { connect } from 'react-redux';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
@@ -24,6 +24,7 @@ import Tel from './Tel'
 import contactData from '../profile/contact.json'
 
 import { isEmpty } from '../Utils'
+import { userLogout } from '../actions/user';
 
 class Profile extends Component {
   // static propTypes = {
@@ -56,7 +57,10 @@ class Profile extends Component {
   }
 
   componentDidMount() {
-    const { route, navigation} = this.props;
+    let _this = this
+    const { route, navigation, user} = this.props;
+
+    console.log('user : ', user);
 
     navigation.setOptions({
         headerRight: () => (
@@ -78,6 +82,9 @@ class Profile extends Component {
                         //     this.setState({isLogin: false})
                         // })
                         console.log('logout')
+
+                        _this.props.userLogout();
+                        navigation.pop();
                       }}
                   ]
                   );
@@ -111,16 +118,18 @@ class Profile extends Component {
   }
 
   renderHeader = () => {
-    let {
-      avatar,
-      avatarBackground,
-      name,
-      address,
-      // address: { city, country },
-    } = this.state.contactData
+
+    let {email, image_url, name } = this.props.user
+    // let {
+    //   avatar,
+    //   avatarBackground,
+    //   name,
+    //   address,
+    //   // address: { city, country },
+    // } = this.state.contactData
 
     // let { city, country } = address
-    console.log(avatar)
+    // console.log(avatar)
     // console.log(city, country)
     // return <View />
     // if(isEmpty(this.state.contactData)){
@@ -134,31 +143,35 @@ class Profile extends Component {
     //   address: { city, country },
     // } = this.state.contactData
 
+    /*
+    {"basic_auth": "c21pOjEyMzQ=", "email": "mr.simajarn@gmail.com", "image_url": "https://banlist.info/sites/default/files/02-27-2021_1019pm_1115734532.png", "name": "smi", "session": "VhgSAhZlPiV8dF7E-Ka2WaWAFYQ6TdQmYKZ18neqQ0A", "uid": "59"}
+    */
+
     return (
       <View style={styles.headerContainer}>
         <ImageBackground
           style={styles.headerBackgroundImage}
           blurRadius={10}
-          source={{uri: avatarBackground}}
+          source={{uri: ''}}
         >
           <View style={styles.headerColumn}>
             <Image
               style={styles.userImage}
-              source={{uri: avatar}}
+              source={{uri: image_url}}
             />
             <Text style={styles.userNameText}>{name}</Text>
             <View style={styles.userAddressRow}>
-              <View>
+              {/* <View>
                 <Icon
                   name="place"
                   underlayColor="transparent"
                   iconStyle={styles.placeIcon}
                   onPress={this.onPressPlace}
                 />
-              </View>
+              </View> */}
               <View style={styles.userCityRow}>
                 <Text style={styles.userCityText}>
-                  city, country
+                  {email}
                 </Text>
               </View>
             </View>
@@ -169,7 +182,6 @@ class Profile extends Component {
   }
 
   renderTel = () => (
-    
     <FlatList
       contentContainerStyle={styles.telContainer}
       data={this.state.contactData.tels}
@@ -219,9 +231,18 @@ class Profile extends Component {
         <View style={styles.container}>
           <Card containerStyle={styles.cardContainer}>
             {this.renderHeader()}
-            {this.renderTel()}
-            {Separator()}
-            {this.renderEmail()}
+            {/* {this.renderTel()} */}
+            {/* {Separator()} */}
+            {/* {this.renderEmail()} */}
+
+            {/* <View style={{padding:10}}>
+              <Text style={{color:'gray', fontSize:20}}>
+                  Status message
+              </Text>
+              <Text>
+                  ddd
+              </Text>
+            </View> */}
           </Card>
         </View>
       </ScrollView>
@@ -248,6 +269,7 @@ const styles = StyleSheet.create({
   headerBackgroundImage: {
     paddingBottom: 20,
     paddingTop: 45,
+    backgroundColor:'gray'
   },
   headerContainer: {},
   headerColumn: {
@@ -305,4 +327,16 @@ const styles = StyleSheet.create({
   },
 })
 
-export default Profile
+// export default Profile
+// export default MyPost;
+const mapStateToProps = state => {
+  return{
+    user: state.user.data,
+  }
+}
+
+const mapDispatchToProps = {
+  userLogout
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Profile)

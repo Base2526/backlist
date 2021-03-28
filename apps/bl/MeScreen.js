@@ -36,7 +36,7 @@ import Toast, {DURATION} from 'react-native-easy-toast'
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
 
-import {API_URL, API_TOKEN} from "@env"
+import {API_URL, API_TOKEN} from "./constants"
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-community/google-signin';
 

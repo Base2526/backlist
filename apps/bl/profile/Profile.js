@@ -35,7 +35,7 @@ const axios = require('axios');
 var Buffer = require('buffer/').Buffer
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {API_URL, API_TOKEN} from "@env"
+import {API_URL, API_TOKEN} from "../constants"
 
 import ImagePicker from 'react-native-image-crop-picker';
 import ActionSheet from 'react-native-actionsheet';
