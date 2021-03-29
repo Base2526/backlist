@@ -646,62 +646,62 @@ class AddBanlistScreen extends Component {
           </View>
           
           {
-          this.state.itemsMerchantBankAccount.map((value, key) => {
-            key = value.key
-            return(
-              <View key={key}>
-                <View style={{ flexDirection:"row", padding: 5}}>
-                    <Text>เลขบัญชี</Text> 
-                    {/* <Button style={{backgroundColor:"#FF2400", }} title='-' onPress={()=>this.handleDelete(key)} /> */}
+            this.state.itemsMerchantBankAccount.map((value, key) => {
+              key = value.key
+              return(
+                <View key={key}>
+                  <View style={{ flexDirection:"row", padding: 5}}>
+                      <Text>เลขบัญชี</Text> 
+                      {/* <Button style={{backgroundColor:"#FF2400", }} title='-' onPress={()=>this.handleDelete(key)} /> */}
 
-                    <TouchableOpacity style={{backgroundColor:'red', borderRadius:20, width: 25, height: 25, alignItems:'center', justifyContent:'center', marginLeft:5}} 
-                      onPress={() => this.handleDelete(key)} >
-                      <Text style={{ color:'white'}}>-</Text>
-                    </TouchableOpacity>
+                      <TouchableOpacity style={{backgroundColor:'red', borderRadius:20, width: 25, height: 25, alignItems:'center', justifyContent:'center', marginLeft:5}} 
+                        onPress={() => this.handleDelete(key)} >
+                        <Text style={{ color:'white'}}>-</Text>
+                      </TouchableOpacity>
+                  </View>
+                  <TextInput 
+                    key={key}  
+                    keyboardType="numeric"
+                    style={{borderWidth: .5, height: 40}}
+                    onChangeText={e => this.handleChangeItemItemsMerchant(e, key)}/>
+                  <Text>ธนาคาร/ระบบ Wallet</Text>
+                  
+                  {/* <DropDownPicker
+                    // items={this.getItemsMerchant()}
+                    items={this.listMerchantBank()}
+                    defaultValue={'1'}
+                    containerStyle={{height: 50}}
+                    style={{backgroundColor: '#fafafa', }}
+                    itemStyle={{justifyContent: 'flex-start'}}
+                    dropDownStyle={{backgroundColor: '#fafafa'}}
+                    onChangeItem={item => this.onChangeItemItemsMerchant(item, key)}
+                    labelStyle={{
+                        fontSize: 16,
+                        textAlign: 'left',
+                        color: '#000'
+                    }}/> */}
+                    <ModalSelector
+                      data={ /*[
+                              { key: 1,   label: 'Fruits' },
+                              { key: 2, label: 'Red Apples' },
+                              { key: 3, label: 'Cherries' },
+                              { key: 4, label: 'Cranberries', accessibilityLabel: 'Tap here for cranberries' },
+                              // etc...
+                              // Can also add additional custom keys which are passed to the onChange callback
+                              // { key: 5, label: 'Vegetable', customKey: 'Not a fruit' }
+                            ]
+                            */ 
+                            this.getItemsMerchant()
+                          }
+                      initValue="เลือกธนาคาร/ระบบ Wallet"
+                      onChange={(option)=>{ 
+                        console.log(`${option.label} (${option.key})`, option) 
+                        this.onChangeItemItemsMerchant(option.key, key)
+                      }} />
+                      
                 </View>
-                <TextInput 
-                  key={key}  
-                  keyboardType="numeric"
-                  style={{borderWidth: .5, height: 40}}
-                  onChangeText={e => this.handleChangeItemItemsMerchant(e, key)}/>
-                <Text>ธนาคาร/ระบบ Wallet</Text>
-                
-                {/* <DropDownPicker
-                  // items={this.getItemsMerchant()}
-                  items={this.listMerchantBank()}
-                  defaultValue={'1'}
-                  containerStyle={{height: 50}}
-                  style={{backgroundColor: '#fafafa', }}
-                  itemStyle={{justifyContent: 'flex-start'}}
-                  dropDownStyle={{backgroundColor: '#fafafa'}}
-                  onChangeItem={item => this.onChangeItemItemsMerchant(item, key)}
-                  labelStyle={{
-                      fontSize: 16,
-                      textAlign: 'left',
-                      color: '#000'
-                  }}/> */}
-                   <ModalSelector
-                    data={ /*[
-                            { key: 1,   label: 'Fruits' },
-                            { key: 2, label: 'Red Apples' },
-                            { key: 3, label: 'Cherries' },
-                            { key: 4, label: 'Cranberries', accessibilityLabel: 'Tap here for cranberries' },
-                            // etc...
-                            // Can also add additional custom keys which are passed to the onChange callback
-                            // { key: 5, label: 'Vegetable', customKey: 'Not a fruit' }
-                          ]
-                          */ 
-                          this.getItemsMerchant()
-                        }
-                    initValue="เลือกธนาคาร/ระบบ Wallet"
-                    onChange={(option)=>{ 
-                      console.log(`${option.label} (${option.key})`, option) 
-                      this.onChangeItemItemsMerchant(option.key, key)
-                    }} />
-                    
-              </View>
-            )
-          })
+              )
+            })
           }
           
           <ScrollView

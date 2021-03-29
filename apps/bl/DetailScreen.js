@@ -316,23 +316,23 @@ class DetailScreen extends React.Component {
     }
 
     handleLoginWithGoogle = async () => {
-    try {
-        await GoogleSignin.hasPlayServices();
-        const userInfo = await GoogleSignin.signIn();
-        console.log(userInfo)
-        // setUser(userInfo)
-    } catch (error) {
-        console.log('Message', error.message);
-        if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        console.log('User Cancelled the Login Flow');
-        } else if (error.code === statusCodes.IN_PROGRESS) {
-        console.log('Signing In');
-        } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        console.log('Play Services Not Available or Outdated');
-        } else {
-        console.log('Some Other Error Happened');
+        try {
+            await GoogleSignin.hasPlayServices();
+            const userInfo = await GoogleSignin.signIn();
+            console.log(userInfo)
+            // setUser(userInfo)
+        } catch (error) {
+            console.log('Message', error.message);
+            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+            console.log('User Cancelled the Login Flow');
+            } else if (error.code === statusCodes.IN_PROGRESS) {
+            console.log('Signing In');
+            } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+            console.log('Play Services Not Available or Outdated');
+            } else {
+            console.log('Some Other Error Happened');
+            }
         }
-    }
     }
 
     modalLogin(){

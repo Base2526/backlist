@@ -280,7 +280,7 @@ class HomeScreen extends Component {
                   <View style={{flex: 1, flexDirection: 'row'}}>
                     <TouchableOpacity
                     onPress={()=>{
-                      this.setState({modalVisible: true})
+                      // this.setState({modalVisible: true})
                     }}>
                     <View style={{flex: 1, margin: 2}} >
                       <FastImage
@@ -302,7 +302,11 @@ class HomeScreen extends Component {
       case 2:{
         return (<View style={{width: '100%', height: 300, flexDirection: 'row'}}>
               <View style={{flex: 1, flexDirection: 'row'}}>
-                <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
+                <TouchableOpacity 
+                  onPress={()=>{
+
+                  }} 
+                  style={{flex: 1, margin: 2, }} >
                   <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -314,7 +318,11 @@ class HomeScreen extends Component {
                         resizeMode={FastImage.resizeMode.cover}
                         />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
+                <TouchableOpacity 
+                  onPress={()=>{
+
+                  }} 
+                  style={{flex: 1, margin: 2, }} >
                   <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -334,7 +342,11 @@ class HomeScreen extends Component {
       case 3:{
         return (<View style={{width: '100%', height: 300, flexDirection: 'row'}}>
               <View style={{flex: 1, flexDirection: 'column'}}>
-                <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
+                <TouchableOpacity 
+                  onPress={()=>{
+
+                  }} 
+                  style={{flex: 1, margin: 2, }} >
                   <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -346,7 +358,11 @@ class HomeScreen extends Component {
                         resizeMode={FastImage.resizeMode.cover}
                         />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
+                <TouchableOpacity 
+                  onPress={()=>{
+
+                  }} 
+                  style={{flex: 1, margin: 2, }} >
                   <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -360,7 +376,11 @@ class HomeScreen extends Component {
                 </TouchableOpacity>
               </View>
               <View style={{flex: 1, flexDirection: 'row'}}>
-                <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
+                <TouchableOpacity 
+                  onPress={()=>{
+
+                  }} 
+                  style={{flex: 1, margin: 2, }} >
                   <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -379,7 +399,11 @@ class HomeScreen extends Component {
       case 4:{
         return (<View style={{width: '100%', height: 300, flexDirection: 'column'}}>
               <View style={{flex: 1, flexDirection: 'row'}}>
-                <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
+                <TouchableOpacity 
+                  onPress={()=>{
+
+                  }} 
+                  style={{flex: 1, margin: 2, }} >
                   <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -391,7 +415,11 @@ class HomeScreen extends Component {
                         resizeMode={FastImage.resizeMode.cover}
                         />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
+                <TouchableOpacity 
+                  onPress={()=>{
+
+                  }} 
+                  style={{flex: 1, margin: 2, }} >
                   <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -405,7 +433,11 @@ class HomeScreen extends Component {
                 </TouchableOpacity>
               </View>
               <View style={{flex: 1, flexDirection: 'row'}}>
-                <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
+                <TouchableOpacity 
+                  onPress={()=>{
+
+                  }} 
+                  style={{flex: 1, margin: 2, }} >
                   <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -417,7 +449,11 @@ class HomeScreen extends Component {
                         resizeMode={FastImage.resizeMode.cover}
                         />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
+                <TouchableOpacity 
+                  onPress={()=>{
+
+                  }} 
+                  style={{flex: 1, margin: 2, }} >
                   <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -436,9 +472,11 @@ class HomeScreen extends Component {
       default:{
         return (<View style={{width: '100%', height: 300, flexDirection: 'column'}}>
                   <View style={{flex: 2, flexDirection: 'row'}}>
-                    <TouchableOpacity onPress={()=>{
-                      this.setState({modalVisible: true})
-                    }} style={{flex: 1, margin: 2, }} >
+                    <TouchableOpacity 
+                    onPress={()=>{
+                      // this.setState({modalVisible: true})
+                    }} 
+                    style={{flex: 1, margin: 2, }} >
                       <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -450,7 +488,11 @@ class HomeScreen extends Component {
                         resizeMode={FastImage.resizeMode.cover}
                         />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
+                    <TouchableOpacity 
+                    onPress={()=>{
+
+                    }} 
+                    style={{flex: 1, margin: 2, }} >
                       <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -464,7 +506,11 @@ class HomeScreen extends Component {
                     </TouchableOpacity>
                   </View>
                   <View style={{flex: 1, flexDirection: 'row'}}>
-                    <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
+                    <TouchableOpacity 
+                    onPress={()=>{
+
+                    }} 
+                    style={{flex: 1, margin: 2, }} >
                       <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -476,7 +522,11 @@ class HomeScreen extends Component {
                         resizeMode={FastImage.resizeMode.cover}
                         />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
+                    <TouchableOpacity 
+                    onPress={()=>{
+
+                    }} 
+                    style={{flex: 1, margin: 2, }} >
                       <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -488,7 +538,11 @@ class HomeScreen extends Component {
                         resizeMode={FastImage.resizeMode.cover}
                         />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>{}} style={{flex: 1, margin: 2, }} >
+                    <TouchableOpacity 
+                    onPress={()=>{
+                      
+                    }} 
+                    style={{flex: 1, margin: 2, }} >
                       <FastImage
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
@@ -890,7 +944,7 @@ class HomeScreen extends Component {
                   opacity={0.8}
                   />
 
-                {this.viewImageViewer}
+                {/* {this.viewImageViewer} */}
             </View>)
   }
 }
@@ -899,7 +953,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    // paddingHorizontal: 5
   },
   engine: {
     position: 'absolute',
@@ -912,13 +965,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 24,
     fontWeight: '600',
-    // color: Colors.black,
   },
   sectionDescription: {
     marginTop: 8,
     fontSize: 18,
     fontWeight: '400',
-    // color: Colors.dark,
   },
   highlight: {
     fontWeight: '700',
@@ -932,23 +983,16 @@ const styles = StyleSheet.create({
     margin:5,
     padding:10,
     backgroundColor:"#FFF",
-    // width:"80%",
-    // flex:1,
-    // alignSelf:"center",
-    // flexDirection:"row",
     borderRadius:5
   },
   footer: {
-    // padding: 10,
     flex:1,
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
   },
   loadMoreBtn: {
-    // padding: 10,
     backgroundColor: '#800000',
-    // borderRadius: 4,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -961,7 +1005,6 @@ const styles = StyleSheet.create({
   },
   root: {
     flex: 1,
-    // padding: 16,
   },
   textStyle: {
     fontSize: 14,
@@ -970,14 +1013,8 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = state => {
-
-  // console.log('mapStateToProps>')
-  // console.log( state )
-  
-  // console.log('mapStateToProps : ', state)
   return{
     data: state.app.data,
-    // test: state.app.test,
     user: state.user.data,
     follow_ups: state.user.follow_ups
   }
