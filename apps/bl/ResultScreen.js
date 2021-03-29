@@ -21,21 +21,10 @@ import {
   Image 
 } from 'react-native';
 
-// import {
-//   Header,
-//   LearnMoreLinks,
-//   Colors,
-//   DebugInstructions,
-//   ReloadInstructions,
-// } from 'react-native/Libraries/NewAppScreen';
-
-
+import { connect } from 'react-redux';
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
-
-import {API_URL, API_TOKEN} from "./constants"
-
-// import { StyleSheet, Text, View, FlatList, Image, TouchableOpacity } from 'react-native';
+import {API_URL} from "./constants"
 
 function Item({ item }) {
   return (
@@ -53,11 +42,11 @@ function Item({ item }) {
 }
 
 class ResultScreen extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
-                  data:[
+                  offset: 0,
+                  data:[/*
                     {
                         "name": "Miyah Myles",
                         "email": "miyah.myles@gmail.com",
@@ -118,42 +107,81 @@ class ResultScreen extends Component {
                         "position": "Marketing",
                         "photo": "https:\/\/randomuser.me\/api\/portraits\/women\/26.jpg"
                     }
+                    */
                 ]
                 };
   }
 
   componentDidMount() {
-    // this.props.navigation.dangerouslyGetParent().setOptions({
-    //   tabBarVisible: false
-    // });
+    // let { navigation, route } = this.props;
+    // let key_search =  route.params.key_search;
   }
 
   handleSearch= () => {
-    console.log(this.state.name);
-    console.log(this.state.surname);
-    console.log(this.state.bank_account);
+    let { navigation, route, user } = this.props;
+
+    let _this = this;
+    
+    // if(!offset){
+    //   _this.setState({spinner: true, datas:[]})
+    // }else{
+      _this.setState({loading: true})
+    // }
+    
+    axios.post(`${API_URL}/api/search?_format=json`, {
+      key_word: route.params.key_search,
+      offset
+    }, {
+      headers: { 
+        'Authorization': `Basic ${user.basic_auth}` 
+      }
+    })
+    .then(function (response) {
+      let results = response.data
+      // console.log()
+      if(results.result){
+        // true
+        console.log('results : ', results);
+        // console.log(results);
+
+        // let {execution_time, datas, count} = results;
+        // console.log(execution_time);
+        // console.log(count);
+        // console.log(datas);
+
+        // if(datas && datas.length > 0){
+
+        //   console.log(datas)
+        //   _this.setState({spinner: false, execution_time, datas:[ ..._this.state.datas, ...datas], count, loading: false});
+        // }else{
+
+        //   _this.setState({spinner: false, loading: false})
+        //   // alert('Empty result.');
+
+        //   _this.toast.show('Empty result.');
+        // }
+        
+      }else{
+        // false
+        console.log(results);
+
+        // _this.setState({spinner: false, loading: false})
+      }
+    })
+    .catch(function (error) {
+
+      // _this.setState({spinner: false, loading: false})
+
+      console.log(error);
+    });
   }
 
-  // item({ item }) {
-  //   return (
-  //     <View style={styles.listItem}>
-  //       <Text style={styles.title}>{item.name}</Text>
-  //     </View>
-  //   );
-  // }
-
   render(){
-    return (
-            <View style={styles.container}>
-              {/* <FlatList
-                data={this.state.data}
-                renderItem={({ item }) => <Text>{item}</Text>}
-                keyExtractor={item => item}
-                /> */}
-
+    let {data} = this.state
+    return (<View style={styles.container}>
               <FlatList
                 style={{flex:1}}
-                data={this.state.data}
+                data={data}
                 renderItem={({ item }) => <Item item={item}/>}
                 keyExtractor={item => item.email}
               />
@@ -167,16 +195,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 10
   },
-//   scrollView: {
-//     backgroundColor: Colors.lighter,
-//   },
   engine: {
     position: 'absolute',
     right: 0,
   },
-//   body: {
-//     backgroundColor: Colors.white,
-//   },
   sectionContainer: {
     marginTop: 32,
     paddingHorizontal: 24,
@@ -196,7 +218,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   footer: {
-    // color: Colors.dark,
     fontSize: 12,
     fontWeight: '600',
     padding: 4,
@@ -220,4 +241,10 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ResultScreen;
+const mapStateToProps = state => {
+  return{
+    user: state.user.data
+  }
+}
+
+export default connect(mapStateToProps, null)(ResultScreen)

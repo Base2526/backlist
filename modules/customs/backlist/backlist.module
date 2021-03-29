@@ -23,6 +23,7 @@ use Drupal\node\Entity\Node;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\user\UserInterface;
 
 use Drupal\backlist\Utils\Utils;
 
@@ -157,7 +158,7 @@ function backlist_cron(){
 /**
  * Implements hook_user_login() 
  */
-function backlist_user_login(\Drupal\user\UserInterface $account) {
+function backlist_user_login(UserInterface $account) {
     $route_name = \Drupal::routeMatch()->getRouteName();
     if ($route_name !== 'user.reset.login') {
         $roles = $account->getRoles();
@@ -224,6 +225,50 @@ function backlist_user_insert(EntityInterface $entity) {
       $entity->save();
       break;
     }
+  }
+}
+
+function backlist_user_update(EntityInterface $entity){
+  \Drupal::logger('backlist_user_update')->notice($entity->bundle());
+
+  try {
+    switch($entity->bundle()){
+      case 'user':{
+        
+        // ------------
+        $data_obj = [
+          "uid" => $entity->id()
+        ];
+
+        $ch = curl_init();
+        curl_setopt_array($ch, array(
+          CURLOPT_URL => "http://143.198.223.146:3000/api/update_profile",
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_HEADER => true,
+          //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => "POST",
+          CURLOPT_POSTFIELDS => json_encode($data_obj),
+          CURLOPT_HTTPHEADER => array(
+            // "Authorization: Basic " . $basic_auth,
+            "Accept: application/json",
+            "Content-Type: application/json",
+          ),
+        ));
+
+        $response = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if($httpcode == 200){
+        }
+        curl_close($ch);
+
+        // ------------
+        break;
+      }
+    }
+  } catch (\Throwable $e) {
+    \Drupal::logger('backlist_user_update')->notice($e->__toString());
   }
 }
 
@@ -438,40 +483,40 @@ function backlist_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     $node = $form_state->getFormObject()->getEntity();
 
     if(!empty($node)){
-      $form['report_modal'] = [
-        '#type' => 'link',
-        '#title' => 'Report',
-        '#url' => Url::fromRoute('modal_form_controller.form', ['type' => $node->id()]),
-        '#attributes' => [
-          'class' => [
-            'use-ajax',
-            'button',
-          ],
-        ],
-      ];
+      // $form['report_modal'] = [
+      //   '#type' => 'link',
+      //   '#title' => 'Report',
+      //   '#url' => Url::fromRoute('modal_form_controller.form', ['type' => $node->id()]),
+      //   '#attributes' => [
+      //     'class' => [
+      //       'use-ajax',
+      //       'button',
+      //     ],
+      //   ],
+      // ];
     }
     
   
-    $form['actions']['submit']['save_data'] = array(
-      '#type' => 'submit',
-      '#name' => 'save_data',
-      '#value' => 'บันทึก cccc',
-      '#prefix' => '',
-      '#suffix' => '',
-      // '#submit' => ['submitAjax'],
-      // '#ajax' => [
-      //   'callback' => 'callbackAjax',
-      //   // 'wrapper' => 'user-login-form',
-      //   'progress' => array(
-      //     // Graphic shown to indicate ajax. Options: 'throbber' (default), 'bar'.
-      //     'type' => 'fullscreen',
-      //     // Message to show along progress graphic. Default: 'Please wait...'.
-      //     'message' => NULL,
-      //   ),
-      // ],
-      // '#weight'=> 10000,
-      //'#limit_validation_errors' => array(),
-    );
+    // $form['actions']['submit']['save_data'] = array(
+    //   '#type' => 'submit',
+    //   '#name' => 'save_data',
+    //   '#value' => 'บันทึก',
+    //   '#prefix' => '',
+    //   '#suffix' => '',
+    //   // '#submit' => ['submitAjax'],
+    //   // '#ajax' => [
+    //   //   'callback' => 'callbackAjax',
+    //   //   // 'wrapper' => 'user-login-form',
+    //   //   'progress' => array(
+    //   //     // Graphic shown to indicate ajax. Options: 'throbber' (default), 'bar'.
+    //   //     'type' => 'fullscreen',
+    //   //     // Message to show along progress graphic. Default: 'Please wait...'.
+    //   //     'message' => NULL,
+    //   //   ),
+    //   // ],
+    //   // '#weight'=> 10000,
+    //   //'#limit_validation_errors' => array(),
+    // );
   }
 }
 

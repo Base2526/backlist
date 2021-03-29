@@ -161,6 +161,17 @@ api.reset_password:
   requirements:
     _permission: 'access content'
 
+# fetch_profile
+api.fetch_profile:
+  path: '/api/fetch_profile'
+  methods: [POST]
+  defaults: 
+    _controller: '\Drupal\backlist\Controller\API::FetchProfile'
+  requirements: 
+    _role: 'authenticated+administrator'
+  options:
+    _auth: ['basic_auth']
+
 api.update_profile:
   path: '/api/update_profile'
   methods: [POST]

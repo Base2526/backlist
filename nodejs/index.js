@@ -103,6 +103,29 @@ app.post('/api/logout', (req, res) => {
   }
 });
 
+app.post('/api/update_profile', async(req, res) => {
+  try {
+    console.log(req.body)
+    
+    let { uid } = req.body
+    if( !uid ){    
+      res.status(404).send({ 'result': false });
+    }else{
+      let fs = await socketsModel.findOne({ uid });
+      if ( fs !== null ){
+        if(fs.socketId){
+          // console.log(fs.socketId)
+          io.to(fs.socketId).emit('update_profile', {});
+        }
+      }
+
+      res.status(200).send({ 'result': true });
+    }
+  } catch (err) {
+    res.status(500).send({ 'result': false, 'message': err});
+  }
+});
+
 app.post('/api/follow_up', async (req, res) => {
   try {
     console.log(req.body)

@@ -47,14 +47,14 @@ import { PersistGate } from 'redux-persist/integration/react'
 import { getUniqueId, getVersion } from 'react-native-device-info';
 
 import HomeScreen from './HomeScreen';
-import SearchScreen from './SearchScreen';
+// import SearchScreen from './SearchScreen';
 import ResultScreen from './ResultScreen';
 import AddBanlistScreen from './AddBanlistScreen';
 import DetailScreen from './DetailScreen'
 import LoginScreen from './LoginScreen'
 import FilterScreen from './FilterScreen'
 
-import SearchScreen2 from './SearchScreen2'
+import SearchScreen from './SearchScreen'
 
 import MeScreen from './MeScreen'
 import ForgotPassword from './ForgotPassword'
@@ -74,8 +74,7 @@ import { Base64, checkLogin, isEmpty} from './Utils'
 
 import {store, persistor} from './reduxStore'
 
-import { followUp, fetchMyApps } from './actions/user';
-
+import { fetchProfile, followUp, fetchMyApps } from './actions/user';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -86,7 +85,7 @@ const ProfileStack = createStackNavigator()
 function HomeStackScreen({navigation, route}) {
   useLayoutEffect(() => {
     const routeName = getFocusedRouteNameFromRoute(route);
-    if (  routeName == "result" || 
+    if (  routeName == "result_search" || 
           routeName == "add_banlist" || 
           routeName == "search" || 
           routeName == "detail" ||
@@ -126,15 +125,15 @@ function HomeStackScreen({navigation, route}) {
         />
         <HomeStack.Screen
           name="search"
-          component={SearchScreen2}
+          component={SearchScreen}
           options={{headerShown:false}}
         />
         <HomeStack.Screen 
-          name="result" 
+          name="result_search" 
           component={ResultScreen}
           // options={{ title: 'Result Search',  }}
           options={{
-            title: 'Result',
+            title: 'Result search',
             tabBarVisible: false,
           }}
         />
@@ -351,12 +350,18 @@ class App extends Component {
       console.log('<message')
     });
 
+    this.socket.on('update_profile', (data)=>{
+      console.log('update_profile >>>> ', data)
+      this.props.fetchProfile(cL.basic_auth)
+    })
+
     this.socket.on('follow_up', (data)=>{
       console.log('follow_up >>>> ', data)
       this.props.followUp(JSON.parse(data))
     })
 
     this.socket.on('my_apps', (data)=>{
+      console.log('my_apps >>>> ', data)
       this.props.fetchMyApps(cL.basic_auth)
     })
   }
@@ -479,6 +484,7 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = {
+  fetchProfile,
   followUp,
   fetchMyApps
 }

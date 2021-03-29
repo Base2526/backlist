@@ -1,4 +1,4 @@
-import { USER_LOGIN, USER_LOGOUT, FOLLOW_UP, FETCH_MY_APPS } from '../constants/app';
+import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE, FOLLOW_UP, FETCH_MY_APPS, ADD_HISTORY, DELETE_HISTORY } from '../constants/app';
 
 export const  mergeArrays = (...arrays) => {
   let jointArray = []
@@ -18,20 +18,27 @@ export const  mergeArrays = (...arrays) => {
 
 const initialState = {
   data: [],
+  profile: [],
   follow_ups: [],
   my_apps: [],
+  historys: []
 }
 
 export const user = (state = initialState, action) => {
   switch (action.type) {
     case USER_LOGIN:{
-      console.log('USER_LOGIN', action.data)
+      console.log('Reduces > USER_LOGIN > ', action.data)
       return {...state, data: action.data}
     }
     
     case USER_LOGOUT: {
-      console.log('USER_LOGOUT')
+      console.log('Reduces > USER_LOGOUT > ', action.data)
       return initialState
+    }
+
+    case FETCH_PROFILE:{
+      console.log('Reduces > FETCH_PROFILE > ', action.data)
+      return {...state, profile: action.data}
     }
 
     case FOLLOW_UP: {
@@ -43,6 +50,17 @@ export const user = (state = initialState, action) => {
       return {
         ...state, my_apps: action.data
       }
+    }
+
+    case ADD_HISTORY: {
+      let historys = state.historys.filter((item)=>{ return item !== action.data })
+      historys.splice(0, 0, action.data);
+      return { ...state, historys }
+    }
+
+    case DELETE_HISTORY: {
+      let historys = state.historys.filter((item)=>{ return item !== action.data })
+      return { ...state, historys }
     }
    
     default:

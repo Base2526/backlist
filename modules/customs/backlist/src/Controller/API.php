@@ -1485,6 +1485,48 @@ class API extends ControllerBase {
     }
   }
 
+  public function FetchProfile(Request $request){
+    $response_array = array();
+    try {
+      $time1          = microtime(true);
+      $content        = json_decode( $request->getContent(), TRUE );
+      
+      if (\Drupal::currentUser()->isAuthenticated()) {
+        // This user is logged in.
+
+        $user = User::load( \Drupal::currentUser()->id() );
+        $name    = $user->getDisplayName();
+        $email   = $user->getEmail();
+        $image_url = '';  
+        if (!$user->get('user_picture')->isEmpty()) {
+          $image_url = file_create_url($user->get('user_picture')->entity->getFileUri());
+        }
+
+        $profile = array('name'      =>  $name,
+                      'email'     =>  $email,
+                      'image_url' =>  $image_url,
+                     );
+
+        $response_array['result']           = TRUE;
+        $response_array['profile']          = $profile;
+        $response_array['execution_time']   = microtime(true) - $time1;
+      } else {
+        // This user is not logged in.
+        
+        $response_array['result']   = FALSE;
+        $response_array['message']  = ' This user is not logged in.';
+      }
+
+      return new JsonResponse( $response_array );
+    } catch (\Throwable $e) {
+      \Drupal::logger('FetchProfile')->notice($e->__toString());
+
+      $response_array['result']   = FALSE;
+      $response_array['message']  = $e->__toString();
+      return new JsonResponse( $response_array );
+    }
+  }
+
   public function UpdateProfile(Request $request){
     $response_array = array();
     try {

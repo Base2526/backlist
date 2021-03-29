@@ -8,7 +8,10 @@ export const CHECK_DATA = 'CHECK_DATA';
 
 export const CLEAR_DATA = 'CLEAR_DATA';
 
-export const USER_LOGIN  = 'USER_LOGIN';
-export const USER_LOGOUT = 'USER_LOGOUT';
-export const FOLLOW_UP   = 'FOLLOW_UP';
-export const FETCH_MY_APPS   = 'FETCH_MY_APPS';
+export const USER_LOGIN     = 'USER_LOGIN';
+export const USER_LOGOUT    = 'USER_LOGOUT';
+export const FETCH_PROFILE  = 'FETCH_PROFILE';
+export const FOLLOW_UP      = 'FOLLOW_UP';
+export const FETCH_MY_APPS  = 'FETCH_MY_APPS';
+export const ADD_HISTORY    = 'ADD_HISTORY';
+export const DELETE_HISTORY = 'DELETE_HISTORY';
