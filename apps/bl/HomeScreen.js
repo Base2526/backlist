@@ -153,27 +153,12 @@ class HomeScreen extends Component {
 
     this.renderItem = this.renderItem.bind(this)
 
-    this.saveData()
-
     GoogleSignin.configure({
       webClientId: WEB_CLIENT_ID,
       offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
       forceCodeForRefreshToken: true, // [Android] related to `serverAuthCode`, read the docs link below *.
       iosClientId: IOS_CLIENT_ID, // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
     });
-
-    let {user, follow_ups} = this.props;
-    console.log('Base64.btoa(getUniqueId()) : ', user, follow_ups, Base64.btoa(getUniqueId()))
-    
-
-  //   follow_ups.forEach((animal) => {
-  //     console.log('>>', animal)
-  //  })
-
-  //   let found = follow_ups.find( id =>{
-  //     return Number(id) === 69048;
-  //   } );
-  //   console.log('follow_ups : ', follow_ups, found, Array.isArray(follow_ups))
   }
 
   componentDidUpdate(prevProps){
@@ -186,15 +171,6 @@ class HomeScreen extends Component {
     },() => {
       this.getData()
     });
-  }
-
-  saveData = async () => {
-    try {
-      await AsyncStorage.setItem('save_age', '1000')
-      console.log('Data successfully saved')
-    } catch (e) {
-      console.log('Failed to save the data to the storage')
-    }
   }
 
   onSelect = data => {
@@ -540,7 +516,7 @@ class HomeScreen extends Component {
                     </TouchableOpacity>
                     <TouchableOpacity 
                     onPress={()=>{
-                      
+
                     }} 
                     style={{flex: 1, margin: 2, }} >
                       <FastImage
@@ -587,7 +563,7 @@ class HomeScreen extends Component {
                   style={{ padding:3,}}
                   onPress={ async ()=>{
                     let cL = this.props.user
-                    console.log(API_URL_SOCKET_IO(), cL.uid, id, Base64.btoa(getUniqueId()))
+                    // console.log(API_URL_SOCKET_IO(), cL.uid, id, Base64.btoa(getUniqueId()))
                     if(isEmpty(cL)){
                       this.setState({ bottomModalAndTitle: true })
                     }else{
@@ -907,8 +883,7 @@ class HomeScreen extends Component {
 
   render(){
       const { navigation, data } = this.props;
-      return (
-              <View style={styles.container}>
+      return (<View style={styles.container}>
                 <FlatList
                   ref={(ref) => this.flatlistref = ref}
                   style={{flex:1}}
@@ -941,8 +916,7 @@ class HomeScreen extends Component {
                   positionValue={220}
                   fadeInDuration={750}
                   fadeOutDuration={1000}
-                  opacity={0.8}
-                  />
+                  opacity={0.8}/>
 
                 {/* {this.viewImageViewer} */}
             </View>)

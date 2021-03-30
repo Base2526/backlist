@@ -838,7 +838,10 @@ class API extends ControllerBase {
     $images = array();
     foreach ($node->get('field_images')->getValue() as $imi=>$imv){
       // dpm( Utils::get_file_uri($imv['target_id']) );
-      $images[] = Utils::get_file_url($imv['target_id']);
+      // $images[] = Utils::get_file_url($imv['target_id']);
+
+      $images['medium'][]    = Utils::ImageStyle_BN($imv['target_id'], 'bn_medium') ;
+      $images['thumbnail'][] = Utils::ImageStyle_BN($imv['target_id'], 'bn_thumbnail') ;
     }
     $data['images']  = $images;
 
@@ -1189,7 +1192,6 @@ class API extends ControllerBase {
 
       $content = json_decode( $request->getContent(), TRUE );
       $key_word= trim( $content['key_word'] );
-
       $offset  = trim( $content['offset'] );
       $type    = trim( $content['type'] );
       
@@ -1228,7 +1230,6 @@ class API extends ControllerBase {
         switch($type){
           case 1:{
             $query->addCondition('title', $key_word);
-
             break;
           }
 
@@ -1278,7 +1279,7 @@ class API extends ControllerBase {
         // $query->setLanguages(['th', 'en']);
 
 
-        $pagging = 10; 
+        $pagging = 30; 
 
         $start = 0;
         $end   = $pagging;
@@ -1348,7 +1349,9 @@ class API extends ControllerBase {
           $images = array();
           try {
             foreach ($result->getField('field_images')->getValues() as $imi=>$imv){
-              $images[] = Utils::get_file_url($imv) ;
+              // $images[] = Utils::get_file_url($imv) ;
+              $images['medium'][]    = Utils::ImageStyle_BN($imv, 'bn_medium') ;
+              $images['thumbnail'][] = Utils::ImageStyle_BN($imv, 'bn_thumbnail') ;
 
               \Drupal::logger('SearchApi')->notice($imv);
             }

@@ -24,6 +24,8 @@ import {
 import { connect } from 'react-redux';
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
+import Toast, {DURATION} from 'react-native-easy-toast'
+
 import {API_URL} from "./constants"
 
 function Item({ item }) {
@@ -46,69 +48,8 @@ class ResultScreen extends Component {
     super(props);
     this.state = {
                   offset: 0,
-                  data:[/*
-                    {
-                        "name": "Miyah Myles",
-                        "email": "miyah.myles@gmail.com",
-                        "position": "Data Entry Clerk",
-                        "photo": "https:\/\/images.unsplash.com\/photo-1494790108377-be9c29b29330?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=200&fit=max&s=707b9c33066bf8808c934c8ab394dff6"
-                    },
-                    {
-                        "name": "June Cha",
-                        "email": "june.cha@gmail.com",
-                        "position": "Sales Manager",
-                        "photo": "https:\/\/randomuser.me\/api\/portraits\/women\/44.jpg"
-                    },
-                    {
-                        "name": "Iida Niskanen",
-                        "email": "iida.niskanen@gmail.com",
-                        "position": "Sales Manager",
-                        "photo": "https:\/\/randomuser.me\/api\/portraits\/women\/68.jpg"
-                    },
-                    {
-                        "name": "Renee Sims",
-                        "email": "renee.sims@gmail.com",
-                        "position": "Medical Assistant",
-                        "photo": "https:\/\/randomuser.me\/api\/portraits\/women\/65.jpg"
-                    },
-                    {
-                        "name": "Jonathan Nu\u00f1ez",
-                        "email": "jonathan.nu\u00f1ez@gmail.com",
-                        "position": "Clerical",
-                        "photo": "https:\/\/randomuser.me\/api\/portraits\/men\/43.jpg"
-                    },
-                    {
-                        "name": "Sasha Ho",
-                        "email": "sasha.ho@gmail.com",
-                        "position": "Administrative Assistant",
-                        "photo": "https:\/\/images.pexels.com\/photos\/415829\/pexels-photo-415829.jpeg?h=350&auto=compress&cs=tinysrgb"
-                    },
-                    {
-                        "name": "Abdullah Hadley",
-                        "email": "abdullah.hadley@gmail.com",
-                        "position": "Marketing",
-                        "photo": "https:\/\/images.unsplash.com\/photo-1507003211169-0a1dd7228f2d?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=200&fit=max&s=a72ca28288878f8404a795f39642a46f"
-                    },
-                    {
-                        "name": "Thomas Stock",
-                        "email": "thomas.stock@gmail.com",
-                        "position": "Product Designer",
-                        "photo": "https:\/\/tinyfac.es\/data\/avatars\/B0298C36-9751-48EF-BE15-80FB9CD11143-500w.jpeg"
-                    },
-                    {
-                        "name": "Veeti Seppanen",
-                        "email": "veeti.seppanen@gmail.com",
-                        "position": "Product Designer",
-                        "photo": "https:\/\/randomuser.me\/api\/portraits\/men\/97.jpg"
-                    },
-                    {
-                        "name": "Bonnie Riley",
-                        "email": "bonnie.riley@gmail.com",
-                        "position": "Marketing",
-                        "photo": "https:\/\/randomuser.me\/api\/portraits\/women\/26.jpg"
-                    }
-                    */
-                ]
+                  data:[],
+                  loading: false
                 };
   }
 
@@ -118,7 +59,7 @@ class ResultScreen extends Component {
   }
 
   handleSearch= () => {
-    let { navigation, route, user } = this.props;
+    let { navigation, route, offset } = this.props;
 
     let _this = this;
     
@@ -127,13 +68,66 @@ class ResultScreen extends Component {
     // }else{
       _this.setState({loading: true})
     // }
+
+    /**
+      let text = '';
+      switch(id){
+        case '0':{
+          text = 'ti:';
+          break;
+        }
+
+        case '1':{
+          text = 'ns:';
+          break;
+        }
+
+        case '2':{
+          text = 'in:';
+          break;
+        }
+      }
+
+      { section: '1', id: '0', title: 'ti:', ex: 'Ex. title' },
+      { section: '1', id: '1', title: 'ns:', ex: 'Ex. name subname' },
+      { section: '1', id: '2', title: 'in:', ex: 'Ex. 33209xxxxxx72' },
+
+      1 : title
+      2 : name
+      3 : surname
+      4 : detail
+      5 : name & surname
+    */
+
+    let key_search = route.params.key_search;
+    let type = 0;
+    switch(key_search.substring(0, 3)){
+      case 'ti:':{
+        type = 1;
+        key_search = key_search.substring(3, key_search.length)
+        break;
+      }
+
+      case 'ns:':{
+        type = 5;
+        key_search = key_search.substring(3, key_search.length)
+        break;
+      }
+
+      case 'in:':{
+        type = 6;
+        key_search = key_search.substring(3, key_search.length).replace(" ", "&")
+        break;
+      }
+    }
     
     axios.post(`${API_URL}/api/search?_format=json`, {
-      key_word: route.params.key_search,
-      offset
+      key_word: key_search,
+      offset,
+      type
     }, {
       headers: { 
-        'Authorization': `Basic ${user.basic_auth}` 
+        'Authorization': `Basic YWRtaW46U29ta2lkMDU4ODQ4Mzkx` 
       }
     })
     .then(function (response) {
@@ -144,22 +138,22 @@ class ResultScreen extends Component {
         console.log('results : ', results);
         // console.log(results);
 
-        // let {execution_time, datas, count} = results;
+        let {execution_time, datas, count} = results;
         // console.log(execution_time);
         // console.log(count);
         // console.log(datas);
 
-        // if(datas && datas.length > 0){
+        if(datas && datas.length > 0){
 
-        //   console.log(datas)
-        //   _this.setState({spinner: false, execution_time, datas:[ ..._this.state.datas, ...datas], count, loading: false});
-        // }else{
+          console.log(datas)
+          _this.setState({spinner: false, execution_time, data:[ ..._this.state.data, ...datas], count, loading: false});
+        }else{
 
-        //   _this.setState({spinner: false, loading: false})
-        //   // alert('Empty result.');
+          _this.setState({spinner: false, loading: false})
+          // alert('Empty result.');
 
-        //   _this.toast.show('Empty result.');
-        // }
+          _this.toast.show('Empty result.');
+        }
         
       }else{
         // false
@@ -176,24 +170,110 @@ class ResultScreen extends Component {
     });
   }
 
+  renderItem = (item) =>{
+    console.log(item.id)
+    const { navigation } = this.props;
+    return (
+        <TouchableOpacity 
+            key={item.id}
+            style={{padding:5}}
+            onPress={()=>{
+              navigation.navigate('detail', {data:item})
+            }}
+          >
+          {/* <Image source={{uri:item.photo}}  style={{width:60, height:60,borderRadius:30}} /> */}
+          <View style={{ flex:1, backgroundColor:'#fff', padding:10 }}>
+            {/*      'name'    => $name, 
+                      'surname' => $surname,  */}
+            <View style={{flexDirection:'row'}}>
+              <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
+              {/* <Text>{item.name} {item.surname}</Text> */}
+
+              <TouchableOpacity 
+                style={{ }}
+                onPress={()=>{
+                  navigation.navigate('filter', {data:item})
+                }}>
+                <Text style={{color:'gray'}}>{item.name} {item.surname}</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={{flexDirection:'row'}}>
+              <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
+              <Text style={{color:'gray'}}>{item.title}</Text>
+            </View>
+            <View style={{flexDirection:'row'}}>
+              <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
+              <Text style={{color:'gray'}}>{NumberFormat(Number(item.transfer_amount))}</Text>
+            </View>
+            <View style={{flexDirection:'row'}}>
+                    <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
+                    <Text style={{color:'gray'}}>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
+                </View>
+            <View style={{flexDirection:'column'}}>
+              <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
+              <Text style={{color:'gray'}}>{item.detail}</Text>
+            </View>
+            
+          </View>
+          {/* <TouchableOpacity style={{height:50,width:50, justifyContent:"center",alignItems:"center"}}>
+            <Text style={{color:"green"}}>Call</Text>
+          </TouchableOpacity> */}
+        </TouchableOpacity>
+      );
+  }
+
+  renderFooter = () => {
+    let {loading, offset} = this.state
+    return (
+      //Footer View with Load More button
+      <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={()=>{
+
+            // this.setState({offset: offset+1})
+            this.setState({
+              offset: offset+1
+            },() => {
+              this.handleSearch();
+            });
+          }}
+          >
+          <View style={{backgroundColor:'#fff', alignItems: 'center', padding:10, margin:5}}> 
+            <View style={{flexDirection:'row'}}>
+              <Text>Load More</Text>
+              {loading ? (
+                <ActivityIndicator color="black" style={{marginLeft: 8}} />
+              ) : null}
+            </View>
+          </View>
+      </TouchableOpacity>
+    );
+  };
+
   render(){
     let {data} = this.state
     return (<View style={styles.container}>
               <FlatList
                 style={{flex:1}}
                 data={data}
-                renderItem={({ item }) => <Item item={item}/>}
-                keyExtractor={item => item.email}
-              />
+                renderItem={({ item }) => this.renderItem(item)}
+                keyExtrac
+                tor={(item, index) => String(index)}
+                ListFooterComponent={this.renderFooter()}/>
+              <Toast
+                ref={(toast) => this.toast = toast}
+                position='bottom'
+                positionValue={220}
+                fadeInDuration={750}
+                fadeOutDuration={1000}
+                opacity={0.8}/>
             </View>)
   }
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 10
+    flex: 1
   },
   engine: {
     position: 'absolute',

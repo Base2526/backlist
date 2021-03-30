@@ -28,6 +28,8 @@ use voku\helper\SimpleHtmlDomInterface;
 use voku\helper\SimpleHtmlDomNode;
 use voku\helper\SimpleHtmlDomNodeInterface;
 
+use Drupal\image\Entity\ImageStyle;
+
 class Utils extends ControllerBase {
 
   public static function consent_template_api($lang){
@@ -2400,6 +2402,20 @@ class Utils extends ControllerBase {
     }
     return false;
 	}
+
+  // https://gist.github.com/slivorezka/925dff0369e8eddc7e4ffa4801ab0240
+  public static function ImageStyle_BN($fid, $image_style = 'thumbnail'){
+    try {
+      // Load file.
+      $file = \Drupal::entityTypeManager()->getStorage('file')->load($fid);;// File::load($fid);
+      // Get origin image URI.
+      $image_uri = $file->getFileUri();
+      return ImageStyle::load($image_style)->buildUrl($image_uri);
+    } catch (\Throwable $e) {
+      
+      \Drupal::logger('ImageStyle_BN')->notice('%e, %fid', array('%e'=>$e->__toString(), '%fid'=> serialize($fid)  ) );
+    }
+  }
 
   public static function get_file_url($target_id){   
     $file = \Drupal::entityTypeManager()->getStorage('file')->load($target_id);

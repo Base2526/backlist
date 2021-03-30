@@ -447,13 +447,11 @@ class DetailScreen extends React.Component {
                     </Modal>
                     <Toast
                         ref={(toast) => this.toast = toast}
-                        // style={{backgroundColor:'red'}}
                         position='bottom'
                         positionValue={200}
                         fadeInDuration={750}
                         fadeOutDuration={1000}
                         opacity={0.8}
-                        // textStyle={{color:'red'}}
                         />
                     <FlatList
                         ListHeaderComponent={this.renderHeader()}
@@ -471,13 +469,9 @@ class DetailScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // marginVertical: 20,
-
     backgroundColor: "#fff"
   },
   item: {
-    // backgroundColor: '#4D243D',
-    
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
@@ -492,7 +486,6 @@ const styles = StyleSheet.create({
   },
   footer: {
     width: '100%',
-    // backgroundColor: '#000'
   },
   footerText: {
     color: '#fff',
