@@ -217,9 +217,6 @@ class ResultScreen extends Component {
             </View>
             
           </View>
-          {/* <TouchableOpacity style={{height:50,width:50, justifyContent:"center",alignItems:"center"}}>
-            <Text style={{color:"green"}}>Call</Text>
-          </TouchableOpacity> */}
         </TouchableOpacity>
       );
   }
@@ -231,8 +228,6 @@ class ResultScreen extends Component {
       <TouchableOpacity
           activeOpacity={0.9}
           onPress={()=>{
-
-            // this.setState({offset: offset+1})
             this.setState({
               offset: offset+1
             },() => {
@@ -288,13 +283,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 24,
     fontWeight: '600',
-    // color: Colors.black,
   },
   sectionDescription: {
     marginTop: 8,
     fontSize: 18,
     fontWeight: '400',
-    // color: Colors.dark,
   },
   highlight: {
     fontWeight: '700',

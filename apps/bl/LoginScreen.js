@@ -102,7 +102,7 @@ class LoginScreen extends Component {
   }
  
   render(){
-     return (
+    return (
              <SafeAreaView style={{flex: 1}}>
              <View style={styles.container}>
                 <Text>Email</Text>
@@ -152,10 +152,10 @@ class LoginScreen extends Component {
                     opacity={0.8}/>
                 </View>
              </SafeAreaView>)
-  }
- }
+    }
+}
  
- const styles = StyleSheet.create({
+const styles = StyleSheet.create({
    container: {
      flex: 1,
      paddingHorizontal: 10,
@@ -203,19 +203,15 @@ class LoginScreen extends Component {
      flexDirection:"row",
      borderRadius:5
    }
- });
+});
  
-// export default LoginScreen;
 const mapStateToProps = state => {  
-  console.log('mapStateToProps : ', state)
   return{
     user: state.user.data
   }
 }
 
-/*
- is function call by user
-*/
+// is function call by user
 const mapDispatchToProps = {
   userLogin,
   followUp,

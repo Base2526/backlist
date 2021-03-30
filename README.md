@@ -395,3 +395,20 @@ ps aux | grep node
 kill -9 PROCESS_ID 
 
 
+
+///////////////////////////////////////////////////////
+
+Creating custom Text Selection actions with ACTION_PROCESS_TEXT
+https://medium.com/androiddevelopers/custom-text-selection-actions-with-action-process-text-191f792d2999#.h6377bc8j
+
+https://dev.to/bigaru/providing-custom-text-selection-actions-in-android-1akc
+
+China language
+https://www.programmersought.com/article/9272124547/
+
+https://github.com/jicanghai37927/WhatsAndroid
+
+https://mobikul.com/passing-information-from-java-to-javascript-in-react-native/
+
+///////////////////////////////////////////////////////
+

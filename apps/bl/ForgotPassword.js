@@ -21,18 +21,13 @@ import {
   Image,
   Keyboard
 } from 'react-native';
-
+import { connect } from 'react-redux';
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
-
 import {API_URL, API_TOKEN} from "./constants"
-
 import Spinner from 'react-native-loading-spinner-overlay';
 import Toast, {DURATION} from 'react-native-easy-toast'
-
 import { ValidateEmail } from './Utils'
-
-// import { StyleSheet, Text, View, FlatList, Image, TouchableOpacity } from 'react-native';
 
 class ForgotPassword extends Component {
   constructor(props) {
@@ -59,40 +54,20 @@ class ForgotPassword extends Component {
 
       axios.post(`${API_URL}/api/reset_password?_format=json`, {
         email
-      } /*, {
-        headers: { 
-          'Authorization': `Basic ${API_TOKEN}` 
-        }
-      }*/ )
+      })
       .then(function (response) {
         let results = response.data
         console.log(results)
-        if(results.result){
-          // true
-          console.log('true');
-          console.log(results);
-  
-          // let {execution_time, user, count} = results;
-          // console.log(results);
-
-          // _this.saveLogin(user).then((user)=>{
-          //   _this.setState({spinner: false, user})
-          // })        
-          
-          
+        if(results.result){        
           _this.toast.show('Check email.');
-
           _this.props.navigation.pop();   
           _this.setState({spinner: false})
         }else{
-
           _this.toast.show(results.message, 500);
-
           _this.setState({spinner: false})
         }
       })
       .catch(function (error) {
-
         console.log(error)
         _this.setState({spinner: false})
       });
@@ -100,8 +75,7 @@ class ForgotPassword extends Component {
   }
 
   render(){
-    return (
-            <View style={styles.container}>
+    return (<View style={styles.container}>
               <Text>Email</Text>
               <TextInput
                 style={{height: 40,
@@ -114,7 +88,6 @@ class ForgotPassword extends Component {
                 onPress={this.handleSend}>
                 <Text>Send</Text>
               </TouchableOpacity>
-
               <Spinner
                   visible={this.state.spinner}
                   textContent={'Loading...'}
@@ -193,4 +166,13 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ForgotPassword;
+const mapStateToProps = state => {  
+  return{
+    user: state.user.data
+  }
+}
+
+// is function call by user
+const mapDispatchToProps = {}
+
+export default connect(null, null)(ForgotPassword)

@@ -21,9 +21,7 @@
    Platform,
    FlatList
 } from 'react-native';
- 
-import { useNavigation } from '@react-navigation/native';
-
+import { connect } from 'react-redux';
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
 
@@ -118,7 +116,6 @@ class FilterScreen extends Component {
     }
     
     renderItem = (item) =>{
-        console.log(item.id)
         const { navigation } = this.props;
         return (
             <TouchableOpacity 
@@ -128,10 +125,7 @@ class FilterScreen extends Component {
                 navigation.navigate('detail', {data:item})
                 }}
             >
-            {/* <Image source={{uri:item.photo}}  style={{width:60, height:60,borderRadius:30}} /> */}
             <View style={{ flex:1, backgroundColor:'#fff', padding:10 }}>
-                {/*      'name'    => $name, 
-                        'surname' => $surname,  */}
                 <View style={{flexDirection:'row'}}>
                 <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
                 <Text>{item.name} {item.surname}</Text>
@@ -152,11 +146,7 @@ class FilterScreen extends Component {
                 <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
                 <Text>{item.detail}</Text>
                 </View>
-                
             </View>
-            {/* <TouchableOpacity style={{height:50,width:50, justifyContent:"center",alignItems:"center"}}>
-                <Text style={{color:"green"}}>Call</Text>
-            </TouchableOpacity> */}
             </TouchableOpacity>
         );
     }
@@ -214,12 +204,11 @@ class FilterScreen extends Component {
                         />
                 </SafeAreaView>)
     }
- }
+}
  
- const styles = StyleSheet.create({
+const styles = StyleSheet.create({
    container: {
      flex: 1,
-    //  paddingHorizontal: 10
    },
    engine: {
      position: 'absolute',
@@ -257,7 +246,15 @@ class FilterScreen extends Component {
    spinnerTextStyle: {
      color: '#FFF'
    }
- });
+});
  
- export default FilterScreen;
+const mapStateToProps = state => {  
+    return{
+      user: state.user.data
+    }
+}
+
+// is function call by user
+const mapDispatchToProps = {}
+export default connect(null, null)(FilterScreen)
  

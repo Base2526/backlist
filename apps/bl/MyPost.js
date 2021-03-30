@@ -286,12 +286,10 @@ class MyPost extends Component {
     }
 }
 
-
 const styles = StyleSheet.create({
     container: {
       flex: 1,
       justifyContent: "center",
-      // paddingHorizontal: 5
     },
     engine: {
       position: 'absolute',
@@ -304,13 +302,11 @@ const styles = StyleSheet.create({
     sectionTitle: {
       fontSize: 24,
       fontWeight: '600',
-      // color: Colors.black,
     },
     sectionDescription: {
       marginTop: 8,
       fontSize: 18,
       fontWeight: '400',
-      // color: Colors.dark,
     },
     highlight: {
       fontWeight: '700',
@@ -324,23 +320,16 @@ const styles = StyleSheet.create({
       margin:5,
       padding:10,
       backgroundColor:"#FFF",
-      // width:"80%",
-      // flex:1,
-      // alignSelf:"center",
-      // flexDirection:"row",
       borderRadius:5
     },
     footer: {
-      // padding: 10,
       flex:1,
       justifyContent: 'center',
       alignItems: 'center',
       flexDirection: 'row',
     },
     loadMoreBtn: {
-      // padding: 10,
       backgroundColor: '#800000',
-      // borderRadius: 4,
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
@@ -353,7 +342,6 @@ const styles = StyleSheet.create({
     },
     root: {
       flex: 1,
-      // padding: 16,
     },
     textStyle: {
       fontSize: 14,
@@ -361,7 +349,6 @@ const styles = StyleSheet.create({
     },
 });
   
-
 // export default MyPost;
 const mapStateToProps = state => {
   return{

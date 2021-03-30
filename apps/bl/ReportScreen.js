@@ -19,7 +19,8 @@ import {
    FlatList,
    Image 
 } from 'react-native';
- 
+
+import { connect } from 'react-redux';
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -307,5 +308,11 @@ const styles = StyleSheet.create({
       }
 });
 
-export default ReportScreen;
+const mapStateToProps = state => {
+    return{
+      user: state.user.data
+    }
+}
+  
+export default connect(mapStateToProps, null)(ReportScreen)
  

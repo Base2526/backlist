@@ -21,7 +21,7 @@ import {
   Image,
   Keyboard
 } from 'react-native';
-
+import { connect } from 'react-redux';
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
 
@@ -233,4 +233,14 @@ const styles = StyleSheet.create({
   }
 });
 
-export default SignUp;
+// export default SignUp;
+const mapStateToProps = state => {  
+  return{
+    user: state.user.data
+  }
+}
+
+// is function call by user
+const mapDispatchToProps = {}
+
+export default connect(null, null)(SignUp)
