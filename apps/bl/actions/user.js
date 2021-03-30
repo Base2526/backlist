@@ -1,8 +1,6 @@
 const axios = require('axios');
 
-import {_fetchData} from './app'
-
-import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID, API_URL_SOCKET_IO} from "../constants"
+import {API_URL} from "../constants"
 import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE, FOLLOW_UP, FETCH_MY_APPS, ADD_HISTORY, DELETE_HISTORY } from '../constants/app';
 
 const _dataUserLogin = data => ({

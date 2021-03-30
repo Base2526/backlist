@@ -87,7 +87,7 @@ class FilterScreen extends Component {
         })
         .then(function (response) {
             let results = response.data
-            console.log(results)
+            console.log('FilterScreen : ', results)
             if(results.result){
                 // true
                 console.log('true');

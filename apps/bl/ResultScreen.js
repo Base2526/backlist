@@ -20,7 +20,7 @@ import {
   FlatList,
   Image 
 } from 'react-native';
-
+import Toast, {DURATION} from 'react-native-easy-toast'
 import { connect } from 'react-redux';
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
@@ -56,6 +56,8 @@ class ResultScreen extends Component {
   componentDidMount() {
     // let { navigation, route } = this.props;
     // let key_search =  route.params.key_search;
+
+    this.handleSearch()
   }
 
   handleSearch= () => {
@@ -135,7 +137,7 @@ class ResultScreen extends Component {
       // console.log()
       if(results.result){
         // true
-        console.log('results : ', results);
+        // console.log('result search : ', results);
         // console.log(results);
 
         let {execution_time, datas, count} = results;

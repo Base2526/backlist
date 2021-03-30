@@ -781,8 +781,9 @@ class API extends ControllerBase {
 
   private function GetFieldNode($node){
     $data = array();
-    $data['id']     = $node->id();
-    $data['title']  = $node->label();
+    $data['owner_id'] = $node->getOwnerId();
+    $data['id']       = $node->id();
+    $data['title']    = $node->label();
 
     // 2. ชื่อบัญชี-นามสกุล ผู้รับเงินโอน
     $sales_person_name = '';
@@ -804,7 +805,7 @@ class API extends ControllerBase {
 
     // รายละเอียด
     $detail = '';
-    $body = $node->get('body')->getValue()[0]['value'];
+    $body = $node->get('body')->getValue();
     if(!empty($body)){
       $detail = htmlspecialchars($body[0]['value']);
     }
@@ -1308,6 +1309,12 @@ class API extends ControllerBase {
 
           // $title[0]->getText()
           $item = array();
+
+          $owner_id = 0;
+          $result_uid    = $result->getField('uid')->getValues();
+          if(!empty($result_uid)){
+            $owner_id = $result_uid[0];
+          }
           
           $nid = 0;
           $result_nid    = $result->getField('nid')->getValues();
@@ -1373,7 +1380,8 @@ class API extends ControllerBase {
           }
 
           // ;
-          $item = array('id'      => $nid, 
+          $item = array('owner_id'=> $owner_id,
+                        'id'      => $nid, 
                         'name'    => $name, 
                         'surname' => $surname, 
                         'title'   => $title,

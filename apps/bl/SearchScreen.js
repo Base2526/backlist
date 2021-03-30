@@ -20,7 +20,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 
-import * as historys from './utils/historys';
+// import * as historys from './utils/historys';
 
 import { addHistory, deleteHistory } from './actions/user';
 
@@ -176,12 +176,14 @@ class SearchScreen extends React.PureComponent {
 
     let {title, id, section, ex} = item
 
-    console.log(section)
+    console.log("title, id, section, ex : ", title, id, section, ex)
 
     switch(section){
       case '0':{
         return (<TouchableOpacity onPress={() => {
-                  console.log(this.props)
+                  // console.log(this.props)
+                  this.insertSearch(title);
+                  navigation.navigate('result_search', {key_search:title})
                 }}>
                   <View
                     style={{
@@ -192,10 +194,7 @@ class SearchScreen extends React.PureComponent {
                       flex: 1,
                     }}>
                     <View style={{ alignItems: 'center', flex: 1 }}>
-                      {section == 0 && (
-                        <Ionicons name="time-outline" size={20} color="gray" />
-                      )}
-                     
+                    <Ionicons name="time-outline" size={20} color="gray" /> 
                     </View>
                     <Text style={{ flex: 8, fontSize: 15, paddingTop: 2, color: 'gray' }}>
                       {title}
@@ -423,33 +422,30 @@ class SearchScreen extends React.PureComponent {
 
     const { navigation, historys } = this.props;
 
-    console.log(historys);
-    historys = historys.slice(0, 5); 
-    
-    historys = historys.map((title, id) => {return {section : '0', id, title}})
+    console.log('historys >>> : ',historys);
+
+    let _historys = [...historys]
+    _historys = _historys.slice(0, 5); 
 
     const sections = [
       {
         title: 'Recent searches',
         data: [
-          /*[
-        // {section : '0', id:'0', title: 'overall'},
-        // {section : '0', id:'1', title: 'Management Information Department'},
-        // {section : '0', id:'2', title: 'High Performance Department'},
-        // {section : '0', id:'3', title: 'Tech Cloud'},
-        // {section : '0', id:'4', title: 'Big Data Department'},
-        // {section : '0', id:'5', title: 'New Media Department'},
-        // {section : '0', id:'6', title: 'Internet of Things Center'},
-        {section : '0', id:'7', title: 'Scientific Research and Information Department'},
-        {section : '0', id:'8', title: 'Amazon Cloud'},
-        {section : '0', id:'9', title: 'Ministry Secondary School'},
-        {section : '0', id:'10', title: 'Manage Cloud'},
-        {section : '0', id:'11', title: 'Ningbo Materials Institute'},
-        ]
-        */
-          historys.map((title, id) => {
-            return { section: '0', id, title };
-          }),
+          // [
+          // {section : '0', id:'0', title: 'overall'},
+          // {section : '0', id:'1', title: 'Management Information Department'},
+          // {section : '0', id:'2', title: 'High Performance Department'},
+          // {section : '0', id:'3', title: 'Tech Cloud'},
+          // {section : '0', id:'4', title: 'Big Data Department'},
+          // {section : '0', id:'5', title: 'New Media Department'},
+          // {section : '0', id:'6', title: 'Internet of Things Center'},
+          // {section : '0', id:'7', title: 'Scientific Research and Information Department'},
+          // {section : '0', id:'8', title: 'Amazon Cloud'},
+          // {section : '0', id:'9', title: 'Ministry Secondary School'},
+          // {section : '0', id:'10', title: 'Manage Cloud'},
+          // {section : '0', id:'11', title: 'Ningbo Materials Institute'},  
+          // ]
+          _historys.map((title, id) => {return {section : '0', id, title}})
         ],
       },
       {
@@ -504,6 +500,7 @@ class SearchScreen extends React.PureComponent {
               onSubmitEditing={() => {
                 // search
 
+                console.log('search : ', search)
                 if(search.trim() == ""){
                   alert('กรุณากรอกคำค้น.');
                 }else if(search.trim().length < 4){
