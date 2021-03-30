@@ -20,7 +20,7 @@ import {
   FlatList,
   Image 
 } from 'react-native';
-
+import Toast, {DURATION} from 'react-native-easy-toast'
 import { connect } from 'react-redux';
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
@@ -115,6 +115,8 @@ class ResultScreen extends Component {
   componentDidMount() {
     // let { navigation, route } = this.props;
     // let key_search =  route.params.key_search;
+
+    this.handleSearch()
   }
 
   handleSearch= () => {
@@ -127,13 +129,14 @@ class ResultScreen extends Component {
     // }else{
       _this.setState({loading: true})
     // }
+    console.log('user :: ' , user)
     
     axios.post(`${API_URL}/api/search?_format=json`, {
       key_word: route.params.key_search,
-      offset
+      offset: 0
     }, {
       headers: { 
-        'Authorization': `Basic ${user.basic_auth}` 
+        'Authorization': `Basic YWRtaW46U29ta2lkMDU4ODQ4Mzkx` 
       }
     })
     .then(function (response) {
@@ -141,25 +144,25 @@ class ResultScreen extends Component {
       // console.log()
       if(results.result){
         // true
-        console.log('results : ', results);
+        // console.log('result search : ', results);
         // console.log(results);
 
-        // let {execution_time, datas, count} = results;
+        let {execution_time, datas, count} = results;
         // console.log(execution_time);
         // console.log(count);
         // console.log(datas);
 
-        // if(datas && datas.length > 0){
+        if(datas && datas.length > 0){
 
-        //   console.log(datas)
-        //   _this.setState({spinner: false, execution_time, datas:[ ..._this.state.datas, ...datas], count, loading: false});
-        // }else{
+          console.log('A ::: ', datas)
+          _this.setState({spinner: false, execution_time, data:[ ..._this.state.data, ...datas], count, loading: false});
+        }else{
 
-        //   _this.setState({spinner: false, loading: false})
-        //   // alert('Empty result.');
+          _this.setState({spinner: false, loading: false})
+          // alert('Empty result.');
 
-        //   _this.toast.show('Empty result.');
-        // }
+          _this.toast.show('Empty result.');
+        }
         
       }else{
         // false
@@ -185,6 +188,14 @@ class ResultScreen extends Component {
                 renderItem={({ item }) => <Item item={item}/>}
                 keyExtractor={item => item.email}
               />
+              <Toast
+                  ref={(toast) => this.toast = toast}
+                  position='bottom'
+                  positionValue={220}
+                  fadeInDuration={750}
+                  fadeOutDuration={1000}
+                  opacity={0.8}
+                  />
             </View>)
   }
 }

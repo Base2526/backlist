@@ -74,32 +74,34 @@ class MyPost extends Component {
     componentDidMount() {
       let _this = this
 
-    let {data, my_apps} = this.props
-    // 
-    // let new_data = data.filter(item => (follow_ups.includes(item.id)))
+      let {data, my_apps} = this.props
+      // 
+      // let new_data = data.filter(item => (follow_ups.includes(item.id)))
 
-    console.log('my_apps > ', my_apps)
+      console.log('my_apps > ', my_apps)
 
-    let {basic_auth} = this.props.user
+      let {basic_auth} = this.props.user
 
-    axios.post(`${API_URL}/api/fetch_post_by_id?_format=json`, {
-      data: JSON.stringify(my_apps)
-    }, {
-      headers: { 
-        'Authorization': `Basic ${basic_auth}` 
-      }
-    })
-    .then(function (response) {
-      let results = response.data
-      if(results.result){
-        let {datas} = results
+      axios.post(`${API_URL}/api/fetch_post_by_id?_format=json`, {
+        data: JSON.stringify(my_apps)
+      }, {
+        headers: { 
+          'Authorization': `Basic ${basic_auth}` 
+        }
+      })
+      .then(function (response) {
+        let results = response.data
+        if(results.result){
+          let {datas} = results
 
-        _this.props.fetchData(datas)
-      }
-    })
-    .catch(function (error) {
-      console.log(error)
-    });
+          // console.log('MyPost : ', datas)
+
+          _this.props.fetchData(datas)
+        }
+      })
+      .catch(function (error) {
+        console.log(error)
+      });
     }
 
     renderItem = (item) =>{

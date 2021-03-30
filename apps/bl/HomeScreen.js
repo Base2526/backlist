@@ -75,6 +75,10 @@ class HomeScreen extends Component {
                   chatMessages: [],
 
                   refreshing: false,
+
+                  modalVisible: false,
+                  init_index: 0,
+                  mv: 0
                   };
   }
 
@@ -268,8 +272,10 @@ class HomeScreen extends Component {
     });
   }
 
+  //  modalVisible: false,
+  //  init_index: 0,
   renderImage = (item) =>{
-    // console.log(item.images)
+    // console.log('renderImage :', item)
     switch(item.images.length){
       case 0:{
         return(<View />)
@@ -280,7 +286,7 @@ class HomeScreen extends Component {
                   <View style={{flex: 1, flexDirection: 'row'}}>
                     <TouchableOpacity
                     onPress={()=>{
-                      // this.setState({modalVisible: true})
+                      this.setState({modalVisible: true, init_index: 0, mv: item.id})
                     }}>
                     <View style={{flex: 1, margin: 2}} >
                       <FastImage
@@ -304,7 +310,7 @@ class HomeScreen extends Component {
               <View style={{flex: 1, flexDirection: 'row'}}>
                 <TouchableOpacity 
                   onPress={()=>{
-
+                    this.setState({modalVisible: true, init_index: 0, mv: item.id})
                   }} 
                   style={{flex: 1, margin: 2, }} >
                   <FastImage
@@ -320,7 +326,7 @@ class HomeScreen extends Component {
                 </TouchableOpacity>
                 <TouchableOpacity 
                   onPress={()=>{
-
+                    this.setState({modalVisible: true, init_index: 1, mv: item.id})
                   }} 
                   style={{flex: 1, margin: 2, }} >
                   <FastImage
@@ -344,7 +350,7 @@ class HomeScreen extends Component {
               <View style={{flex: 1, flexDirection: 'column'}}>
                 <TouchableOpacity 
                   onPress={()=>{
-
+                    this.setState({modalVisible: true, init_index: 0, mv: item.id})
                   }} 
                   style={{flex: 1, margin: 2, }} >
                   <FastImage
@@ -360,7 +366,7 @@ class HomeScreen extends Component {
                 </TouchableOpacity>
                 <TouchableOpacity 
                   onPress={()=>{
-
+                    this.setState({modalVisible: true, init_index: 1, mv: item.id})
                   }} 
                   style={{flex: 1, margin: 2, }} >
                   <FastImage
@@ -378,7 +384,7 @@ class HomeScreen extends Component {
               <View style={{flex: 1, flexDirection: 'row'}}>
                 <TouchableOpacity 
                   onPress={()=>{
-
+                    this.setState({modalVisible: true, init_index: 2, mv: item.id})
                   }} 
                   style={{flex: 1, margin: 2, }} >
                   <FastImage
@@ -401,7 +407,7 @@ class HomeScreen extends Component {
               <View style={{flex: 1, flexDirection: 'row'}}>
                 <TouchableOpacity 
                   onPress={()=>{
-
+                    this.setState({modalVisible: true, init_index: 0, mv: item.id})
                   }} 
                   style={{flex: 1, margin: 2, }} >
                   <FastImage
@@ -417,7 +423,7 @@ class HomeScreen extends Component {
                 </TouchableOpacity>
                 <TouchableOpacity 
                   onPress={()=>{
-
+                    this.setState({modalVisible: true, init_index: 1, mv: item.id})
                   }} 
                   style={{flex: 1, margin: 2, }} >
                   <FastImage
@@ -435,7 +441,7 @@ class HomeScreen extends Component {
               <View style={{flex: 1, flexDirection: 'row'}}>
                 <TouchableOpacity 
                   onPress={()=>{
-
+                    this.setState({modalVisible: true, init_index: 2, mv: item.id})
                   }} 
                   style={{flex: 1, margin: 2, }} >
                   <FastImage
@@ -451,7 +457,7 @@ class HomeScreen extends Component {
                 </TouchableOpacity>
                 <TouchableOpacity 
                   onPress={()=>{
-
+                    this.setState({modalVisible: true, init_index: 3, mv: item.id})
                   }} 
                   style={{flex: 1, margin: 2, }} >
                   <FastImage
@@ -474,7 +480,7 @@ class HomeScreen extends Component {
                   <View style={{flex: 2, flexDirection: 'row'}}>
                     <TouchableOpacity 
                     onPress={()=>{
-                      // this.setState({modalVisible: true})
+                      this.setState({modalVisible: true, init_index: 0, mv: item.id})
                     }} 
                     style={{flex: 1, margin: 2, }} >
                       <FastImage
@@ -490,7 +496,7 @@ class HomeScreen extends Component {
                     </TouchableOpacity>
                     <TouchableOpacity 
                     onPress={()=>{
-
+                      this.setState({modalVisible: true, init_index: 1, mv: item.id})
                     }} 
                     style={{flex: 1, margin: 2, }} >
                       <FastImage
@@ -508,7 +514,7 @@ class HomeScreen extends Component {
                   <View style={{flex: 1, flexDirection: 'row'}}>
                     <TouchableOpacity 
                     onPress={()=>{
-
+                      this.setState({modalVisible: true, init_index: 2, mv: item.id})
                     }} 
                     style={{flex: 1, margin: 2, }} >
                       <FastImage
@@ -524,7 +530,7 @@ class HomeScreen extends Component {
                     </TouchableOpacity>
                     <TouchableOpacity 
                     onPress={()=>{
-
+                      this.setState({modalVisible: true, init_index: 3, mv: item.id})
                     }} 
                     style={{flex: 1, margin: 2, }} >
                       <FastImage
@@ -540,7 +546,7 @@ class HomeScreen extends Component {
                     </TouchableOpacity>
                     <TouchableOpacity 
                     onPress={()=>{
-                      
+                      this.setState({modalVisible: true, init_index: 4, mv: item.id})
                     }} 
                     style={{flex: 1, margin: 2, }} >
                       <FastImage
@@ -615,7 +621,11 @@ class HomeScreen extends Component {
                       });
                     }
                   }}>
-                  <Ionicons name="shield-checkmark-outline" size={25} /*color={isEmpty(follow_ups.find( f => f === id )) ? 'gray' : 'red'}*/  />
+                  <Ionicons 
+                  name="shield-checkmark-outline" 
+                  size={25} 
+                  /*color={isEmpty(follow_ups.find( f => f === id )) ? 'gray' : 'red'}*/ 
+                  color={isEmpty(follow_ups) ? 'gray' : (isEmpty(follow_ups.find( f => f === id )) ? 'gray' : 'red')} />
                 </TouchableOpacity>
                 
                 <View style={{justifyContent:'center'}}>
@@ -873,27 +883,49 @@ class HomeScreen extends Component {
 
   viewImageViewer = () =>{
 
-    const images = [{
-                        // Simplest usage.
-                        url: 'https://avatars2.githubusercontent.com/u/7970947?v=3&s=460',
+    let {modalVisible, mv, init_index} = this.state
+    if(!modalVisible){
+      return <View />;
+    }
+
+    // this.setState({modalVisible: true, init_index: 0, mv: item.id})
+    const { data } = this.props;
+    let found = data.find( item =>{ return item.id === mv } );
+    console.log('found : ', found, mv);
+    if( isEmpty(found) ){
+      return <View />;
+    }
+
+    console.log('found : ', found.images);
+
+    // const images = [{
+    //                     // Simplest usage.
+    //                     url: 'https://avatars2.githubusercontent.com/u/7970947?v=3&s=460',
                     
-                        // width: number
-                        // height: number
-                        // Optional, if you know the image size, you can set the optimization performance
+    //                     // width: number
+    //                     // height: number
+    //                     // Optional, if you know the image size, you can set the optimization performance
                     
-                        // You can pass props to <Image />.
-                        props: {
-                            // headers: ...
-                        }
-                    },]
+    //                     // You can pass props to <Image />.
+    //                     props: {
+    //                         // headers: ...
+    //                     }
+    //                 },]
+
+    let images = []
+    if (found.images){
+      found.images.map(function(url){
+            images.push({url});
+        })
+    }
     return  <Modal 
-              visible={this.state.modalVisible}
+              visible={modalVisible}
               transparent={true}
               onRequestClose={() => this.setState({ modalVisible: false })}>
               <ImageViewer 
-                  // imageUrls={images.filter(function(item){return item.empty !== true;})}
-                  // index={init_index}
-                  imageUrls={images}
+                  imageUrls={images.filter(function(item){return item.empty !== true;})}
+                  index={init_index}
+                  // imageUrls={images}
                   // renderHeader={this.renderHeaderImageViewer}
                   // renderFooter={this.renderFooterImageViewer}
                   onSwipeDown={() => {
@@ -944,7 +976,7 @@ class HomeScreen extends Component {
                   opacity={0.8}
                   />
 
-                {/* {this.viewImageViewer} */}
+                {this.viewImageViewer()}
             </View>)
   }
 }
