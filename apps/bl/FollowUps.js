@@ -45,7 +45,7 @@ import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
 import FastImage from 'react-native-fast-image'
 
 import ReadMore from '@fawazahmed/react-native-read-more';
-import { Base64 } from './Utils'
+import { Base64, compare2Arrays } from './Utils'
 
 import { getUniqueId, getVersion } from 'react-native-device-info';
 import {API_URL, API_URL_SOCKET_IO} from "./constants"
@@ -76,7 +76,7 @@ class FollowUps extends Component {
     // 
     // let new_data = data.filter(item => (follow_ups.includes(item.id)))
 
-    console.log('follow_ups > ', follow_ups)
+    // console.log('follow_ups > ', follow_ups)
 
     let {basic_auth} = this.props.user
 
@@ -98,12 +98,24 @@ class FollowUps extends Component {
     .catch(function (error) {
       console.log(error)
     });
-    /*
-     data: state.app.data,
-    user: state.user.data,
-    follow_ups: state.user.follow_ups
-    */
-    // let result = this.state.calls.filter(item => (tempList.includes(item.phoneNumber)))
+
+    this.updateNavigation();
+  }
+
+  componentDidUpdate(prevProps){
+    if(!compare2Arrays(prevProps.follow_ups, this.props.follow_ups)){
+        this.updateNavigation()
+    }
+  }
+
+  updateNavigation(){
+    let { navigation, follow_ups} = this.props;
+
+    let _this = this
+    let _menu = null;
+    navigation.setOptions({
+      title: 'Follow ups (' + follow_ups.length + ')', 
+    })
   }
 
   renderItem = (item) =>{

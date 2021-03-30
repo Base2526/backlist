@@ -25,6 +25,7 @@ import {
     GraphRequestManager,
     LoginManager
 } from 'react-native-fbsdk';
+import CameraRoll from "@react-native-community/cameraroll";
 
 const axios = require('axios');
 
@@ -71,13 +72,13 @@ class DetailScreen extends React.Component {
         // }
 
         let data =  route.params.data;
-        console.log('user >>>', user)
+        // console.log('user >>>', user)
 
         this.updateNavigation();
 
         let images = []
-        if (data.images){
-            data.images.map(function(url){
+        if (data.images.thumbnail){
+            data.images.thumbnail.map(function(url){
                 images.push({url});
             })
         }
@@ -103,7 +104,7 @@ class DetailScreen extends React.Component {
         let { navigation, route, user, follow_ups} = this.props;
 
         let data =  route.params.data;
-        console.log('user >>>', user)
+        // console.log('user >>>', user)
 
         let _this = this
         let _menu = null;
@@ -113,7 +114,7 @@ class DetailScreen extends React.Component {
                     <TouchableOpacity 
                         style={{  }}
                         onPress={ async()=>{
-                            // _this.toast.show('Follow');
+                            // 
                             let cL = this.props.user
                             console.log(cL.uid, data.id, Base64.btoa(getUniqueId()), API_URL_SOCKET_IO())
                   
@@ -204,6 +205,18 @@ class DetailScreen extends React.Component {
               )
         })
     }
+
+    _saveImage = uri => {
+        let _this = this
+        let promise = CameraRoll.saveToCameraRoll(uri);
+
+        promise.then(function(result) {
+                _this.toast.show('Image Saved to Photo Gallery');
+            })
+            .catch(function(error) {
+                _this.toast.show('Error Saving Image');
+            });
+    };
 
     onSelect = data => {
         this.setState(data);
@@ -426,7 +439,16 @@ class DetailScreen extends React.Component {
     }
         
     render() {
-        let {images, init_index} = this.state
+        let {init_index} = this.state
+
+        let { route } = this.props;
+
+        let images = []
+        if (route.params.data.images.medium){
+            route.params.data.images.medium.map(function(url){
+                images.push({url});
+            })
+        }
 
         return (<SafeAreaView style={styles.container} onLayout={this.onLayout}>
                     <Modal 
@@ -440,6 +462,9 @@ class DetailScreen extends React.Component {
                             // renderFooter={this.renderFooterImageViewer}
                             onSwipeDown={() => {
                                 this.setState({modalVisible: false})
+                            }}
+                            onSave={uri => {
+                                this._saveImage(uri)
                             }}
                             onMove={data => console.log(data)}
                             enableSwipeDown={true}/>
@@ -455,7 +480,7 @@ class DetailScreen extends React.Component {
                         />
                     <FlatList
                         ListHeaderComponent={this.renderHeader()}
-                        data={formatData(images, numColumns)}
+                        data={formatData(this.state.images, numColumns)}
                         style={styles.container}
                         renderItem={this.renderItem}
                         numColumns={numColumns}

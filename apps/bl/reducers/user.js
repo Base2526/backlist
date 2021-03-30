@@ -27,22 +27,22 @@ const initialState = {
 export const user = (state = initialState, action) => {
   switch (action.type) {
     case USER_LOGIN:{
-      console.log('Reduces > USER_LOGIN > ', action.data)
+      // console.log('Reduces > USER_LOGIN > ', action.data)
       return {...state, data: action.data}
     }
     
     case USER_LOGOUT: {
-      console.log('Reduces > USER_LOGOUT > ', action.data)
+      // console.log('Reduces > USER_LOGOUT > ', action.data)
       return initialState
     }
 
     case FETCH_PROFILE:{
-      console.log('Reduces > FETCH_PROFILE > ', action.data)
+      // console.log('Reduces > FETCH_PROFILE > ', action.data)
       return {...state, profile: action.data}
     }
 
     case FOLLOW_UP: {
-      console.log('Reduces > FOLLOW_UP > ', action.data)
+      // console.log('Reduces > FOLLOW_UP > ', action.data)
       return {...state, follow_ups: action.data}
     }
 

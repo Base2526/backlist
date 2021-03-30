@@ -52,6 +52,8 @@ import ReadMore from '@fawazahmed/react-native-read-more';
 
 import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID} from "./constants"
 
+import { Base64, compare2Arrays } from './Utils'
+
 import { fetchData } from './actions/app';
  
 class MyPost extends Component {
@@ -102,6 +104,22 @@ class MyPost extends Component {
       .catch(function (error) {
         console.log(error)
       });
+
+      this.updateNavigation()
+    }
+
+    componentDidUpdate(prevProps){
+      if(!compare2Arrays(prevProps.my_apps, this.props.my_apps)){
+          this.updateNavigation()
+      }
+    }
+  
+    updateNavigation(){
+      let { navigation, my_apps} = this.props;
+  
+      navigation.setOptions({
+        title: 'Post (' + my_apps.length + ')', 
+      })
     }
 
     renderItem = (item) =>{

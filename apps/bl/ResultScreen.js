@@ -24,7 +24,8 @@ import Toast, {DURATION} from 'react-native-easy-toast'
 import { connect } from 'react-redux';
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
-import Toast, {DURATION} from 'react-native-easy-toast'
+
+import { NumberFormat } from './Utils'
 
 import {API_URL} from "./constants"
 

@@ -44,7 +44,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FastImage from 'react-native-fast-image'
 import Toast, {DURATION} from 'react-native-easy-toast'
-
+import CameraRoll from "@react-native-community/cameraroll";
 import ImageViewer from 'react-native-image-zoom-viewer';
 
 import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-community/google-signin';
@@ -89,7 +89,7 @@ class HomeScreen extends Component {
 
     // console.log('mergeArrays > ', this.mergeArrays([{"id":1},{"id":2},{"id":3},{"id":3},{"id":3}], [{"id":1},{"id":4},{"id":5},{"id":2}]))
 
-    console.log('API_URL_SOCKET_IO : ', API_URL_SOCKET_IO())
+    // console.log('API_URL_SOCKET_IO : ', API_URL_SOCKET_IO())
 
     const { route, navigation, fetchDataAll } = this.props;
 
@@ -188,7 +188,7 @@ class HomeScreen extends Component {
   }
 
   getData = () => {
-    console.log('getData');
+    // console.log('getData');
 
     let {data} = this.props
    
@@ -243,16 +243,26 @@ class HomeScreen extends Component {
       _this.setState({loading: false})
     })
     .catch(function (error) {
-      console.log(error)
+      // console.log(error)
       _this.setState({loading: false})
     });
   }
 
-  //  modalVisible: false,
-  //  init_index: 0,
+  _saveImage = uri => {
+    let _this = this
+    let promise = CameraRoll.saveToCameraRoll(uri);
+
+    promise.then(function(result) {
+            _this.toast.show('Image Saved to Photo Gallery');
+        })
+        .catch(function(error) {
+            _this.toast.show('Error Saving Image');
+        });
+  }
+
   renderImage = (item) =>{
-    // console.log('renderImage :', item)
-    switch(item.images.length){
+    let thumbnail = item.images.thumbnail
+    switch(thumbnail.length){
       case 0:{
         return(<View />)
         break;
@@ -269,7 +279,7 @@ class HomeScreen extends Component {
                         // style={{ StyleSheet.absoluteFill }}
                         style={{ ...StyleSheet.absoluteFill, borderWidth:.3, borderColor:'gray' }}
                         source={{
-                            uri: item.images[0],
+                            uri: thumbnail[0],
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
@@ -293,7 +303,7 @@ class HomeScreen extends Component {
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
                         source={{
-                            uri: item.images[0],
+                            uri: thumbnail[0],
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
@@ -309,7 +319,7 @@ class HomeScreen extends Component {
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
                         source={{
-                            uri: item.images[1],
+                            uri: thumbnail[1],
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
@@ -333,7 +343,7 @@ class HomeScreen extends Component {
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
                         source={{
-                            uri: item.images[0],
+                            uri: thumbnail[0],
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
@@ -349,7 +359,7 @@ class HomeScreen extends Component {
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
                         source={{
-                            uri: item.images[1],
+                            uri: thumbnail[1],
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
@@ -367,7 +377,7 @@ class HomeScreen extends Component {
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
                         source={{
-                            uri: item.images[2],
+                            uri: thumbnail[2],
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
@@ -390,7 +400,7 @@ class HomeScreen extends Component {
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
                         source={{
-                            uri: item.images[0],
+                            uri: thumbnail[0],
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
@@ -406,7 +416,7 @@ class HomeScreen extends Component {
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
                         source={{
-                            uri: item.images[1],
+                            uri: thumbnail[1],
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
@@ -424,7 +434,7 @@ class HomeScreen extends Component {
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
                         source={{
-                            uri: item.images[2],
+                            uri: thumbnail[2],
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
@@ -440,7 +450,7 @@ class HomeScreen extends Component {
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
                         source={{
-                            uri: item.images[3],
+                            uri: thumbnail[3],
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
@@ -463,7 +473,7 @@ class HomeScreen extends Component {
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
                         source={{
-                            uri: item.images[0],
+                            uri: thumbnail[0],
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
@@ -479,7 +489,7 @@ class HomeScreen extends Component {
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
                         source={{
-                            uri: item.images[1],
+                            uri: thumbnail[1],
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
@@ -497,7 +507,7 @@ class HomeScreen extends Component {
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
                         source={{
-                            uri: item.images[2],
+                            uri: thumbnail[2],
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
@@ -513,7 +523,7 @@ class HomeScreen extends Component {
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
                         source={{
-                            uri: item.images[3],
+                            uri: thumbnail[3],
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
@@ -529,14 +539,14 @@ class HomeScreen extends Component {
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
                         source={{
-                            uri: item.images[4],
+                            uri: thumbnail[4],
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
                         resizeMode={FastImage.resizeMode.cover}
                         />
                         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center',  opacity: 0.5, backgroundColor: 'black', }} >
-                          <Text style={{fontWeight:'bold', fontSize:33, color:'white'}}>+{item.images.length - 5}</Text>
+                          <Text style={{fontWeight:'bold', fontSize:33, color:'white'}}>+{thumbnail.length - 5}</Text>
                         </View>
                     </TouchableOpacity>
                   </View>
@@ -592,7 +602,7 @@ class HomeScreen extends Component {
                         }
                       })
                       .catch(function (error) {
-                        console.log(error)
+                        // console.log(error)
                         // _this.setState({loading: false})
                       });
                     }
@@ -626,7 +636,7 @@ class HomeScreen extends Component {
 
                             Share.open(shareOptions)
                             .then((res) => {
-                                console.log(res);
+                                // console.log(res);
                             })
                             .catch((err) => {
                                 err && console.log(err);
@@ -726,7 +736,7 @@ class HomeScreen extends Component {
   };
 
   handleLoginWithFacebook= () =>{
-    console.log('handleLoginWithFacebook')
+    // console.log('handleLoginWithFacebook')
 
     // Attempt a login using the Facebook login dialog asking for default permissions.
     LoginManager.logInWithPermissions(["public_profile"]).then(
@@ -858,22 +868,16 @@ class HomeScreen extends Component {
   }
 
   viewImageViewer = () =>{
-
     let {modalVisible, mv, init_index} = this.state
     if(!modalVisible){
       return <View />;
     }
 
-    // this.setState({modalVisible: true, init_index: 0, mv: item.id})
     const { data } = this.props;
     let found = data.find( item =>{ return item.id === mv } );
-    console.log('found : ', found, mv);
     if( isEmpty(found) ){
       return <View />;
     }
-
-    console.log('found : ', found.images);
-
     // const images = [{
     //                     // Simplest usage.
     //                     url: 'https://avatars2.githubusercontent.com/u/7970947?v=3&s=460',
@@ -889,8 +893,8 @@ class HomeScreen extends Component {
     //                 },]
 
     let images = []
-    if (found.images){
-      found.images.map(function(url){
+    if (found.images.medium){
+      found.images.medium.map(function(url){
             images.push({url});
         })
     }
@@ -904,11 +908,12 @@ class HomeScreen extends Component {
                   // imageUrls={images}
                   // renderHeader={this.renderHeaderImageViewer}
                   // renderFooter={this.renderFooterImageViewer}
-                  onSwipeDown={() => {
-                      this.setState({modalVisible: false})
+                  onSwipeDown={() => {this.setState({modalVisible: false}) }}
+                  onMove={data => {
+
                   }}
-                  onMove={data => console.log(data)}
-                  enableSwipeDown={true}/>
+                  enableSwipeDown={true}
+                  onSave={uri => {this._saveImage(uri)}}/>
               {/* {this.renderFooterImageViewer()} */}
             </Modal>
   }

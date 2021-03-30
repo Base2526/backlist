@@ -345,23 +345,23 @@ class App extends Component {
     }
     
     this.socket.on('message', (data)=>{
-      console.log('message>')
+      // console.log('message>')
       console.log(data)
-      console.log('<message')
+      // console.log('<message')
     });
 
     this.socket.on('update_profile', (data)=>{
-      console.log('update_profile >>>> ', data)
+      // console.log('update_profile >>>> ', data)
       this.props.fetchProfile(cL.basic_auth)
     })
 
     this.socket.on('follow_up', (data)=>{
-      console.log('follow_up >>>> ', data)
+      // console.log('follow_up >>>> ', data)
       this.props.followUp(JSON.parse(data))
     })
 
     this.socket.on('my_apps', (data)=>{
-      console.log('my_apps >>>> ', data)
+      // console.log('my_apps >>>> ', data)
       this.props.fetchMyApps(cL.basic_auth)
     })
   }
