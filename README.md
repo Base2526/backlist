@@ -416,3 +416,9 @@ https://mobikul.com/passing-information-from-java-to-javascript-in-react-native/
 /// React-native optimized 
 https://stackoverflow.com/questions/61043847/react-native-bad-app-performance-after-loading-images
 
+/// React-native Flatlists -- Performance settings
+https://stackoverflow.com/questions/55032060/react-native-lazy-loading-250-images-in-a-scroll-view
+
+
+/// React-native > Android app memory
+https://shift.infinite.red/react-native-android-app-memory-investigation-55695625da9c

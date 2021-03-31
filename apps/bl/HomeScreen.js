@@ -937,7 +937,16 @@ class HomeScreen extends Component {
                         refreshing={this.state.refreshing}
                         onRefresh={this.refresh}
                     />
-                }/>
+                  }
+
+                  // Performance settings
+                  removeClippedSubviews={true} // Unmount components when outside of window 
+                  initialNumToRender={2} // Reduce initial render amount
+                  maxToRenderPerBatch={1} // Reduce number in each render batch
+                  updateCellsBatchingPeriod={100} // Increase time between renders
+                  windowSize={7} // Reduce the window size
+                
+                />
                 <ActionButton
                   buttonColor="rgba(231,76,60,1)"
                   onPress={() => { 
