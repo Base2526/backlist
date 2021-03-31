@@ -157,23 +157,32 @@ app.post('/api/follow_up', async (req, res) => {
           if ( error === null ){
             console.log(result)
 
-            let fs = await socketsModel.findOne({ uniqueId: unique_id });
-            if ( fs !== null ){
-              if(fs.socketId){
-                console.log(fs.socketId)
-                io.to(fs.socketId).emit('follow_up', JSON.stringify(followUps));
-              }
+            // support case uid have multi device 
+            let fss = await socketsModel.find({ uid });
+            if ( fss !== null ){
+              fss.map((obj, i) => {
+                if(obj.socketId){
+                  io.to(obj.socketId).emit('follow_up', JSON.stringify(followUps));
+                }
+              })
             }
+            // let fs = await socketsModel.findOne({ uniqueId: unique_id });
+            // if ( fs !== null ){
+            //   if(fs.socketId){
+            //     console.log(fs.socketId)
+            //     io.to(fs.socketId).emit('follow_up', JSON.stringify(followUps));
+            //   }
+            // }
           }
         });
 
-        return res.status(200).send({'message': message});
+        return res.status(200).send({'result': true, 'message': message});
       }
     }
     
-    return res.status(200).send({'message': 'OK'});
+    return res.status(200).send({'result': true, 'message': 'OK'});
   } catch (err) {
-    return res.status(500).send({errors: err});
+    return res.status(500).send({'result': false, errors: err});
   }
 });
 

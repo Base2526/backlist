@@ -578,8 +578,10 @@ class HomeScreen extends Component {
                 <TouchableOpacity 
                   style={{ padding:3,}}
                   onPress={ async ()=>{
+
                     let cL = this.props.user
-                    // console.log(API_URL_SOCKET_IO(), cL.uid, id, Base64.btoa(getUniqueId()))
+                    console.log(API_URL_SOCKET_IO(), cL.uid, id, Base64.btoa(getUniqueId()))
+                  
                     if(isEmpty(cL)){
                       this.setState({ bottomModalAndTitle: true })
                     }else{
@@ -595,17 +597,20 @@ class HomeScreen extends Component {
                       .then(function (response) {
                         let {result, message} = response.data
 
+                        // console.log('message :', message)
                         if(result){
 
                         }else{
-                          _this.toast.show(message);
+                          
                         }
+                        _this.toast.show(message);
                       })
                       .catch(function (error) {
-                        // console.log(error)
+                        console.log('error :', error)
                         // _this.setState({loading: false})
                       });
                     }
+                    
                   }}>
                   <Ionicons 
                   name="shield-checkmark-outline" 

@@ -70,7 +70,7 @@ class LoginScreen extends Component {
       })
       .then(function (response) {
         let results = response.data
-        console.log('/api/login : ', results)
+        // console.log('/api/login : ', results)
         
         if(results.result){ 
           _this.props.userLogin(results.user)

@@ -337,7 +337,7 @@ class App extends Component {
 
     // let API_URL_SOCKET_IO='http://localhost:3000'
     let cL = this.props.user
-    console.log('cL : ', cL)
+    // console.log('cL : ', cL)
     if(!isEmpty(cL)){    
       this.socket = io(API_URL_SOCKET_IO(), { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${Base64.btoa(getUniqueId())}&version=${getVersion()}&uid=${cL.uid}` });
     }else{
@@ -356,7 +356,7 @@ class App extends Component {
     })
 
     this.socket.on('follow_up', (data)=>{
-      // console.log('follow_up >>>> ', data)
+      console.log('follow_up >>>> ', data)
       this.props.followUp(JSON.parse(data))
     })
 
