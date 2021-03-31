@@ -21,7 +21,6 @@ import {
   Image,
   Keyboard
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { connect } from 'react-redux';
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer

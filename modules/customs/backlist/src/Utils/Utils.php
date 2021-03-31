@@ -2411,8 +2411,12 @@ class Utils extends ControllerBase {
       // Get origin image URI.
       $image_uri = $file->getFileUri();
       return ImageStyle::load($image_style)->buildUrl($image_uri);
+
+      // $path = ImageStyle::load($image_style)->buildUrl($image_uri);
+      // $type = pathinfo($path, PATHINFO_EXTENSION);
+      // $data = file_get_contents($path);
+      // return 'data:image/' . $type . ';base64,' . base64_encode($data);
     } catch (\Throwable $e) {
-      
       \Drupal::logger('ImageStyle_BN')->notice('%e, %fid', array('%e'=>$e->__toString(), '%fid'=> serialize($fid)  ) );
     }
   }

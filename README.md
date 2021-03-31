@@ -412,3 +412,7 @@ https://mobikul.com/passing-information-from-java-to-javascript-in-react-native/
 
 ///////////////////////////////////////////////////////
 
+
+/// React-native optimized 
+https://stackoverflow.com/questions/61043847/react-native-bad-app-performance-after-loading-images
+

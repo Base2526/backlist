@@ -47,9 +47,6 @@ import {
   GraphRequestManager,
   LoginManager
 } from 'react-native-fbsdk';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { ValidateEmail } from './Utils'
 
 class MeScreen extends Component {
@@ -84,13 +81,13 @@ class MeScreen extends Component {
 
   readLogin = async () => {
     try {
-      const user = await AsyncStorage.getItem('user')
-      console.log(user)
-      // JSON.parse
+      // const user = await AsyncStorage.getItem('user')
+      // console.log(user)
+      // // JSON.parse
 
-      if(user){
-        return true
-      }
+      // if(user){
+      //   return true
+      // }
       return false
     } catch (e) {
       console.log('Failed to fetch the data from storage')
@@ -99,7 +96,7 @@ class MeScreen extends Component {
 
   saveLogin = async (user) => {
     try {
-      await AsyncStorage.setItem('user', JSON.stringify(user))
+      // await AsyncStorage.setItem('user', JSON.stringify(user))
       console.log(user)
       console.log('Data successfully saved')
     } catch (e) {
@@ -109,7 +106,7 @@ class MeScreen extends Component {
 
   saveLogout = async () => {
     try {
-      await AsyncStorage.setItem('user', '')
+      // await AsyncStorage.setItem('user', '')
       console.log()
       console.log('Data successfully saved')
     } catch (e) {

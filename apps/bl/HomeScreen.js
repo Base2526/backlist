@@ -37,8 +37,6 @@ import ActionButton from 'react-native-action-button';
 
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons';

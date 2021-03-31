@@ -50,8 +50,6 @@ import {
   LoginManager
 } from 'react-native-fbsdk';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { ValidateEmail } from '../Utils'
 
 const styles = StyleSheet.create({
@@ -263,13 +261,13 @@ class Profile extends Component {
 
   readLogin = async () => {
     try {
-      let user = JSON.parse(await AsyncStorage.getItem('user'))
-      console.log(user)
-      // JSON.parse
+      // let user = JSON.parse(await AsyncStorage.getItem('user'))
+      // console.log(user)
+      // // JSON.parse
 
-      if(Object.keys(user).length > 0){
-        return user
-      }
+      // if(Object.keys(user).length > 0){
+      //   return user
+      // }
       return false
     } catch (e) {
       console.log('Failed to fetch the data from storage')
@@ -278,8 +276,8 @@ class Profile extends Component {
 
   saveLogin = async (user) => {
     try {
-      await AsyncStorage.setItem('user', JSON.stringify(user))
-      return user;
+      // await AsyncStorage.setItem('user', JSON.stringify(user))
+      // return user;
     } catch (e) {
       console.log('Failed to save the data to the storage')
     }
@@ -287,7 +285,7 @@ class Profile extends Component {
 
   saveLogout = async () => {
     try {
-      await AsyncStorage.setItem('user', '')
+      // await AsyncStorage.setItem('user', '')
       console.log()
       console.log('Data successfully saved')
     } catch (e) {

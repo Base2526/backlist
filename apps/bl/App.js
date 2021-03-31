@@ -293,6 +293,7 @@ function ProfileStackScreen() {
   )
 }
 
+const socket;
 class App extends Component {
 
   constructor(props) {
@@ -305,15 +306,15 @@ class App extends Component {
 
   componentDidMount() {
     SplashScreen.hide();
-
-    console.log(API_URL_SOCKET_IO())
-    this.onSocket()
-
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
+
+    this.onSocket()   
   }
 
   componentWillUnmount() {
     BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton());
+
+    this.offSocket()
   }
 
   handleBackButton(){
@@ -339,31 +340,38 @@ class App extends Component {
     let cL = this.props.user
     // console.log('cL : ', cL)
     if(!isEmpty(cL)){    
-      this.socket = io(API_URL_SOCKET_IO(), { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${Base64.btoa(getUniqueId())}&version=${getVersion()}&uid=${cL.uid}` });
+      socket = io(API_URL_SOCKET_IO(), { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${Base64.btoa(getUniqueId())}&version=${getVersion()}&uid=${cL.uid}` });
     }else{
-      this.socket = io(API_URL_SOCKET_IO(), { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${Base64.btoa(getUniqueId())}&version=${getVersion()}` });
+      socket = io(API_URL_SOCKET_IO(), { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${Base64.btoa(getUniqueId())}&version=${getVersion()}` });
     }
     
-    this.socket.on('message', (data)=>{
-      // console.log('message>')
-      console.log(data)
-      // console.log('<message')
-    });
+    socket.on('message', this.onSocketMessage);
+    socket.on('update_profile', this.onSocketUpdateProfile)
+    socket.on('follow_up', this.onSocketFollowUp)
+    socket.on('my_apps', this.onSocketMyApps)
+  }
 
-    this.socket.on('update_profile', (data)=>{
-      // console.log('update_profile >>>> ', data)
-      this.props.fetchProfile(cL.basic_auth)
-    })
+  offSocket = () =>{
+    socket.off('message', this.onSocketMessage);
+    socket.off('update_profile', this.onSocketUpdateProfile)
+    socket.off('follow_up', this.onSocketFollowUp)
+    socket.off('my_apps', this.onSocketMyApps)
+  }
 
-    this.socket.on('follow_up', (data)=>{
-      console.log('follow_up >>>> ', data)
-      this.props.followUp(JSON.parse(data))
-    })
+  onSocketMessage = (data) => {
+    console.log(data)
+  }
 
-    this.socket.on('my_apps', (data)=>{
-      // console.log('my_apps >>>> ', data)
-      this.props.fetchMyApps(cL.basic_auth)
-    })
+  onSocketUpdateProfile = (data) => {
+    this.props.fetchProfile(this.props.user.basic_auth)
+  }
+
+  onSocketFollowUp = (data) => {
+    this.props.followUp(JSON.parse(data))
+  }
+
+  onSocketMyApps = (data) => {
+    this.props.fetchMyApps(this.props.user.basic_auth)
   }
 
   render(){
