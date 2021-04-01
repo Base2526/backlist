@@ -293,7 +293,7 @@ function ProfileStackScreen() {
   )
 }
 
-const socket;
+let socket;
 class App extends Component {
 
   constructor(props) {
@@ -340,9 +340,9 @@ class App extends Component {
     let cL = this.props.user
     // console.log('cL : ', cL)
     if(!isEmpty(cL)){    
-      socket = io(API_URL_SOCKET_IO(), { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${Base64.btoa(getUniqueId())}&version=${getVersion()}&uid=${cL.uid}` });
+      socket = io(API_URL_SOCKET_IO(), { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${getUniqueId()}&version=${getVersion()}&uid=${cL.uid}` });
     }else{
-      socket = io(API_URL_SOCKET_IO(), { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${Base64.btoa(getUniqueId())}&version=${getVersion()}` });
+      socket = io(API_URL_SOCKET_IO(), { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${getUniqueId()}&version=${getVersion()}` });
     }
     
     socket.on('message', this.onSocketMessage);
@@ -359,18 +359,23 @@ class App extends Component {
   }
 
   onSocketMessage = (data) => {
+
+    console.log('onSocketMessage >>>> ')
     console.log(data)
   }
 
   onSocketUpdateProfile = (data) => {
+    console.log('onSocketUpdateProfile >>>> ')
     this.props.fetchProfile(this.props.user.basic_auth)
   }
 
   onSocketFollowUp = (data) => {
+    console.log('onSocketFollowUp >>>> ')
     this.props.followUp(JSON.parse(data))
   }
 
   onSocketMyApps = (data) => {
+    console.log('onSocketMyApps >>>> ')
     this.props.fetchMyApps(this.props.user.basic_auth)
   }
 

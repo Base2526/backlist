@@ -56,8 +56,6 @@ class FilterScreen extends Component {
 
             let data = route.params.data;
 
-            
-
             this.setState({
                 type:    5,
                 offset:  0,
@@ -66,6 +64,21 @@ class FilterScreen extends Component {
                 this.search();
             });
         }
+
+        this.updateNavigation();
+    }
+
+    updateNavigation(){
+        let { navigation, route} = this.props;
+
+        if (route.params.data){
+            // console.log(route.params.data)
+
+            let data = route.params.data;
+            navigation.setOptions({
+                title: "คำค้น : " + data.name+" "+data.surname, 
+            })
+        }    
     }
 
     search = () =>{
@@ -254,7 +267,7 @@ const mapStateToProps = state => {
     }
 }
 
-// is function call by user
 const mapDispatchToProps = {}
-export default connect(null, null)(FilterScreen)
+
+export default connect(mapStateToProps, null)(FilterScreen)
  

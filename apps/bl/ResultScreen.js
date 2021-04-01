@@ -24,25 +24,15 @@ import Toast, {DURATION} from 'react-native-easy-toast'
 import { connect } from 'react-redux';
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
+import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import { NumberFormat } from './Utils'
+import { getUniqueId, getVersion } from 'react-native-device-info';
 
-import {API_URL} from "./constants"
+import { NumberFormat, isEmpty } from './Utils'
+import {API_URL, API_URL_SOCKET_IO} from "./constants"
 
-function Item({ item }) {
-  return (
-    <View style={styles.listItem}>
-      <Image source={{uri:item.photo}}  style={{width:60, height:60,borderRadius:30}} />
-      <View style={{alignItems:"center",flex:1}}>
-        <Text style={{fontWeight:"bold"}}>{item.name}</Text>
-        <Text>{item.position}</Text>
-      </View>
-      <TouchableOpacity style={{height:50,width:50, justifyContent:"center",alignItems:"center"}}>
-        <Text style={{color:"green"}}>Call</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
 
 class ResultScreen extends Component {
   constructor(props) {
@@ -175,17 +165,252 @@ class ResultScreen extends Component {
 
   renderItem = (item) =>{
     console.log(item.id)
-    const { navigation } = this.props;
+    const { navigation, follow_ups } = this.props;
+
+    let _menu = null;
+    let _this = this
+
+    return(<TouchableOpacity 
+            key={item.id}
+            style={{padding:5}}
+            onPress={()=>{
+              navigation.navigate('detail', {data:item})
+            }}>
+          <View style={{flex:1, backgroundColor:'#fff' }}>
+            <View style={{position:'absolute', right: 0, flexDirection:'row', padding:10, }}>
+              <TouchableOpacity 
+                style={{ padding:3,}}
+                onPress={ async ()=>{
+                  let cL = this.props.user
+                  console.log(API_URL_SOCKET_IO(), cL.uid, item.id, getUniqueId())
+                
+                  if(isEmpty(cL)){
+                    this.setState({ bottomModalAndTitle: true })
+                  }else{
+                    axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
+                      uid: cL.uid,
+                      id_follow_up: item.id,
+                      unique_id: getUniqueId()
+                    }, {
+                      headers: { 
+                        'Content-Type': 'application/json',
+                      }
+                    })
+                    .then(function (response) {
+                      let {result, message} = response.data
+
+                      // console.log('message :', message)
+                      if(result){
+
+                      }else{
+                        
+                      }
+                      _this.toast.show(message);
+                    })
+                    .catch(function (error) {
+                      console.log('error :', error)
+                      // _this.setState({loading: false})
+                    });
+                  }
+                }}>
+                <Ionicons 
+                  name="shield-checkmark-outline" 
+                  size={25} 
+                  color={isEmpty(follow_ups) ? 'gray' : (isEmpty(follow_ups.find( f => f === item.id )) ? 'gray' : 'red')} 
+                />
+              </TouchableOpacity>
+              <View style={{justifyContent:'center'}}>
+                <Menu
+                  ref={(ref) => (_menu = ref)}
+                  button={
+                    <TouchableOpacity 
+                      style={{ paddingLeft:3, }}
+                      onPress={()=>{
+                        _menu.show()
+                      }}>
+                    <MaterialIcons name="more-vert" size={25} color={'grey'}  />
+                    </TouchableOpacity>
+                  }>
+                  <MenuItem onPress={() => {
+                          _menu.hide();
+                          const shareOptions = {
+                              title: 'Share Banlist',
+                              url: item.link,
+                              failOnCancel: false,
+                          };
+
+                          Share.open(shareOptions)
+                          .then((res) => {
+                              // console.log(res);
+                          })
+                          .catch((err) => {
+                              err && console.log(err);
+                          });
+                        }} style={{flex:1, justifyContent:'center'}}>
+                      <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                        <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="share" size={25} color={'grey'}  />
+                        <Text style={{ textAlign: 'center' }}>Share</Text>
+                      </View>
+                  </MenuItem>
+
+                  <MenuItem onPress={ async () => {
+                          _menu.hide();
+                          
+                          let cL = this.props.user
+                          if(isEmpty(cL)){
+                            this.setState({ bottomModalAndTitle: true })
+                          }else{
+                            navigation.navigate('report', {data:item})
+                          }
+                        }} style={{flex:1, justifyContent:'center'}}>
+                      <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
+                        <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="report" size={25} color={'grey'}  />
+                        <Text style={{ textAlign: 'center' }}>Report</Text>
+                      </View>
+                  </MenuItem>
+                </Menu>
+              </View> 
+            </View>
+            <View style={{ padding:10 }}>
+              <View style={{flexDirection:'row'}}>
+                <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
+                <TouchableOpacity 
+                  style={{ }}
+                  onPress={()=>{
+                    navigation.navigate('filter', {data:item})
+                  }}>
+                  <Text style={{color:'#1a73e8'}}>{item.name} {item.surname}</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={{flexDirection:'row'}}>
+                <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
+                <Text style={{color:'gray'}}>{item.title}</Text>
+              </View>
+              <View style={{flexDirection:'row'}}>
+                <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
+                <Text style={{color:'gray'}}>{NumberFormat(Number(item.transfer_amount))}</Text>
+              </View>
+              <View style={{flexDirection:'row'}}>
+                <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
+                <Text style={{color:'gray'}}>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
+              </View>
+              <View style={{flexDirection:'column'}}>
+                <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
+                <Text style={{color:'gray'}}>{item.detail}</Text>
+              </View>
+            </View>
+          </View>
+          </TouchableOpacity>)
+
     return (
         <TouchableOpacity 
             key={item.id}
             style={{padding:5}}
             onPress={()=>{
               navigation.navigate('detail', {data:item})
-            }}
-          >
-          {/* <Image source={{uri:item.photo}}  style={{width:60, height:60,borderRadius:30}} /> */}
-          <View style={{ flex:1, backgroundColor:'#fff', padding:10 }}>
+            }}>
+          <View style={{flex:1, backgroundColor:'red'}}>
+            <View style={{position:'absolute', right: 0, flexDirection:'row' }}>
+              <TouchableOpacity 
+                style={{ padding:3,}}
+                onPress={ async ()=>{
+
+                  let cL = this.props.user
+                  console.log(API_URL_SOCKET_IO(), cL.uid, id, getUniqueId())
+                
+                  if(isEmpty(cL)){
+                    this.setState({ bottomModalAndTitle: true })
+                  }else{
+                    axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
+                      uid: cL.uid,
+                      id_follow_up: id,
+                      unique_id: getUniqueId()
+                    }, {
+                      headers: { 
+                        'Content-Type': 'application/json',
+                      }
+                    })
+                    .then(function (response) {
+                      let {result, message} = response.data
+
+                      // console.log('message :', message)
+                      if(result){
+
+                      }else{
+                        
+                      }
+                      toast.show(message);
+                    })
+                    .catch(function (error) {
+                      console.log('error :', error)
+                      // _this.setState({loading: false})
+                    });
+                  }
+                  
+                }}>
+                  <Text>ddd</Text>
+                {/* <Ionicons 
+                name="shield-checkmark-outline" 
+                size={25} 
+              
+                // color={isEmpty(follow_ups) ? 'gray' : (isEmpty(follow_ups.find( f => f === id )) ? 'gray' : 'red')} 
+                /> */}
+              </TouchableOpacity>
+      
+                {/* 
+                <View style={{justifyContent:'center'}}>
+                  <Menu
+                    ref={(ref) => (_menu = ref)}
+                    button={
+                      <TouchableOpacity 
+                        style={{ paddingLeft:3, }}
+                        onPress={()=>{
+                          _menu.show()
+                        }}>
+                      <MaterialIcons name="more-vert" size={25} color={'grey'}  />
+                      </TouchableOpacity>
+                    }>
+                    <MenuItem onPress={() => {
+                            _menu.hide();
+                            const shareOptions = {
+                                title: 'Share Banlist',
+                                url: item.link,
+                                failOnCancel: false,
+                            };
+
+                            Share.open(shareOptions)
+                            .then((res) => {
+                                // console.log(res);
+                            })
+                            .catch((err) => {
+                                err && console.log(err);
+                            });
+                          }} style={{flex:1, justifyContent:'center'}}>
+                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                          <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="share" size={25} color={'grey'}  />
+                          <Text style={{ textAlign: 'center' }}>Share</Text>
+                        </View>
+                    </MenuItem>
+
+                    <MenuItem onPress={ async () => {
+                            _menu.hide();
+                            
+                            let cL = this.props.user
+                            if(isEmpty(cL)){
+                              this.setState({ bottomModalAndTitle: true })
+                            }else{
+                              navigation.navigate('report', {data:item})
+                            }
+                          }} style={{flex:1, justifyContent:'center'}}>
+                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
+                          <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="report" size={25} color={'grey'}  />
+                          <Text style={{ textAlign: 'center' }}>Report</Text>
+                        </View>
+                    </MenuItem>
+                  </Menu>
+                </View> */}
+              </View>
+            <View style={{ flex:1, backgroundColor:'#fff', padding:10 }}>
             {/*      'name'    => $name, 
                       'surname' => $surname,  */}
             <View style={{flexDirection:'row'}}>
@@ -197,7 +422,7 @@ class ResultScreen extends Component {
                 onPress={()=>{
                   navigation.navigate('filter', {data:item})
                 }}>
-                <Text style={{color:'gray'}}>{item.name} {item.surname}</Text>
+                <Text style={{color:'#1a73e8'}}>{item.name} {item.surname}</Text>
               </TouchableOpacity>
             </View>
             <View style={{flexDirection:'row'}}>
@@ -216,7 +441,7 @@ class ResultScreen extends Component {
               <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
               <Text style={{color:'gray'}}>{item.detail}</Text>
             </View>
-            
+            </View>
           </View>
         </TouchableOpacity>
       );
@@ -319,7 +544,8 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => {
   return{
-    user: state.user.data
+    user: state.user.data,
+    follow_ups: state.user.follow_ups
   }
 }
 

@@ -9,6 +9,7 @@ import {SafeAreaView,
         Image,
         TouchableOpacity} from 'react-native';
         
+import ImageView from "react-native-image-viewing";
 import { connect } from 'react-redux';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
@@ -116,7 +117,7 @@ class DetailScreen extends React.Component {
                         onPress={ async()=>{
                             // 
                             let cL = this.props.user
-                            console.log(cL.uid, data.id, Base64.btoa(getUniqueId()), API_URL_SOCKET_IO())
+                            console.log(cL.uid, data.id, getUniqueId(), API_URL_SOCKET_IO())
                   
                             if(isEmpty(cL)){
                                 _this.setState({bottomModalAndTitle: true})
@@ -124,7 +125,7 @@ class DetailScreen extends React.Component {
                                 axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
                                         uid: cL.uid,
                                         id_follow_up: data.id,
-                                        unique_id: Base64.btoa(getUniqueId())
+                                        unique_id: getUniqueId()
                                     }, {
                                     headers: { 
                                         'Content-Type': 'application/json',
@@ -439,18 +440,21 @@ class DetailScreen extends React.Component {
     }
         
     render() {
-        let {init_index} = this.state
+        let {init_index, modalVisible} = this.state
 
         let { route } = this.props;
 
         let images = []
         if (route.params.data.images.medium){
-            route.params.data.images.medium.map(function(url){
-                images.push({url});
+            route.params.data.images.medium.map(function(uri){
+                images.push({uri});
             })
         }
 
+        console.log(images)
+
         return (<SafeAreaView style={styles.container} onLayout={this.onLayout}>
+                    {/* 
                     <Modal 
                         visible={this.state.modalVisible}
                         transparent={true}
@@ -470,6 +474,15 @@ class DetailScreen extends React.Component {
                             enableSwipeDown={true}/>
                         {this.renderFooterImageViewer()}
                     </Modal>
+                    */ }
+
+                    <ImageView
+                        images={images}
+                        imageIndex={init_index}
+                        visible={modalVisible}
+                        swipeToCloseEnabled={true}
+                        onRequestClose={() => this.setState({ modalVisible: false })}
+                    />
                     <Toast
                         ref={(toast) => this.toast = toast}
                         position='bottom'

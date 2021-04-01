@@ -1138,7 +1138,7 @@ class API extends ControllerBase {
         'field_sales_person_surname' => $person_surname, // นามสกุล ผู้รับเงินโอน
         'field_id_card_number'    => $id_card_number,  // เลขบัตรประชาชนคนขาย
         'field_selling_website'   => $selling_website, // เว็บไซด์ประกาศขายของ
-        'field_transfer_date'     => date('Y-m-d',  strtotime($transfer_date)),   // วันโอนเงิน
+        'field_transfer_date'     => date('Y-m-d',  $transfer_date),   // วันโอนเงิน
         'body'                    => $details,         // หมายเหตุ
         'field_merchant_bank_account' => $merchant_bank_account_paragraphs, // บัญชีธนาคารคนขาย
         'field_images'            => $images_fids      // รูปภาพประกอบ

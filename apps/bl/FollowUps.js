@@ -143,7 +143,7 @@ class FollowUps extends Component {
                       axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
                         uid: cL.uid,
                         id_follow_up: item.id,
-                        unique_id: Base64.btoa(getUniqueId())
+                        unique_id: getUniqueId()
                       }, {
                         headers: { 
                           'Content-Type': 'application/json',

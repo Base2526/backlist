@@ -1,6 +1,6 @@
 export { default as Colors } from './Colors'
 
-export const API_URL="https://banlist.info"
+export const API_URL="http://banlist.info"
 export const API_TOKEN="YWRtaW46U29ta2lkMDU4ODQ4Mzkx"
 export const WEB_CLIENT_ID="693724870615-2hkmknke3sj6puo9c88nk67ouuu9m8l1.apps.googleusercontent.com"
 export const IOS_CLIENT_ID="693724870615-sctm232nea5uoce5us2l5le0mj7bi77p.apps.googleusercontent.com"

@@ -422,3 +422,7 @@ https://stackoverflow.com/questions/55032060/react-native-lazy-loading-250-image
 
 /// React-native > Android app memory
 https://shift.infinite.red/react-native-android-app-memory-investigation-55695625da9c
+
+
+Perferment react-native clear memory
+https://dev.to/otamnitram/react-useeffect-cleanup-how-and-when-to-use-it-2hbm

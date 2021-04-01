@@ -65,7 +65,7 @@ class LoginScreen extends Component {
 
       let _this = this
       axios.post(`${API_URL}/api/login?_format=json`, {
-        name, password, unique_id: Base64.btoa(getUniqueId())
+        name, password, unique_id: getUniqueId()
       })
       .then(function (response) {
         let results = response.data

@@ -2407,10 +2407,10 @@ class Utils extends ControllerBase {
   public static function ImageStyle_BN($fid, $image_style = 'thumbnail'){
     try {
       // Load file.
-      $file = \Drupal::entityTypeManager()->getStorage('file')->load($fid);;// File::load($fid);
+      $file = \Drupal::entityTypeManager()->getStorage('file')->load($fid);// File::load($fid);
       // Get origin image URI.
       $image_uri = $file->getFileUri();
-      return ImageStyle::load($image_style)->buildUrl($image_uri);
+      return preg_replace("/^https:/i", "http:",  ImageStyle::load($image_style)->buildUrl($image_uri) );
 
       // $path = ImageStyle::load($image_style)->buildUrl($image_uri);
       // $type = pathinfo($path, PATHINFO_EXTENSION);
