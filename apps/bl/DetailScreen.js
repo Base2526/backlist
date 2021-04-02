@@ -65,12 +65,13 @@ class DetailScreen extends React.Component {
     }
 
     componentDidMount(){
-        let { navigation, route, user, follow_ups} = this.props;
+        let { navigation, route, user, follow_ups, my_apps} = this.props;
 
         // let cL = await checkLogin()
         // if(!isEmpty(cL)){
         //     this.setState({isLogin: true})
         // }
+
 
         let data =  route.params.data;
         // console.log('user >>>', user)
@@ -95,6 +96,10 @@ class DetailScreen extends React.Component {
         });
     }
 
+    isOwner = (id_check) => {
+        return this.props.my_apps.includes(id_check)
+    }
+
     componentDidUpdate(prevProps){
         if(!compare2Arrays(prevProps.follow_ups, this.props.follow_ups)){
             this.updateNavigation()
@@ -117,7 +122,7 @@ class DetailScreen extends React.Component {
                         onPress={ async()=>{
                             // 
                             let cL = this.props.user
-                            console.log(cL.uid, data.id, getUniqueId(), API_URL_SOCKET_IO())
+                            // console.log(cL.uid, data.id, getUniqueId(), API_URL_SOCKET_IO())
                   
                             if(isEmpty(cL)){
                                 _this.setState({bottomModalAndTitle: true})
@@ -134,7 +139,7 @@ class DetailScreen extends React.Component {
                                 .then(function (response) {
                                     let {result, message} = response.data
                 
-                                    console.log(response.data)
+                                    // console.log(response.data)
                                     if(result){
             
                                     }else{
@@ -148,7 +153,7 @@ class DetailScreen extends React.Component {
                             }
                             
                         }}>
-                        <Ionicons name="shield-checkmark-outline" size={25} color={isEmpty(follow_ups.find( f => f === data.id )) ? 'gray' : 'red'} />
+                        { !this.isOwner(data.id) && <Ionicons name="shield-checkmark-outline" size={25} color={isEmpty(follow_ups.find( f => f === data.id )) ? 'gray' : 'red'} />} 
                     </TouchableOpacity>
                     
                     <View style={{marginRight: 5}}>
@@ -173,7 +178,7 @@ class DetailScreen extends React.Component {
                                 failOnCancel: false,
                             };
 
-                            console.log(route.params.data.id)
+                            // console.log(route.params.data.id)
 
                             Share.open(shareOptions)
                             .then((res) => {
@@ -451,7 +456,7 @@ class DetailScreen extends React.Component {
             })
         }
 
-        console.log(images)
+        // console.log(images)
 
         return (<SafeAreaView style={styles.container} onLayout={this.onLayout}>
                     {/* 
@@ -536,7 +541,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => {
     return{
         user: state.user.data,
-        follow_ups: state.user.follow_ups
+        follow_ups: state.user.follow_ups,
+        my_apps: state.user.my_apps
     }
 }
 

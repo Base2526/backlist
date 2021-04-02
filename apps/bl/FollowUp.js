@@ -43,16 +43,13 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
 import FastImage from 'react-native-fast-image'
-
 import ReadMore from '@fawazahmed/react-native-read-more';
-import { Base64, compare2Arrays } from './Utils'
-
+import { isEmpty, compare2Arrays } from './Utils'
 import { getUniqueId, getVersion } from 'react-native-device-info';
 import {API_URL, API_URL_SOCKET_IO} from "./constants"
-
 import { fetchData } from './actions/app';
-// 
-class FollowUps extends Component {
+
+class FollowUp extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -110,21 +107,18 @@ class FollowUps extends Component {
 
   updateNavigation(){
     let { navigation, follow_ups} = this.props;
-
-    let _this = this
-    let _menu = null;
     navigation.setOptions({
-      title: 'Follow ups (' + follow_ups.length + ')', 
+      title: 'Follow up (' + follow_ups.length + ')', 
     })
   }
 
   renderItem = (item) =>{
-    let { navigation } = this.props;
+    let { navigation, follow_ups } = this.props;
 
     let _this = this
     let _menu = null
 
-    // console.log(item)
+    console.log('follow_ups : ', follow_ups)
     return (
         <TouchableOpacity 
             key={Math.floor(Math.random() * 100) + 1}
@@ -163,7 +157,11 @@ class FollowUps extends Component {
                         // _this.setState({loading: false})
                       });
                     }}>
-                    <Ionicons name="shield-checkmark-outline" size={25} color={'red'} />
+                    <Ionicons 
+                      name="shield-checkmark-outline" 
+                      size={25} 
+                      color={isEmpty(follow_ups) ? 'gray' : (isEmpty(follow_ups.find( f => String(f) === String(item.id) )) ? 'gray' : 'red')} 
+                    />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -321,4 +319,4 @@ const mapDispatchToProps = {
   fetchData
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FollowUps)
+export default connect(mapStateToProps, mapDispatchToProps)(FollowUp)

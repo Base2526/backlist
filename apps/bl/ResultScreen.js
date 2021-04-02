@@ -138,7 +138,7 @@ class ResultScreen extends Component {
 
         if(datas && datas.length > 0){
 
-          console.log(datas)
+          // console.log(datas)
           _this.setState({spinner: false, execution_time, data:[ ..._this.state.data, ...datas], count, loading: false});
         }else{
 
@@ -164,7 +164,7 @@ class ResultScreen extends Component {
   }
 
   renderItem = (item) =>{
-    console.log(item.id)
+    // console.log(item.id)
     const { navigation, follow_ups } = this.props;
 
     let _menu = null;
@@ -177,12 +177,12 @@ class ResultScreen extends Component {
               navigation.navigate('detail', {data:item})
             }}>
           <View style={{flex:1, backgroundColor:'#fff' }}>
-            <View style={{position:'absolute', right: 0, flexDirection:'row', padding:10, }}>
+            <View style={{position:'absolute', right: 0, flexDirection:'row', padding:10}}>
               <TouchableOpacity 
                 style={{ padding:3,}}
                 onPress={ async ()=>{
                   let cL = this.props.user
-                  console.log(API_URL_SOCKET_IO(), cL.uid, item.id, getUniqueId())
+                  // console.log(API_URL_SOCKET_IO(), cL.uid, item.id, getUniqueId())
                 
                   if(isEmpty(cL)){
                     this.setState({ bottomModalAndTitle: true })
@@ -216,7 +216,7 @@ class ResultScreen extends Component {
                 <Ionicons 
                   name="shield-checkmark-outline" 
                   size={25} 
-                  color={isEmpty(follow_ups) ? 'gray' : (isEmpty(follow_ups.find( f => f === item.id )) ? 'gray' : 'red')} 
+                  color={isEmpty(follow_ups) ? 'gray' : (isEmpty(follow_ups.find( f => String(f) === String(item.id) )) ? 'gray' : 'red')} 
                 />
               </TouchableOpacity>
               <View style={{justifyContent:'center'}}>
@@ -480,8 +480,7 @@ class ResultScreen extends Component {
                 style={{flex:1}}
                 data={data}
                 renderItem={({ item }) => this.renderItem(item)}
-                keyExtrac
-                tor={(item, index) => String(index)}
+                keyExtractor={(item, index) => String(index)}
                 ListFooterComponent={this.renderFooter()}/>
               <Toast
                 ref={(toast) => this.toast = toast}

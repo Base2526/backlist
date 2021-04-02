@@ -25,23 +25,23 @@ import { connect } from 'react-redux';
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
 
-import ActionButton from 'react-native-action-button';
-import Spinner from 'react-native-loading-spinner-overlay';
-
-import {API_URL, API_TOKEN} from "./constants"
+import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import Toast, {DURATION} from 'react-native-easy-toast'
+import { getUniqueId } from 'react-native-device-info';
 
-import { NumberFormat } from './Utils'
+import {API_URL, API_TOKEN, API_URL_SOCKET_IO} from "./constants"
+import { NumberFormat, isEmpty } from './Utils'
  
 class FilterScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {key_word: "", 
                     spinner: false, 
-                    
-                    execution_time:'', 
-                    count:'',
-                    datas:[], 
+                    execution_time: '', 
+                    count: '',
+                    datas: [], 
                     type : 0,
                     offset: 0,
                     
@@ -81,10 +81,14 @@ class FilterScreen extends Component {
         }    
     }
 
+    isOwner = (id_check) => {
+        return this.props.my_apps.includes(id_check)
+    }
+
     search = () =>{
         let {type, offset, key_word} = this.state
 
-        console.log(type, offset, key_word)
+        // console.log(type, offset, key_word)
 
         let _this = this;
         _this.setState({loading: true})
@@ -98,10 +102,10 @@ class FilterScreen extends Component {
         })
         .then(function (response) {
             let results = response.data
-            console.log('FilterScreen : ', results)
+            // console.log('FilterScreen : ', results)
             if(results.result){
                 // true
-                console.log('true');
+                // console.log('true');
                 // console.log(results);
         
                 let {execution_time, datas, count} = results;
@@ -118,7 +122,7 @@ class FilterScreen extends Component {
                 
             }else{
                 // false
-                console.log(results);
+                // console.log(results);
                 _this.setState({loading: false})
             }
         })
@@ -129,7 +133,12 @@ class FilterScreen extends Component {
     }
     
     renderItem = (item) =>{
-        const { navigation } = this.props;
+        let { navigation, follow_ups, user } = this.props;
+        let _menu = null;
+        let _this = this
+
+        // console.log(item)
+        console.log('follow_ups : ', follow_ups, item.id )
         return (
             <TouchableOpacity 
                 key={item.id}
@@ -138,27 +147,125 @@ class FilterScreen extends Component {
                 navigation.navigate('detail', {data:item})
                 }}
             >
-            <View style={{ flex:1, backgroundColor:'#fff', padding:10 }}>
-                <View style={{flexDirection:'row'}}>
-                <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
-                <Text>{item.name} {item.surname}</Text>
+            <View style={{flex:1, backgroundColor:'#fff' }}>
+                <View style={{position:'absolute', right: 0, flexDirection:'row', padding:10, zIndex:10000 }}>
+                    <TouchableOpacity 
+                        style={{ padding:3,}}
+                        onPress={ async ()=>{
+                            let cL = this.props.user
+                            // console.log(API_URL_SOCKET_IO(), cL.uid, item.id, getUniqueId())
+                            
+                            if(isEmpty(cL)){
+                                this.setState({ bottomModalAndTitle: true })
+                            }else{
+                                axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
+                                uid: cL.uid,
+                                id_follow_up: item.id,
+                                unique_id: getUniqueId()
+                                }, {
+                                headers: { 
+                                    'Content-Type': 'application/json',
+                                }
+                                })
+                                .then(function (response) {
+                                let {result, message} = response.data
+
+                                // console.log('message :', message)
+                                if(result){
+
+                                }else{
+                                    
+                                }
+                                _this.toast.show(message);
+                                })
+                                .catch(function (error) {
+                                console.log('error :', error)
+                                // _this.setState({loading: false})
+                                });
+                            }
+                        }}>
+                        { !this.isOwner(item.id) &&
+                                <Ionicons 
+                                name="shield-checkmark-outline" 
+                                size={25} 
+                                color={isEmpty(follow_ups) ? 'gray' : (isEmpty(follow_ups.find( f => String(f) === String(item.id) )) ? 'gray' : 'red')} 
+                                />
+                        }
+                    </TouchableOpacity>
+                    <View style={{justifyContent:'center'}}>
+                        <Menu
+                        ref={(ref) => (_menu = ref)}
+                        button={
+                            <TouchableOpacity 
+                            style={{ paddingLeft:3, }}
+                            onPress={()=>{
+                                _menu.show()
+                            }}>
+                            <MaterialIcons name="more-vert" size={25} color={'grey'}  />
+                            </TouchableOpacity>
+                        }>
+                        <MenuItem onPress={() => {
+                                _menu.hide();
+                                const shareOptions = {
+                                    title: 'Share Banlist',
+                                    url: item.link,
+                                    failOnCancel: false,
+                                };
+
+                                Share.open(shareOptions)
+                                .then((res) => {
+                                    // console.log(res);
+                                })
+                                .catch((err) => {
+                                    err && console.log(err);
+                                });
+                                }} style={{flex:1, justifyContent:'center'}}>
+                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="share" size={25} color={'grey'}  />
+                                <Text style={{ textAlign: 'center' }}>Share</Text>
+                            </View>
+                        </MenuItem>
+
+                        <MenuItem onPress={ async () => {
+                                _menu.hide();
+                                
+                                let cL = this.props.user
+                                if(isEmpty(cL)){
+                                    this.setState({ bottomModalAndTitle: true })
+                                }else{
+                                    navigation.navigate('report', {data:item})
+                                }
+                                }} style={{flex:1, justifyContent:'center'}}>
+                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
+                                <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="report" size={25} color={'grey'}  />
+                                <Text style={{ textAlign: 'center' }}>Report</Text>
+                            </View>
+                        </MenuItem>
+                        </Menu>
+                    </View> 
                 </View>
-                <View style={{flexDirection:'row'}}>
-                <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
-                <Text>{item.title}</Text>
-                </View>
-                <View style={{flexDirection:'row'}}>
-                <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
-                <Text>{NumberFormat(Number(item.transfer_amount))}</Text>
-                </View>
-                <View style={{flexDirection:'row'}}>
-                        <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
-                        <Text>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
+                <View style={{ flex:1, padding:10 }}>
+                    <View style={{flexDirection:'row'}}>
+                    <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
+                    <Text>{item.name} {item.surname}</Text>
                     </View>
-                <View style={{flexDirection:'column'}}>
-                <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
-                <Text>{item.detail}</Text>
+                    <View style={{flexDirection:'row'}}>
+                    <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
+                    <Text>{item.title}</Text>
+                    </View>
+                    <View style={{flexDirection:'row'}}>
+                    <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
+                    <Text>{NumberFormat(Number(item.transfer_amount))}</Text>
+                    </View>
+                    <View style={{flexDirection:'row'}}>
+                            <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
+                            <Text>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
+                        </View>
+                    <View style={{flexDirection:'column'}}>
+                    <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
+                    <Text>{item.detail}</Text>
                 </View>
+            </View>
             </View>
             </TouchableOpacity>
         );
@@ -202,7 +309,6 @@ class FilterScreen extends Component {
                             style={{flex:1}}
                             data={datas}
                             renderItem={({ item }) => this.renderItem(item)}
-            
                             ListFooterComponent={this.renderFooter()}
                             keyExtractor={(item, index) => String(index)}/>
                     </View>
@@ -263,11 +369,11 @@ const styles = StyleSheet.create({
  
 const mapStateToProps = state => {  
     return{
-      user: state.user.data
+      user: state.user.data,
+      follow_ups: state.user.follow_ups,
+      my_apps: state.user.my_apps
     }
 }
-
-const mapDispatchToProps = {}
 
 export default connect(mapStateToProps, null)(FilterScreen)
  

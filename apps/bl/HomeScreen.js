@@ -419,6 +419,11 @@ class MyListItem extends PureComponent {
       */
     }
   }
+
+  isOwner = (id_check) => {
+    return this.props.my_apps.includes(id_check)
+  }
+
   render() {
     // props.onChange
     let { navigation, follow_ups, item, user, toast, onChange } = this.props;
@@ -475,11 +480,14 @@ class MyListItem extends PureComponent {
                   }
                   
                 }}>
+                { 
+                !this.isOwner(id) &&
                 <Ionicons 
                 name="shield-checkmark-outline" 
                 size={25} 
                 /*color={isEmpty(follow_ups.find( f => f === id )) ? 'gray' : 'red'}*/ 
-                color={isEmpty(follow_ups) ? 'gray' : (isEmpty(follow_ups.find( f => f === id )) ? 'gray' : 'red')} />
+                color={isEmpty(follow_ups) ? 'gray' : (isEmpty(follow_ups.find( f => String(f) === String(id) )) ? 'gray' : 'red')} />
+                }
               </TouchableOpacity>
               
               <View style={{justifyContent:'center'}}>
@@ -691,6 +699,11 @@ class HomeScreen extends Component {
   componentDidUpdate(prevProps){
     // console.log('componentDidUpdate : ', prevProps)
   }
+
+  isOwner = (id_check) => {
+    return this.props.my_apps.includes(id_check)
+  }
+
 
   refresh = () =>{
     this.setState({
@@ -1140,7 +1153,7 @@ class HomeScreen extends Component {
   }
 
   renderItem = (item) =>{
-    let { navigation, follow_ups, user } = this.props;
+    let { navigation, follow_ups, user, my_apps } = this.props;
 
     return <MyListItem
             item={item}
@@ -1148,6 +1161,7 @@ class HomeScreen extends Component {
             follow_ups={follow_ups}
             user={user}
             toast={this.toast}
+            my_apps={my_apps}
             onChange={this.changeHandler} />
 
     /*
@@ -1744,7 +1758,8 @@ const mapStateToProps = state => {
   return{
     data: state.app.data,
     user: state.user.data,
-    follow_ups: state.user.follow_ups
+    follow_ups: state.user.follow_ups,
+    my_apps: state.user.my_apps
   }
 }
 

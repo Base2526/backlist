@@ -114,24 +114,7 @@ class SearchScreen extends React.PureComponent {
   };
 
   componentDidMount(){
-    const { route, navigation, historys } = this.props;
-    // navigation.setOptions({
-    //   // headerShown: false
-    //   // headerLeft: () => (
-    //   //   <TouchableOpacity
-    //   //     onPress={() => console.log('Button is Pressed!') }>
-    //   //     <Text>Home</Text>
-    //   //   </TouchableOpacity>
-    //   // ),
-    //   // headerRight: () => (
-    //   //   <TouchableOpacity
-    //   //     onPress={() => console.log('Button is Pressed!') }>
-    //   //     <Text>Home</Text>
-    //   //   </TouchableOpacity>
-    //   // )
-    // })
-
-    console.log('historys :', historys)
+    // const { route, navigation, historys } = this.props;
   }
 
   changeSelected = () => {
@@ -147,37 +130,15 @@ class SearchScreen extends React.PureComponent {
   _renderSectionListItem = ({ item }) => (
     <FlatList
       data={item}
-      // numColumns={3}
       renderItem={this._renderItem}
       keyExtractor={this._keyExtractor}
-      // ItemSeparatorComponent={this._ItemSeparatorComponent}
+      keyExtractor={(item, index) => String(index)}
     />
   );
 
-  // _renderItem = ({item}) => (
-  //   console.log(item)
-  //   <MyListItem
-  //     id={item.id}
-  //     title={item.title}
-  //     changeSelected={this.changeSelected}
-  //     hasSelected={this.state.hasSelected}
-  //   />
-  // )
-
-  // item = (title, id, section) => {
-  //   const { route, navigation } = this.props;
-  //   return (
-      
-  //   );
-  // };
-
   _renderItem = ({ item }) => {
     const { route, navigation, deleteHistory } = this.props;
-
     let {title, id, section, ex} = item
-
-    console.log("title, id, section, ex : ", title, id, section, ex)
-
     switch(section){
       case '0':{
         return (<TouchableOpacity onPress={() => {
@@ -294,78 +255,7 @@ class SearchScreen extends React.PureComponent {
       default:{
         return <View />
       }
-
     }
-
-    // return (
-    //   //   <MyListItem
-    //   //   section={item.section}
-    //   //   id={item.id}
-    //   //   title={item.title}
-    //   //   changeSelected={this.changeSelected}
-    //   //   hasSelected={this.state.hasSelected}
-    //   // />
-    //   <TouchableOpacity onPress={() => {
-    //     console.log(this.props)
-    //   }}>
-    //     <View
-    //       style={{
-    //         backgroundColor: 'white',
-    //         padding: 10,
-    //         flexDirection: 'row',
-    //         alignItems: 'center',
-    //         flex: 1,
-    //       }}>
-    //       <View style={{ alignItems: 'center', flex: 1 }}>
-    //         {section == 0 && (
-    //           <Ionicons name="time-outline" size={20} color="gray" />
-    //         )}
-    //         {section == 1 && (
-    //           <AntDesign name="plussquareo" size={20} color="gray" />
-    //         )}
-    //       </View>
-    //       <Text style={{ flex: 8, fontSize: 15, paddingTop: 2, color: 'gray' }}>
-    //         {title}
-    //       </Text>
-    //       <View style={{ alignItems: 'center', flex: 1 }}>
-    //         {section == 0 && (
-    //           <TouchableOpacity
-    //             onPress={() => {
-    //               // this.insertSearch(title);
-
-    //               let index = this.state.searchHistory.indexOf(title);
-
-    //               // let tempArr = historys.arrDelete(this.state.searchHistory, index);
-    //               // tempArr.unshift(title);
-    //               // historys.setItem('searchHistory', tempArr);
-
-    //               // local history none search content
-    //               // let tempArr = this.state.searchHistory;
-    //               // tempArr.unshift(title);
-    //               // historys.setItem("searchHistory", tempArr);
-
-    //               var tempArr = [...this.state.searchHistory]; // make a separate copy of the array
-    //               // var index = array.indexOf(e.target.value)
-    //               if (index !== -1) {
-    //                 tempArr.splice(index, 1);
-    //                 historys.setItem("searchHistory", tempArr);
-
-    //                 this.getHistory()
-    //               }
-
-                 
-    //               // console.log(this.state.searchHistory)
-    //               // console.log(tempArr)
-                  
-    //             }}
-    //             style={{ padding: 5, borderRadius: 20 }}>
-    //             <Ionicons name="close-outline" size={25} color="gray" />
-    //           </TouchableOpacity>
-    //         )}
-    //       </View>
-    //     </View>
-    //   </TouchableOpacity>
-    // );
   };
 
   _renderSectionHeader = ({ section }) => (
@@ -419,13 +309,9 @@ class SearchScreen extends React.PureComponent {
 
   render() {
     let { search, searchHistory, isFocused } = this.state;
-
     const { navigation, historys } = this.props;
 
-    console.log('historys >>> : ',historys);
-
-    let _historys = [...historys]
-    _historys = _historys.slice(0, 5); 
+    let _historys = [...historys].slice(0, 5); 
 
     const sections = [
       {

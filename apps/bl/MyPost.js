@@ -118,7 +118,7 @@ class MyPost extends Component {
       let { navigation, my_apps} = this.props;
   
       navigation.setOptions({
-        title: 'Post (' + my_apps.length + ')', 
+        title: 'My post (' + my_apps.length + ')', 
       })
     }
 
@@ -164,10 +164,12 @@ class MyPost extends Component {
                       }>
                       <MenuItem onPress={() => {
                             _menu.hide();
+
+                            navigation.navigate('follow_up')
                           }} style={{flex:1, justifyContent:'center'}}>
                         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                           <Ionicons style={{justifyContent:'center', alignItems: 'center', marginRight:5}}  name="people-outline" size={25} color={'gray'} />
-                          <Text style={{ textAlign: 'center' }}>Followers</Text>
+                          <Text style={{ textAlign: 'center' }}>Follow up</Text>
                         </View>
                       </MenuItem>
 
@@ -197,6 +199,9 @@ class MyPost extends Component {
                       </MenuItem>
                       <MenuItem onPress={() => {
                             _menu.hide();
+
+                            navigation.navigate('add_banlist', {data: item});
+
                           }} style={{flex:1, justifyContent:'center'}}>
                         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                           <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="edit" size={25} color={'grey'}  />
@@ -235,13 +240,13 @@ class MyPost extends Component {
                 <View>
                   <View style={{flexDirection:'row'}}>
                     <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
-                    <TouchableOpacity 
+                    {/* <TouchableOpacity 
                       style={{ }}
                       onPress={()=>{
                         navigation.navigate('filter', {data:item})
-                      }}>
+                      }}> */}
                       <Text style={{color:'gray'}}>{item.name} {item.surname}</Text>
-                    </TouchableOpacity>
+                    {/* </TouchableOpacity> */}
                   </View>
                   <View style={{flexDirection:'row'}}>
                     <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>

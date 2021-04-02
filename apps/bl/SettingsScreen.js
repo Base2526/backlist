@@ -14,9 +14,7 @@ import { connect } from 'react-redux';
   
 import SettingsList from 'react-native-settings-list';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
 import Modal from 'react-native-modal';
-
 import { InAppBrowser } from 'react-native-inappbrowser-reborn';
 
 import {
@@ -29,22 +27,19 @@ import {
 
 import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-community/google-signin';
 
-
 import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID} from "./constants"
-
 import { ValidateEmail, isEmpty, logout } from './Utils'
   
 class SettingsScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {bottomModalAndTitle: false, 
-                    //   isLogin:false, 
                       laps: ['1', '2', '3']}
     }
 
     componentDidMount() {
         const { route, navigation, my_apps } = this.props;
-        console.log('my_apps : ', my_apps)
+        // console.log('my_apps : ', my_apps)
         navigation.setOptions({
             headerLeft: () => (
               <TouchableOpacity
@@ -60,15 +55,6 @@ class SettingsScreen extends Component {
             forceCodeForRefreshToken: true, // [Android] related to `serverAuthCode`, read the docs link below *.
             iosClientId: IOS_CLIENT_ID, // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
         });
-
-        // checkLogin().then(res => {
-        //     if(isEmpty(res)){
-        //         this.setState({isLogin: false})
-        //     }else{
-        //         this.setState({isLogin: true})
-        //     }
-        //   })
-
 
         this.modalLogin = this.modalLogin.bind(this)
     }
@@ -269,31 +255,27 @@ class SettingsScreen extends Component {
     lapsList() {
         let { navigation, user, follow_ups, my_apps } = this.props;
 
-        console.log('follow_ups : ',  follow_ups)
+        // console.log('follow_ups : ',  follow_ups)
 
         let laps = [{'id': 0, 'title': 'Account', 'icon_name': "person-outline", 'color': 'gray'}, 
-                    {'id': 1, 'title': 'Post ( ' + (!isEmpty(my_apps) ? my_apps.length : '0')  + ' )', 'icon_name': "add-circle-outline", 'color': 'gray' },
-                    {'id': 2, 'title': 'Follow up ( ' + (!isEmpty(follow_ups) ? follow_ups.length: '0') + ' )', 'icon_name': "shield-checkmark-outline", 'color': 'red' },
-                    // {'id': 3, 'title': 'Followers', 'icon_name': "people-outline" },
+                    {'id': 1, 'title': 'My post ( ' + (!isEmpty(my_apps) ? my_apps.length : '0')  + ' )', 'icon_name': "add-circle-outline", 'color': 'gray' },
+                    {'id': 2, 'title': 'My follow up ( ' + (!isEmpty(follow_ups) ? follow_ups.length: '0') + ' )', 'icon_name': "shield-checkmark-outline", 'color': 'red' },
                 ]
-                // <Ionicons name="shield-checkmark-outline"
-                // <ion-icon name="people-outline"></ion-icon>
 
         if(!isEmpty(user)){
             return laps.map((data) => {
-                console.log(data)
-                return (
-                  <SettingsList.Item
-                          icon={
-                              <View style={styles.imageStyle}>
-                                  <Ionicons name={data.icon_name} size={20} color={data.color} />
-                              </View>
-                          }
-                          title={data.title} 
-                          itemWidth={70}
-                          titleStyle={{color:'black', fontSize: 16}}
-                          hasNavArrow={false}
-                          onPress={()=>{
+                return (<SettingsList.Item
+                            key={data.id}
+                            icon={
+                                <View style={styles.imageStyle}>
+                                    <Ionicons name={data.icon_name} size={20} color={data.color} />
+                                </View>
+                            }
+                            title={data.title} 
+                            itemWidth={70}
+                            titleStyle={{color:'black', fontSize: 16}}
+                            hasNavArrow={false}
+                            onPress={()=>{
                             switch(data.id){
                                 case 0:{
                                     navigation.navigate('profile')
@@ -308,13 +290,13 @@ class SettingsScreen extends Component {
                                 }
 
                                 case 2:{
-                                    navigation.navigate('followups')
+                                    navigation.navigate('myfollowups')
                                     
                                     break;
                                 }
 
                                 case 3:{
-                                     Alert.alert(
+                                        Alert.alert(
                                                 "Comfirm",
                                                 "Are you sure logout?",
                                                 [
@@ -333,16 +315,13 @@ class SettingsScreen extends Component {
                                     break;
                                 }
                             }
-                          }}/>
-                )
+                            }}/>)
             })
         }
     }
 
     render() {
-        let { navigation, user } = this.props;
-        // let { isLogin } = this.state
-        
+        let { navigation, user } = this.props;        
         return (
         <View style={{backgroundColor:'#f6f6f6',flex:1}}>
             <SettingsList borderColor='#d6d5d9' defaultItemSize={50}>
@@ -358,17 +337,14 @@ class SettingsScreen extends Component {
                     }
                 }}
                 />
-
-                { !isEmpty(user) && this.lapsList() }
-               
+                { this.lapsList() }
                 <SettingsList.Header headerStyle={{marginTop:-5}}/>
                 <SettingsList.Item
-                hasNavArrow={false}
-                title='Info'
-                titleStyle={{color:'#009688', marginBottom:10, fontWeight:'bold'}}
-                itemWidth={70}
-                borderHide={'Both'}
-                />
+                    hasNavArrow={false}
+                    title='Info'
+                    titleStyle={{color:'#009688', marginBottom:10, fontWeight:'bold'}}
+                    itemWidth={70}
+                    borderHide={'Both'} />
                 <SettingsList.Item
                     icon={
                         <View style={styles.imageStyle}>
@@ -384,56 +360,49 @@ class SettingsScreen extends Component {
                         this.openLink('https://banlist.info/node/151')
                     }}/>
                 <SettingsList.Item
-                icon={
-                    <View style={styles.imageStyle}>
-                        <Ionicons name="terminal-outline" size={20} color={'grey'} />
-                    </View>
-                }
-                title='Terms of service'
-                itemWidth={70}
-                titleStyle={{color:'black', fontSize: 16}}
-                hasNavArrow={false}
-                onPress={()=>{
-                    // navigation.navigate('inappbrowser')
-                    this.openLink('https://banlist.info/node/149')
-                }}
-                />
+                    icon={
+                        <View style={styles.imageStyle}>
+                            <Ionicons name="terminal-outline" size={20} color={'grey'} />
+                        </View>
+                    }
+                    title='Terms of service'
+                    itemWidth={70}
+                    titleStyle={{color:'black', fontSize: 16}}
+                    hasNavArrow={false}
+                    onPress={()=>{
+                        // navigation.navigate('inappbrowser')
+                        this.openLink('https://banlist.info/node/149')
+                    }}/>
                 <SettingsList.Item
-                icon={
-                    <View style={styles.imageStyle}>
-                        <Ionicons name="information-outline" size={20} color={'grey'} />
-                    </View>
-                }
-                hasNavArrow={false}
-                itemWidth={70}
-                titleStyle={{color:'black', fontSize: 16}}
-                title='About'
-                onPress={()=>{
-                    this.openLink('https://banlist.info/node/150')
-                }}
-                />
-               
-            </SettingsList>        
-
+                    icon={
+                        <View style={styles.imageStyle}>
+                            <Ionicons name="information-outline" size={20} color={'grey'} />
+                        </View>
+                    }
+                    hasNavArrow={false}
+                    itemWidth={70}
+                    titleStyle={{color:'black', fontSize: 16}}
+                    title='About'
+                    onPress={()=>{
+                        this.openLink('https://banlist.info/node/150')
+                    }}/>
+            </SettingsList>    
             {this.modalLogin()}
-      
         </View>
-        );
+        )
     }
 }
   
 const styles = StyleSheet.create({
-imageStyle:{
-    marginLeft:15,
-    marginRight:20,
-    alignSelf:'center',
-    width:20,
-    height:24,
-    justifyContent:'center'
-}
-});
-
-// export default SettingsScreen;
+    imageStyle:{
+        marginLeft:15,
+        marginRight:20,
+        alignSelf:'center',
+        width:20,
+        height:24,
+        justifyContent:'center'
+    }
+})
 
 const mapStateToProps = state => {
     return{
@@ -443,6 +412,5 @@ const mapStateToProps = state => {
       my_apps: state.user.my_apps
     }
 }
-// 
-  
+
 export default connect(mapStateToProps, null)(SettingsScreen)

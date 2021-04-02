@@ -33,7 +33,7 @@ import ModalSelector from 'react-native-modal-selector'
 
 import Icon from 'react-native-vector-icons/Feather';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import ImagePicker from 'react-native-image-crop-picker';
 import ActionSheet from 'react-native-actionsheet';
 
@@ -72,7 +72,35 @@ class AddBanlistScreen extends Component {
                 
                   showDateTimePicker: false,
                   currentDateTimePicker: new Date(),
-                  spinner: false};  
+                  spinner: false,
+
+                  is_edit: false,
+                  items_merchant_bank_account: [
+                    {'key':1,'value': 'ธนาคารกรุงศรีอยุธยา'},
+                    {'key':2,'value': 'ธนาคารกรุงเทพ'},
+                    {'key':3,'value': 'ธนาคารซีไอเอ็มบี'},
+                    {'key':4,'value': 'ธนาคารออมสิน'},
+                    {'key':5,'value': 'ธนาคารอิสลาม'},
+                    {'key':6,'value': 'ธนาคารกสิกรไทย'},
+                    {'key':7,'value': 'ธนาคารเกียรตินาคิน'},
+                    {'key':8,'value': 'ธนาคารกรุงไทย'},
+                    {'key':9,'value': 'ธนาคารไทยพาณิชย์'},
+                    {'key':10,'value': 'Standard Chartered'},
+                    {'key':11,'value': 'ธนาคารธนชาติ'},
+                    {'key':12,'value': 'ทิสโก้แบงค์'},
+                    {'key':13,'value': 'ธนาคารทหารไทย'},
+                    {'key':14,'value': 'ธนาคารยูโอบี'},
+                    {'key':15,'value': 'ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร'},
+                    {'key':16,'value': 'True Wallet'},
+                    {'key':17,'value': 'พร้อมเพย์ (PromptPay)'},
+                    {'key':18,'value': 'ธนาคารอาคารสงเคราะห์'},
+                    {'key':19,'value': 'AirPay (แอร์เพย์)'},
+                    {'key':20,'value': 'mPay'},
+                    {'key':21,'value': '123 เซอร์วิส'},
+                    {'key':22,'value': 'ธ.ไทยเครดิตเพื่อรายย่อย'},
+                    {'key':23,'value': 'ธนาคารแลนด์แอนด์เฮ้าส์'},
+                    {'key':24,'value': 'เก็บเงินปลายทาง'} 
+                  ]};  
     this.onDoUploadPress = this.onDoUploadPress.bind(this);
 
     this.addItemsMerchantBankAccount = this.addItemsMerchantBankAccount.bind(this);
@@ -80,8 +108,32 @@ class AddBanlistScreen extends Component {
 
   componentDidMount() {
     Moment.locale('en');
-
     const { route, navigation } = this.props;
+    let {params} =  route;
+    
+
+    if(!isEmpty(params) && !isEmpty(params.data)){
+      console.log('data >>>', params)
+
+      let {data} = params
+      let itemsMerchantBankAccount = data.banks.map((item, i)=>{
+                                        return {key: 0, bank_account: item.bank_account, bank_wallet: item.bank_wallet}
+                                      })
+
+      this.setState({
+        is_edit: true,
+        title: data.title, 
+        name: data.name, 
+        surname: data.surname, 
+        id_card_number: data.id_card,
+        selling_website: data.selling_website,
+        detail: data.detail,
+        transfer_amount: data.transfer_amount,
+        date:data.transfer_date,
+        itemsMerchantBankAccount
+      })
+    }
+
     let _this = this
     navigation.setOptions({
       headerRight: () => (
@@ -91,7 +143,7 @@ class AddBanlistScreen extends Component {
                   onPress={()=>{
                     _this.handleAdd()
                   }}>
-                  <Text style={{ fontSize: 18, paddingRight:10, color:'#0288D1'}}>ADD</Text>
+                  <Text style={{ fontSize: 18, paddingRight:10, color:'#0288D1'}}>{this.state.is_edit? 'Edit' : 'ADD'}</Text>
               </TouchableOpacity>
           </View>
         )
@@ -171,9 +223,9 @@ class AddBanlistScreen extends Component {
       data.append("files[]", {uri: buttonInfo.path, type: buttonInfo.mime,name: buttonInfo.path.substring(buttonInfo.path.lastIndexOf('/')+1)})
     ));
 
-    // console.log(data)
+    console.log(data)
 
-    // return;
+    return;
 
     // console.log(title, transfer_amount, name, surname, id_card_number, selling_website, currentDateTimePicker)
 
@@ -244,42 +296,15 @@ class AddBanlistScreen extends Component {
     console.log('handDelete > ' + key);
   }
 
-  // getItemsMerchant
-  // { key: 1, /*section: true,*/  label: 'Fruits' },
-  getItemsMerchant = () =>{
-    let items_merchant_bank_account = {
-      1: 'ธนาคารกรุงศรีอยุธยา',
-      2: 'ธนาคารกรุงเทพ',
-      3: 'ธนาคารซีไอเอ็มบี' ,
-      4: 'ธนาคารออมสิน',
-      5: 'ธนาคารอิสลาม',
-      6: 'ธนาคารกสิกรไทย',
-      7: 'ธนาคารเกียรตินาคิน',
-      8: 'ธนาคารกรุงไทย',
-      9: 'ธนาคารไทยพาณิชย์',
-      10: 'Standard Chartered',
-      11: 'ธนาคารธนชาติ',
-      12: 'ทิสโก้แบงค์',
-      13: 'ธนาคารทหารไทย',
-      14: 'ธนาคารยูโอบี',
-      15: 'ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร',
-      16: 'True Wallet',
-      17: 'พร้อมเพย์ (PromptPay)',
-      18: 'ธนาคารอาคารสงเคราะห์',
-      19: 'AirPay (แอร์เพย์)',
-      20: 'mPay',
-      21: '123 เซอร์วิส',
-      22: 'ธ.ไทยเครดิตเพื่อรายย่อย',
-      23: 'ธนาคารแลนด์แอนด์เฮ้าส์',
-      24: 'เก็บเงินปลายทาง' 
-    }
+  itemsMerchant = () =>{
+    return this.state.items_merchant_bank_account.map((item, key) => {
+      return {key: item.key, label:item.value}
+    })
+  }
 
-    var lists = [];
-    Object.keys(items_merchant_bank_account).forEach(function(i) {
-      lists.push({key:i, label: items_merchant_bank_account[i] })
-    });
-
-    return lists;
+  getNameMerchant = (key) =>{
+    console.log('key : ', key, this.state.items_merchant_bank_account.find( item => String(item.key)  === String(key) ))
+    return this.state.items_merchant_bank_account.find( item => String(item.key)  === String(key) )
   }
 
   listMerchantBank = () =>{
@@ -644,6 +669,7 @@ class AddBanlistScreen extends Component {
           {
             this.state.itemsMerchantBankAccount.map((value, key) => {
               key = value.key
+              console.log('itemsMerchantBankAccount ', value)
               return(
                 <View key={key}>
                   <View style={{ flexDirection:"row", padding: 5}}>
@@ -657,45 +683,30 @@ class AddBanlistScreen extends Component {
                   </View>
                   <TextInput 
                     key={key}  
+                    value={value.bank_account}
                     keyboardType="numeric"
                     style={{borderWidth: .5, height: 40}}
                     onChangeText={e => this.handleChangeItemItemsMerchant(e, key)}/>
                   <Text>ธนาคาร/ระบบ Wallet</Text>
-                  
-                  {/* <DropDownPicker
-                    // items={this.getItemsMerchant()}
-                    items={this.listMerchantBank()}
-                    defaultValue={'1'}
-                    containerStyle={{height: 50}}
-                    style={{backgroundColor: '#fafafa', }}
-                    itemStyle={{justifyContent: 'flex-start'}}
-                    dropDownStyle={{backgroundColor: '#fafafa'}}
-                    onChangeItem={item => this.onChangeItemItemsMerchant(item, key)}
-                    labelStyle={{
-                        fontSize: 16,
-                        textAlign: 'left',
-                        color: '#000'
-                    }}/> */}
                     <ModalSelector
-                      data={ /*[
-                              { key: 1,   label: 'Fruits' },
-                              { key: 2, label: 'Red Apples' },
-                              { key: 3, label: 'Cherries' },
-                              { key: 4, label: 'Cranberries', accessibilityLabel: 'Tap here for cranberries' },
-                              // etc...
-                              // Can also add additional custom keys which are passed to the onChange callback
-                              // { key: 5, label: 'Vegetable', customKey: 'Not a fruit' }
-                            ]
-                            */ 
-                            this.getItemsMerchant()
-                          }
-                      initValue="เลือกธนาคาร/ระบบ Wallet"
+                      data={this.itemsMerchant()}  
                       onChange={(option)=>{ 
-                        console.log(`${option.label} (${option.key})`, option) 
+                        // console.log(`${option.label} (${option.key})`, option) 
                         this.onChangeItemItemsMerchant(option.key, key)
-                      }} />
-                      
-                </View>
+                      }}>
+                      <View style={{flex:1, flexDirection:'row', borderWidth: .5,  height: 40,}}>
+                        <TextInput
+                          style={{ flex:9, height: 40, color:'black'}}
+                          editable={false}
+                          placeholder="Select bank"
+                          placeholderTextColor={"black"}
+                          value={isEmpty(value.bank_wallet) ? '' : this.getNameMerchant(value.bank_wallet).value } />
+                        <View style={{justifyContent:'center', alignItems:'center'}} >
+                          <Ionicons name="chevron-down-outline" size={20} color={'gray'} />
+                        </View>
+                      </View>
+                    </ModalSelector>
+                  </View>
               )
             })
           }
@@ -832,7 +843,8 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => {
   return{
-    user: state.user.data
+    user: state.user.data,
+    // data: state.app.data
   }
 }
 

@@ -61,7 +61,8 @@ import ForgotPassword from './ForgotPassword'
 import SignUp from './SignUp'
 import Profile from './Profile1/Profile'
 import MyPost from './MyPost'
-import FollowUps from './FollowUps'
+import MyFollowUps from './MyFollowUps'
+import FollowUp from './FollowUp'
 
 import SettingsScreen from './SettingsScreen'
 import ReportScreen from './ReportScreen'
@@ -189,9 +190,11 @@ function MeStackScreen({navigation, route}) {
           routeName == 'inappbrowser' ||
           routeName == 'profile' ||
           routeName == 'mypost' ||
-          routeName == 'followups' ||
+          routeName == 'myfollowups' ||
           routeName == 'detail' ||
-          routeName == 'add_banlist' ){
+          routeName == 'add_banlist' ||
+          routeName == 'filter' ||
+          routeName == 'follow_up' ){
         navigation.setOptions({tabBarVisible: false});
     }else {
         navigation.setOptions({tabBarVisible: true});
@@ -200,23 +203,6 @@ function MeStackScreen({navigation, route}) {
 
   return (
     <MeStack.Navigator>
-        {/* <MeStack.Screen 
-          name="me" 
-          component={Profile} 
-          options={{ title: 'Me', tabBarVisible: false, }}
-        />
-        <MeStack.Screen 
-          name="forgot_password" 
-          component={ForgotPassword} 
-          options={{ title: 'Forgot password' }}
-        />
-        <MeStack.Screen 
-          name="sign_up" 
-          component={SignUp} 
-          options={{ title: 'Sign Up' }}
-        /> */}
-
-        {/* Profile */}
         <MeStack.Screen 
           name="setting" 
           component={SettingsScreen} 
@@ -249,14 +235,13 @@ function MeStackScreen({navigation, route}) {
           }}
         />
         <MeStack.Screen 
-          name="followups" 
-          component={FollowUps}
+          name="myfollowups" 
+          component={MyFollowUps}
           options={{
-            title: 'Follow ups',
+            title: 'My follow up',
             tabBarVisible: false,
           }}
         />
-
         <MeStack.Screen 
             name="detail" 
             component={DetailScreen}
@@ -266,12 +251,19 @@ function MeStackScreen({navigation, route}) {
               tabBarVisible: false,
             }}
           />
-
         <MeStack.Screen 
           name="add_banlist" 
           component={AddBanlistScreen} 
           options={{ title: 'Add Banlist' }}
         />
+        <MeStack.Screen 
+          name="filter" 
+          component={FilterScreen} 
+          options={{ title: '' }}/>  
+        <MeStack.Screen 
+          name="follow_up" 
+          component={FollowUp} 
+          options={{ title: '' }}/>  
 
         {/*  */}
     </MeStack.Navigator>
