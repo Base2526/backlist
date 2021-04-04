@@ -180,7 +180,7 @@ class MyFollowUps extends Component {
                     onPress={()=>{
                       navigation.navigate('filter', {data:item})
                     }}>
-                    <Text style={{color:'gray'}}>{item.name} {item.surname}</Text>
+                    <Text style={{color:'#1a73e8'}}>{item.name} {item.surname}</Text>
                   </TouchableOpacity>
                 </View>
                 <View style={{flexDirection:'row'}}>
