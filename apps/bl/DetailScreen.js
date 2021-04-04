@@ -80,8 +80,8 @@ class DetailScreen extends React.Component {
 
         let images = []
         if (data.images.thumbnail){
-            data.images.thumbnail.map(function(url){
-                images.push({url});
+            data.images.thumbnail.map(function(itm){
+                images.push({url:itm.url});
             })
         }
         
@@ -130,7 +130,8 @@ class DetailScreen extends React.Component {
                                 axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
                                         uid: cL.uid,
                                         id_follow_up: data.id,
-                                        unique_id: getUniqueId()
+                                        unique_id: getUniqueId(),
+                                        owner_id: data.owner_id
                                     }, {
                                     headers: { 
                                         'Content-Type': 'application/json',
@@ -451,8 +452,8 @@ class DetailScreen extends React.Component {
 
         let images = []
         if (route.params.data.images.medium){
-            route.params.data.images.medium.map(function(uri){
-                images.push({uri});
+            route.params.data.images.medium.map(function(itm){
+                images.push({uri: itm.url});
             })
         }
 

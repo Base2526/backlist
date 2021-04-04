@@ -60,7 +60,7 @@ import { getUniqueId, getVersion } from 'react-native-device-info';
 
 import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID, API_URL_SOCKET_IO} from "./constants"
 
-import { Base64, ValidateEmail, isEmpty } from './Utils'
+import { isEmpty } from './Utils'
 
 import { fetchData, fetchDataAll, checkFetchData, clearData } from './actions/app';
 
@@ -70,6 +70,7 @@ class MyListItem extends PureComponent {
     if(isEmpty(item.images.thumbnail)){
       return <View />
     }
+
     let thumbnail = item.images.thumbnail
     switch(thumbnail.length){
       case 0:{
@@ -88,7 +89,7 @@ class MyListItem extends PureComponent {
                       style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                       containerStyle={{ ...StyleSheet.absoluteFillObject }}
                       source={{
-                          uri: thumbnail[0],
+                          uri: thumbnail[0].url,
                           headers: { Authorization: 'someAuthToken' },
                           priority: FastImage.priority.normal,
                       }}
@@ -111,7 +112,7 @@ class MyListItem extends PureComponent {
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
                         source={{
-                            uri: thumbnail[0],
+                            uri: thumbnail[0].url,
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
@@ -127,7 +128,7 @@ class MyListItem extends PureComponent {
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
                         source={{
-                            uri: thumbnail[1],
+                            uri: thumbnail[1].url,
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
@@ -153,7 +154,7 @@ class MyListItem extends PureComponent {
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
                         source={{
-                            uri: thumbnail[0],
+                            uri: thumbnail[0].url,
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
@@ -184,7 +185,7 @@ class MyListItem extends PureComponent {
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
                         source={{
-                            uri: thumbnail[1],
+                            uri: thumbnail[1].url,
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
@@ -219,7 +220,7 @@ class MyListItem extends PureComponent {
                         style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
                         containerStyle={{ ...StyleSheet.absoluteFillObject }}
                         source={{
-                            uri: thumbnail[2],
+                            uri: thumbnail[2].url,
                             headers: { Authorization: 'someAuthToken' },
                             priority: FastImage.priority.normal,
                         }}
@@ -425,13 +426,7 @@ class MyListItem extends PureComponent {
   }
 
   render() {
-    // props.onChange
     let { navigation, follow_ups, item, user, toast, onChange } = this.props;
-    // console.log('onChange : ', onChange)
-    let { id } = item
-
-    // 
-
     let _menu = null;
     return (
       <TouchableOpacity 
@@ -448,15 +443,16 @@ class MyListItem extends PureComponent {
                 onPress={ async ()=>{
 
                   let cL = this.props.user
-                  console.log(API_URL_SOCKET_IO(), cL.uid, id, getUniqueId())
+                  console.log(API_URL_SOCKET_IO(), cL.uid, item.id, getUniqueId())
                 
                   if(isEmpty(cL)){
-                    this.setState({ bottomModalAndTitle: true })
+                    this.props.onChange({bottomModalAndTitle: true})
                   }else{
                     axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
                       uid: cL.uid,
-                      id_follow_up: id,
-                      unique_id: getUniqueId()
+                      id_follow_up: item.id,
+                      unique_id: getUniqueId(),
+                      owner_id: item.owner_id
                     }, {
                       headers: { 
                         'Content-Type': 'application/json',
@@ -481,12 +477,12 @@ class MyListItem extends PureComponent {
                   
                 }}>
                 { 
-                !this.isOwner(id) &&
+                !this.isOwner(item.id) &&
                 <Ionicons 
                 name="shield-checkmark-outline" 
                 size={25} 
                 /*color={isEmpty(follow_ups.find( f => f === id )) ? 'gray' : 'red'}*/ 
-                color={isEmpty(follow_ups) ? 'gray' : (isEmpty(follow_ups.find( f => String(f) === String(id) )) ? 'gray' : 'red')} />
+                color={isEmpty(follow_ups) ? 'gray' : (isEmpty(follow_ups.find( f => String(f) === String(item.id) )) ? 'gray' : 'red')} />
                 }
               </TouchableOpacity>
               
@@ -612,20 +608,8 @@ class HomeScreen extends Component {
   }
 
   componentDidMount  = async () => {
-    
+    const { route, navigation, follower_post } = this.props;
 
-    // useEffect(() => this.getData(), []);
-
-    // console.log('async componentDidMount : ', API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID, API_URL_SOCKET_IO)
-
-    // console.log('mergeArrays > ', this.mergeArrays([{"id":1},{"id":2},{"id":3},{"id":3},{"id":3}], [{"id":1},{"id":4},{"id":5},{"id":2}]))
-
-    // console.log('API_URL_SOCKET_IO : ', API_URL_SOCKET_IO())
-
-    const { route, navigation, fetchDataAll } = this.props;
-
-    let _this = this
-    let _menu = null;
     navigation.setOptions({
         headerLeft: () => (
           <TouchableOpacity
@@ -642,44 +626,6 @@ class HomeScreen extends Component {
                 }}>
                 <Ionicons name="search-outline" size={25} color={'grey'} />
               </TouchableOpacity>
-              {/* <TouchableOpacity 
-                style={{ marginHorizontal: 10 }}
-                onPress={()=>{
-                  console.log('Show Data :  ', this.props.data.length) 
-                }}>
-                <Text>Show Data</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={{ marginHorizontal: 10 }}
-                onPress={()=>{
-                  let {clearData} =  this.props;
-                  clearData()
-                }}>
-                <Text>Clear Data</Text>
-              </TouchableOpacity> */}
-              {/* <View style={{}}>
-                        <Menu
-                        ref={(ref) => (_menu = ref)}
-                        button={
-                            <TouchableOpacity 
-                                style={{ marginHorizontal: 10 }}
-                                onPress={()=>{
-                                    _menu.show()
-                            }}>
-                            <MaterialIcons name="more-vert" size={25} color={'grey'}  />
-                            </TouchableOpacity>
-                        }>
-                        <MenuItem onPress={() => {
-                            _menu.hide();
-                            _this.refresh();
-                        }}> 
-                          <View style={{flexDirection:'row', alignItems: 'center',}}>
-                              <MaterialIcons style={{padding:10}} name="cached" size={20} color={'grey'}  />
-                              <Text>Refresh</Text>
-                          </View>
-                        </MenuItem>
-                        </Menu>
-                    </View> */}
             </View>
         )
     })
@@ -703,7 +649,6 @@ class HomeScreen extends Component {
   isOwner = (id_check) => {
     return this.props.my_apps.includes(id_check)
   }
-
 
   refresh = () =>{
     this.setState({
@@ -747,7 +692,7 @@ class HomeScreen extends Component {
     })
     .then(function (response) {
       let results = response.data
-      // console.log('results : ', results)
+      // console.log('HomeScreen : results : ', results)
       if(results.result){
         // true
         // console.log('true');
@@ -764,6 +709,7 @@ class HomeScreen extends Component {
 
         // _this.setState({data: [ ..._this.state.data, ...datas]});
 
+        // console.log('HomeScreen : results : ',datas)
         _this.props.fetchData(datas);
         
         // _this.setState({data: [...this.state.data, ...datas]})
@@ -1486,19 +1432,19 @@ class HomeScreen extends Component {
 
     if ( !isEmpty(found) && !isEmpty(found.images) ){
       if ( found.images.medium){
-        found.images.medium.map( (uri) => {
-          return images.push({uri});
+        found.images.medium.map( (itm) => {
+          return images.push({uri:itm.url});
         })
       }
     }
     
     return <ImageView
-          images={images}
-          imageIndex={init_index}
-          visible={modalVisible}
-          swipeToCloseEnabled={true}
-          onRequestClose={() => this.setState({ modalVisible: false })}
-        />
+            images={images}
+            imageIndex={init_index}
+            visible={modalVisible}
+            swipeToCloseEnabled={true}
+            onRequestClose={() => this.setState({ modalVisible: false })}
+          />
     // }
 
     // return v;
@@ -1640,6 +1586,7 @@ class HomeScreen extends Component {
             </Modal>
   }
 
+  
   render(){
       const { navigation, data } = this.props;
       return (<View style={styles.container}>
@@ -1759,7 +1706,8 @@ const mapStateToProps = state => {
     data: state.app.data,
     user: state.user.data,
     follow_ups: state.user.follow_ups,
-    my_apps: state.user.my_apps
+    my_apps: state.user.my_apps,
+    // follower_post: state.user.follower_post
   }
 }
 

@@ -74,7 +74,7 @@ class AddBanlistScreen extends Component {
                   currentDateTimePicker: new Date(),
                   spinner: false,
 
-                  is_edit: false,
+                  nid: 0,
                   items_merchant_bank_account: [
                     {'key':1,'value': 'ธนาคารกรุงศรีอยุธยา'},
                     {'key':2,'value': 'ธนาคารกรุงเทพ'},
@@ -113,15 +113,25 @@ class AddBanlistScreen extends Component {
     
 
     if(!isEmpty(params) && !isEmpty(params.data)){
-      console.log('data >>>', params)
+      // console.log('data >>>', params)
 
       let {data} = params
       let itemsMerchantBankAccount = data.banks.map((item, i)=>{
                                         return {key: 0, bank_account: item.bank_account, bank_wallet: item.bank_wallet}
                                       })
 
+
+      let localPhotos = []
+      if(!isEmpty(data.images)){
+        localPhotos= data.images.thumbnail.map((item, i)=>{
+
+          console.log('--------->')
+          return {fid:item.fid, path: item.url}
+        })
+      }
+      
       this.setState({
-        is_edit: true,
+        nid: data.id,
         title: data.title, 
         name: data.name, 
         surname: data.surname, 
@@ -130,7 +140,8 @@ class AddBanlistScreen extends Component {
         detail: data.detail,
         transfer_amount: data.transfer_amount,
         date:data.transfer_date,
-        itemsMerchantBankAccount
+        itemsMerchantBankAccount,
+        localPhotos
       })
     }
 
@@ -143,7 +154,7 @@ class AddBanlistScreen extends Component {
                   onPress={()=>{
                     _this.handleAdd()
                   }}>
-                  <Text style={{ fontSize: 18, paddingRight:10, color:'#0288D1'}}>{this.state.is_edit? 'Edit' : 'ADD'}</Text>
+                  <Text style={{ fontSize: 18, paddingRight:10, color:'#0288D1'}}>{ !isEmpty(this.state.nid) ? 'Edit' : 'ADD'}</Text>
               </TouchableOpacity>
           </View>
         )
@@ -165,7 +176,8 @@ class AddBanlistScreen extends Component {
           detail,
 
           itemsMerchantBankAccount,
-          localPhotos} = this.state
+          localPhotos,
+          nid} = this.state
 
     title = title.trim()
     name = name.trim()
@@ -208,7 +220,7 @@ class AddBanlistScreen extends Component {
 
     const data = new FormData();
 
-    // data.append('basic_auth', basic_auth);
+    data.append('nid', nid);
     data.append('product_type', title);
     data.append('transfer_amount', transfer_amount);
     data.append('person_name', name);
@@ -223,10 +235,27 @@ class AddBanlistScreen extends Component {
       data.append("files[]", {uri: buttonInfo.path, type: buttonInfo.mime,name: buttonInfo.path.substring(buttonInfo.path.lastIndexOf('/')+1)})
     ));
 
-    console.log(data)
+    console.log('localPhotos : ', localPhotos)
 
+    /*
+    [{"creationDate": "1255122560", 
+      "cropRect": null, 
+      "data": null, 
+      "duration": null, 
+      "exif": null, 
+      "filename": "IMG_0002.JPG", 
+      "height": 2848, 
+      "localIdentifier": "B84E8479-475C-4727-A4A4-B77AA9980897/L0/001", 
+      "mime": "image/jpeg", 
+      "modificationDate": "1441224147", 
+      "path": "/Users/somkidsimajarn/Library/Developer/CoreSimulator/Devices/0C039879-66BC-4294-A59C-E9A903694F96/data/Containers/Data/Application/D764C94F-953B-49DE-934D-C626A3650019/tmp/react-native-image-crop-picker/E9F93825-F91A-4B8E-9F48-6D140916879E.jpg", 
+      "size": 2604768, 
+      "sourceURL": "file:///Users/somkidsimajarn/Library/Developer/CoreSimulator/Devices/0C039879-66BC-4294-A59C-E9A903694F96/data/Media/DCIM/100APPLE/IMG_0002.JPG", 
+      "width": 4288},
+      {"creationDate": "1522437259", "cropRect": null, "data": null, "duration": null, "exif": null, "filename": "IMG_0006.HEIC", "height": 3024, "localIdentifier": "CC95F08C-88C3-4012-9D6D-64A413D254B3/L0/001", "mime": "image/jpeg", "modificationDate": "1617107619", "path": "/Users/somkidsimajarn/Library/Developer/CoreSimulator/Devices/0C039879-66BC-4294-A59C-E9A903694F96/data/Containers/Data/Application/D764C94F-953B-49DE-934D-C626A3650019/tmp/react-native-image-crop-picker/B81249C6-26DA-4C84-A4C4-EEE209D46793.jpg", "size": 4075105, "sourceURL": "file:///Users/somkidsimajarn/Library/Developer/CoreSimulator/Devices/0C039879-66BC-4294-A59C-E9A903694F96/data/Media/DCIM/100APPLE/IMG_0006.HEIC", "width": 4032}]
+    */
     return;
-
+   
     // console.log(title, transfer_amount, name, surname, id_card_number, selling_website, currentDateTimePicker)
 
     

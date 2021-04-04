@@ -15,3 +15,6 @@ export const FOLLOW_UP      = 'FOLLOW_UP';
 export const FETCH_MY_APPS  = 'FETCH_MY_APPS';
 export const ADD_HISTORY    = 'ADD_HISTORY';
 export const DELETE_HISTORY = 'DELETE_HISTORY';
+
+export const ADD_FOLLOWER_POST = 'ADD_FOLLOWER_POST' // use first login insert all
+export const FOLLOWER_POST  = 'FOLLOWER_POST';       // case add each item

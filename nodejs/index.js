@@ -15,6 +15,7 @@ var io = socketio(server);
 
 const socketsModel  = require('./models/sockets');
 const usersModel    = require('./models/users');
+const followerPostModel    = require('./models/follower_post');
 
 const connection = require("./connection")
 
@@ -130,8 +131,8 @@ app.post('/api/follow_up', async (req, res) => {
   try {
     console.log(req.body)
     
-    let { uid, id_follow_up, unique_id } = req.body
-    if(!uid || !id_follow_up || !unique_id){    
+    let { uid, id_follow_up, unique_id, owner_id } = req.body
+    if(!uid || !id_follow_up || !unique_id || !owner_id){    
       return res.status(404).send({'message': 'ERROR'});
     }else{
       let user = await usersModel.findOne({ uid });
@@ -150,31 +151,24 @@ app.post('/api/follow_up', async (req, res) => {
           followUps = [...followUps, id_follow_up]
         }
 
-        usersModel.findOneAndUpdate({ uid }, { uid, followUps }, {
+        let um = await  usersModel.findOneAndUpdate({ uid }, { uid, followUps }, {
           new: true,
           upsert: true 
-        },async function( error, result){
-          if ( error === null ){
-            console.log(result)
-
-            // support case uid have multi device 
-            let fss = await socketsModel.find({ uid });
-            if ( fss !== null ){
-              fss.map((obj, i) => {
-                if(obj.socketId){
-                  io.to(obj.socketId).emit('follow_up', JSON.stringify(followUps));
-                }
-              })
-            }
-            // let fs = await socketsModel.findOne({ uniqueId: unique_id });
-            // if ( fs !== null ){
-            //   if(fs.socketId){
-            //     console.log(fs.socketId)
-            //     io.to(fs.socketId).emit('follow_up', JSON.stringify(followUps));
-            //   }
-            // }
-          }
         });
+
+        if ( um !== null ){
+          let fss = await socketsModel.find({ uid });
+          if ( fss !== null ){
+            fss.map((obj, i) => {
+              if(obj.socketId){
+                io.to(obj.socketId).emit('follow_up', JSON.stringify(followUps));
+              }
+            })
+          }
+        }
+
+        let fp = await onFollowerPost(uid, id_follow_up, unique_id, owner_id);
+        console.log('fp : ', fp);
 
         return res.status(200).send({'result': true, 'message': message});
       }
@@ -185,6 +179,32 @@ app.post('/api/follow_up', async (req, res) => {
     return res.status(500).send({'result': false, errors: err});
   }
 });
+
+app.post('/api/follower_post', async (req, res) => {
+  try {
+    console.log(req.body)
+    
+    let { posts } = req.body
+    if( !posts){    
+      return res.status(404).send({'result': false});
+    }
+    let follower_post =  await Promise.all( posts.map(async(post_id)=>{ return await followerPostModel.findOne({ post_id }); }))
+    // console.log('follower_post : ', follower_post)
+
+    let fp = []
+    follower_post.map((itm)=>{ 
+      if ( itm !== null ){
+        fp = [...fp, {"post_id": itm.post_id, 'follower': itm.follower.toObject()} ]
+      }
+    })
+    
+    return res.status(200).send({'result': true, 'follower_post': JSON.stringify(fp)});
+  } catch (err) {
+    console.log(err)
+    return res.status(500).send({'result': false, errors: err});
+  }
+});
+
 
 // my_apps
 app.post('/api/my_apps', async (req, res) => {
@@ -209,6 +229,74 @@ app.post('/api/my_apps', async (req, res) => {
   }
 });
 
+// follower_post
+
+async function onFollowerPost(uid, id_follow_up, unique_id, owner_id) {
+  try {
+
+    console.log('onFollowerPost > ', uid, id_follow_up, unique_id, owner_id)
+    if(!uid || !id_follow_up || !unique_id || !owner_id){    
+      return false;
+    }else{
+
+      // followerPostModel
+      let followerPost = await followerPostModel.findOne({ post_id: id_follow_up });
+
+      var follower =[]
+      if ( followerPost === null ){
+        await new followerPostModel({ post_id: id_follow_up, follower: [uid]}).save()
+      
+        follower = [uid]
+      }else{
+        follower = followerPost.follower.toObject();
+        
+        if(follower.includes(uid)){
+          follower = follower.filter((v) => {return v != uid})
+
+        }else{
+          follower = [...follower, uid]
+        }
+
+        console.log('follower > ', follower)
+        let _followerPostModel = await  followerPostModel.findOneAndUpdate({ post_id: id_follow_up }, { post_id: id_follow_up, follower }, { new: true, upsert: true });
+        // if ( _followerPostModel !== null ){
+          // follower.map( async (_uid, i) => {
+          //    console.log('_uid, i :', _uid, i)
+            let fss = await socketsModel.find({ uid:owner_id });
+            if ( fss !== null ){
+              // case uid have muli devices
+              fss.map((obj, i) => {
+                if(obj.socketId){
+                  io.to(obj.socketId).emit('follower_post', JSON.stringify({'post_id': id_follow_up, 'follower':follower}) );
+                }
+              })
+            }
+          // })
+        // }
+        
+      }  
+
+      let fss = await socketsModel.find({ uid:owner_id });
+      if ( fss !== null ){
+        // case uid have muli devices
+        fss.map((obj, i) => {
+          if(obj.socketId){
+            io.to(obj.socketId).emit('follower_post', JSON.stringify({'post_id': id_follow_up, 'follower':follower}) );
+          }
+        })
+      }
+
+      return true;
+    }
+    return true;
+  } catch(err) {
+    console.err(err);
+
+    return false;
+  }
+}
+
+
 // Mapping objects to easily map sockets and users.
 var clients = {};
 // var users = [];
@@ -222,7 +310,7 @@ var clients = {};
 // For this example purpose, there is only one chatroom;
 var chatId = 1;
 
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
   let handshake = socket.handshake;
   console.log(handshake.query.unique_id)
 
@@ -238,46 +326,13 @@ io.on('connection', (socket) => {
   socket.emit('message', { unique_id: unique_id });
 
   clients[socket.id] = socket;
-  // socket.on('userJoined', (userId) => onUserJoined(userId, socket));
-  // socket.on('message', (message) => onMessageReceived(message, socket));
-  // db.collection('sockets').findOne({
-  //   uniqueId: unique_id
-  // }, function(err, doc) {
-  //   if(!err){
-  //     if(doc){
-  //       db.collection('sockets').remove( { socketId:doc.socketId }, function (err, message) {
-  //         console.log(err)
-  //         console.log(message.ok)
-  //       })
-  //     }
-
-  //     var socketData = {
-  //       uniqueId: unique_id,
-  //       socketId: socket.id,
-  //       platform,
-  //       createdAt: new Date(),
-  //     }
-
-  //     db.collection('sockets').insert(socketData, (err, message) => {
-  //         console.log(err)
-  //         console.log(message)
-  //     })
-  //   }
-  // })
-
-  // var _sockets = await sockets.findOne({ uniqueId: unique_id });
-  // console.log(_sockets)
-
-  // `doc` is the document _after_ `update` was applied because of
-  // `new: true`
   
-  socketsModel.findOneAndUpdate({ uniqueId: unique_id }, { uniqueId: unique_id, socketId: socket.id, platform, uid: (uid !== undefined  ? uid : 0) }, {
-    new: true,
-    upsert: true 
-  },function( error, result){
-    // In this moment, you recive a result object or error
-    console.log(result)
-  });
+  let fss = await  socketsModel.findOneAndUpdate({ uniqueId: unique_id }, { uniqueId: unique_id, socketId: socket.id, platform, uid: (uid !== undefined  ? uid : 0) }, {
+              new: true,
+              upsert: true 
+            });
+
+  console.log('connection ', socket.id, unique_id, fss)
 
   socket.on('disconnect', () => {
     // users = users.splice(users.indexOf(unique_id), 1); 

@@ -1,7 +1,9 @@
 const axios = require('axios');
 
 import {API_URL} from "../constants"
-import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE, FOLLOW_UP, FETCH_MY_APPS, ADD_HISTORY, DELETE_HISTORY } from '../constants/app';
+import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE, 
+         FOLLOW_UP, FETCH_MY_APPS, ADD_HISTORY, 
+         DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST } from '../constants/app';
 
 const _dataUserLogin = data => ({
   type: USER_LOGIN,
@@ -36,6 +38,18 @@ const _addHistory = data => ({
 
 const _deleteHistory = data => ({
   type: DELETE_HISTORY,
+  data,
+});
+
+// ADD_FOLLOWER_POST
+const _addfollowerPost = data => ({
+  type: ADD_FOLLOWER_POST,
+  data,
+});
+
+// FOLLOWER_POST
+const _followerPost = data => ({
+  type: FOLLOWER_POST,
   data,
 });
 
@@ -101,4 +115,12 @@ export const addHistory = (data) => dispatch => {
 
 export const deleteHistory = (data) => dispatch => {
   dispatch(_deleteHistory(data));
+}
+
+export const addfollowerPost = (data) => dispatch => {
+  dispatch(_addfollowerPost(data));
+}
+
+export const followerPost = (data) => dispatch => {
+  dispatch(_followerPost(data));
 }

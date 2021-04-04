@@ -30,7 +30,7 @@ import {API_URL, API_TOKEN} from "./constants"
 import Spinner from 'react-native-loading-spinner-overlay';
 import Toast, {DURATION} from 'react-native-easy-toast'
 import { ValidateEmail, isEmpty, Base64 } from './Utils'
-import { userLogin, followUp, fetchMyApps } from './actions/user';
+import { userLogin, followUp, fetchMyApps, addfollowerPost } from './actions/user';
 
 class LoginScreen extends Component {
   constructor(props) {
@@ -69,12 +69,14 @@ class LoginScreen extends Component {
       })
       .then(function (response) {
         let results = response.data
-        // console.log('/api/login : ', results)
+        console.log('/api/login : ', results, results.result)
         
-        if(results.result){ 
+        console.log('cccc : ', typeof results.result);
+        if(results.result === true){ 
           _this.props.userLogin(results.user)
           _this.props.followUp(JSON.parse(results.follow_ups)) // follow_ups
           _this.props.fetchMyApps(results.user.basic_auth)
+          _this.props.addfollowerPost(JSON.parse(results.follower_post))
 
           _this.setState({spinner: false}) 
           navigation.pop();
@@ -85,6 +87,8 @@ class LoginScreen extends Component {
         }
       })
       .catch(function (error) {
+
+        console.log(error)
         _this.setState({spinner: false})
       });
     }
@@ -214,7 +218,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = {
   userLogin,
   followUp,
-  fetchMyApps
+  fetchMyApps,
+  addfollowerPost
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginScreen)

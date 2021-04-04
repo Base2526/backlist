@@ -128,7 +128,7 @@ class ResultScreen extends Component {
       // console.log()
       if(results.result){
         // true
-        // console.log('result search : ', results);
+        console.log('result search : ', results);
         // console.log(results);
 
         let {execution_time, datas, count} = results;
@@ -190,7 +190,8 @@ class ResultScreen extends Component {
                     axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
                       uid: cL.uid,
                       id_follow_up: item.id,
-                      unique_id: getUniqueId()
+                      unique_id: getUniqueId(),
+                      owner_id: item.owner_id
                     }, {
                       headers: { 
                         'Content-Type': 'application/json',

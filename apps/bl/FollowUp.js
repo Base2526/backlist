@@ -67,18 +67,21 @@ class FollowUp extends Component {
   }
      
   componentDidMount() {
+    
+    let { navigation, route, follower_post} = this.props;
+
+    let data =  route.params.data;
+
+    let fp = follower_post.find((im)=>{ return String(im.post_id) === String(data.id) })
+
+    if(isEmpty(fp)){
+      return;
+    }
+
     let _this = this
-
-    let {data, follow_ups} = this.props
-    // 
-    // let new_data = data.filter(item => (follow_ups.includes(item.id)))
-
-    // console.log('follow_ups > ', follow_ups)
-
     let {basic_auth} = this.props.user
-
-    axios.post(`${API_URL}/api/fetch_post_by_id?_format=json`, {
-      data: JSON.stringify(follow_ups)
+    axios.post(`${API_URL}/api/fetch_profile_by_id?_format=json`, {
+      data: JSON.stringify(fp.follower)
     }, {
       headers: { 
         'Authorization': `Basic ${basic_auth}` 
@@ -86,10 +89,13 @@ class FollowUp extends Component {
     })
     .then(function (response) {
       let results = response.data
+      console.log('results >> : ', results)
       if(results.result){
         let {datas} = results
 
-        _this.props.fetchData(datas)
+        // _this.props.fetchData(datas)
+
+        _this.setState({data: datas})
       }
     })
     .catch(function (error) {
@@ -100,32 +106,71 @@ class FollowUp extends Component {
   }
 
   componentDidUpdate(prevProps){
-    if(!compare2Arrays(prevProps.follow_ups, this.props.follow_ups)){
+    if(!compare2Arrays(prevProps.follower_post, this.props.follower_post)){
         this.updateNavigation()
     }
   }
 
   updateNavigation(){
-    let { navigation, follow_ups} = this.props;
+    let { navigation, route, follower_post} = this.props;
+
+    let data =  route.params.data;
+    let fp = follower_post.find((im)=>{ return String(im.post_id) === String(data.id) })
+
+    if(isEmpty(fp)){
+      navigation.pop();
+      return;
+    }
     navigation.setOptions({
-      title: 'Follow up (' + follow_ups.length + ')', 
+      title: 'Follow up (' + fp.follower.length + ')', 
     })
   }
 
   renderItem = (item) =>{
-    let { navigation, follow_ups } = this.props;
+    let { navigation } = this.props;
 
     let _this = this
     let _menu = null
 
-    console.log('follow_ups : ', follow_ups)
+
+    return(<TouchableOpacity
+            style={{
+              margin:5,
+              // padding:10,
+              backgroundColor:"#FFF",
+              borderRadius:5
+            }}>
+            <View style={{flexDirection:'row', margin:10}}>
+              <View style={{}}>
+              {isEmpty(item.image_url)? <Ionicons name="person-outline" size={30} style={{borderWidth:.3, borderColor:'gray', borderRadius: 20, padding: 5 }}/> : 
+                                                                                            <FastImage
+                                                                                              style={{ width:40, height:40,  borderRadius: 20, borderWidth:.3, borderColor:'gray'}}
+                                                                                              source={{
+                                                                                                  uri: item.image_url,
+                                                                                                  headers: { Authorization: 'someAuthToken' },
+                                                                                                  priority: FastImage.priority.normal,
+                                                                                              }}
+                                                                                              resizeMode={FastImage.resizeMode.cover}
+                                                                                              />}
+                
+              </View>
+              <View style={{flexDirection:'row', flex:1, paddingLeft:10}}>
+                <Text style={{fontWeight:"bold", fontSize:18}}>ชื่อ:</Text>
+                <TouchableOpacity>
+                  <Text style={{color:'gray', fontSize:18}}>{item.name}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableOpacity>)
+
+    // console.log('follow_ups : ', follow_ups)
     return (
         <TouchableOpacity 
-            key={Math.floor(Math.random() * 100) + 1}
-            style={styles.listItem}
-            onPress={()=>{
-              navigation.navigate('detail', {data:item})
-            }}>
+          key={Math.floor(Math.random() * 100) + 1}
+          style={styles.listItem}
+          onPress={()=>{
+            navigation.navigate('detail', {data:item})
+          }}>
           <View style={{flex:1}}>
             <View style={{flexDirection:'row'}}>
               <View style={{position:'absolute', right: 0, flexDirection:'row'}}>
@@ -137,7 +182,8 @@ class FollowUp extends Component {
                       axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
                         uid: cL.uid,
                         id_follow_up: item.id,
-                        unique_id: getUniqueId()
+                        unique_id: getUniqueId(),
+                        owner_id: item.owner_id
                       }, {
                         headers: { 
                           'Content-Type': 'application/json',
@@ -210,7 +256,7 @@ class FollowUp extends Component {
   }
 
   render(){
-    const { navigation, data } = this.props;
+    let { data } = this.state;
     return (<View style={styles.container}>
               <FlatList
                   ref={(ref) => this.flatlistref = ref}
@@ -218,14 +264,7 @@ class FollowUp extends Component {
                   data={data}
                   renderItem={({ item }) => this.renderItem(item)}
                   enableEmptySections={true}
-                  // ListFooterComponent={this.renderFooter()}
                   keyExtractor={(item, index) => String(index)}
-                  // refreshControl={
-                  //   <RefreshControl
-                  //       refreshing={this.state.refreshing}
-                  //       onRefresh={this.refresh}
-                  //   />
-                  // }
               />
               </View>)
   }
@@ -310,13 +349,9 @@ const mapStateToProps = state => {
   return{
     data: state.app.data.filter(item => (state.user.follow_ups.includes(item.id))),
     user: state.user.data,
-    follow_ups: state.user.follow_ups
+    follow_ups: state.user.follow_ups,
+    follower_post: state.user.follower_post
   }
 }
 
-// fetchData
-const mapDispatchToProps = {
-  fetchData
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(FollowUp)
+export default connect(mapStateToProps, null)(FollowUp)

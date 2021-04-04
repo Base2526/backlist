@@ -25,7 +25,7 @@ import {
 } from 'react-native';
 
 import { connect } from 'react-redux';
-
+import Toast, {DURATION} from 'react-native-easy-toast'
 import ReactNativeModal from 'react-native-modal';
 
 import {
@@ -52,7 +52,7 @@ import ReadMore from '@fawazahmed/react-native-read-more';
 
 import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID} from "./constants"
 
-import { Base64, compare2Arrays } from './Utils'
+import { Base64, compare2Arrays, isEmpty } from './Utils'
 
 import { fetchData } from './actions/app';
  
@@ -123,10 +123,21 @@ class MyPost extends Component {
     }
 
     renderItem = (item) =>{
-      let { navigation, route } = this.props;
+      let { navigation, route, follower_post } = this.props;
 
       let _this = this
       let _menu = null
+
+      
+      let fp = follower_post.find((im)=>{ return String(im.post_id) === String(item.id) })
+      let text_follow_up = `Follow up`;
+      if(!isEmpty(fp)){
+        let flength= fp.follower.length; 
+        // console.log(fp)
+        text_follow_up = flength === 0 ? `Follow up` : `Follow (${flength})` //String("Follow up" +  c) ;
+      }
+
+      // console.log('text_follow_up : ', text_follow_up)
 
       return (
           <TouchableOpacity 
@@ -165,12 +176,18 @@ class MyPost extends Component {
                       <MenuItem onPress={() => {
                             _menu.hide();
 
-                            navigation.navigate('follow_up')
+                            if(isEmpty(fp)){
+                              _this.toast.show('Empty follow up');
+                            }else{
+                              navigation.navigate('follow_up', {data:item})
+                            }
+                            
                           }} style={{flex:1, justifyContent:'center'}}>
-                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
                           <Ionicons style={{justifyContent:'center', alignItems: 'center', marginRight:5}}  name="people-outline" size={25} color={'gray'} />
-                          <Text style={{ textAlign: 'center' }}>Follow up</Text>
+                          <Text style={{ textAlign: 'center' }}>{text_follow_up}</Text>
                         </View>
+                        {/*      */}
                       </MenuItem>
 
                       <MenuItem onPress={() => {
@@ -290,15 +307,16 @@ class MyPost extends Component {
                     data={data}
                     renderItem={({ item }) => this.renderItem(item)}
                     enableEmptySections={true}
-                    // ListFooterComponent={this.renderFooter()}
                     keyExtractor={(item, index) => String(index)}
-                    // refreshControl={
-                    //   <RefreshControl
-                    //       refreshing={this.state.refreshing}
-                    //       onRefresh={this.refresh}
-                    //   />
-                    // }
                   />
+                   <Toast
+                    ref={(toast) => this.toast = toast}
+                    position='bottom'
+                    positionValue={200}
+                    fadeInDuration={750}
+                    fadeOutDuration={1000}
+                    opacity={0.8}
+                    />
 
                   <ActionButton
                     buttonColor="rgba(231,76,60,1)"
@@ -377,7 +395,8 @@ const mapStateToProps = state => {
   return{
     data: state.app.data.filter(item => (state.user.my_apps.includes(item.id))),
     user: state.user.data,
-    my_apps: state.user.my_apps
+    my_apps: state.user.my_apps,
+    follower_post: state.user.follower_post
   }
 }
 

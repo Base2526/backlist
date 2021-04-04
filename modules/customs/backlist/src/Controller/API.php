@@ -134,7 +134,7 @@ class API extends ControllerBase {
 
           // /api/login , unique_id
 
-          // ------------
+          // ---------------- follow_ups -----------------
           $data_obj = [
             "uid" => $uid,
             "unique_id" => $unique_id
@@ -173,12 +173,79 @@ class API extends ControllerBase {
             $body = substr($response, $header_size);
             $body = json_decode($body);
 
-            $response_array['follow_ups'] = $body->followUps;
+            if($body->result){
+              $response_array['follow_ups'] = $body->followUps;
+            }
           }
           curl_close($ch);
 
-          // ------------
+          // ---------------- follow_ups -----------------
 
+
+          // ---------------- follower_post -----------------
+
+          $response_array['follower_post'] =array();
+
+          // $storage = \Drupal::entityTypeManager()->getStorage('node');
+          $storage = $this->entityTypeManager->getStorage('node');
+          $query   = $storage->getQuery();
+          // $query->condition('status', \Drupal\node\NodeInterface::PUBLISHED);
+          $query->condition('type', 'back_list');
+
+          $query->condition('uid', $uid);
+          $posts = array_values($query->execute());
+
+          if(!empty($posts)){
+            // /api/follower_post
+            $data_obj = [
+              "posts" => $posts
+            ];
+            $ch = curl_init();
+            curl_setopt_array($ch, array(
+              CURLOPT_URL => "http://143.198.223.146:3000/api/follower_post",
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_HEADER => true,
+              //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => "POST",
+              CURLOPT_POSTFIELDS => json_encode($data_obj),
+              CURLOPT_HTTPHEADER => array(
+                // "Authorization: Basic " . $basic_auth,
+                "Accept: application/json",
+                "Content-Type: application/json",
+              ),
+            ));
+
+            $response = curl_exec($ch);
+            // dpm($response);
+            // \Drupal::logger('Login : response')->notice( serialize($response) );
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            // dpm($httpcode);
+            // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
+
+            // \Drupal::logger('Login : response')->notice( serialize($response) );
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            // dpm($httpcode);
+            // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
+
+            if($httpcode == 200){
+              // $response = json_decode($response);
+              $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+              $header = substr($response, 0, $header_size);
+              $body = substr($response, $header_size);
+              $body = json_decode($body);
+
+              if($body->result){
+                $response_array['follower_post'] = $body->follower_post;
+              }
+            }
+            curl_close($ch);
+          }
+
+          
+          
+          // ---------------- follower_post -----------------
+
+          
           // ------------
           $storage = $this->entityTypeManager->getStorage('node');
           $query   = $storage->getQuery();
@@ -841,8 +908,8 @@ class API extends ControllerBase {
       // dpm( Utils::get_file_uri($imv['target_id']) );
       // $images[] = Utils::get_file_url($imv['target_id']);
 
-      $images['medium'][]    = Utils::ImageStyle_BN($imv['target_id'], 'bn_medium') ;
-      $images['thumbnail'][] = Utils::ImageStyle_BN($imv['target_id'], 'bn_thumbnail') ;
+      $images['medium'][]    = array('fid'=>$imv['target_id'], 'url'=> Utils::ImageStyle_BN($imv['target_id'], 'bn_medium')) ;
+      $images['thumbnail'][] = array('fid'=>$imv['target_id'], 'url'=> Utils::ImageStyle_BN($imv['target_id'], 'bn_thumbnail')) ;
     }
     $data['images']  = $images;
 
@@ -1015,6 +1082,7 @@ class API extends ControllerBase {
 
       // $basic_auth     = trim( $_REQUEST['basic_auth'] );
 
+      $nid        = trim( $_REQUEST['nid'] );            // new/edit
       $product_type   = trim( $_REQUEST['product_type'] );       // สินค้า/ประเภท
       $transfer_amount= trim( $_REQUEST['transfer_amount'] );    // ยอดเงิน
       $person_name    = trim( $_REQUEST['person_name'] );        // ชื่อบัญชี ผู้รับเงินโอน
@@ -1126,26 +1194,103 @@ class API extends ControllerBase {
       $images         = $content['images'];                     // รูปภาพประกอบ
       */
       
-      $node = Node::create([
-        'type'                   => 'back_list',
-        'uid'                    => \Drupal::currentUser()->id(),
-        'status'                 => 1,
-        'field_channel'          => 32,                // ถูกสร้างผ่านช่องทาง 31: Web, 32: Api
+      if(!empty($nid)){
+        $node = Node::load($nid);
+        $node->setChangedTime((new \DateTime('now'))->getTimestamp());
 
-        'title'                  => $product_type,     // สินค้า/ประเภท
-        'field_transfer_amount'  => $transfer_amount,  // ยอดเงิน
-        'field_sales_person_name'=> $person_name,      // ชื่อบัญชี ผู้รับเงินโอน
-        'field_sales_person_surname' => $person_surname, // นามสกุล ผู้รับเงินโอน
-        'field_id_card_number'    => $id_card_number,  // เลขบัตรประชาชนคนขาย
-        'field_selling_website'   => $selling_website, // เว็บไซด์ประกาศขายของ
-        'field_transfer_date'     => date('Y-m-d',  $transfer_date),   // วันโอนเงิน
-        'body'                    => $details,         // หมายเหตุ
-        'field_merchant_bank_account' => $merchant_bank_account_paragraphs, // บัญชีธนาคารคนขาย
-        'field_images'            => $images_fids      // รูปภาพประกอบ
-      ]);
-      $node->save();
+        if( strcmp($node->label(), $product_type) != 0 ){
+          $node->title = $product_type;
+        }
+
+        $field_transfer_amount = $node->field_transfer_amount->getValue();
+        if(!empty($field_transfer_amount)){
+          $field_transfer_amount = $field_transfer_amount[0]['value'];
+
+          if( strcmp($field_transfer_amount, $transfer_amount) != 0 ){
+            $node->field_transfer_amount = $transfer_amount;
+          }
+        }else{
+          $node->field_transfer_amount = $transfer_amount;
+        }
+
+        $field_sales_person_name = $node->field_sales_person_name->getValue();
+        if(!empty($field_sales_person_name)){
+          $field_sales_person_name = $field_sales_person_name[0]['value'];
+
+          if( strcmp($field_sales_person_name, $person_name) != 0 ){
+            $node->field_sales_person_name = $person_name;
+          }
+        }else{
+          $node->field_sales_person_name = $person_name;
+        }
+
+        $field_sales_person_surname = $node->field_sales_person_surname->getValue();
+        if(!empty($field_sales_person_surname)){
+          $field_sales_person_surname = $field_sales_person_surname[0]['value'];
+
+          if( strcmp($field_sales_person_surname, $person_surname) != 0 ){
+            $node->field_sales_person_surname = $person_surname;
+          }
+        }else{
+          $node->field_sales_person_surname = $person_surname;
+        }
+
+        $field_id_card_number = $node->field_id_card_number->getValue();
+        if(!empty($field_id_card_number)){
+          $field_id_card_number = $field_id_card_number[0]['value'];
+
+          if( strcmp($field_id_card_number, $id_card_number) != 0 ){
+            $node->field_id_card_number = $id_card_number;
+          }
+        }else{
+          $node->field_id_card_number = $id_card_number;
+        }
 
 
+        $field_selling_website = $node->field_selling_website->getValue();
+        if(!empty($field_selling_website)){
+          $field_selling_website = $field_selling_website[0]['value'];
+
+          if( strcmp($field_selling_website, $selling_website) != 0 ){
+            $node->field_selling_website = $selling_website;
+          }
+        }else{
+          $node->field_selling_website = $selling_website;
+        }
+
+        $body = $node->body->getValue();
+        if(!empty($body)){
+          $body = $body[0]['value'];
+          if( strcmp($body, $details) != 0 ){
+            $node->body = $details;
+          }
+        }else{
+          $node->body = $details;
+        }
+
+        $node->save();
+
+      }else{
+        $node = Node::create([
+          'type'                   => 'back_list',
+          'uid'                    => \Drupal::currentUser()->id(),
+          'status'                 => 1,
+          'field_channel'          => 32,                // ถูกสร้างผ่านช่องทาง 31: Web, 32: Api
+  
+          'title'                  => $product_type,     // สินค้า/ประเภท
+          'field_transfer_amount'  => $transfer_amount,  // ยอดเงิน
+          'field_sales_person_name'=> $person_name,      // ชื่อบัญชี ผู้รับเงินโอน
+          'field_sales_person_surname' => $person_surname, // นามสกุล ผู้รับเงินโอน
+          'field_id_card_number'    => $id_card_number,  // เลขบัตรประชาชนคนขาย
+          'field_selling_website'   => $selling_website, // เว็บไซด์ประกาศขายของ
+          'field_transfer_date'     => date('Y-m-d',  $transfer_date),   // วันโอนเงิน
+          'body'                    => $details,         // หมายเหตุ
+          'field_merchant_bank_account' => $merchant_bank_account_paragraphs, // บัญชีธนาคารคนขาย
+          'field_images'            => $images_fids      // รูปภาพประกอบ
+        ]);
+        $node->save();
+      }
+      
       // ------------
       $data_obj = [
         "uid" => \Drupal::currentUser()->id()
@@ -1357,8 +1502,8 @@ class API extends ControllerBase {
           try {
             foreach ($result->getField('field_images')->getValues() as $imi=>$imv){
               // $images[] = Utils::get_file_url($imv) ;
-              $images['medium'][]    = Utils::ImageStyle_BN($imv, 'bn_medium') ;
-              $images['thumbnail'][] = Utils::ImageStyle_BN($imv, 'bn_thumbnail') ;
+              $images['medium'][]    = array('fid'=>$imv, 'url'=> Utils::ImageStyle_BN($imv, 'bn_medium')) ;
+              $images['thumbnail'][] = array('fid'=>$imv, 'url'=> Utils::ImageStyle_BN($imv, 'bn_thumbnail')) ;
 
               \Drupal::logger('SearchApi')->notice($imv);
             }
@@ -1676,39 +1821,15 @@ class API extends ControllerBase {
       $time1          = microtime(true);
 
       $content = json_decode( $request->getContent(), TRUE );
-      // $chioce  = json_decode($content['chioce']);
-      // $message = trim( $content['message'] );
-
-      $data = json_decode($content['data']);
-
-      /*
-      $storage = $this->entityTypeManager->getStorage('node');
-      $query   = $storage->getQuery();
-      // $query->condition('status', \Drupal\node\NodeInterface::PUBLISHED);
-      $query->condition('type', 'back_list');
-
-      $query->condition('uid', \Drupal::currentUser()->id());
-      $nids = $query->execute();
-
-      $datas = array();
-      foreach ($storage->loadMultiple($nids) as $node) {
-        $datas[] = API::GetFieldNode($node);
-      }
-      */
-
-
-      $datas = array();
+      $data    = json_decode($content['data']);
+      $datas   = array();
       foreach ($data as $nid) {
         $datas[] = API::GetFieldNode(Node::load($nid));
       }
 
-      // dpm(count($nids));
-
       $response_array['result']           = TRUE;
       $response_array['execution_time']   = microtime(true) - $time1;
-      // $response_array['uid']              = \Drupal::currentUser()->id();
-      // $response_array['session']          = \Drupal::service('session')->getId();
-      $response_array['datas']               = $datas;
+      $response_array['datas']            = $datas;
       return new JsonResponse( $response_array );
 
     } catch (\Throwable $e) {
@@ -1719,4 +1840,44 @@ class API extends ControllerBase {
       return new JsonResponse( $response_array );
     }
   }
+
+  public function FetchProfileById(Request $request){
+    $response_array = array();
+    try {
+      $time1          = microtime(true);
+
+      $content = json_decode( $request->getContent(), TRUE );
+      $data    = json_decode($content['data']);
+      $datas   = array();
+      foreach ($data as $uid) {
+        $user = User::load($uid);
+        $name    = $user->getDisplayName();
+        $email   = $user->getEmail();
+        $image_url = '';  
+        if (!$user->get('user_picture')->isEmpty()) {
+          $image_url = file_create_url($user->get('user_picture')->entity->getFileUri());
+        }
+
+        $datas[] = array(
+                  'uid'       =>  $uid,
+                  'name'      =>  $name,
+                  'email'     =>  $email,
+                  'image_url' =>  $image_url
+                );
+      }
+
+      $response_array['result']           = TRUE;
+      $response_array['execution_time']   = microtime(true) - $time1;
+      $response_array['datas']            = $datas;
+      return new JsonResponse( $response_array );
+
+    } catch (\Throwable $e) {
+      \Drupal::logger('SearchApi')->notice($e->__toString());
+
+      $response_array['result']   = FALSE;
+      $response_array['message']  = $e->__toString();
+      return new JsonResponse( $response_array );
+    }
+  }
+
 }

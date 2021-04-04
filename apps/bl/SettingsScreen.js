@@ -357,7 +357,7 @@ class SettingsScreen extends Component {
                     hasNavArrow={false}
                     onPress={()=>{
                         // navigation.navigate('inappbrowser')
-                        this.openLink('https://banlist.info/node/151')
+                        this.openLink('http://banlist.info/node/151')
                     }}/>
                 <SettingsList.Item
                     icon={
@@ -371,7 +371,7 @@ class SettingsScreen extends Component {
                     hasNavArrow={false}
                     onPress={()=>{
                         // navigation.navigate('inappbrowser')
-                        this.openLink('https://banlist.info/node/149')
+                        this.openLink('http://banlist.info/node/149')
                     }}/>
                 <SettingsList.Item
                     icon={
@@ -384,7 +384,7 @@ class SettingsScreen extends Component {
                     titleStyle={{color:'black', fontSize: 16}}
                     title='About'
                     onPress={()=>{
-                        this.openLink('https://banlist.info/node/150')
+                        this.openLink('http://banlist.info/node/150')
                     }}/>
             </SettingsList>    
             {this.modalLogin()}

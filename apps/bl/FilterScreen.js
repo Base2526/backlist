@@ -102,7 +102,7 @@ class FilterScreen extends Component {
         })
         .then(function (response) {
             let results = response.data
-            // console.log('FilterScreen : ', results)
+            console.log('FilterScreen : ', results)
             if(results.result){
                 // true
                 // console.log('true');
@@ -111,7 +111,6 @@ class FilterScreen extends Component {
                 let {execution_time, datas, count} = results;
                 // console.log(execution_time);
                 // console.log(count);
-                // console.log(datas);
     
                 if(datas && datas.length > 0){
                     _this.setState({execution_time, datas:[ ..._this.state.datas, ...datas], count, loading: false});
@@ -138,7 +137,7 @@ class FilterScreen extends Component {
         let _this = this
 
         // console.log(item)
-        console.log('follow_ups : ', follow_ups, item.id )
+        // console.log('follow_ups : ', follow_ups, item.id )
         return (
             <TouchableOpacity 
                 key={item.id}
@@ -159,24 +158,25 @@ class FilterScreen extends Component {
                                 this.setState({ bottomModalAndTitle: true })
                             }else{
                                 axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
-                                uid: cL.uid,
-                                id_follow_up: item.id,
-                                unique_id: getUniqueId()
+                                    uid: cL.uid,
+                                    id_follow_up: item.id,
+                                    unique_id: getUniqueId(),
+                                    owner_id: item.owner_id
                                 }, {
                                 headers: { 
                                     'Content-Type': 'application/json',
                                 }
                                 })
                                 .then(function (response) {
-                                let {result, message} = response.data
+                                    let {result, message} = response.data
 
-                                // console.log('message :', message)
-                                if(result){
+                                    // console.log('message :', message)
+                                    if(result){
 
-                                }else{
-                                    
-                                }
-                                _this.toast.show(message);
+                                    }else{
+                                        
+                                    }
+                                    _this.toast.show(message);
                                 })
                                 .catch(function (error) {
                                 console.log('error :', error)

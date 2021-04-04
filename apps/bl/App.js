@@ -75,7 +75,7 @@ import { Base64, checkLogin, isEmpty} from './Utils'
 
 import {store, persistor} from './reduxStore'
 
-import { fetchProfile, followUp, fetchMyApps } from './actions/user';
+import { fetchProfile, followUp, fetchMyApps, followerPost } from './actions/user';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -270,21 +270,6 @@ function MeStackScreen({navigation, route}) {
   );
 }
 
-function ProfileStackScreen() {
-  return (
-    <ProfileStack.Navigator
-      screenOptions={{
-        headerShown: false
-      }}
-    >
-      <ProfileStack.Screen 
-        options={{ title: 'Profile', tabBarVisible: false, }}
-        name="Profile" component={Profile} 
-      />
-    </ProfileStack.Navigator>
-  )
-}
-
 let socket;
 class App extends Component {
 
@@ -330,17 +315,17 @@ class App extends Component {
 
     // let API_URL_SOCKET_IO='http://localhost:3000'
     let cL = this.props.user
-    // console.log('cL : ', cL)
+    console.log('API_URL_SOCKET_IO : ', API_URL_SOCKET_IO())
     if(!isEmpty(cL)){    
       socket = io(API_URL_SOCKET_IO(), { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${getUniqueId()}&version=${getVersion()}&uid=${cL.uid}` });
     }else{
       socket = io(API_URL_SOCKET_IO(), { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${getUniqueId()}&version=${getVersion()}` });
     }
-    
     socket.on('message', this.onSocketMessage);
     socket.on('update_profile', this.onSocketUpdateProfile)
     socket.on('follow_up', this.onSocketFollowUp)
     socket.on('my_apps', this.onSocketMyApps)
+    socket.on('follower_post', this.onFollowerPost)
   }
 
   offSocket = () =>{
@@ -348,6 +333,7 @@ class App extends Component {
     socket.off('update_profile', this.onSocketUpdateProfile)
     socket.off('follow_up', this.onSocketFollowUp)
     socket.off('my_apps', this.onSocketMyApps)
+    socket.off('follower_post', this.onFollowerPost)
   }
 
   onSocketMessage = (data) => {
@@ -371,6 +357,11 @@ class App extends Component {
     this.props.fetchMyApps(this.props.user.basic_auth)
   }
 
+  onFollowerPost = (data) => {
+    console.log('onFollowerPost >>>> ', JSON.parse(data))
+    this.props.followerPost(JSON.parse(data))
+  }
+
   render(){
     if(isEmpty(store)){
       console.log('store >> ', store)
@@ -379,8 +370,6 @@ class App extends Component {
     
     return(
       <View style={{flex:1}}>
-      {/* <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}> */}
         <NavigationContainer>
           <Tab.Navigator
           screenOptions={({ route }) => ({
@@ -405,33 +394,31 @@ class App extends Component {
               //     console.log("button pressed : Home")
               //   },
               // })}
+              listeners={({ navigation, route }) => ({
+                tabPress: (e) => {
+                  console.log('Home', e)
+                }
+              })}
               />
             <Tab.Screen 
               name="Setting" 
               component={MeStackScreen} 
-              // listeners={({ navigation, route }) => ({
-              //   tabPress: e => {
-              //     // e.preventDefault(); // Use this to navigate somewhere else
-              //     console.log("button pressed : Setting")
-              //   },
-              // })}
+              listeners={({ navigation, route }) => ({
+                tabPress: (e) => {
+                  // e.preventDefault(); // Use this to navigate somewhere else
+                  console.log("Setting", e)
+                },
+              })}
               />
-            {/* <Tab.Screen name="Profile" component={ProfileStackScreen} /> */}
           </Tab.Navigator>
-
           <Toast
             ref={(toast) => this.toast = toast}
             position='bottom'
             positionValue={220}
             fadeInDuration={750}
             fadeOutDuration={1000}
-            opacity={0.8}
-            />
-
-          {/* <ModalPortal /> */}
+            opacity={0.8}/>
         </NavigationContainer>
-      {/* </PersistGate>
-      </Provider> */}
       </View>
     )
   }
@@ -491,7 +478,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = {
   fetchProfile,
   followUp,
-  fetchMyApps
+  fetchMyApps,
+  followerPost
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

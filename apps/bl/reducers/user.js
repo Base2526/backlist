@@ -1,4 +1,6 @@
-import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE, FOLLOW_UP, FETCH_MY_APPS, ADD_HISTORY, DELETE_HISTORY } from '../constants/app';
+import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE, 
+         FOLLOW_UP, FETCH_MY_APPS, ADD_HISTORY, 
+         DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST } from '../constants/app';
 
 export const  mergeArrays = (...arrays) => {
   let jointArray = []
@@ -21,7 +23,8 @@ const initialState = {
   profile: [],
   follow_ups: [],
   my_apps: [],
-  historys: []
+  historys: [],
+  follower_post: []
 }
 
 export const user = (state = initialState, action) => {
@@ -61,6 +64,15 @@ export const user = (state = initialState, action) => {
     case DELETE_HISTORY: {
       let historys = state.historys.filter((item)=>{ return item !== action.data })
       return { ...state, historys }
+    }
+
+    case ADD_FOLLOWER_POST: {
+      return { ...state, follower_post:action.data }
+    }
+
+    case FOLLOWER_POST: {
+      let follower_post = state.follower_post.filter((item)=>{ return item.post_id !== action.data.post_id })
+      return { ...state, follower_post:[...follower_post, action.data] }
     }
    
     default:
