@@ -3967,9 +3967,6 @@ class Utils extends ControllerBase {
 
      ///////////////
   
-
-
-    
   }
 
   private static function Syc_Blacklistseller_Save($content){
@@ -4039,5 +4036,132 @@ class Utils extends ControllerBase {
       'field_id_blacklistseller'   => $id_blacklistseller
     ]);
     $node->save();
+  }
+
+  public static function node_login($uid, $unique_id){
+    $data_obj = [
+      "uid" => $uid,
+      "unique_id" => $unique_id
+    ];
+    $ch = curl_init();
+    curl_setopt_array($ch, array(
+      CURLOPT_URL => "http://143.198.223.146:3000/api/login",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_HEADER => true,
+      //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_POSTFIELDS => json_encode($data_obj),
+      CURLOPT_HTTPHEADER => array(
+        // "Authorization: Basic " . $basic_auth,
+        "Accept: application/json",
+        "Content-Type: application/json",
+      ),
+    ));
+
+    $response = curl_exec($ch);
+    // dpm($response);
+    // \Drupal::logger('Login : response')->notice( serialize($response) );
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    // dpm($httpcode);
+    // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
+
+    // \Drupal::logger('Login : response')->notice( serialize($response) );
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    // dpm($httpcode);
+    // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
+
+    if($httpcode == 200){
+      // $response = json_decode($response);
+      $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+      $header = substr($response, 0, $header_size);
+      $body = substr($response, $header_size);
+      $body = json_decode($body);
+
+      if($body->result){
+        return $body->followUps;
+      }
+    }
+
+    curl_close($ch);
+
+    return array();
+  }
+
+  public static function node_follower_post($posts){
+    $data_obj = [
+      "posts" => $posts
+    ];
+    $ch = curl_init();
+    curl_setopt_array($ch, array(
+      CURLOPT_URL => "http://143.198.223.146:3000/api/follower_post",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_HEADER => true,
+      //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_POSTFIELDS => json_encode($data_obj),
+      CURLOPT_HTTPHEADER => array(
+        // "Authorization: Basic " . $basic_auth,
+        "Accept: application/json",
+        "Content-Type: application/json",
+      ),
+    ));
+
+    $response = curl_exec($ch);
+    // dpm($response);
+    // \Drupal::logger('Login : response')->notice( serialize($response) );
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    // dpm($httpcode);
+    // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
+
+    // \Drupal::logger('Login : response')->notice( serialize($response) );
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    // dpm($httpcode);
+    // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
+
+    if($httpcode == 200){
+      // $response = json_decode($response);
+      $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+      $header = substr($response, 0, $header_size);
+      $body = substr($response, $header_size);
+      $body = json_decode($body);
+
+      if($body->result){
+        return $body->follower_post;
+      }
+    }
+
+    curl_close($ch);
+
+    return array();
+  }
+
+  public static function node_my_apps($uid){
+    $data_obj = [
+      "uid" => $uid
+    ];
+    $ch = curl_init();
+    curl_setopt_array($ch, array(
+      CURLOPT_URL => "http://143.198.223.146:3000/api/my_apps",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_HEADER => true,
+      //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_POSTFIELDS => json_encode($data_obj),
+      CURLOPT_HTTPHEADER => array(
+        // "Authorization: Basic " . $basic_auth,
+        "Accept: application/json",
+        "Content-Type: application/json",
+      ),
+    ));
+
+    $response = curl_exec($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if($httpcode == 200){
+      return true;
+    }
+
+    return false;
   }
 }

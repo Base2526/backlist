@@ -135,49 +135,7 @@ class API extends ControllerBase {
           // /api/login , unique_id
 
           // ---------------- follow_ups -----------------
-          $data_obj = [
-            "uid" => $uid,
-            "unique_id" => $unique_id
-          ];
-          $ch = curl_init();
-          curl_setopt_array($ch, array(
-            CURLOPT_URL => "http://143.198.223.146:3000/api/login",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HEADER => true,
-            //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => json_encode($data_obj),
-            CURLOPT_HTTPHEADER => array(
-              // "Authorization: Basic " . $basic_auth,
-              "Accept: application/json",
-              "Content-Type: application/json",
-            ),
-          ));
-
-          $response = curl_exec($ch);
-          // dpm($response);
-          // \Drupal::logger('Login : response')->notice( serialize($response) );
-          $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-          // dpm($httpcode);
-          // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
-
-          // \Drupal::logger('Login : response')->notice( serialize($response) );
-          $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-          dpm($httpcode);
-          // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
-
-          if($httpcode == 200){
-            // $response = json_decode($response);
-            $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-            $header = substr($response, 0, $header_size);
-            $body = substr($response, $header_size);
-            $body = json_decode($body);
-
-            if($body->result){
-              $response_array['follow_ups'] = $body->followUps;
-            }
-          }
-          curl_close($ch);
+          $response_array['follow_ups'] = Utils::node_login($uid, $unique_id);
 
           // ---------------- follow_ups -----------------
 
@@ -196,53 +154,9 @@ class API extends ControllerBase {
           $posts = array_values($query->execute());
 
           if(!empty($posts)){
-            // /api/follower_post
-            $data_obj = [
-              "posts" => $posts
-            ];
-            $ch = curl_init();
-            curl_setopt_array($ch, array(
-              CURLOPT_URL => "http://143.198.223.146:3000/api/follower_post",
-              CURLOPT_RETURNTRANSFER => true,
-              CURLOPT_HEADER => true,
-              //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-              CURLOPT_CUSTOMREQUEST => "POST",
-              CURLOPT_POSTFIELDS => json_encode($data_obj),
-              CURLOPT_HTTPHEADER => array(
-                // "Authorization: Basic " . $basic_auth,
-                "Accept: application/json",
-                "Content-Type: application/json",
-              ),
-            ));
-
-            $response = curl_exec($ch);
-            // dpm($response);
-            // \Drupal::logger('Login : response')->notice( serialize($response) );
-            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            // dpm($httpcode);
-            // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
-
-            // \Drupal::logger('Login : response')->notice( serialize($response) );
-            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            // dpm($httpcode);
-            // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
-
-            if($httpcode == 200){
-              // $response = json_decode($response);
-              $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-              $header = substr($response, 0, $header_size);
-              $body = substr($response, $header_size);
-              $body = json_decode($body);
-
-              if($body->result){
-                $response_array['follower_post'] = $body->follower_post;
-              }
-            }
-            curl_close($ch);
+            $response_array['follower_post'] = Utils::node_follower_post(  $posts );
           }
 
-          
-          
           // ---------------- follower_post -----------------
 
           
@@ -250,7 +164,7 @@ class API extends ControllerBase {
           $storage = $this->entityTypeManager->getStorage('node');
           $query   = $storage->getQuery();
           $query->condition('type', 'back_list');
-          $query->condition('uid', '59');
+          $query->condition('uid', $uid);
 
           $response_array['my_apps'] = json_encode(array_values($query->execute()));
           // ------------
@@ -1154,31 +1068,7 @@ class API extends ControllerBase {
       //   );
       // }
 
-      $images_fids = array();
-
-      $total = count($_FILES['files']['name']);
-      // Loop through each file
-      for( $i=0 ; $i < $total ; $i++ ) {
-
-        $target = 'sites/default/files/'. $_FILES['files']['name'][$i];
-        move_uploaded_file( $_FILES['files']['tmp_name'][$i], $target);
-
-        $file = file_save_data( file_get_contents( $target ), 'public://'. date('m-d-Y_hia') .'_'.mt_rand().'.png' , FileSystemInterface::EXISTS_REPLACE);
-
-        // $user = User::load($uid);
-        // if(!empty($user)){
-        //   $user->set('user_picture', $file->id());
-        //   $user->save();
-        // }
-
-        // $response_array['image_url']  =  file_create_url($file->getFileUri());
-
-        $images_fids[] = array(
-          'target_id' => $file->id(),
-          'alt' => '',
-          'title' => empty($_FILES['files']['name'][$i]) ? '' : $_FILES['files']['name'][$i]
-        );
-      }
+  
 
       // $response['images_fids']  = $images_fids;
       /*
@@ -1271,6 +1161,23 @@ class API extends ControllerBase {
         $node->save();
 
       }else{
+
+        $images_fids = array();
+        $total = count($_FILES['files']['name']);
+        // Loop through each file
+        for( $i=0 ; $i < $total ; $i++ ) {
+  
+          $target = 'sites/default/files/'. $_FILES['files']['name'][$i];
+          move_uploaded_file( $_FILES['files']['tmp_name'][$i], $target);
+  
+          $file = file_save_data( file_get_contents( $target ), 'public://'. date('m-d-Y_hia') .'_'.mt_rand().'.png' , FileSystemInterface::EXISTS_REPLACE);
+          $images_fids[] = array(
+            'target_id' => $file->id(),
+            'alt' => '',
+            'title' => empty($_FILES['files']['name'][$i]) ? '' : $_FILES['files']['name'][$i]
+          );
+        }
+
         $node = Node::create([
           'type'                   => 'back_list',
           'uid'                    => \Drupal::currentUser()->id(),
@@ -1291,35 +1198,11 @@ class API extends ControllerBase {
         $node->save();
       }
       
-      // ------------
-      $data_obj = [
-        "uid" => \Drupal::currentUser()->id()
-      ];
-      $ch = curl_init();
-      curl_setopt_array($ch, array(
-        CURLOPT_URL => "http://143.198.223.146:3000/api/my_apps",
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HEADER => true,
-        //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => "POST",
-        CURLOPT_POSTFIELDS => json_encode($data_obj),
-        CURLOPT_HTTPHEADER => array(
-          // "Authorization: Basic " . $basic_auth,
-          "Accept: application/json",
-          "Content-Type: application/json",
-        ),
-      ));
-  
-      $response = curl_exec($ch);
-      // dpm($response);
-      $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-      // dpm($httpcode);
-      curl_close($ch);
-
+      // ------------ noti to user and fetch all my_apps new
+      Utils::node_my_apps(\Drupal::currentUser()->id());
       // ------------
       
       $response_array['result']   = TRUE;
-      // $response_array['content']  = json_decode( $request->getContent(), TRUE );;
       $response_array['execution_time']   = microtime(true) - $time1;
       return new JsonResponse( $response_array );  
     } catch (\Throwable $e) {
@@ -1755,7 +1638,6 @@ class API extends ControllerBase {
     }
   }
 
-  // fetchMyPost
   public function FetchMyPost(Request $request){
     $response_array = array();
     try {
