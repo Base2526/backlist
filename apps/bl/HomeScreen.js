@@ -63,6 +63,7 @@ import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID, API_URL_SOCKET_IO} fro
 import { isEmpty } from './Utils'
 
 import { fetchData, fetchDataAll, checkFetchData, clearData } from './actions/app';
+import { Alert } from 'react-native';
 
 class MyListItem extends PureComponent {
 
@@ -472,6 +473,9 @@ class MyListItem extends PureComponent {
                     .catch(function (error) {
                       console.log('error :', error)
                       // _this.setState({loading: false})
+
+  
+                      toast.show(error.message);
                     });
                   }
                   
@@ -726,7 +730,12 @@ class HomeScreen extends Component {
       _this.setState({loading: false})
     })
     .catch(function (error) {
-      // console.log(error)
+      // alert(error.message)
+
+      // console.log("error :", error)
+
+      _this.toast.show(error.message);
+
       _this.setState({loading: false})
     });
   }
