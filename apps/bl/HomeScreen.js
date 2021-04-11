@@ -48,7 +48,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import FastImage from 'react-native-fast-image'
 import Toast, {DURATION} from 'react-native-easy-toast'
 import CameraRoll from "@react-native-community/cameraroll";
-import ImageViewer from 'react-native-image-zoom-viewer';
+// import ImageViewer from 'react-native-image-zoom-viewer';
 
 import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-community/google-signin';
 
@@ -1454,148 +1454,8 @@ class HomeScreen extends Component {
             swipeToCloseEnabled={true}
             onRequestClose={() => this.setState({ modalVisible: false })}
           />
-    // }
-
-    // return v;
-
-    console.log('----------')
-    // const images = [{
-    //                     // Simplest usage.
-    //                     url: 'https://avatars2.githubusercontent.com/u/7970947?v=3&s=460',
-                    
-    //                     // width: number
-    //                     // height: number
-    //                     // Optional, if you know the image size, you can set the optimization performance
-                    
-    //                     // You can pass props to <Image />.
-    //                     props: {
-    //                         // headers: ...
-    //                     }
-    //                 },]
-
-    /*
-    if (found.images.medium){
-  found.images.medium.map( async (url) => {
-        let {width, height} = await this.getImageSize(url);
-        console.log('w h : ', width, height)
-        return images.push({url, width, height});
-    })
-}
-    */
-
-   
-
-    // console.log(images)
-
-    // images = [
-    //   {
-    //     uri: "https://images.unsplash.com/photo-1571501679680-de32f1e7aad4",
-    //   },
-    //   {
-    //     uri: "https://images.unsplash.com/photo-1573273787173-0eb81a833b34",
-    //   },
-    //   {
-    //     uri: "https://images.unsplash.com/photo-1569569970363-df7b6160d111",
-    //   },
-    // ];
-
-    
-    return  <Modal 
-              visible={modalVisible}
-              transparent={true}
-              // style={{flex:1, backgroundColor:'red'}}
-              onRequestClose={() => this.setState({ modalVisible: false })}>
-              <ImageViewer 
-                  // style={{flex:1}}
-                  imageUrls={images.filter(function(item){return item.empty !== true;})}
-                  index={init_index}
-                  // imageUrls={images}
-                  // renderHeader={this.renderHeaderImageViewer}
-                  // renderFooter={this.renderFooterImageViewer}
-                  onSwipeDown={() => {this.setState({modalVisible: false}) }}
-                  onMove={data => {
-
-                  }}
-                  enableSwipeDown={true}
-                  onSave={uri => {this._saveImage(uri)}}
-                  loadingRender={() => (
-                  //   // <View style={{flex:1, backgroundColor:'yellow', justifyContent:'center', alignItems:'center'}}>
-                  //   // <ActivityIndicator
-                  //   //   color='white'
-                  //   //   size="small"
-                  //   //   style={{
-                  //   //     height: Dimensions.get('window').height,
-                  //   //     alignItems: 'center',
-                  //   //     justifyContent: 'center',
-                  //   //   }}
-                  //   // />
-                  //   // </View>
-                    <View style={{width:50,height:50,backgroundColor:'yellow',zIndex:99}}>
-                      <ActivityIndicator color={'yellow'}/>
-                    </View>
-                  )}
-
-                  // renderImage={(props)=>{
-                  //   return(
-                  //       <View style={{flex:1 }}>
-                  //       <FastImage
-                  //             // style={{ width: 960, height: 960, backgroundColor:'blue' }}
-                  //             style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
-                  //             containerStyle={{ ...StyleSheet.absoluteFillObject }}
-                  //             source={{
-                  //                 uri: props.source.uri,
-                  //                 headers: { Authorization: 'someAuthToken' },
-                  //                 priority: FastImage.priority.normal,
-                  //             }}
-                  //             resizeMode={FastImage.resizeMode.center}
-
-
-                  //             onLoadStart={e => console.log('Loading Start : x')}
-                  //             onProgress={e =>
-                  //               console.log(
-                  //                 'Loading Progress  : x ' +
-                  //                   e.nativeEvent.loaded / e.nativeEvent.total
-                  //               )
-                  //             }
-                  //             onLoad={e =>
-                  //               console.log(
-                  //                 'Loading Loaded  : x' + e.nativeEvent.width,
-                  //                 e.nativeEvent.height
-                  //               )
-                  //             }
-                  //             onLoadEnd={e => console.log('Loading Ended : x')}
-                  //           />  
-                  //           </View>
-                  //        )
-                  //   }}
-
-                  /*
-                  renderImage={(props) => {
-                    console.log(props)
-                    console.log(Dimensions.get('window').width)
-                    console.log(Dimensions.get('window').height)
-                    return  <View style={{flex:1, backgroundColor:'blue'}}>
-                            <FastImage
-                              // style={{ width: 960, height: 960, backgroundColor:'blue' }}
-                              style={{flex:1}}
-                              containerStyle={{ ...StyleSheet.absoluteFillObject }}
-                              source={{
-                                  uri: props.source.uri,
-                                  headers: { Authorization: 'someAuthToken' },
-                                  priority: FastImage.priority.normal,
-                              }}
-                              resizeMode={FastImage.resizeMode.center}
-                            />  
-                            </View>
-                   
-  }}
-  */
-                  />
-              {/* {this.renderFooterImageViewer()} */}
-            </Modal>
   }
 
-  
   render(){
       const { navigation, data } = this.props;
       return (<View style={styles.container}>

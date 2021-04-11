@@ -11,7 +11,7 @@ import {SafeAreaView,
         
 import ImageView from "react-native-image-viewing";
 import { connect } from 'react-redux';
-import ImageViewer from 'react-native-image-zoom-viewer';
+// import ImageViewer from 'react-native-image-zoom-viewer';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Toast, {DURATION} from 'react-native-easy-toast'
