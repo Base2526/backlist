@@ -86,23 +86,23 @@ class SettingsScreen extends Component {
     }
     
     handleLoginWithGoogle = async () => {
-    try {
-        await GoogleSignin.hasPlayServices();
-        const userInfo = await GoogleSignin.signIn();
-        console.log(userInfo)
-        // setUser(userInfo)
-    } catch (error) {
-        console.log('Message', error.message);
-        if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        console.log('User Cancelled the Login Flow');
-        } else if (error.code === statusCodes.IN_PROGRESS) {
-        console.log('Signing In');
-        } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        console.log('Play Services Not Available or Outdated');
-        } else {
-        console.log('Some Other Error Happened');
+        try {
+            await GoogleSignin.hasPlayServices();
+            const userInfo = await GoogleSignin.signIn();
+            console.log(userInfo)
+            // setUser(userInfo)
+        } catch (error) {
+            console.log('Message', error.message);
+            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+            console.log('User Cancelled the Login Flow');
+            } else if (error.code === statusCodes.IN_PROGRESS) {
+            console.log('Signing In');
+            } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+            console.log('Play Services Not Available or Outdated');
+            } else {
+            console.log('Some Other Error Happened');
+            }
         }
-    }
     }
 
     modalLogin(){
@@ -216,7 +216,7 @@ class SettingsScreen extends Component {
               modalEnabled: true,
               enableBarCollapsing: true,
               // Android Properties
-              showTitle: true,
+              showTitle: false,
               toolbarColor: '#6200EE',
               secondaryToolbarColor: 'black',
               enableUrlBarHiding: true,
@@ -326,17 +326,16 @@ class SettingsScreen extends Component {
         <View style={{backgroundColor:'#f6f6f6',flex:1}}>
             <SettingsList borderColor='#d6d5d9' defaultItemSize={50}>
                 <SettingsList.Item
-                hasNavArrow={false}
-                title='My Info'
-                titleStyle={{color:'#009688', marginBottom:10, fontWeight:'bold'}}
-                itemWidth={70}
-                borderHide={'Both'}
-                onPress={()=>{
-                    if(!isEmpty(user)){
-                        this.setState({bottomModalAndTitle: true})
-                    }
-                }}
-                />
+                    hasNavArrow={false}
+                    title= { isEmpty(user) ? 'Login' : 'My Info' } 
+                    titleStyle={{color:'#009688', marginBottom:10, fontWeight:'bold'}}
+                    itemWidth={70}
+                    borderHide={'Both'}
+                    onPress={()=>{
+                        if(isEmpty(user)){
+                            this.setState({bottomModalAndTitle: true})
+                        }
+                    }}/>
                 { this.lapsList() }
                 <SettingsList.Header headerStyle={{marginTop:-5}}/>
                 <SettingsList.Item

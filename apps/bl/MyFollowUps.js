@@ -124,7 +124,7 @@ class MyFollowUps extends Component {
     let _this = this
     let _menu = null
 
-    console.log('follow_ups : ', follow_ups)
+    // console.log('follow_ups : ', follow_ups)
     return (
         <TouchableOpacity 
             key={Math.floor(Math.random() * 100) + 1}

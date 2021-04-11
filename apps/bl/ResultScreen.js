@@ -128,7 +128,7 @@ class ResultScreen extends Component {
       // console.log()
       if(results.result){
         // true
-        console.log('result search : ', results);
+        // console.log('result search : ', results);
         // console.log(results);
 
         let {execution_time, datas, count} = results;

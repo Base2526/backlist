@@ -340,6 +340,11 @@ function backlist_config_pages_update(EntityInterface $entity) {
 function backlist_node_delete(EntityInterface $entity) {
   switch($entity->bundle()){
     case 'back_list':{
+
+      Utils::node_my_apps($entity->getOwnerId());
+
+      \Drupal::logger('backlist_node_delete')->error( $entity->id() );
+
       $twit_id = $entity->get('field_twit_id')->getValue();
       if(!empty($twit_id)){
         Utils::Twitter_Delete_By_TwitId($twit_id[0]['value']);

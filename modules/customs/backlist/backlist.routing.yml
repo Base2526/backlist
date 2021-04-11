@@ -248,3 +248,13 @@ api.fetch_profile_by_id:
     _role: 'authenticated+administrator'
   options:
     _auth: ['basic_auth']
+
+api.delete_my_app:
+  path: '/api/delete_my_app'
+  methods: [POST]
+  defaults: 
+    _controller: '\Drupal\backlist\Controller\API::DeleteMyApp'
+  requirements: 
+    _role: 'authenticated+administrator'
+  options:
+    _auth: ['basic_auth']

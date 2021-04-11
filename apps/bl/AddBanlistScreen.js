@@ -74,7 +74,7 @@ class AddBanlistScreen extends Component {
                   currentDateTimePicker: new Date(),
                   spinner: false,
 
-                  nid: 0,
+                  nid: undefined,
                   items_merchant_bank_account: [
                     {'key':1,'value': 'ธนาคารกรุงศรีอยุธยา'},
                     {'key':2,'value': 'ธนาคารกรุงเทพ'},
@@ -113,7 +113,7 @@ class AddBanlistScreen extends Component {
     
 
     if(!isEmpty(params) && !isEmpty(params.data)){
-      // console.log('data >>>', params)
+      console.log('data >>>', params)
 
       let {data} = params
       let itemsMerchantBankAccount = data.banks.map((item, i)=>{
@@ -144,6 +144,8 @@ class AddBanlistScreen extends Component {
         localPhotos
       })
     }
+
+    console.log('this.state.nid : ', this.state.nid)
 
     let _this = this
     navigation.setOptions({
@@ -220,7 +222,7 @@ class AddBanlistScreen extends Component {
 
     const data = new FormData();
 
-    data.append('nid', nid);
+    data.append('nid', isEmpty(nid) ? 0 : nid );
     data.append('product_type', title);
     data.append('transfer_amount', transfer_amount);
     data.append('person_name', name);
@@ -234,9 +236,6 @@ class AddBanlistScreen extends Component {
     localPhotos.map(buttonInfo => (
       data.append("files[]", {uri: buttonInfo.path, type: buttonInfo.mime,name: buttonInfo.path.substring(buttonInfo.path.lastIndexOf('/')+1)})
     ));
-
-    console.log('localPhotos : ', localPhotos)
-
     /*
     [{"creationDate": "1255122560", 
       "cropRect": null, 
@@ -254,7 +253,7 @@ class AddBanlistScreen extends Component {
       "width": 4288},
       {"creationDate": "1522437259", "cropRect": null, "data": null, "duration": null, "exif": null, "filename": "IMG_0006.HEIC", "height": 3024, "localIdentifier": "CC95F08C-88C3-4012-9D6D-64A413D254B3/L0/001", "mime": "image/jpeg", "modificationDate": "1617107619", "path": "/Users/somkidsimajarn/Library/Developer/CoreSimulator/Devices/0C039879-66BC-4294-A59C-E9A903694F96/data/Containers/Data/Application/D764C94F-953B-49DE-934D-C626A3650019/tmp/react-native-image-crop-picker/B81249C6-26DA-4C84-A4C4-EEE209D46793.jpg", "size": 4075105, "sourceURL": "file:///Users/somkidsimajarn/Library/Developer/CoreSimulator/Devices/0C039879-66BC-4294-A59C-E9A903694F96/data/Media/DCIM/100APPLE/IMG_0006.HEIC", "width": 4032}]
     */
-    return;
+    // return;
    
     // console.log(title, transfer_amount, name, surname, id_card_number, selling_website, currentDateTimePicker)
 

@@ -54,7 +54,7 @@ import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID} from "./constants"
 
 import { Base64, compare2Arrays, isEmpty } from './Utils'
 
-import { fetchData } from './actions/app';
+import { fetchData, deleteMyApp } from './actions/app';
  
 class MyPost extends Component {
     constructor(props) {
@@ -74,6 +74,10 @@ class MyPost extends Component {
     }
     
     componentDidMount() {
+      this.fetchData()
+    }
+
+    fetchData = () =>{
       let _this = this
 
       let {data, my_apps} = this.props
@@ -110,8 +114,17 @@ class MyPost extends Component {
 
     componentDidUpdate(prevProps){
       if(!compare2Arrays(prevProps.my_apps, this.props.my_apps)){
-          this.updateNavigation()
+        // this.updateNavigation()
+
+        this.fetchData();
       }
+    }
+
+    onSelect = data => {
+      // this.setState(data);
+      console.log('MyPost > onSelect()')
+
+      this.fetchData();
     }
   
     updateNavigation(){
@@ -137,7 +150,7 @@ class MyPost extends Component {
         text_follow_up = flength === 0 ? `Follow up` : `Follow (${flength})` //String("Follow up" +  c) ;
       }
 
-      // console.log('text_follow_up : ', text_follow_up)
+      console.log('text_follow_up : ', item)
 
       return (
           <TouchableOpacity 
@@ -238,9 +251,9 @@ class MyPost extends Component {
                                   style: "cancel"
                                   },
                                   { text: "Delete", onPress: () => {
-                                      // logout().then(res => {
-                                      //     this.setState({isLogin: false})
-                                      // })
+
+                                    let {deleteMyApp, user} = _this.props
+                                    deleteMyApp(user.basic_auth, item.id)
                                   } }
                               ]
                               );
@@ -321,7 +334,7 @@ class MyPost extends Component {
                   <ActionButton
                     buttonColor="rgba(231,76,60,1)"
                     onPress={() => { 
-                      navigation.navigate('add_banlist');
+                      navigation.navigate('add_banlist', { onSelect: this.onSelect });
                     }}/>
                 </View>)
     }
@@ -402,7 +415,8 @@ const mapStateToProps = state => {
 
 // fetchData
 const mapDispatchToProps = {
-  fetchData
+  fetchData,
+  deleteMyApp
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(MyPost)

@@ -1084,7 +1084,7 @@ class API extends ControllerBase {
       $images         = $content['images'];                     // รูปภาพประกอบ
       */
       
-      if(!empty($nid)){
+      if(!empty($nid) && $nid !=  'undefined' ){
         $node = Node::load($nid);
         $node->setChangedTime((new \DateTime('now'))->getTimestamp());
 
@@ -1753,6 +1753,38 @@ class API extends ControllerBase {
       $response_array['datas']            = $datas;
       return new JsonResponse( $response_array );
 
+    } catch (\Throwable $e) {
+      \Drupal::logger('SearchApi')->notice($e->__toString());
+
+      $response_array['result']   = FALSE;
+      $response_array['message']  = $e->__toString();
+      return new JsonResponse( $response_array );
+    }
+  }
+
+  public function DeleteMyApp(Request $request){
+    $response_array = array();
+    try {
+      $time1          = microtime(true);
+
+      $content = json_decode( $request->getContent(), TRUE );
+      $nid = trim( $content['nid'] );
+
+      if(!empty($nid)){
+        $node = $this->entityTypeManager->getStorage('node')->load($nid);
+        // Check if node exists with the given nid.
+        if ($node) {
+          $node->delete();
+        }
+
+        $response_array['result']           = TRUE;
+        $response_array['execution_time']   = microtime(true) - $time1;
+      }else{
+        $response_array['result']           = FALSE;
+        $response_array['execution_time']   = microtime(true) - $time1;
+      }
+
+      return new JsonResponse( $response_array );
     } catch (\Throwable $e) {
       \Drupal::logger('SearchApi')->notice($e->__toString());
 

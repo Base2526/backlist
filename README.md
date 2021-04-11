@@ -140,6 +140,7 @@ Elasticsearch Drupal 8-9
  - https://www.lullabot.com/articles/indexing-content-from-drupal-8-to-elasticsearch
  - https://medium.com/@ashutoshsngh67/intergration-of-elasticsearch-with-drupal-8-26d2ed56a47c
  - https://www.drupal.org/docs/8/modules/search-api/developer-documentation/executing-a-search-in-code
+ - https://discuss.elastic.co/t/unable-to-set-password-for-elastic-7-1-1/186160/3
 
 Redux
  - https://code.tutsplus.com/tutorials/using-redux-in-a-react-native-app--cms-36001
