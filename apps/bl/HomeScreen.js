@@ -22,10 +22,11 @@ import {
   Modal,
   RefreshControl,
   Dimensions,
-  Image
+  Image,
+  DeviceEventEmitter
 } from 'react-native';
 
-import {OptimizedFlatList} from 'react-native-optimized-flatlist'
+// import {OptimizedFlatList} from 'react-native-optimized-flatlist'
 
 import { connect } from 'react-redux';
 import ReactNativeModal from 'react-native-modal';
@@ -593,10 +594,14 @@ class MyListItem extends PureComponent {
 class HomeScreen extends Component {
   constructor(props) {
       super(props);
+
+      this.is_mounted = false;
+
       this.state = {
                   data:[],
                   loading: false,
                   nid_last: 0,
+                  offset: 0,
 
                   selected: false,
 
@@ -612,6 +617,7 @@ class HomeScreen extends Component {
   }
 
   componentDidMount  = async () => {
+    this.is_mounted = true;
     const { route, navigation, follower_post } = this.props;
 
     navigation.setOptions({
@@ -644,6 +650,18 @@ class HomeScreen extends Component {
       forceCodeForRefreshToken: true, // [Android] related to `serverAuthCode`, read the docs link below *.
       iosClientId: IOS_CLIENT_ID, // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
     });
+
+    DeviceEventEmitter.addListener("event.homeScrollToOffset", (event)=>{
+      if(this.flatlistref){
+        this.flatlistref.scrollToOffset({ animated: true, offset: 0 });
+      }
+    })
+  }
+
+  componentWillUnmount(){
+    this.is_mounted = false;
+
+    DeviceEventEmitter.removeListener("event.homeScrollToOffset");
   }
 
   componentDidUpdate(prevProps){
@@ -655,11 +673,7 @@ class HomeScreen extends Component {
   }
 
   refresh = () =>{
-    this.setState({
-      nid_last: 0,
-    },() => {
-      this.getData()
-    });
+    this.is_mounted && this.setState({offset: 0},() => { this.getData() });
   }
 
   onSelect = data => {
@@ -667,9 +681,9 @@ class HomeScreen extends Component {
   }
 
   handleSearch= () => {
-      console.log(this.state.name);
-      console.log(this.state.surname);
-      console.log(this.state.bank_account);
+    console.log(this.state.name);
+    console.log(this.state.surname);
+    console.log(this.state.bank_account);
   }
 
   getData = () => {
@@ -678,7 +692,7 @@ class HomeScreen extends Component {
     let {data} = this.props
    
     let _this     = this;
-    let { nid_last }  = _this.state;
+    let { nid_last, offset }  = _this.state;
 
     _this.setState({loading: true})
 
@@ -687,44 +701,27 @@ class HomeScreen extends Component {
     }
 
     console.log('start : > ')
-    axios.post(`${API_URL}/api/fetch?_format=json`, {
-      nid_last,
+    // axios.post(`${API_URL}/api/fetch?_format=json`, {
+    //   nid_last,
+    // }, {
+    //   headers: { 
+    //     'Authorization': `Basic ${API_TOKEN}` 
+    //   }
+    // })
+    axios.post(`${API_URL}/api/search?_format=json`, {
+      type: 0,
+      key_word: '*',
+      offset
     }, {
-      headers: { 
-        'Authorization': `Basic ${API_TOKEN}` 
-      }
+        headers: {'Authorization': `Basic ${API_TOKEN}`}
     })
     .then(function (response) {
       let results = response.data
       // console.log('HomeScreen : results : ', results)
       if(results.result){
         // true
-        // console.log('true');
-        // console.log(results);
-
         let {execution_time, datas, count} = results;
-        // console.log(execution_time);
-        // console.log(count);
-        // console.log(datas);
-
-        // if(datas && datas.length > 0){
-        //   _this.setState({spinner: false, execution_time, datas, count});
-        // }else{
-
-        // _this.setState({data: [ ..._this.state.data, ...datas]});
-
-        // console.log('HomeScreen : results : ',datas)
         _this.props.fetchData(datas);
-        
-        // _this.setState({data: [...this.state.data, ...datas]})
-        //   alert('Empty result.');
-        // }
-        
-      }else{
-        // false
-        // console.log('false');
-
-        // _this.setState({spinner: false})
       }
 
       _this.setState({loading: false})
@@ -1102,7 +1099,6 @@ class HomeScreen extends Component {
     }
   }
 
-
   changeHandler = (val) => {
     this.setState(val)
   }
@@ -1281,12 +1277,20 @@ class HomeScreen extends Component {
   }
 
   renderFooter = () => {
-    let {loading} = this.state
+    let {loading, offset} = this.state
     return (
       //Footer View with Load More button
       <TouchableOpacity
           activeOpacity={0.9}
-          onPress={this.getData}>
+          // onPress={this.getData}
+          onPress={()=>{
+            this.setState({
+                offset:  offset + 1
+            },() => {
+                this.getData();
+            });
+          }}
+          >
           <View style={{backgroundColor:'#fff', alignItems: 'center', padding:10, margin:5}}> 
             <View style={{flexDirection:'row'}}>
               <Text>Load More</Text>
@@ -1459,7 +1463,7 @@ class HomeScreen extends Component {
   render(){
       const { navigation, data } = this.props;
       return (<View style={styles.container}>
-                <OptimizedFlatList
+                <FlatList
                   ref={(ref) => this.flatlistref = ref}
                   style={{flex:1}}
                   data={data}

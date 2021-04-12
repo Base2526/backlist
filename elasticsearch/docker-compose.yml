@@ -8,6 +8,10 @@ services:
       - discovery.type=single-node
       - ELASTIC_PASSWORD=changeme
       - xpack.security.enabled=true
+    # volumes:
+    #   - ./elasticsearch-data:/usr/share/elasticsearch/data
+    volumes:
+      - ./elasticsearch-data:/data
     ulimits:
       memlock:
         soft: -1
@@ -28,3 +32,6 @@ services:
 
 networks:
   stack: {}
+
+# volumes:
+#   elasticsearch-data:

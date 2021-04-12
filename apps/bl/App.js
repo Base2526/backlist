@@ -17,7 +17,8 @@ import {
   TouchableOpacity,
   Button,
   Platform,
-  BackHandler
+  BackHandler,
+  DeviceEventEmitter
 } from 'react-native';
 import { connect } from 'react-redux';
 
@@ -286,6 +287,7 @@ class App extends Component {
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
 
     this.onSocket()   
+
   }
 
   componentWillUnmount() {
@@ -388,15 +390,12 @@ class App extends Component {
             <Tab.Screen 
               name="Home" 
               component={HomeStackScreen}
-              // listeners={({ navigation, route }) => ({
-              //   tabPress: e => {
-              //     // e.preventDefault(); // Use this to navigate somewhere else
-              //     console.log("button pressed : Home")
-              //   },
-              // })}
               listeners={({ navigation, route }) => ({
                 tabPress: (e) => {
-                  console.log('Home', e)
+                  if (navigation && navigation.isFocused()) {
+                    // Call when is isFocused = TRUE
+                    DeviceEventEmitter.emit('event.homeScrollToOffset', {});
+                  }
                 }
               })}
               />
@@ -406,7 +405,7 @@ class App extends Component {
               listeners={({ navigation, route }) => ({
                 tabPress: (e) => {
                   // e.preventDefault(); // Use this to navigate somewhere else
-                  console.log("Setting", e)
+                  // console.log("Setting", e)
                 },
               })}
               />

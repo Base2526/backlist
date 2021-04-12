@@ -1257,6 +1257,13 @@ class API extends ControllerBase {
         */
 
         switch($type){
+          case 0:{
+            $query->sort('nid', 'DESC');
+            // $query->range(2,2);
+
+            break;
+          }
+
           case 1:{
             $query->addCondition('title', $key_word);
             break;
@@ -1299,14 +1306,11 @@ class API extends ControllerBase {
 
         }
 
-        
-
         // Set additional conditions.
-        //$query->addCondition('status', 1);
+        $query->addCondition('status', 1);
 
         // Restrict the search to specific languages.
         // $query->setLanguages(['th', 'en']);
-
 
         $pagging = 30; 
 
@@ -1317,7 +1321,7 @@ class API extends ControllerBase {
         }else{
           if($offset > 0){
             $start = ($pagging * $offset) + 1;
-            $end   = $pagging * ($offset + 1);
+            // $end   = $pagging * ($offset + 1);
           }
         }
 

@@ -42,7 +42,7 @@ class FilterScreen extends Component {
                     execution_time: '', 
                     count: '',
                     datas: [], 
-                    type : 0,
+                    type : 5,
                     offset: 0,
                     
                     loading: false}
@@ -57,8 +57,6 @@ class FilterScreen extends Component {
             let data = route.params.data;
 
             this.setState({
-                type:    5,
-                offset:  0,
                 key_word: data.name+"&"+data.surname
             },() => {
                 this.search();
@@ -102,7 +100,7 @@ class FilterScreen extends Component {
         })
         .then(function (response) {
             let results = response.data
-            console.log('FilterScreen : ', results)
+            // console.log('FilterScreen : ', results)
             if(results.result){
                 // true
                 // console.log('true');

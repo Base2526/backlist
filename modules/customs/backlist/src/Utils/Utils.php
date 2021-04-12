@@ -4039,13 +4039,20 @@ class Utils extends ControllerBase {
   }
 
   public static function node_login($uid, $unique_id){
+
+    $global       = ConfigPages::config('global');
+    $node_server  = '';
+    if(isset( $global )){
+      $node_server =  $global->get('field_node_server')->value;
+    }
+
     $data_obj = [
       "uid" => $uid,
       "unique_id" => $unique_id
     ];
     $ch = curl_init();
     curl_setopt_array($ch, array(
-      CURLOPT_URL => "http://143.198.223.146:3000/api/login",
+      CURLOPT_URL => $node_server . "/api/login",
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_HEADER => true,
       //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
@@ -4088,12 +4095,19 @@ class Utils extends ControllerBase {
   }
 
   public static function node_follower_post($posts){
+
+    $global       = ConfigPages::config('global');
+    $node_server  = '';
+    if(isset( $global )){
+      $node_server =  $global->get('field_node_server')->value;
+    }
+
     $data_obj = [
       "posts" => $posts
     ];
     $ch = curl_init();
     curl_setopt_array($ch, array(
-      CURLOPT_URL => "http://143.198.223.146:3000/api/follower_post",
+      CURLOPT_URL => $node_server . "/api/follower_post",
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_HEADER => true,
       //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
@@ -4136,12 +4150,19 @@ class Utils extends ControllerBase {
   }
 
   public static function node_my_apps($uid){
+
+    $global       = ConfigPages::config('global');
+    $node_server  = '';
+    if(isset( $global )){
+      $node_server =  $global->get('field_node_server')->value;
+    }
+
     $data_obj = [
       "uid" => $uid
     ];
     $ch = curl_init();
     curl_setopt_array($ch, array(
-      CURLOPT_URL => "http://143.198.223.146:3000/api/my_apps",
+      CURLOPT_URL => $node_server . "/api/my_apps",
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_HEADER => true,
       //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,

@@ -427,3 +427,46 @@ https://shift.infinite.red/react-native-android-app-memory-investigation-5569562
 
 Perferment react-native clear memory
 https://dev.to/otamnitram/react-useeffect-cleanup-how-and-when-to-use-it-2hbm
+
+
+
+
+
+
+
+
+
+fetch Data
+
+use Drupal\search_api\Entity\Index;
+
+$index = Index::load('content_back_list');
+$query = $index->query();
+
+// Change the parse mode for the search.
+$parse_mode = \Drupal::service('plugin.manager.search_api.parse_mode')->createInstance('direct');
+$parse_mode->setConjunction('OR');
+$query->setParseMode($parse_mode);
+
+$query->addCondition('type', 'back_list');
+// $query->addCondition('nid', 70260, '<');
+$query->sort('nid', 'DESC');
+
+$query->range(2,2);
+
+// $query->sort('field1', 'DESC');
+// $query->sort('field2', 'ASC');
+
+ // Execute the search.
+ $results = $query->execute();
+
+// dpm( count($results) );
+
+$count = count($results->getResultItems());
+
+ // dpm( $count );
+
+foreach ($results as $result) {
+   $result_nid    = $result->getField('nid')->getValues();
+   dpm(  $result_nid );
+}
