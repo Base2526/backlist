@@ -19,6 +19,7 @@ export const  mergeArrays = (...arrays) => {
 
 const initialState = {
   data: [],
+  tests: []
 }
 
 export const app = (state = initialState, action) => {
@@ -38,15 +39,11 @@ export const app = (state = initialState, action) => {
     //   }
     // }
     
-    // case TEST_DATA: {
-    //   // console.log('TEST_DATA state >> ', state)
-    //   console.log('TEST_DATA action>> ', action.data)
-
-    //   return {
-    //     ...state,
-    //     test: [...state.test, ...action.data]
-    //   }
-    // }
+    case TEST_DATA: {
+      // console.log('TEST_DATA ', action.data)
+      return {...state, 
+                tests: action.data}
+    }
 
     // case CHECK_DATA: {
     //   console.log('CHECT_DATA state >> ', state)

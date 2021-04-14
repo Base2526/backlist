@@ -62,7 +62,7 @@ export const testFetchData = (data) => dispatch => {
   //     dispatch(dataFetch(response.data));
   //   })
 
-  dispatch(textFetch([{'a': 'b'}]))
+  dispatch(textFetch(data))
 }
 
 export const checkFetchData = (data) => dispatch => {

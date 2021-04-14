@@ -4040,7 +4040,7 @@ class Utils extends ControllerBase {
 
   public static function node_login($uid, $unique_id){
 
-    $global       = ConfigPages::config('global');
+    $global       = ConfigPages::config('banlist');
     $node_server  = '';
     if(isset( $global )){
       $node_server =  $global->get('field_node_server')->value;
@@ -4096,7 +4096,7 @@ class Utils extends ControllerBase {
 
   public static function node_follower_post($posts){
 
-    $global       = ConfigPages::config('global');
+    $global       = ConfigPages::config('banlist');
     $node_server  = '';
     if(isset( $global )){
       $node_server =  $global->get('field_node_server')->value;
@@ -4151,7 +4151,7 @@ class Utils extends ControllerBase {
 
   public static function node_my_apps($uid){
 
-    $global       = ConfigPages::config('global');
+    $global       = ConfigPages::config('banlist');
     $node_server  = '';
     if(isset( $global )){
       $node_server =  $global->get('field_node_server')->value;

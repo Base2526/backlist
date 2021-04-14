@@ -67,6 +67,7 @@ import FollowUp from './FollowUp'
 
 import SettingsScreen from './SettingsScreen'
 import ReportScreen from './ReportScreen'
+import Notification from './Notification'
 
 import {API_URL_SOCKET_IO} from "./constants"
 
@@ -77,6 +78,7 @@ import { Base64, checkLogin, isEmpty} from './Utils'
 import {store, persistor} from './reduxStore'
 
 import { fetchProfile, followUp, fetchMyApps, followerPost } from './actions/user';
+import { testFetchData, clearData } from './actions/app'
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -195,7 +197,8 @@ function MeStackScreen({navigation, route}) {
           routeName == 'detail' ||
           routeName == 'add_banlist' ||
           routeName == 'filter' ||
-          routeName == 'follow_up' ){
+          routeName == 'follow_up' ||
+          routeName == 'notification' ){
         navigation.setOptions({tabBarVisible: false});
     }else {
         navigation.setOptions({tabBarVisible: true});
@@ -266,7 +269,10 @@ function MeStackScreen({navigation, route}) {
           component={FollowUp} 
           options={{ title: '' }}/>  
 
-        {/*  */}
+        <MeStack.Screen 
+          name="notification" 
+          component={Notification} 
+          options={{ title: 'Notification' }}/>  
     </MeStack.Navigator>
   );
 }
@@ -288,6 +294,46 @@ class App extends Component {
 
     this.onSocket()   
 
+    let {clearData} = this.props
+
+    clearData()
+
+    const interval = setInterval(() => {
+      let {testFetchData, tests} = this.props
+      // console.log('This will run every five second! : ', tests);
+
+      let min = 1;
+      let max = 10000000;
+      let rand = Math.floor( min + Math.random() * (max - min) );
+
+      // testFetchData
+      
+
+      if(tests.length < 5){
+        tests = [...tests, {id: rand, value: rand}]
+        testFetchData(tests)
+
+        console.log('tests : ', tests)
+      }else{
+
+        min = 0;
+        max = 5;
+        rand = Math.floor( min + Math.random() * (max - min) );
+
+        let markers = [ ...tests ];
+        markers[rand] = {...markers[rand], value: Math.random() * Math.random() };
+        // this.setState({ markers });
+
+        console.log('markers : >>>>>>>>>>>>>>>>>>> ', markers[rand], rand)
+        testFetchData(markers)
+      }
+
+
+      
+
+      
+      
+    }, 10000);
   }
 
   componentWillUnmount() {
@@ -470,7 +516,8 @@ const styles = StyleSheet.create({
 // export default App;
 const mapStateToProps = state => {
   return{
-    user: state.user.data
+    user: state.user.data,
+    tests: state.app.tests
   }
 }
 
@@ -478,7 +525,10 @@ const mapDispatchToProps = {
   fetchProfile,
   followUp,
   fetchMyApps,
-  followerPost
+  followerPost,
+
+  testFetchData,
+  clearData
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

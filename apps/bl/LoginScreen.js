@@ -63,6 +63,8 @@ class LoginScreen extends Component {
 
       this.setState({spinner: true})
 
+      console.log('> /api/login?')
+
       let _this = this
       axios.post(`${API_URL}/api/login?_format=json`, {
         name, password, unique_id: getUniqueId()
@@ -74,9 +76,9 @@ class LoginScreen extends Component {
         console.log('cccc : ', typeof results.result);
         if(results.result === true){ 
           _this.props.userLogin(results.user)
-          _this.props.followUp(JSON.parse(results.follow_ups)) // follow_ups
+          _this.props.followUp( isEmpty(results.follow_ups) ? results.follow_ups : JSON.parse(results.follow_ups)) // follow_ups
           _this.props.fetchMyApps(results.user.basic_auth)
-          _this.props.addfollowerPost(JSON.parse(results.follower_post))
+          _this.props.addfollowerPost( isEmpty(results.follower_post) ? results.follower_post : JSON.parse(results.follower_post))
 
           _this.setState({spinner: false}) 
           navigation.pop();

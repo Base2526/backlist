@@ -470,3 +470,11 @@ foreach ($results as $result) {
    $result_nid    = $result->getField('nid')->getValues();
    dpm(  $result_nid );
 }
+
+
+
+
+
+
+/// REACT_HOOK ///
+https://dev.to/ltsharma/performance-optimisation-react-native-with-hooks-a77

@@ -141,15 +141,20 @@ class MyPost extends Component {
       let _this = this
       let _menu = null
 
-      
-      let fp = follower_post.find((im)=>{ return String(im.post_id) === String(item.id) })
-      let text_follow_up = `Follow up`;
-      if(!isEmpty(fp)){
-        let flength= fp.follower.length; 
-        // console.log(fp)
-        text_follow_up = flength === 0 ? `Follow up` : `Follow (${flength})` //String("Follow up" +  c) ;
-      }
 
+      let text_follow_up = `Follow up`;
+      
+      console.log('follower_post : ', follower_post, item)
+      if(!isEmpty(follower_post)){
+        let fp = follower_post.find((im)=>{ return String(im.post_id) === String(item.id) })
+      
+        if(!isEmpty(fp)){
+          let flength= fp.follower.length; 
+          // console.log(fp)
+          text_follow_up = flength === 0 ? `Follow up` : `Follow (${flength})` //String("Follow up" +  c) ;
+        }
+      }
+      
       console.log('text_follow_up : ', item)
 
       return (
@@ -162,18 +167,6 @@ class MyPost extends Component {
             <View style={{flex:1}}>
               <View style={{flexDirection:'row'}}>
                 <View style={{position:'absolute', right: 0, flexDirection:'row'}}>
-                  {/* <TouchableOpacity 
-                    style={{ padding:3,}}
-                    onPress={ async ()=>{
-                      // _this.toast.show('Follow');
-                      
-                    }}>
-                    <View style={{flexDirection:'row', borderColor:'gray', borderWidth:1, alignItems:'center', padding:2, borderRadius: 10}}>
-                      <Ionicons name="people-outline" size={20} color={'gray'} />
-                      <Text style={{padding:5, fontSize:14, color:'gray'}}>5</Text>
-                    </View>
-                  </TouchableOpacity> */}
-               
                   <View style={{justifyContent:'center'}}>
                     <Menu
                       ref={(ref) => (_menu = ref)}

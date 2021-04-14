@@ -66,7 +66,15 @@ import { isEmpty } from './Utils'
 import { fetchData, fetchDataAll, checkFetchData, clearData } from './actions/app';
 import { Alert } from 'react-native';
 
-class MyListItem extends PureComponent {
+class MyListItem extends React.Component {
+  shouldComponentUpdate(nextProps, nextState) {   
+    const { follow_ups, item } = this.props;
+    // fase = reload item, true = not reload item
+
+    // T - T, F - F = 0 << use case ***
+    // T - F, F - T = 1
+    return  (nextProps.follow_ups.includes(item.id) ^ follow_ups.includes(item.id))
+  }
 
   renderImage = (item) =>{
     if(isEmpty(item.images.thumbnail)){
@@ -428,8 +436,9 @@ class MyListItem extends PureComponent {
   }
 
   render() {
-    let { navigation, follow_ups, item, user, toast, onChange } = this.props;
+    const { navigation, follow_ups, item, user, toast, onChange } = this.props;
     let _menu = null;
+    let _this = this;
     return (
       <TouchableOpacity 
         key={Math.floor(Math.random() * 100) + 1}
@@ -469,14 +478,13 @@ class MyListItem extends PureComponent {
                       }else{
                         
                       }
-                      toast.show(message);
+
+                      _this.props.toast.show(message);
                     })
                     .catch(function (error) {
                       console.log('error :', error)
-                      // _this.setState({loading: false})
-
   
-                      toast.show(error.message);
+                      _this.props.toast.show(error.message);
                     });
                   }
                   
