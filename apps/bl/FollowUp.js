@@ -44,6 +44,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
 import FastImage from 'react-native-fast-image'
 import ReadMore from '@fawazahmed/react-native-read-more';
+
 import { isEmpty, compare2Arrays } from './Utils'
 import { getUniqueId, getVersion } from 'react-native-device-info';
 import {API_URL, API_URL_SOCKET_IO} from "./constants"
@@ -121,8 +122,41 @@ class FollowUp extends Component {
       navigation.pop();
       return;
     }
+
+    let _menu = null
+
     navigation.setOptions({
       title: 'Follow up (' + fp.follower.length + ')', 
+      headerRight: () => (
+        // <TouchableOpacity 
+        //   style={{ marginHorizontal: 10 }}
+        //   onPress={()=>{
+        //     navigation.navigate('search')
+        //   }}>
+        //   <Ionicons name="search-outline" size={28}  />
+        // </TouchableOpacity>
+
+        <View style={{justifyContent:'center'}}>
+          <Menu
+            ref={(ref) => (_menu = ref)}
+            button={
+              <TouchableOpacity 
+                style={{ paddingLeft:3, }}
+                onPress={()=>{ 
+                  _menu.show()
+                }}>
+              <MaterialIcons name="more-vert" size={25} color={'grey'}  />
+              </TouchableOpacity>
+            }>
+            <MenuItem onPress={() => {}} style={{alignItems:'center'}}>
+              <Text style={{flex:9,
+                            flexDirection:'row',
+                            alignItems:'center',
+                            justifyContent:'center'}}>รายงานผู้ติดตาม</Text>
+            </MenuItem>
+          </Menu>
+        </View>
+      ) 
     })
   }
 
@@ -131,8 +165,6 @@ class FollowUp extends Component {
 
     let _this = this
     let _menu = null
-
-
     return(<TouchableOpacity
             style={{
               margin:5,
@@ -162,97 +194,6 @@ class FollowUp extends Component {
               </View>
             </View>
           </TouchableOpacity>)
-
-    // console.log('follow_ups : ', follow_ups)
-    return (
-        <TouchableOpacity 
-          key={Math.floor(Math.random() * 100) + 1}
-          style={styles.listItem}
-          onPress={()=>{
-            navigation.navigate('detail', {data:item})
-          }}>
-          <View style={{flex:1}}>
-            <View style={{flexDirection:'row'}}>
-              <View style={{position:'absolute', right: 0, flexDirection:'row'}}>
-                <View style={{justifyContent:'center'}}>
-                  <TouchableOpacity 
-                    style={{ padding:3,}}
-                    onPress={ async ()=>{
-                      let cL = this.props.user
-                      axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
-                        uid: cL.uid,
-                        id_follow_up: item.id,
-                        unique_id: getUniqueId(),
-                        owner_id: item.owner_id
-                      }, {
-                        headers: { 
-                          'Content-Type': 'application/json',
-                        }
-                      })
-                      .then(function (response) {
-                        let {result, message} = response.data
-
-                        if(result){
-
-                        }else{
-                          _this.toast.show(message);
-                        }
-                      })
-                      .catch(function (error) {
-                        console.log(error)
-                        // _this.setState({loading: false})
-                      });
-                    }}>
-                    <Ionicons 
-                      name="shield-checkmark-outline" 
-                      size={25} 
-                      color={isEmpty(follow_ups) ? 'gray' : (isEmpty(follow_ups.find( f => String(f) === String(item.id) )) ? 'gray' : 'red')} 
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <View>
-                <View style={{flexDirection:'row'}}>
-                  <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
-                  <TouchableOpacity 
-                    style={{ }}
-                    onPress={()=>{
-                      navigation.navigate('filter', {data:item})
-                    }}>
-                    <Text style={{color:'gray'}}>{item.name} {item.surname}</Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={{flexDirection:'row'}}>
-                  <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
-                  <Text style={{color:'gray'}}>{item.title}</Text>
-                </View>
-                <View style={{flexDirection:'row'}}>
-                  <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
-                  <Text style={{color:'gray'}}>{item.transfer_amount}</Text>
-                </View>
-                {/* transfer_date */}
-                <View style={{flexDirection:'row'}}>
-                  <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
-                  <Text style={{color:'gray'}}>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
-                </View>
-              </View>
-            </View>
-            <View style={{flexDirection:'column'}}>
-              <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
-              <View style={styles.root}>
-                <ReadMore 
-                  ellipsis={''} 
-                  seeMoreText={'See More'} 
-                  seeLessText={''}
-                  animate={false} 
-                  numberOfLines={3} 
-                  seeMoreStyle={{color:'black'}}
-                  style={styles.textStyle}>{ item.detail == '' ? '-' : item.detail}</ReadMore>
-              </View>
-            </View>
-          </View>
-        </TouchableOpacity>
-      );
   }
 
   render(){
@@ -344,7 +285,6 @@ const styles = StyleSheet.create({
      },
 });
    
-
 const mapStateToProps = state => {
   return{
     data: state.app.data.filter(item => (state.user.follow_ups.includes(item.id))),

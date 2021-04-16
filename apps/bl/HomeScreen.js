@@ -22,11 +22,9 @@ import {
   Modal,
   RefreshControl,
   Dimensions,
-  Image,
-  DeviceEventEmitter
+  DeviceEventEmitter,
+  TouchableHighlightBase
 } from 'react-native';
-
-// import {OptimizedFlatList} from 'react-native-optimized-flatlist'
 
 import { connect } from 'react-redux';
 import ReactNativeModal from 'react-native-modal';
@@ -38,7 +36,6 @@ import {
   LoginManager
 } from 'react-native-fbsdk';
 
-import ImageView from "react-native-image-viewing";
 import ActionButton from 'react-native-action-button';
 
 const axios = require('axios');
@@ -49,7 +46,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import FastImage from 'react-native-fast-image'
 import Toast, {DURATION} from 'react-native-easy-toast'
 import CameraRoll from "@react-native-community/cameraroll";
-// import ImageViewer from 'react-native-image-zoom-viewer';
+import ImageViewer from 'react-native-image-zoom-viewer';
 
 import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-community/google-signin';
 
@@ -58,6 +55,12 @@ import Share from 'react-native-share';
 import ReadMore from '@fawazahmed/react-native-read-more';
 
 import { getUniqueId, getVersion } from 'react-native-device-info';
+
+import { createImageProgress } from 'react-native-image-progress';
+import * as Progress from 'react-native-progress';
+
+const Image = createImageProgress(FastImage);
+
 
 import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID, API_URL_SOCKET_IO} from "./constants"
 
@@ -454,10 +457,10 @@ class MyListItem extends React.Component {
                 onPress={ async ()=>{
 
                   let cL = this.props.user
-                  console.log(API_URL_SOCKET_IO(), cL.uid, item.id, getUniqueId())
+                  // console.log(API_URL_SOCKET_IO(), cL.uid, item.id, getUniqueId())
                 
                   if(isEmpty(cL)){
-                    this.props.onChange({bottomModalAndTitle: true})
+                    _this.props.onChange({bottomModalAndTitle: true})
                   }else{
                     axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
                       uid: cL.uid,
@@ -624,14 +627,16 @@ class HomeScreen extends Component {
                   };
   }
 
-  componentDidMount  = async () => {
+  componentDidMount(){
     this.is_mounted = true;
-    const { route, navigation, follower_post } = this.props;
+    const { route, navigation, follower_post, data } = this.props;
+
+    console.log('data >>>', data)
 
     navigation.setOptions({
         headerLeft: () => (
           <TouchableOpacity
-            onPress={() => console.log('Button is Pressed!') }>
+            onPress={() => { this.scrollToOffset() }}>
             <Text style={{ fontSize: 20, paddingLeft:10}}>Home</Text>
           </TouchableOpacity>
         ),
@@ -648,7 +653,9 @@ class HomeScreen extends Component {
         )
     })
 
-    this.getData()
+    if(isEmpty(data)){
+      this.getData()
+    }
 
     this.renderItem = this.renderItem.bind(this)
 
@@ -659,10 +666,9 @@ class HomeScreen extends Component {
       iosClientId: IOS_CLIENT_ID, // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
     });
 
+    DeviceEventEmitter.removeListener("event.homeScrollToOffset");
     DeviceEventEmitter.addListener("event.homeScrollToOffset", (event)=>{
-      if(this.flatlistref){
-        this.flatlistref.scrollToOffset({ animated: true, offset: 0 });
-      }
+      this.scrollToOffset()
     })
   }
 
@@ -673,7 +679,21 @@ class HomeScreen extends Component {
   }
 
   componentDidUpdate(prevProps){
-    // console.log('componentDidUpdate : ', prevProps)
+    // console.log('componentDidUpdate :  >> ', prevProps.data)
+    // console.log('componentDidUpdate :  this.props.data ', this.props.data)
+
+    // if (this.props.data !== prevProps.data) {
+
+    //   console.log('componentDidUpdate 1, ::: ', prevProps.data)
+    //   console.log('componentDidUpdate 2, ::: ', this.props.data)
+    //   this.setState({data: prevProps.data})
+    // }
+  }
+
+  scrollToOffset = () =>{
+    if(this.flatlistref){
+      this.flatlistref.scrollToOffset({ animated: true, offset: 0 });
+    }
   }
 
   isOwner = (id_check) => {
@@ -708,7 +728,7 @@ class HomeScreen extends Component {
       nid_last = data[data.length - 1].id; 
     }
 
-    console.log('start : > ')
+    // console.log('start : > ')
     // axios.post(`${API_URL}/api/fetch?_format=json`, {
     //   nid_last,
     // }, {
@@ -1122,166 +1142,6 @@ class HomeScreen extends Component {
             toast={this.toast}
             my_apps={my_apps}
             onChange={this.changeHandler} />
-
-    /*
-    // let { navigation, follow_ups } = this.props;
-    let { id } = item
-
-    // let test = ;
-    // console.log('test : ', id , test, follow_ups)
-
-    let _this = this
-    let _menu = null;
-    return (
-        <TouchableOpacity 
-            key={Math.floor(Math.random() * 100) + 1}
-            style={styles.listItem}
-            onPress={()=>{
-              navigation.navigate('detail', {data:item})
-            }}>
-          <View style={{flex:1}}>
-            <View style={{flexDirection:'row'}}>
-              <View style={{position:'absolute', right: 0, flexDirection:'row'}}>
-                <TouchableOpacity 
-                  style={{ padding:3,}}
-                  onPress={ async ()=>{
-
-                    let cL = this.props.user
-                    console.log(API_URL_SOCKET_IO(), cL.uid, id, getUniqueId())
-                  
-                    if(isEmpty(cL)){
-                      this.setState({ bottomModalAndTitle: true })
-                    }else{
-                      axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
-                        uid: cL.uid,
-                        id_follow_up: id,
-                        unique_id: getUniqueId()
-                      }, {
-                        headers: { 
-                          'Content-Type': 'application/json',
-                        }
-                      })
-                      .then(function (response) {
-                        let {result, message} = response.data
-
-                        // console.log('message :', message)
-                        if(result){
-
-                        }else{
-                          
-                        }
-                        _this.toast.show(message);
-                      })
-                      .catch(function (error) {
-                        console.log('error :', error)
-                        // _this.setState({loading: false})
-                      });
-                    }
-                    
-                  }}>
-                  <Ionicons 
-                  name="shield-checkmark-outline" 
-                  size={25} 
-                  color={isEmpty(follow_ups) ? 'gray' : (isEmpty(follow_ups.find( f => f === id )) ? 'gray' : 'red')} />
-                </TouchableOpacity>
-                
-                <View style={{justifyContent:'center'}}>
-                  <Menu
-                    ref={(ref) => (_menu = ref)}
-                    button={
-                      <TouchableOpacity 
-                        style={{ paddingLeft:3, }}
-                        onPress={()=>{
-                          _menu.show()
-                        }}>
-                      <MaterialIcons name="more-vert" size={25} color={'grey'}  />
-                      </TouchableOpacity>
-                    }>
-                    <MenuItem onPress={() => {
-                            _menu.hide();
-                            const shareOptions = {
-                                title: 'Share Banlist',
-                                url: item.link,
-                                failOnCancel: false,
-                            };
-
-                            Share.open(shareOptions)
-                            .then((res) => {
-                                // console.log(res);
-                            })
-                            .catch((err) => {
-                                err && console.log(err);
-                            });
-                          }} style={{flex:1, justifyContent:'center'}}>
-                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                          <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="share" size={25} color={'grey'}  />
-                          <Text style={{ textAlign: 'center' }}>Share</Text>
-                        </View>
-                    </MenuItem>
-
-                    <MenuItem onPress={ async () => {
-                            _menu.hide();
-                            
-                            let cL = this.props.user
-                            if(isEmpty(cL)){
-                              this.setState({ bottomModalAndTitle: true })
-                            }else{
-                              navigation.navigate('report', {data:item})
-                            }
-                          }} style={{flex:1, justifyContent:'center'}}>
-                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
-                          <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="report" size={25} color={'grey'}  />
-                          <Text style={{ textAlign: 'center' }}>Report</Text>
-                        </View>
-                    </MenuItem>
-                  </Menu>
-                </View>
-              </View>
-              <View>
-                <View style={{flexDirection:'row'}}>
-                  <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
-                  <TouchableOpacity 
-                    style={{ }}
-                    onPress={()=>{
-                      navigation.navigate('filter', {data:item})
-                    }}>
-                    <Text style={{color:'gray'}}>{item.name} {item.surname}</Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={{flexDirection:'row'}}>
-                  <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
-                  <Text style={{color:'gray'}}>{item.title}</Text>
-                </View>
-                <View style={{flexDirection:'row'}}>
-                  <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
-                  <Text style={{color:'gray'}}>{item.transfer_amount}</Text>
-                </View>
-                <View style={{flexDirection:'row'}}>
-                  <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
-                  <Text style={{color:'gray'}}>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
-                </View>
-              </View>
-            </View>
-            <View style={{paddingRight:5, paddingBottom:5}}>
-              {this.renderImage(item)}
-            </View>
-            <View style={{flexDirection:'column'}}>
-              <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
-              <View style={styles.root}>
-                <ReadMore 
-                  ellipsis={''} 
-                  seeMoreText={'See More'} 
-                  seeLessText={''}
-                  animate={false} 
-                  numberOfLines={3} 
-                  seeMoreStyle={{color:'black'}}
-                  style={styles.textStyle}>{ item.detail == '' ? '-' : item.detail}</ReadMore>
-              </View>
-            </View>
-          </View>
-        </TouchableOpacity>
-      )
-      */
   }
 
   renderFooter = () => {
@@ -1454,18 +1314,69 @@ class HomeScreen extends Component {
     if ( !isEmpty(found) && !isEmpty(found.images) ){
       if ( found.images.medium){
         found.images.medium.map( (itm) => {
-          return images.push({uri:itm.url});
+          return images.push({url:itm.url});
         })
       }
     }
     
-    return <ImageView
-            images={images}
-            imageIndex={init_index}
-            visible={modalVisible}
-            swipeToCloseEnabled={true}
-            onRequestClose={() => this.setState({ modalVisible: false })}
-          />
+    // return <ImageView
+    //         images={images}
+    //         imageIndex={init_index}
+    //         visible={modalVisible}
+    //         swipeToCloseEnabled={true}
+    //         onRequestClose={() => this.setState({ modalVisible: false })}
+    //       />
+
+    return (
+            <Modal 
+              visible={this.state.modalVisible}
+              transparent={true}
+              onRequestClose={() => this.setState({ modalVisible: false })}>
+              <ImageViewer 
+                  imageUrls={images.filter(function(item){return item.empty !== true;})}
+                  index={init_index}
+                  // renderHeader={this.renderHeaderImageViewer}
+                  // renderFooter={this.renderFooterImageViewer}
+                  onSwipeDown={() => {
+                      this.setState({modalVisible: false})
+                  }}
+                  onSave={uri => {
+                      this._saveImage(uri)
+                  }}
+                  onMove={data => console.log(data)}
+                  enableSwipeDown={true}
+                  renderImage={(props)=>{
+                      return(
+                          <Image {...props}
+                              indicator={Progress.Pie}
+                              indicatorProps={{
+                                  size: 50,
+                                  borderWidth: 1,
+                                  color: '#ffffff',
+                                  // unfilledColor: 'rgba(60,14,101, 0.2)',
+                              }}
+                              onLoadStart={e => console.log('Loading Start >>> ')}
+                              onProgress={e =>
+                                  console.log(
+                                  'Loading Progress ' +
+                                      e.nativeEvent.loaded / e.nativeEvent.total
+                                  )
+                              }
+                              onLoad={e =>
+                                  console.log(
+                                  'Loading Loaded ' + e.nativeEvent.width,
+                                  e.nativeEvent.height
+                                  )
+                              }
+                              onLoadEnd={e => console.log('Loading Ended')}
+                              />
+                          )
+                      }}
+                  />
+              {/* {this.renderFooterImageViewer()} */}
+            </Modal>
+
+    )
   }
 
   render(){
@@ -1492,7 +1403,6 @@ class HomeScreen extends Component {
                   maxToRenderPerBatch={1} // Reduce number in each render batch
                   updateCellsBatchingPeriod={100} // Increase time between renders
                   windowSize={7} // Reduce the window size
-                
                 />
                 <ActionButton
                   buttonColor="rgba(231,76,60,1)"

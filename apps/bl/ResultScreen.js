@@ -28,10 +28,174 @@ import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
+import Share from 'react-native-share';
+
 import { getUniqueId, getVersion } from 'react-native-device-info';
 
 import { NumberFormat, isEmpty } from './Utils'
 import {API_URL, API_URL_SOCKET_IO} from "./constants"
+
+class MyListItem extends React.Component {
+  shouldComponentUpdate(nextProps, nextState) {   
+    const { follow_ups, item } = this.props;
+    // true = reload item, false = not reload item
+
+    // T - T, F - F = 0 << use case ***
+    // T - F, F - T = 1
+    return  (nextProps.follow_ups.includes(item.id) ^ follow_ups.includes(item.id))
+  }
+
+  isOwner = (id_check) => {
+      return this.props.my_apps.includes(id_check)
+  }
+
+  render() {
+      const { navigation, follow_ups, item, user, my_apps } = this.props;
+      let _menu = null;
+      let _this = this;
+
+      // let { navigation, follow_ups, user } = this.props;
+      // let _menu = null;
+      // let _this = this
+
+      // console.log(item)
+      // console.log('follow_ups ?? : ', follow_ups, item.id )
+
+      // console.log( '>>> 009', follow_ups.find( f => String(f) === String(item.id)) )
+      return (
+          <TouchableOpacity 
+              key={item.id}
+              style={{padding:5}}
+              onPress={()=>{
+                  navigation.navigate('detail', {data:item})
+              }}
+          >
+          <View style={{flex:1, backgroundColor:'#fff' }}>
+              <View style={{position:'absolute', right: 0, flexDirection:'row', padding:10, zIndex:10000 }}>
+                  <TouchableOpacity 
+                      style={{ padding:3,}}
+                      onPress={ async ()=>{
+                          let cL = _this.props.user
+                          console.log(API_URL_SOCKET_IO(), cL.uid, item.id, getUniqueId())
+                          
+                          if(isEmpty(cL)){
+                              _this.props.onChange({ bottomModalAndTitle: true })
+                          }else{
+                              axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
+                                  uid: cL.uid,
+                                  id_follow_up: item.id,
+                                  unique_id: getUniqueId(),
+                                  owner_id: item.owner_id
+                              }, {
+                              headers: { 
+                                  'Content-Type': 'application/json',
+                              }
+                              })
+                              .then(function (response) {
+                                  let {result, message} = response.data
+
+                                  // console.log('message :', message)
+                                  if(result){
+
+                                  }else{
+                                      
+                                  }
+                                  _this.props.toast.show(message);
+                              })
+                              .catch(function (error) {
+                                  console.log('error :', error)
+                                  // _this.setState({loading: false})
+                              });
+                          }
+                      }}>
+                      { !_this.isOwner(item.id) &&
+                              <Ionicons 
+                              name="shield-checkmark-outline" 
+                              size={25} 
+                              color={isEmpty(follow_ups) ? 'gray' : (isEmpty(follow_ups.find( f => String(f) === String(item.id) )) ? 'gray' : 'red')} 
+                              />
+                      }
+                  </TouchableOpacity>
+                  <View style={{justifyContent:'center'}}>
+                      <Menu
+                      ref={(ref) => (_menu = ref)}
+                      button={
+                          <TouchableOpacity 
+                          style={{ paddingLeft:3, }}
+                          onPress={()=>{
+                              _menu.show()
+                          }}>
+                          <MaterialIcons name="more-vert" size={25} color={'grey'}  />
+                          </TouchableOpacity>
+                      }>
+                      <MenuItem onPress={() => {
+                              _menu.hide();
+                              const shareOptions = {
+                                  title: 'Share Banlist',
+                                  url: item.link,
+                                  failOnCancel: false,
+                              };
+
+                              Share.open(shareOptions)
+                              .then((res) => {
+                                  // console.log(res);
+                              })
+                              .catch((err) => {
+                                  err && console.log(err);
+                              });
+                              }} style={{flex:1, justifyContent:'center'}}>
+                          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                              <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="share" size={25} color={'grey'}  />
+                              <Text style={{ textAlign: 'center' }}>Share</Text>
+                          </View>
+                      </MenuItem>
+
+                      <MenuItem onPress={ async () => {
+                              _menu.hide();
+                              
+                              let cL = _this.props.user
+                              if(isEmpty(cL)){
+                                  // this.setState({ bottomModalAndTitle: true })
+                                  _this.props.onChange({ bottomModalAndTitle: true })
+                              }else{
+                                  navigation.navigate('report', {data:item})
+                              }
+                              }} style={{flex:1, justifyContent:'center'}}>
+                          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
+                              <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="report" size={25} color={'grey'}  />
+                              <Text style={{ textAlign: 'center' }}>Report</Text>
+                          </View>
+                      </MenuItem>
+                      </Menu>
+                  </View> 
+              </View>
+              <View style={{ flex:1, padding:10 }}>
+                  <View style={{flexDirection:'row'}}>
+                  <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
+                  <Text>{item.name} {item.surname}</Text>
+                  </View>
+                  <View style={{flexDirection:'row'}}>
+                  <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
+                  <Text>{item.title}</Text>
+                  </View>
+                  <View style={{flexDirection:'row'}}>
+                  <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
+                  <Text>{NumberFormat(Number(item.transfer_amount))}</Text>
+                  </View>
+                  <View style={{flexDirection:'row'}}>
+                          <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
+                          <Text>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
+                      </View>
+                  <View style={{flexDirection:'column'}}>
+                  <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
+                  <Text>{item.detail}</Text>
+              </View>
+          </View>
+          </View>
+          </TouchableOpacity>
+      );
+  }
+}
 
 
 class ResultScreen extends Component {
@@ -49,6 +213,20 @@ class ResultScreen extends Component {
     // let key_search =  route.params.key_search;
 
     this.handleSearch()
+    this.updateNavigation()
+  }
+
+  updateNavigation(){
+    let { navigation, route} = this.props;
+
+    if (route.params.key_search){
+        // console.log(route.params.data)
+
+        let key_search = route.params.key_search;
+        navigation.setOptions({
+            title: "คำค้น : " + key_search, 
+        })
+    }    
   }
 
   handleSearch= () => {
@@ -163,9 +341,25 @@ class ResultScreen extends Component {
     });
   }
 
+  changeHandler = (val) => {
+    this.setState(val)
+  }
+
   renderItem = (item) =>{
+
+    let { navigation, follow_ups, user, my_apps } = this.props;
+
+    return <MyListItem
+            item={item}
+            navigation={navigation}
+            follow_ups={follow_ups}
+            user={user}
+            my_apps={my_apps}
+            toast={this.toast}
+            onChange={this.changeHandler}/>
+
     // console.log(item.id)
-    const { navigation, follow_ups } = this.props;
+    // const { navigation, follow_ups } = this.props;
 
     let _menu = null;
     let _this = this
@@ -182,37 +376,37 @@ class ResultScreen extends Component {
                 style={{ padding:3,}}
                 onPress={ async ()=>{
                   let cL = this.props.user
-                  // console.log(API_URL_SOCKET_IO(), cL.uid, item.id, getUniqueId())
+                  console.log(API_URL_SOCKET_IO(), cL.uid, item.id, getUniqueId())
                 
-                  if(isEmpty(cL)){
-                    this.setState({ bottomModalAndTitle: true })
-                  }else{
-                    axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
-                      uid: cL.uid,
-                      id_follow_up: item.id,
-                      unique_id: getUniqueId(),
-                      owner_id: item.owner_id
-                    }, {
-                      headers: { 
-                        'Content-Type': 'application/json',
-                      }
-                    })
-                    .then(function (response) {
-                      let {result, message} = response.data
+                  // if(isEmpty(cL)){
+                  //   this.setState({ bottomModalAndTitle: true })
+                  // }else{
+                  //   axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
+                  //     uid: cL.uid,
+                  //     id_follow_up: item.id,
+                  //     unique_id: getUniqueId(),
+                  //     owner_id: item.owner_id
+                  //   }, {
+                  //     headers: { 
+                  //       'Content-Type': 'application/json',
+                  //     }
+                  //   })
+                  //   .then(function (response) {
+                  //     let {result, message} = response.data
 
-                      // console.log('message :', message)
-                      if(result){
+                  //     // console.log('message :', message)
+                  //     if(result){
 
-                      }else{
+                  //     }else{
                         
-                      }
-                      _this.toast.show(message);
-                    })
-                    .catch(function (error) {
-                      console.log('error :', error)
-                      // _this.setState({loading: false})
-                    });
-                  }
+                  //     }
+                  //     _this.toast.show(message);
+                  //   })
+                  //   .catch(function (error) {
+                  //     console.log('error :', error)
+                  //     // _this.setState({loading: false})
+                  //   });
+                  // }
                 }}>
                 <Ionicons 
                   name="shield-checkmark-outline" 
@@ -545,7 +739,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => {
   return{
     user: state.user.data,
-    follow_ups: state.user.follow_ups
+    follow_ups: state.user.follow_ups,
+    my_apps: state.user.my_apps
   }
 }
 

@@ -145,8 +145,10 @@ class MyPost extends Component {
       let text_follow_up = `Follow up`;
       
       console.log('follower_post : ', follower_post, item)
+
+      let fp = undefined
       if(!isEmpty(follower_post)){
-        let fp = follower_post.find((im)=>{ return String(im.post_id) === String(item.id) })
+        fp = follower_post.find((im)=>{ return String(im.post_id) === String(item.id) })
       
         if(!isEmpty(fp)){
           let flength= fp.follower.length; 

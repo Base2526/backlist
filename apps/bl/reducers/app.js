@@ -39,11 +39,11 @@ export const app = (state = initialState, action) => {
     //   }
     // }
     
-    case TEST_DATA: {
-      // console.log('TEST_DATA ', action.data)
-      return {...state, 
-                tests: action.data}
-    }
+    // case TEST_DATA: {
+    //   // console.log('TEST_DATA ', action.data)
+    //   return {...state, 
+    //             tests: action.data}
+    // }
 
     // case CHECK_DATA: {
     //   console.log('CHECT_DATA state >> ', state)
@@ -52,9 +52,9 @@ export const app = (state = initialState, action) => {
     //   return state;
     // }
 
-    case CLEAR_DATA: {
-      return initialState;
-    }
+    // case CLEAR_DATA: {
+    //   return initialState;
+    // }
       
     default:
       return state;

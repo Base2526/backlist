@@ -43,7 +43,8 @@ class SettingsScreen extends Component {
         navigation.setOptions({
             headerLeft: () => (
               <TouchableOpacity
-                onPress={() => console.log('Button is Pressed!') }>
+                // onPress={() => console.log('Button is Pressed!') }
+                >
                 <Text style={{ fontSize: 20, paddingLeft:10}}>Setting</Text>
               </TouchableOpacity>
             )
@@ -257,7 +258,7 @@ class SettingsScreen extends Component {
 
         let laps = [{'id': 0, 'title': 'Account', 'icon_name': "person-outline", 'color': 'gray', 'info': ''}, 
                     {'id': 1, 'title': 'My post', 'icon_name': "add-circle-outline", 'color': 'gray', 'info': (!isEmpty(my_apps) ? String(my_apps.length) : '') },
-                    {'id': 2, 'title': 'My follow up', 'icon_name': "shield-checkmark-outline", 'color': 'red', 'info':(!isEmpty(follow_ups) ? String(follow_ups.length) : '')   },
+                    {'id': 2, 'title': 'My follow up', 'icon_name': "shield-checkmark-outline", 'color': 'gray', 'info':(!isEmpty(follow_ups) ? String(follow_ups.length) : '')   },
                     {'id': 3, 'title': 'Notification', 'icon_name': "notifications-outline", 'color': 'gray', 'info': '99' }
                 ]
 
@@ -367,6 +368,20 @@ class SettingsScreen extends Component {
                     title='About'
                     onPress={()=>{
                         this.openLink('http://banlist.info/node/150')
+                    }}/>
+
+                <SettingsList.Item
+                    icon={
+                        <View style={styles.imageStyle}>
+                            <Ionicons name="information-outline" size={20} color={'grey'} />
+                        </View>
+                    }
+                    hasNavArrow={false}
+                    itemWidth={70}
+                    titleStyle={{color:'black', fontSize: 16}}
+                    title='Test function'
+                    onPress={()=>{
+                        navigation.navigate('test')
                     }}/>
             </SettingsList>    
             {this.modalLogin()}

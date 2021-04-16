@@ -6,12 +6,10 @@ import {SafeAreaView,
         FlatList, 
         Dimensions, 
         Modal,
-        Image,
         TouchableOpacity} from 'react-native';
         
-import ImageView from "react-native-image-viewing";
 import { connect } from 'react-redux';
-// import ImageViewer from 'react-native-image-zoom-viewer';
+import ImageViewer from 'react-native-image-zoom-viewer';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Toast, {DURATION} from 'react-native-easy-toast'
@@ -37,6 +35,11 @@ import {API_URL, API_URL_SOCKET_IO, WEB_CLIENT_ID, IOS_CLIENT_ID} from "./consta
 
 // https://reactnativecode.com/popup-menu-overflow-menu-in-react-navigation/
 import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
+
+import { createImageProgress } from 'react-native-image-progress';
+import * as Progress from 'react-native-progress';
+
+const Image = createImageProgress(FastImage);
 
 const formatData = (data, numColumns) => {
     const numberOfFullRows = Math.floor(data.length / numColumns);
@@ -453,14 +456,13 @@ class DetailScreen extends React.Component {
         let images = []
         if (route.params.data.images.medium){
             route.params.data.images.medium.map(function(itm){
-                images.push({uri: itm.url});
+                images.push({url: itm.url});
             })
         }
 
         // console.log(images)
 
         return (<SafeAreaView style={styles.container} onLayout={this.onLayout}>
-                    {/* 
                     <Modal 
                         visible={this.state.modalVisible}
                         transparent={true}
@@ -477,18 +479,46 @@ class DetailScreen extends React.Component {
                                 this._saveImage(uri)
                             }}
                             onMove={data => console.log(data)}
-                            enableSwipeDown={true}/>
+                            enableSwipeDown={true}
+                            renderImage={(props)=>{
+                                return(
+                                    <Image {...props}
+                                        indicator={Progress.Pie}
+                                        indicatorProps={{
+                                            size: 50,
+                                            borderWidth: 1,
+                                            color: '#ffffff',
+                                            // unfilledColor: 'rgba(60,14,101, 0.2)',
+                                        }}
+                                        onLoadStart={e => console.log('Loading Start >>> ')}
+                                        onProgress={e =>
+                                            console.log(
+                                            'Loading Progress ' +
+                                                e.nativeEvent.loaded / e.nativeEvent.total
+                                            )
+                                        }
+                                        onLoad={e =>
+                                            console.log(
+                                            'Loading Loaded ' + e.nativeEvent.width,
+                                            e.nativeEvent.height
+                                            )
+                                        }
+                                        onLoadEnd={e => console.log('Loading Ended')}
+                                        />
+                                    )
+                                }}
+                            />
                         {this.renderFooterImageViewer()}
                     </Modal>
-                    */ }
+            
 
-                    <ImageView
+                    {/* <ImageView
                         images={images}
                         imageIndex={init_index}
                         visible={modalVisible}
                         swipeToCloseEnabled={true}
                         onRequestClose={() => this.setState({ modalVisible: false })}
-                    />
+                    /> */}
                     <Toast
                         ref={(toast) => this.toast = toast}
                         position='bottom'

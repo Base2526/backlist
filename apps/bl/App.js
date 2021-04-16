@@ -69,6 +69,8 @@ import SettingsScreen from './SettingsScreen'
 import ReportScreen from './ReportScreen'
 import Notification from './Notification'
 
+import Test from './Test'
+
 import {API_URL_SOCKET_IO} from "./constants"
 
 import Toast, {DURATION} from 'react-native-easy-toast'
@@ -130,7 +132,10 @@ function HomeStackScreen({navigation, route}) {
         <HomeStack.Screen
           name="search"
           component={SearchScreen}
-          options={{headerShown:false}}
+          options={{
+            title: 'Search',
+            headerShown:false
+          }}
         />
         <HomeStack.Screen 
           name="result_search" 
@@ -198,7 +203,8 @@ function MeStackScreen({navigation, route}) {
           routeName == 'add_banlist' ||
           routeName == 'filter' ||
           routeName == 'follow_up' ||
-          routeName == 'notification' ){
+          routeName == 'notification' ||
+          routeName == 'test' ){
         navigation.setOptions({tabBarVisible: false});
     }else {
         navigation.setOptions({tabBarVisible: true});
@@ -273,11 +279,18 @@ function MeStackScreen({navigation, route}) {
           name="notification" 
           component={Notification} 
           options={{ title: 'Notification' }}/>  
+
+          {/* Test */}
+        <MeStack.Screen 
+            name="test" 
+            component={Test} 
+            options={{ title: 'test' }}/>  
     </MeStack.Navigator>
   );
 }
 
 let socket;
+let interval;
 class App extends Component {
 
   constructor(props) {
@@ -292,54 +305,56 @@ class App extends Component {
     SplashScreen.hide();
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
 
+    this.offSocket()
+
     this.onSocket()   
 
     let {clearData} = this.props
 
     clearData()
 
-    const interval = setInterval(() => {
-      let {testFetchData, tests} = this.props
-      // console.log('This will run every five second! : ', tests);
+    // const interval = setInterval(() => {
+    //   let {testFetchData, tests} = this.props
+    //   // console.log('This will run every five second! : ', tests);
 
-      let min = 1;
-      let max = 10000000;
-      let rand = Math.floor( min + Math.random() * (max - min) );
+    //   let min = 1;
+    //   let max = 10000000;
+    //   let rand = Math.floor( min + Math.random() * (max - min) );
 
-      // testFetchData
+    //   // testFetchData
       
 
-      if(tests.length < 5){
-        tests = [...tests, {id: rand, value: rand}]
-        testFetchData(tests)
+    //   if(tests.length < 5){
+    //     tests = [...tests, {id: rand, value: rand}]
+    //     testFetchData(tests)
 
-        console.log('tests : ', tests)
-      }else{
+    //     console.log('tests : ', tests)
+    //   }else{
 
-        min = 0;
-        max = 5;
-        rand = Math.floor( min + Math.random() * (max - min) );
+    //     min = 0;
+    //     max = 5;
+    //     rand = Math.floor( min + Math.random() * (max - min) );
 
-        let markers = [ ...tests ];
-        markers[rand] = {...markers[rand], value: Math.random() * Math.random() };
-        // this.setState({ markers });
+    //     let markers = [ ...tests ];
+    //     markers[rand] = {...markers[rand], value: Math.random() * Math.random() };
+    //     // this.setState({ markers });
 
-        console.log('markers : >>>>>>>>>>>>>>>>>>> ', markers[rand], rand)
-        testFetchData(markers)
-      }
+    //     console.log('markers : >>>>>>>>>>>>>>>>>>> ', markers[rand], rand)
+    //     testFetchData(markers)
+    //   }
+    // }, 10000);
 
-
-      
-
-      
-      
-    }, 10000);
+    interval = setInterval(() => {
+      console.log('setInterval');
+    }, 1000 * 60);
   }
 
   componentWillUnmount() {
     BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton());
 
     this.offSocket()
+
+    clearInterval(interval)
   }
 
   handleBackButton(){
@@ -361,6 +376,8 @@ class App extends Component {
   // https://github.com/vinnyoodles/react-native-socket-io-example/blob/master/client/index.js
   onSocket = async () =>{
 
+    
+
     // let API_URL_SOCKET_IO='http://localhost:3000'
     let cL = this.props.user
     console.log('API_URL_SOCKET_IO : ', API_URL_SOCKET_IO())
@@ -377,6 +394,9 @@ class App extends Component {
   }
 
   offSocket = () =>{
+    if(isEmpty(socket)){
+      return ;
+    }
     socket.off('message', this.onSocketMessage);
     socket.off('update_profile', this.onSocketUpdateProfile)
     socket.off('follow_up', this.onSocketFollowUp)
