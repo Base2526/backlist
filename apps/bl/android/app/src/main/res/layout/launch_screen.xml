@@ -10,8 +10,8 @@
         android:orientation="vertical"
         android:layout_centerInParent="true">
         <ImageView
-            android:layout_width="300px"
-            android:layout_height="300px"
+            android:layout_width="350px"
+            android:layout_height="350px"
             android:src="@mipmap/ic_launcher"
             android:scaleType="centerCrop"
             android:layout_gravity="center_horizontal"

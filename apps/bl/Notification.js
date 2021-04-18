@@ -204,7 +204,7 @@ const Notification = (props) => {
                             _menu.hide();
                             const shareOptions = {
                                 title: 'Share Banlist',
-                                url: item.link,
+                                url: API_URL + "/node/" +item.id,
                                 failOnCancel: false,
                             };
 

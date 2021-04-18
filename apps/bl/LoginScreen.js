@@ -73,7 +73,7 @@ class LoginScreen extends Component {
         let results = response.data
         console.log('/api/login : ', results, results.result)
         
-        console.log('cccc : ', typeof results.result);
+        // console.log('cccc : ', typeof results.result);
         if(results.result === true){ 
           _this.props.userLogin(results.user)
           _this.props.followUp( isEmpty(results.follow_ups) ? results.follow_ups : JSON.parse(results.follow_ups)) // follow_ups
@@ -82,7 +82,8 @@ class LoginScreen extends Component {
 
           _this.setState({spinner: false}) 
           navigation.pop();
-          route.params.onSelect({ isLogin: true });
+
+          route.params.updateState({ showModalLogin: false });
         }else{
           _this.toast.show(results.message);
           _this.setState({spinner: false})

@@ -29,11 +29,13 @@ import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-commu
 
 import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID} from "./constants"
 import { ValidateEmail, isEmpty, logout } from './Utils'
+
+import ModalLogin from './ModalLogin'
   
 class SettingsScreen extends Component {
     constructor(props) {
         super(props);
-        this.state = {bottomModalAndTitle: false, 
+        this.state = {showModalLogin: false, 
                       laps: ['1', '2', '3', '4']}
     }
 
@@ -56,13 +58,11 @@ class SettingsScreen extends Component {
             forceCodeForRefreshToken: true, // [Android] related to `serverAuthCode`, read the docs link below *.
             iosClientId: IOS_CLIENT_ID, // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
         });
-
-        this.modalLogin = this.modalLogin.bind(this)
     }
 
-    onSelect = data => {
+    onUpdateState = data => {
         this.setState(data);
-    };
+    }
 
     handleLoginWithFacebook= () =>{
         console.log('handleLoginWithFacebook')
@@ -104,93 +104,6 @@ class SettingsScreen extends Component {
             console.log('Some Other Error Happened');
             }
         }
-    }
-
-    modalLogin(){
-        let { navigation } = this.props;
-        return(
-            <Modal
-            testID={'modal'}
-            isVisible={this.state.bottomModalAndTitle}
-            onSwipeComplete={this.close}
-            // swipeDirection={['up', 'left', 'right', 'down']}
-            style={{justifyContent: 'flex-end', margin: 0,}}
-            backdropOpacity={0.5}
-            useNativeDriver={true}
-            onBackdropPress={() => {
-                this.setState({ bottomModalAndTitle: false })
-            }}>
-            <SafeAreaView style={{backgroundColor: 'white'}}>
-            <View style={{ backgroundColor:'white', padding:10}}>
-
-            <View style={{ flexDirection: 'column', 
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            paddingBottom:10}}>
-            <Text style={{fontSize:24}}>
-                Sign up for Banlist
-            </Text>
-            <Text style={{ textAlign: 'center', fontSize:16}}>
-                Create a profile, favorite, share, report criminals and more...
-            </Text>
-            </View>
-
-            <TouchableOpacity
-                style={{   
-                marginTop:10,      
-                borderColor:'gray',
-                borderWidth:.5 
-                }}
-                onPress={()=>{
-                    this.setState({ bottomModalAndTitle: false }, ()=>{
-                        navigation.navigate('login', { onSelect: this.onSelect })
-                    })
-                }}>
-                <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
-                <Ionicons name="person-outline" size={25} color={'grey'} />
-                <Text style={{paddingLeft:10}}>Use phone or email</Text>
-                </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-                style={{   
-                marginTop:10,      
-                borderColor:'gray',
-                borderWidth:.5 
-                }}
-                onPress={()=>{
-
-                this.setState({ bottomModalAndTitle: false }, ()=>{
-                    this.handleLoginWithFacebook()
-                })
-                
-                }}>
-                <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
-                <Ionicons name="logo-facebook" size={25} color={'grey'} />
-                <Text style={{paddingLeft:10}}>Login with facebook</Text>
-                </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-                style={{   
-                marginTop:10,      
-                borderColor:'gray',
-                borderWidth:.5 
-                }}
-                onPress={()=>{
-
-                this.setState({ bottomModalAndTitle: false }, ()=>{
-                    this.handleLoginWithGoogle()
-                })
-                
-                }}>
-                <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
-                <Ionicons name="logo-google" size={25} color={'grey'} />
-                <Text style={{paddingLeft:10}}>Login with google</Text>
-                </View>
-            </TouchableOpacity>
-            </View>
-            </SafeAreaView>
-        </Modal>
-        )
     }
 
     sleep(timeout) {
@@ -305,7 +218,8 @@ class SettingsScreen extends Component {
     }
 
     render() {
-        let { navigation, user } = this.props;        
+        let { navigation, user } = this.props;   
+        let { showModalLogin } = this.state     
         return (
         <View style={{backgroundColor:'#f6f6f6',flex:1}}>
             <SettingsList borderColor='#d6d5d9' defaultItemSize={50}>
@@ -317,7 +231,7 @@ class SettingsScreen extends Component {
                     borderHide={'Both'}
                     onPress={()=>{
                         if(isEmpty(user)){
-                            this.setState({bottomModalAndTitle: true})
+                            this.setState({showModalLogin: true})
                         }
                     }}/>
                 { this.lapsList() }
@@ -370,7 +284,7 @@ class SettingsScreen extends Component {
                         this.openLink('http://banlist.info/node/150')
                     }}/>
 
-                <SettingsList.Item
+                {/* <SettingsList.Item
                     icon={
                         <View style={styles.imageStyle}>
                             <Ionicons name="information-outline" size={20} color={'grey'} />
@@ -382,9 +296,13 @@ class SettingsScreen extends Component {
                     title='Test function'
                     onPress={()=>{
                         navigation.navigate('test')
-                    }}/>
+                    }}/> */}
             </SettingsList>    
-            {this.modalLogin()}
+            {/* {this.modalLogin()} */}
+            { 
+                isEmpty(user)  
+                && <ModalLogin {...this.props } showModalLogin={showModalLogin} updateState={this.onUpdateState} />
+            }
         </View>
         )
     }

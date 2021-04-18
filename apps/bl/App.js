@@ -77,10 +77,12 @@ import Toast, {DURATION} from 'react-native-easy-toast'
 
 import { Base64, checkLogin, isEmpty} from './Utils'
 
+import * as historys from './utils/historys';
+
 import {store, persistor} from './reduxStore'
 
 import { fetchProfile, followUp, fetchMyApps, followerPost } from './actions/user';
-import { testFetchData, clearData } from './actions/app'
+import { fetchData, testFetchData, clearData } from './actions/app'
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -301,7 +303,7 @@ class App extends Component {
     }
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     SplashScreen.hide();
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
 
@@ -347,7 +349,27 @@ class App extends Component {
     interval = setInterval(() => {
       console.log('setInterval');
     }, 1000 * 60);
+
+
+    // historys.removeItem('init_app')
+    // // historys.setItem('init_app', true);
+
+    // console.log('init_app : >>>>>>>>>>>>>>> ', await historys.getItem('first_install')) 
+
+    console.log('firstInstall : >>>> ',  await this.firstInstall())
   }
+
+  firstInstall= async () =>{
+    historys.removeItem('first_install')
+    let is_first = await historys.getItem('first_install')
+    if(isEmpty(is_first)){
+      historys.setItem('first_install', true);
+
+      return true
+    }
+    return false
+  }
+
 
   componentWillUnmount() {
     BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton());
@@ -375,17 +397,17 @@ class App extends Component {
 
   // https://github.com/vinnyoodles/react-native-socket-io-example/blob/master/client/index.js
   onSocket = async () =>{
-
-    
-
     // let API_URL_SOCKET_IO='http://localhost:3000'
     let cL = this.props.user
     console.log('API_URL_SOCKET_IO : ', API_URL_SOCKET_IO())
+
+
     if(!isEmpty(cL)){    
       socket = io(API_URL_SOCKET_IO(), { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${getUniqueId()}&version=${getVersion()}&uid=${cL.uid}` });
     }else{
       socket = io(API_URL_SOCKET_IO(), { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${getUniqueId()}&version=${getVersion()}` });
     }
+
     socket.on('message', this.onSocketMessage);
     socket.on('update_profile', this.onSocketUpdateProfile)
     socket.on('follow_up', this.onSocketFollowUp)
@@ -396,7 +418,9 @@ class App extends Component {
   offSocket = () =>{
     if(isEmpty(socket)){
       return ;
+    
     }
+    
     socket.off('message', this.onSocketMessage);
     socket.off('update_profile', this.onSocketUpdateProfile)
     socket.off('follow_up', this.onSocketFollowUp)
@@ -404,8 +428,14 @@ class App extends Component {
     socket.off('follower_post', this.onFollowerPost)
   }
 
+ 
   onSocketMessage = (data) => {
 
+    // data =  [ {"detail": "กู้เงิน", "id": 70277, "images": [], "name": "ธีรวัฒน์", "owner_id": 142, "surname": "สีใส", "title": "เงินกู้ออนไลน์", "transfer_amount": 500, "transfer_date": "2021-04-14"},
+    //   {"detail": "กู้เงิน", "id": 70278, "images": [], "name": "ธีรวัฒน์", "owner_id": 142, "surname": "สีใส", "title": "เงินกู้ออนไลน์", "transfer_amount": 500, "transfer_date": "2021-04-14"},
+    //   {"detail": "กู้เงิน", "id": 7027, "images": [], "name": "ธีรวัฒน์", "owner_id": 142, "surname": "สีใส", "title": "เงินกู้ออนไลน์", "transfer_amount": 500, "transfer_date": "2021-04-14"}]
+
+    //   this.props.fetchData(data)
     console.log('onSocketMessage >>>> ')
     console.log(data)
   }
@@ -548,7 +578,9 @@ const mapDispatchToProps = {
   followerPost,
 
   testFetchData,
-  clearData
+  clearData,
+
+  fetchData
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

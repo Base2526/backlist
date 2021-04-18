@@ -35,12 +35,55 @@ let upload = multer();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get('/api/hello', (req, res) => {
+const httpPostSearch = () => {
+  return new Promise((resolve, reject) => {
+    // http.get(url, res => {
+    //   res.setEncoding('utf8');
+    //   let body = ''; 
+    //   res.on('data', chunk => body += chunk);
+    //   res.on('end', () => resolve(body));
+    // }).on('error', reject);
+
+    const data = JSON.stringify({ type: 0, key_word: '*', offset: 0 })
+    var options = {
+      host: 'banlist.info',
+      port: 80,
+      path: '/api/search?_format=json',
+      method: 'POST',
+      json: true,
+      headers: {'Authorization': 'Basic YWRtaW46U29ta2lkMDU4ODQ4Mzkx', 
+      'Content-Type': 'application/json',
+      'Content-Length': data.length,}
+    };
+    const reqx = http.request(options, (res) =>{
+      console.log('STATUS: ' + res.statusCode);
+      console.log('HEADERS: ' + JSON.stringify(res.headers));
+
+      let body = ''; 
+      res.setEncoding('utf8');
+      res.on('data', function (chunk) {
+        body += chunk
+      });
+
+      res.on('end', () => {
+        resolve(body)
+      }
+      );
+    }).on('error', reject);
+
+    reqx.write(data)
+    reqx.end();
+  });
+};
+
+app.get('/api/hello', async(req, res) => {
   // db.collection('sockets').insert(res, (err, message) => {
   //   console.log(err)
   //   console.log(message)
   // })
-  console.log('/api/hello')
+  
+  // const body = await httpPostSearch();
+  // console.log('body >>> ', body)
 
   res.send({ express: config.mongo.url });
 });
@@ -317,10 +360,12 @@ io.on('connection', async (socket) => {
   var uid = handshake.query.uid;
   var unique_id = handshake.query.unique_id;
   var platform = handshake.query.platform;
+  // var first_install = handshake.query.first_install;
 
   console.log(`Socket ${socket.id} connection`)
 
   console.log(`uid :  ${uid}`)
+  console.log('handshake.query >> ', handshake.query)
   // users[unique_id] = socket;
 
   socket.emit('message', { unique_id: unique_id });

@@ -59,6 +59,7 @@ import { getUniqueId, getVersion } from 'react-native-device-info';
 import { createImageProgress } from 'react-native-image-progress';
 import * as Progress from 'react-native-progress';
 
+
 const Image = createImageProgress(FastImage);
 
 
@@ -68,6 +69,8 @@ import { isEmpty } from './Utils'
 
 import { fetchData, fetchDataAll, checkFetchData, clearData } from './actions/app';
 import { Alert } from 'react-native';
+
+import ModalLogin from './ModalLogin'
 
 class MyListItem extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {   
@@ -460,7 +463,7 @@ class MyListItem extends React.Component {
                   // console.log(API_URL_SOCKET_IO(), cL.uid, item.id, getUniqueId())
                 
                   if(isEmpty(cL)){
-                    _this.props.onChange({bottomModalAndTitle: true})
+                    _this.props.onChange({showModalLogin: true})
                   }else{
                     axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
                       uid: cL.uid,
@@ -518,7 +521,7 @@ class MyListItem extends React.Component {
                           _menu.hide();
                           const shareOptions = {
                               title: 'Share Banlist',
-                              url: item.link,
+                              url: API_URL + "/node/" +item.id,
                               failOnCancel: false,
                           };
 
@@ -537,19 +540,18 @@ class MyListItem extends React.Component {
                   </MenuItem>
 
                   <MenuItem onPress={ async () => {
-                          _menu.hide();
-                          
-                          let cL = this.props.user
-                          if(isEmpty(cL)){
-                            this.setState({ bottomModalAndTitle: true })
-                          }else{
-                            navigation.navigate('report', {data:item})
-                          }
-                        }} style={{flex:1, justifyContent:'center'}}>
-                      <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
-                        <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="report" size={25} color={'grey'}  />
-                        <Text style={{ textAlign: 'center' }}>Report</Text>
-                      </View>
+                      _menu.hide();
+                      
+                      if(isEmpty(this.props.user)){
+                        this.setState({ showModalLogin: true })
+                      }else{
+                        navigation.navigate('report', {data:item})
+                      }
+                    }} style={{flex:1, justifyContent:'center'}}>
+                    <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
+                      <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="report" size={25} color={'grey'}  />
+                      <Text style={{ textAlign: 'center' }}>Report</Text>
+                    </View>
                   </MenuItem>
                 </Menu>
               </View>
@@ -623,7 +625,10 @@ class HomeScreen extends Component {
 
                   modalVisible: false,
                   init_index: 0,
-                  mv: 0
+                  mv: 0,
+
+
+                  showModalLogin:false
                   };
   }
 
@@ -631,7 +636,7 @@ class HomeScreen extends Component {
     this.is_mounted = true;
     const { route, navigation, follower_post, data } = this.props;
 
-    console.log('data >>>', data)
+    // console.log('data >>>', data)
 
     navigation.setOptions({
         headerLeft: () => (
@@ -704,7 +709,7 @@ class HomeScreen extends Component {
     this.is_mounted && this.setState({offset: 0},() => { this.getData() });
   }
 
-  onSelect = data => {
+  onUpdateState = data => {
     this.setState(data);
   }
 
@@ -728,7 +733,7 @@ class HomeScreen extends Component {
       nid_last = data[data.length - 1].id; 
     }
 
-    // console.log('start : > ')
+    console.log('start : > ')
     // axios.post(`${API_URL}/api/fetch?_format=json`, {
     //   nid_last,
     // }, {
@@ -745,7 +750,7 @@ class HomeScreen extends Component {
     })
     .then(function (response) {
       let results = response.data
-      // console.log('HomeScreen : results : ', results)
+      console.log('end : > ')
       if(results.result){
         // true
         let {execution_time, datas, count} = results;
@@ -1132,6 +1137,8 @@ class HomeScreen extends Component {
   }
 
   renderItem = (item) =>{
+
+    // console.log('item :', item)
     let { navigation, follow_ups, user, my_apps } = this.props;
 
     return <MyListItem
@@ -1213,96 +1220,6 @@ class HomeScreen extends Component {
     }
   }
 
-  modalLogin(){
-    let { navigation } = this.props;
-
-    return(
-      <ReactNativeModal
-      testID={'modal'}
-      isVisible={this.state.bottomModalAndTitle}
-      onSwipeComplete={this.close}
-      // swipeDirection={['up', 'left', 'right', 'down']}
-      style={{justifyContent: 'flex-end', margin: 0,}}
-      backdropOpacity={0.5}
-      useNativeDriver={true}
-      onBackdropPress={() => {
-        this.setState({ bottomModalAndTitle: false })
-      }}>
-      <SafeAreaView style={{backgroundColor: 'white'}}>
-      <View style={{ backgroundColor:'white', padding:10}}>
-
-      <View style={{ flexDirection: 'column', 
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      paddingBottom:10}}>
-       <Text style={{fontSize:20}}>
-         Sign up for Banlist
-       </Text>
-       <Text style={{ textAlign: 'center', fontSize:14, color:'gray'}}>
-         Create a profile, favorite, share, report criminals and more...
-       </Text>
-      </View>
-
-      <TouchableOpacity
-          style={{   
-            marginTop:10,      
-            borderColor:'gray',
-            borderWidth:.5 
-          }}
-          onPress={()=>{
-
-            this.setState({ bottomModalAndTitle: false }, ()=>{
-              navigation.navigate('login', { onSelect: this.onSelect })
-            })
-            
-          }}>
-          <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
-          <Ionicons name="person-outline" size={25} color={'grey'} />
-          <Text style={{paddingLeft:10}}>Use phone or email</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{   
-            marginTop:10,      
-            borderColor:'gray',
-            borderWidth:.5 
-          }}
-          onPress={()=>{
-
-            this.setState({ bottomModalAndTitle: false }, ()=>{
-              this.handleLoginWithFacebook()
-            })
-            
-          }}>
-          <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
-            <Ionicons name="logo-facebook" size={25} color={'grey'} />
-            <Text style={{paddingLeft:10}}>Login with facebook</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{   
-            marginTop:10,      
-            borderColor:'gray',
-            borderWidth:.5 
-          }}
-          onPress={()=>{
-
-            this.setState({ bottomModalAndTitle: false }, ()=>{
-              this.handleLoginWithGoogle()
-            })
-            
-          }}>
-          <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
-            <Ionicons name="logo-google" size={25} color={'grey'} />
-            <Text style={{paddingLeft:10}}>Login with google</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
-      </SafeAreaView>
-    </ReactNativeModal>
-    )
-  }
-
   viewImageViewer = () =>{
     let {modalVisible, mv, init_index} = this.state
    
@@ -1381,6 +1298,9 @@ class HomeScreen extends Component {
 
   render(){
       const { navigation, data } = this.props;
+      const {showModalLogin} = this.state
+
+      console.log('showModalLogin >>>', showModalLogin)
       return (<View style={styles.container}>
                 <FlatList
                   ref={(ref) => this.flatlistref = ref}
@@ -1409,13 +1329,17 @@ class HomeScreen extends Component {
                   onPress={() => { 
                     // console.log(this.props.user)
                     if(isEmpty(this.props.user)){
-                      this.setState({bottomModalAndTitle: true})
+                      this.setState({showModalLogin: true})
                     }else{
-                      navigation.navigate('add_banlist', { onSelect: this.onSelect })
+                      navigation.navigate('add_banlist', { updateState: this.onUpdateState })
                     }
                   }}/>
-                {this.modalLogin()}
-
+                {/* {this.modalLogin()} */}
+                { 
+                  isEmpty(this.props.user)  
+                  && <ModalLogin {...this.props } showModalLogin={showModalLogin} updateState={ this.onUpdateState } />
+                }
+                
                 <Toast
                   ref={(toast) => this.toast = toast}
                   position='bottom'

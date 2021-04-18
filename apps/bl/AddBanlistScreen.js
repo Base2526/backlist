@@ -296,11 +296,7 @@ class AddBanlistScreen extends Component {
         let {navigation, route} = _this.props;
 
         navigation.pop();
-        route.params.onSelect({});
-
-        // _this.toast.show('เพิ่มรายงานเรียบร้อย');
-
-        // _this.props.navigation.pop();        
+        route.params.updateState({});     
       }else{
         // false
         console.log('false');

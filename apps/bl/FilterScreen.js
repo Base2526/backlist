@@ -36,6 +36,8 @@ import Share from 'react-native-share';
 import {API_URL, API_TOKEN, API_URL_SOCKET_IO} from "./constants"
 import { NumberFormat, isEmpty } from './Utils'
 
+import ModalLogin from './ModalLogin'
+
 class MyListItem extends React.Component {
     shouldComponentUpdate(nextProps, nextState) {   
       const { follow_ups, item } = this.props;
@@ -80,7 +82,7 @@ class MyListItem extends React.Component {
                             console.log(API_URL_SOCKET_IO(), cL.uid, item.id, getUniqueId())
                             
                             if(isEmpty(cL)){
-                                _this.props.onChange({ bottomModalAndTitle: true })
+                                _this.props.updateState({ showModalLogin: true })
                             }else{
                                 axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
                                     uid: cL.uid,
@@ -133,7 +135,7 @@ class MyListItem extends React.Component {
                                 _menu.hide();
                                 const shareOptions = {
                                     title: 'Share Banlist',
-                                    url: item.link,
+                                    url: API_URL + "/node/" +item.id,
                                     failOnCancel: false,
                                 };
 
@@ -157,7 +159,7 @@ class MyListItem extends React.Component {
                                 let cL = _this.props.user
                                 if(isEmpty(cL)){
                                     // this.setState({ bottomModalAndTitle: true })
-                                    _this.props.onChange({ bottomModalAndTitle: true })
+                                    _this.props.updateState({ showModalLogin: true })
                                 }else{
                                     navigation.navigate('report', {data:item})
                                 }
@@ -209,7 +211,9 @@ class FilterScreen extends Component {
                     type : 5,
                     offset: 0,
                     
-                    loading: false}
+                    loading: false,
+                
+                    showModalLogin:false}
     }
  
     componentDidMount(){
@@ -245,6 +249,10 @@ class FilterScreen extends Component {
 
     isOwner = (id_check) => {
         return this.props.my_apps.includes(id_check)
+    }
+
+    onUpdateState = data => {
+        this.setState(data);
     }
 
     search = () =>{
@@ -292,14 +300,9 @@ class FilterScreen extends Component {
             console.log(error);
         });
     }
-
-    changeHandler = (val) => {
-        this.setState(val)
-    }
     
     renderItem = (item) =>{
         let { navigation, follow_ups, user, my_apps } = this.props;
-
         return <MyListItem
                     item={item}
                     navigation={navigation}
@@ -307,141 +310,7 @@ class FilterScreen extends Component {
                     user={user}
                     my_apps={my_apps}
                     toast={this.toast}
-                    onChange={this.changeHandler}/>
-
-        let _menu = null;
-        let _this = this
-        return (
-            <TouchableOpacity 
-                key={item.id}
-                style={{padding:5}}
-                onPress={()=>{
-                    navigation.navigate('detail', {data:item})
-                }}
-            >
-            <View style={{flex:1, backgroundColor:'#fff' }}>
-                <View style={{position:'absolute', right: 0, flexDirection:'row', padding:10, zIndex:10000 }}>
-                    <TouchableOpacity 
-                        style={{ padding:3,}}
-                        onPress={ async ()=>{
-                            let cL = this.props.user
-                            // console.log(API_URL_SOCKET_IO(), cL.uid, item.id, getUniqueId())
-                            
-                            if(isEmpty(cL)){
-                                this.setState({ bottomModalAndTitle: true })
-                            }else{
-                                axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
-                                    uid: cL.uid,
-                                    id_follow_up: item.id,
-                                    unique_id: getUniqueId(),
-                                    owner_id: item.owner_id
-                                }, {
-                                headers: { 
-                                    'Content-Type': 'application/json',
-                                }
-                                })
-                                .then(function (response) {
-                                    let {result, message} = response.data
-
-                                    // console.log('message :', message)
-                                    if(result){
-
-                                    }else{
-                                        
-                                    }
-                                    _this.toast.show(message);
-                                })
-                                .catch(function (error) {
-                                console.log('error :', error)
-                                // _this.setState({loading: false})
-                                });
-                            }
-                        }}>
-                        { !this.isOwner(item.id) &&
-                                <Ionicons 
-                                name="shield-checkmark-outline" 
-                                size={25} 
-                                color={isEmpty(follow_ups) ? 'gray' : (isEmpty(follow_ups.find( f => String(f) === String(item.id) )) ? 'gray' : 'red')} 
-                                />
-                        }
-                    </TouchableOpacity>
-                    <View style={{justifyContent:'center'}}>
-                        <Menu
-                        ref={(ref) => (_menu = ref)}
-                        button={
-                            <TouchableOpacity 
-                            style={{ paddingLeft:3, }}
-                            onPress={()=>{
-                                _menu.show()
-                            }}>
-                            <MaterialIcons name="more-vert" size={25} color={'grey'}  />
-                            </TouchableOpacity>
-                        }>
-                        <MenuItem onPress={() => {
-                                _menu.hide();
-                                const shareOptions = {
-                                    title: 'Share Banlist',
-                                    url: item.link,
-                                    failOnCancel: false,
-                                };
-
-                                Share.open(shareOptions)
-                                .then((res) => {
-                                    // console.log(res);
-                                })
-                                .catch((err) => {
-                                    err && console.log(err);
-                                });
-                                }} style={{flex:1, justifyContent:'center'}}>
-                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="share" size={25} color={'grey'}  />
-                                <Text style={{ textAlign: 'center' }}>Share</Text>
-                            </View>
-                        </MenuItem>
-
-                        <MenuItem onPress={ async () => {
-                                _menu.hide();
-                                
-                                let cL = this.props.user
-                                if(isEmpty(cL)){
-                                    this.setState({ bottomModalAndTitle: true })
-                                }else{
-                                    navigation.navigate('report', {data:item})
-                                }
-                                }} style={{flex:1, justifyContent:'center'}}>
-                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
-                                <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="report" size={25} color={'grey'}  />
-                                <Text style={{ textAlign: 'center' }}>Report</Text>
-                            </View>
-                        </MenuItem>
-                        </Menu>
-                    </View> 
-                </View>
-                <View style={{ flex:1, padding:10 }}>
-                    <View style={{flexDirection:'row'}}>
-                    <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
-                    <Text>{item.name} {item.surname}</Text>
-                    </View>
-                    <View style={{flexDirection:'row'}}>
-                    <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
-                    <Text>{item.title}</Text>
-                    </View>
-                    <View style={{flexDirection:'row'}}>
-                    <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
-                    <Text>{NumberFormat(Number(item.transfer_amount))}</Text>
-                    </View>
-                    <View style={{flexDirection:'row'}}>
-                            <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
-                            <Text>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
-                        </View>
-                    <View style={{flexDirection:'column'}}>
-                    <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
-                    <Text>{item.detail}</Text>
-                </View>
-            </View>
-            </View>
-            </TouchableOpacity>
-        );
+                    updateState={this.onUpdateState}/>
     }
     
     renderFooter = () => {
@@ -473,7 +342,7 @@ class FilterScreen extends Component {
     render(){
         const { navigation } = this.props;
     
-        let {datas, execution_time, count} = this.state
+        let {datas, execution_time, count, showModalLogin} = this.state
         return (<SafeAreaView style={{flex:1, marginTop:10}}>
                     {datas.length > 0 && <Text style={{padding:5}}>Search time : {execution_time} / {count}</Text> }
                     
@@ -492,8 +361,12 @@ class FilterScreen extends Component {
                         positionValue={220}
                         fadeInDuration={750}
                         fadeOutDuration={1000}
-                        opacity={0.8}
-                        />
+                        opacity={0.8}/>
+
+                    { 
+                        isEmpty(this.props.user)  
+                        && <ModalLogin {...this.props } showModalLogin={showModalLogin} updateState={this.onUpdateState} />
+                    }
                 </SafeAreaView>)
     }
 }

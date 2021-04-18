@@ -316,32 +316,12 @@ class SearchScreen extends React.PureComponent {
     const sections = [
       {
         title: 'Recent searches',
-        data: [
-          // [
-          // {section : '0', id:'0', title: 'overall'},
-          // {section : '0', id:'1', title: 'Management Information Department'},
-          // {section : '0', id:'2', title: 'High Performance Department'},
-          // {section : '0', id:'3', title: 'Tech Cloud'},
-          // {section : '0', id:'4', title: 'Big Data Department'},
-          // {section : '0', id:'5', title: 'New Media Department'},
-          // {section : '0', id:'6', title: 'Internet of Things Center'},
-          // {section : '0', id:'7', title: 'Scientific Research and Information Department'},
-          // {section : '0', id:'8', title: 'Amazon Cloud'},
-          // {section : '0', id:'9', title: 'Ministry Secondary School'},
-          // {section : '0', id:'10', title: 'Manage Cloud'},
-          // {section : '0', id:'11', title: 'Ningbo Materials Institute'},  
-          // ]
-          _historys.map((title, id) => {return {section : '0', id, title}})
-        ],
+        data: [_historys.map((title, id) => {return {section : '0', id, title}})],
       },
       {
         title: 'Narrow your search',
         data: [
           [
-            // {section : '1', id:'0', title: 'machine distribution'},
-            // {section : '1', id:'1', title: 'User distribution'},
-            // {section : '1', id:'2', title: 'Storage distribution'},
-            // {section : '1', id:'3', title: 'Bone Flow Chart'},
             { section: '1', id: '0', title: 'ti:', ex: 'Ex. title' },
             { section: '1', id: '1', title: 'ns:', ex: 'Ex. name subname' },
             { section: '1', id: '2', title: 'in:', ex: 'Ex. 33209xxxxxx72' },

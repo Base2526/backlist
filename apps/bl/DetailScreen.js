@@ -41,6 +41,8 @@ import * as Progress from 'react-native-progress';
 
 const Image = createImageProgress(FastImage);
 
+import ModalLogin from './ModalLogin'
+
 const formatData = (data, numColumns) => {
     const numberOfFullRows = Math.floor(data.length / numColumns);
 
@@ -61,7 +63,7 @@ class DetailScreen extends React.Component {
                         modalVisible: false,
                         init_index: 0,
                         images: [],
-                        bottomModalAndTitle: false,
+                        showModalLogin: false,
 
                         // isLogin:false,
                     }
@@ -128,7 +130,7 @@ class DetailScreen extends React.Component {
                             // console.log(cL.uid, data.id, getUniqueId(), API_URL_SOCKET_IO())
                   
                             if(isEmpty(cL)){
-                                _this.setState({bottomModalAndTitle: true})
+                                _this.setState({showModalLogin: true})
                             }else{
                                 axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
                                         uid: cL.uid,
@@ -228,11 +230,10 @@ class DetailScreen extends React.Component {
             });
     };
 
-    onSelect = data => {
+    onUpdateState = data => {
         this.setState(data);
     }
     
-
     onLayout = () => { 
         const {width} = Dimensions.get('window')
         const itemWidth = 100
@@ -357,99 +358,9 @@ class DetailScreen extends React.Component {
             }
         }
     }
-
-    modalLogin(){
-        let { navigation } = this.props;
-    
-        return(
-          <ReactNativeModal
-          testID={'modal'}
-          isVisible={this.state.bottomModalAndTitle}
-          onSwipeComplete={this.close}
-          // swipeDirection={['up', 'left', 'right', 'down']}
-          style={{justifyContent: 'flex-end', margin: 0,}}
-          backdropOpacity={0.5}
-          useNativeDriver={true}
-          onBackdropPress={() => {
-            this.setState({ bottomModalAndTitle: false })
-          }}>
-          <SafeAreaView style={{backgroundColor: 'white'}}>
-          <View style={{ backgroundColor:'white', padding:10}}>
-    
-          <View style={{ flexDirection: 'column', 
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          paddingBottom:10}}>
-           <Text style={{fontSize:20}}>
-             Sign up for Banlist
-           </Text>
-           <Text style={{ textAlign: 'center', fontSize:14, color:'gray'}}>
-             Create a profile, favorite, share, report criminals and more...
-           </Text>
-          </View>
-    
-          <TouchableOpacity
-              style={{   
-                marginTop:10,      
-                borderColor:'gray',
-                borderWidth:.5 
-              }}
-              onPress={()=>{
-    
-                this.setState({ bottomModalAndTitle: false }, ()=>{
-                  navigation.navigate('login', { onSelect: this.onSelect })
-                })
-                
-              }}>
-              <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
-              <Ionicons name="person-outline" size={25} color={'grey'} />
-              <Text style={{paddingLeft:10}}>Use phone or email</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{   
-                marginTop:10,      
-                borderColor:'gray',
-                borderWidth:.5 
-              }}
-              onPress={()=>{
-    
-                this.setState({ bottomModalAndTitle: false }, ()=>{
-                  this.handleLoginWithFacebook()
-                })
-                
-              }}>
-              <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
-                <Ionicons name="logo-facebook" size={25} color={'grey'} />
-                <Text style={{paddingLeft:10}}>Login with facebook</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{   
-                marginTop:10,      
-                borderColor:'gray',
-                borderWidth:.5 
-              }}
-              onPress={()=>{
-    
-                this.setState({ bottomModalAndTitle: false }, ()=>{
-                  this.handleLoginWithGoogle()
-                })
-                
-              }}>
-              <View style={{flexDirection: 'row', alignItems: "center", padding: 10, borderRadius: 10}}>
-                <Ionicons name="logo-google" size={25} color={'grey'} />
-                <Text style={{paddingLeft:10}}>Login with google</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-          </SafeAreaView>
-        </ReactNativeModal>
-        )
-    }
-        
+     
     render() {
-        let {init_index, modalVisible} = this.state
+        let {init_index, showModalLogin} = this.state
 
         let { route } = this.props;
 
@@ -535,7 +446,11 @@ class DetailScreen extends React.Component {
                         numColumns={numColumns}
                         keyExtractor={(item, index) => String(index)}/>
 
-                    {this.modalLogin()}
+                    {/* {this.modalLogin()} */}
+                    { 
+                        isEmpty(this.props.user)  
+                        && <ModalLogin {...this.props } showModalLogin={showModalLogin} updateState={this.onUpdateState} />
+                    }
                 </SafeAreaView>)
     }
 }
@@ -568,24 +483,12 @@ const styles = StyleSheet.create({
   }
 });
 
-// export default DetailScreen
 const mapStateToProps = state => {
     return{
         user: state.user.data,
         follow_ups: state.user.follow_ups,
         my_apps: state.user.my_apps
     }
-}
-
-/*
-is function call by user
-*/
-const mapDispatchToProps = {
-    // fetchData,
-    // fetchDataAll,
-    // testFetchData,
-    // checkFetchData,
-    // clearData
 }
 
 export default connect(mapStateToProps, null)(DetailScreen)
