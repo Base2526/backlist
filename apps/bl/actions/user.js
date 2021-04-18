@@ -79,7 +79,7 @@ export const fetchProfile = (basic_auth) => dispatch =>{
     console.log('updateProfile : ', results)
     if(results.result){
       let {profile} = results
-      // dispatch(_fetchProfile(profile));
+      dispatch(_fetchProfile(profile));
     }
   })
   .catch(function (error) {

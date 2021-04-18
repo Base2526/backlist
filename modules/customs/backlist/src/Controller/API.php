@@ -110,7 +110,13 @@ class API extends ControllerBase {
 
           \Drupal::logger('Login')->notice(serialize($user_login_finalize));
 
-          $name    = $user->getDisplayName();
+          // $name    = $user->getDisplayName();
+          $display_name    = '';
+          $field_display_name = $user->get('field_display_name')->getValue();
+          if(!empty($field_display_name)){
+            $display_name    = $field_display_name[0]['value'];
+          }
+
           $email   = $user->getEmail();
           $image_url = '';  
           if (!$user->get('user_picture')->isEmpty()) {
@@ -119,7 +125,7 @@ class API extends ControllerBase {
 
           $user = array(
                     'uid'       =>  $uid,
-                    'name'      =>  $name,
+                    'name'      =>  $display_name,
                     'email'     =>  $email,
                     'image_url' =>  $image_url,
                     'session'   =>  \Drupal::service('session')->getId(),
@@ -1539,16 +1545,24 @@ class API extends ControllerBase {
 
         $user = User::load( \Drupal::currentUser()->id() );
         $name    = $user->getDisplayName();
+
+        $display_name    = '';
+        $field_display_name = $user->get('field_display_name')->getValue();
+        if(!empty($field_display_name)){
+          $display_name    = $field_display_name[0]['value'];
+        }
+
+
         $email   = $user->getEmail();
         $image_url = '';  
         if (!$user->get('user_picture')->isEmpty()) {
           $image_url = file_create_url($user->get('user_picture')->entity->getFileUri());
         }
 
-        $profile = array('name'      =>  $name,
-                      'email'     =>  $email,
-                      'image_url' =>  $image_url,
-                     );
+        $profile = array( 'name'      =>  $display_name,
+                          'email'     =>  $email,
+                          'image_url' =>  $image_url,
+                        );
 
         $response_array['result']           = TRUE;
         $response_array['profile']          = $profile;
@@ -1575,22 +1589,47 @@ class API extends ControllerBase {
     try {
       $time1          = microtime(true);
       $content        = json_decode( $request->getContent(), TRUE );
-      $uid            = trim( $_REQUEST['uid'] );
+      $type            = trim( $_REQUEST['type'] );
 
-      if(!empty($_FILES)){
-        $target = 'sites/default/files/'. $_FILES['file']['name'];
-        move_uploaded_file( $_FILES['file']['tmp_name'], $target);
+      /*
+      type: 
+        1 = Display name
+        2 = Image profile
+      */
+      switch($type){
+        case 1:{
+          $field_display_name            = trim( $_REQUEST['display_name'] );
 
-        $file = file_save_data( file_get_contents( $target ), 'public://'. date('m-d-Y_hia') .'_'.mt_rand().'.png' , FileSystemInterface::EXISTS_REPLACE);
-
-        $user = User::load($uid);
-        if(!empty($user)){
-          $user->set('user_picture', $file->id());
-          $user->save();
+          $user = User::load(\Drupal::currentUser()->id());
+          if(!empty($user)){
+            $user->set('field_display_name', $field_display_name);
+            $user->save();
+          }
+         
+          break;
         }
 
-        $response_array['image_url']  =  file_create_url($file->getFileUri());
+        case 2:{
+          if(!empty($_FILES)){
+            $target = 'sites/default/files/'. $_FILES['file']['name'];
+            move_uploaded_file( $_FILES['file']['tmp_name'], $target);
+    
+            $file = file_save_data( file_get_contents( $target ), 'public://'. date('m-d-Y_hia') .'_'.mt_rand().'.png' , FileSystemInterface::EXISTS_REPLACE);
+    
+            $user = User::load(\Drupal::currentUser()->id());
+            if(!empty($user)){
+              $user->set('user_picture', $file->id());
+              $user->save();
+            }
+    
+            $response_array['image_url']  =  file_create_url($file->getFileUri());
+          }
+
+          break;
+        }
       }
+
+      
 
       $response_array['result']           = TRUE;
       $response_array['execution_time']   = microtime(true) - $time1;

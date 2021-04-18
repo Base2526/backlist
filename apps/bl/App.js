@@ -69,6 +69,8 @@ import SettingsScreen from './SettingsScreen'
 import ReportScreen from './ReportScreen'
 import Notification from './Notification'
 
+import EditName from './EditName'
+
 import Test from './Test'
 
 import {API_URL_SOCKET_IO} from "./constants"
@@ -206,7 +208,8 @@ function MeStackScreen({navigation, route}) {
           routeName == 'filter' ||
           routeName == 'follow_up' ||
           routeName == 'notification' ||
-          routeName == 'test' ){
+          routeName == 'test' ||
+          routeName == 'edit_name' ){
         navigation.setOptions({tabBarVisible: false});
     }else {
         navigation.setOptions({tabBarVisible: true});
@@ -284,9 +287,15 @@ function MeStackScreen({navigation, route}) {
 
           {/* Test */}
         <MeStack.Screen 
-            name="test" 
-            component={Test} 
-            options={{ title: 'test' }}/>  
+          name="test" 
+          component={Test} 
+          options={{ title: 'test' }}/>  
+
+            {/* EditName */}
+        <MeStack.Screen 
+          name="edit_name" 
+          component={EditName} 
+          options={{ title: 'EditName' }}/>  
     </MeStack.Navigator>
   );
 }
@@ -356,19 +365,19 @@ class App extends Component {
 
     // console.log('init_app : >>>>>>>>>>>>>>> ', await historys.getItem('first_install')) 
 
-    console.log('firstInstall : >>>> ',  await this.firstInstall())
+    // console.log('firstInstall : >>>> ',  await this.firstInstall())
   }
 
-  firstInstall= async () =>{
-    historys.removeItem('first_install')
-    let is_first = await historys.getItem('first_install')
-    if(isEmpty(is_first)){
-      historys.setItem('first_install', true);
+  // firstInstall= async () =>{
+  //   historys.removeItem('first_install')
+  //   let is_first = await historys.getItem('first_install')
+  //   if(isEmpty(is_first)){
+  //     historys.setItem('first_install', true);
 
-      return true
-    }
-    return false
-  }
+  //     return true
+  //   }
+  //   return false
+  // }
 
 
   componentWillUnmount() {

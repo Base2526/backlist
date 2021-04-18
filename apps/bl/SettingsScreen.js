@@ -166,17 +166,17 @@ class SettingsScreen extends Component {
         }
     }
 
-    lapsList() {
+    myInfo() {
         let { navigation, user, follow_ups, my_apps } = this.props;
 
-        let laps = [{'id': 0, 'title': 'Account', 'icon_name': "person-outline", 'color': 'gray', 'info': ''}, 
+        let infos = [{'id': 0, 'title': 'Account', 'icon_name': "person-outline", 'color': 'gray', 'info': ''}, 
                     {'id': 1, 'title': 'My post', 'icon_name': "add-circle-outline", 'color': 'gray', 'info': (!isEmpty(my_apps) ? String(my_apps.length) : '') },
                     {'id': 2, 'title': 'My follow up', 'icon_name': "shield-checkmark-outline", 'color': 'gray', 'info':(!isEmpty(follow_ups) ? String(follow_ups.length) : '')   },
                     {'id': 3, 'title': 'Notification', 'icon_name': "notifications-outline", 'color': 'gray', 'info': '99' }
                 ]
 
         if(!isEmpty(user)){
-            return laps.map((data) => {
+            return infos.map((data) => {
                 return (<SettingsList.Item
                             key={data.id}
                             icon={
@@ -234,7 +234,7 @@ class SettingsScreen extends Component {
                             this.setState({showModalLogin: true})
                         }
                     }}/>
-                { this.lapsList() }
+                {  !isEmpty(user)  && this.myInfo() }
                 <SettingsList.Header headerStyle={{marginTop:-5}}/>
                 <SettingsList.Item
                     hasNavArrow={false}

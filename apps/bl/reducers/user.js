@@ -41,7 +41,10 @@ export const user = (state = initialState, action) => {
 
     case FETCH_PROFILE:{
       // console.log('Reduces > FETCH_PROFILE > ', action.data)
-      return {...state, profile: action.data}
+
+      // console.log('Reduces > FETCH_PROFILE > ', state.data, {...state.data, ...action.data} )
+
+      return {...state, data: {...state.data, ...action.data} }
     }
 
     case FOLLOW_UP: {

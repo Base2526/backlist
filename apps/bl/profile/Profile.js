@@ -767,8 +767,6 @@ class Profile extends Component {
       name: path.substring(path.lastIndexOf('/')+1)
     });
 
-    
-
     axios.post(`${API_URL}/api/update_profile?_format=json`, data, {
       headers: { 
         'Authorization': `Basic ${API_TOKEN}` ,
