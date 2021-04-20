@@ -91,8 +91,7 @@ class DetailScreen extends React.Component {
         }
         
         this.setState({data, images})
-        this.renderFooterImageViewer = this.renderFooterImageViewer.bind(this)
-
+        
         GoogleSignin.configure({
             webClientId: WEB_CLIENT_ID,
             offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
@@ -304,19 +303,30 @@ class DetailScreen extends React.Component {
         )
     }
 
-    renderHeaderImageViewer = () =>{
-        return <View style={{backgroundColor:'#fff'}}>
-                    <Text>HeaderImageViewer</Text>
-                </View>
+    imageViewerHeader = () =>{
+        return (<View style={[
+                              { position:'absolute',
+                                top:10,
+                                right:10,
+                                opacity: 0.5,
+                                zIndex: 9999},
+                              Platform.OS === 'ios' ? { paddingTop: 48 } : { }
+                            ]}>
+                  <TouchableOpacity style={{ borderRadius: 20,  backgroundColor:'white', }}>
+                    <MaterialIcons
+                      name='close'
+                      style={{alignSelf: 'flex-end',
+                              color: 'gray',
+                              fontSize: 30,
+                              padding:5
+                              }}
+                      onPress={()=>{
+                        this.setState({modalVisible: false})
+                      }}/>
+                  </TouchableOpacity>
+                </View>)
     }
-
-    renderFooterImageViewer = () =>{
-
-        return (<View />)
-        let {images, init_index} = this.state
-        return <Text style={styles.footerText}>{init_index + 1} / {images.length}</Text>
-    }
-
+    
     handleLoginWithFacebook= () =>{
         console.log('handleLoginWithFacebook')
     
@@ -360,9 +370,9 @@ class DetailScreen extends React.Component {
     }
      
     render() {
-        let {init_index, showModalLogin} = this.state
+        let {init_index, showModalLogin, modalVisible} = this.state
 
-        let { route } = this.props;
+        let { route, user } = this.props;
 
         let images = []
         if (route.params.data.images.medium){
@@ -371,73 +381,62 @@ class DetailScreen extends React.Component {
             })
         }
 
-        // console.log(images)
-
         return (<SafeAreaView style={styles.container} onLayout={this.onLayout}>
-                    <Modal 
-                        visible={this.state.modalVisible}
-                        transparent={true}
-                        onRequestClose={() => this.setState({ modalVisible: false })}>
-                        <ImageViewer 
-                            imageUrls={images.filter(function(item){return item.empty !== true;})}
-                            index={init_index}
-                            // renderHeader={this.renderHeaderImageViewer}
-                            // renderFooter={this.renderFooterImageViewer}
-                            onSwipeDown={() => {
-                                this.setState({modalVisible: false})
-                            }}
-                            onSave={uri => {
-                                this._saveImage(uri)
-                            }}
-                            onMove={data => console.log(data)}
-                            enableSwipeDown={true}
-                            renderImage={(props)=>{
-                                return(
-                                    <Image {...props}
-                                        indicator={Progress.Pie}
-                                        indicatorProps={{
-                                            size: 50,
-                                            borderWidth: 1,
-                                            color: '#ffffff',
-                                            // unfilledColor: 'rgba(60,14,101, 0.2)',
-                                        }}
-                                        onLoadStart={e => console.log('Loading Start >>> ')}
-                                        onProgress={e =>
-                                            console.log(
-                                            'Loading Progress ' +
-                                                e.nativeEvent.loaded / e.nativeEvent.total
-                                            )
-                                        }
-                                        onLoad={e =>
-                                            console.log(
-                                            'Loading Loaded ' + e.nativeEvent.width,
-                                            e.nativeEvent.height
-                                            )
-                                        }
-                                        onLoadEnd={e => console.log('Loading Ended')}
-                                        />
-                                    )
+                    {modalVisible && 
+                        <Modal 
+                            visible={modalVisible}
+                            transparent={true}
+                            onRequestClose={() => this.setState({ modalVisible: false })}>
+                            <ImageViewer 
+                                imageUrls={images.filter(function(item){return item.empty !== true;})}
+                                index={init_index}
+                                renderHeader={this.imageViewerHeader}
+                                // renderFooter={this.renderFooterImageViewer}
+                                onSwipeDown={() => {
+                                    this.setState({modalVisible: false})
                                 }}
-                            />
-                        {this.renderFooterImageViewer()}
-                    </Modal>
-            
-
-                    {/* <ImageView
-                        images={images}
-                        imageIndex={init_index}
-                        visible={modalVisible}
-                        swipeToCloseEnabled={true}
-                        onRequestClose={() => this.setState({ modalVisible: false })}
-                    /> */}
+                                onSave={uri => {
+                                    this._saveImage(uri)
+                                }}
+                                onMove={data => console.log(data)}
+                                enableSwipeDown={true}
+                                renderImage={(props)=>{
+                                    return(
+                                        <Image {...props}
+                                            indicator={Progress.Pie}
+                                            indicatorProps={{
+                                                size: 50,
+                                                borderWidth: 1,
+                                                color: '#ffffff',
+                                                // unfilledColor: 'rgba(60,14,101, 0.2)',
+                                            }}
+                                            onLoadStart={e => console.log('Loading Start >>> ')}
+                                            onProgress={e =>
+                                                console.log(
+                                                'Loading Progress ' +
+                                                    e.nativeEvent.loaded / e.nativeEvent.total
+                                                )
+                                            }
+                                            onLoad={e =>
+                                                console.log(
+                                                'Loading Loaded ' + e.nativeEvent.width,
+                                                e.nativeEvent.height
+                                                )
+                                            }
+                                            onLoadEnd={e => console.log('Loading Ended')}
+                                            />
+                                        )
+                                    }}
+                                />
+                        </Modal>
+                    }
                     <Toast
                         ref={(toast) => this.toast = toast}
                         position='bottom'
                         positionValue={200}
                         fadeInDuration={750}
                         fadeOutDuration={1000}
-                        opacity={0.8}
-                        />
+                        opacity={0.8}/>
                     <FlatList
                         ListHeaderComponent={this.renderHeader()}
                         data={formatData(this.state.images, numColumns)}
@@ -446,9 +445,8 @@ class DetailScreen extends React.Component {
                         numColumns={numColumns}
                         keyExtractor={(item, index) => String(index)}/>
 
-                    {/* {this.modalLogin()} */}
                     { 
-                        isEmpty(this.props.user)  
+                        isEmpty(user)  
                         && <ModalLogin {...this.props } showModalLogin={showModalLogin} updateState={this.onUpdateState} />
                     }
                 </SafeAreaView>)

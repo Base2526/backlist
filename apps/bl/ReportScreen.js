@@ -79,7 +79,7 @@ class ReportScreen extends Component {
     onPost=()=>{
         let _this = this
         let { message, chioces } = this.state
-        let { route, navigation } = this.props;
+        let { navigation, user } = this.props;
 
         const chioce = chioces.filter(obj => obj.selected );
 
@@ -94,6 +94,11 @@ class ReportScreen extends Component {
             this.toast.show('กรุณากรอกข้อความ.');
             return;
         }
+
+        let basic_auth = API_TOKEN;
+        if(!isEmpty(user)){
+            basic_auth = user.basic_auth
+        }
     
         _this.setState({spinner: true})
         axios.post(`${API_URL}/api/report?_format=json`, {
@@ -101,7 +106,7 @@ class ReportScreen extends Component {
             message,
           }, {
             headers: { 
-              'Authorization': `Basic ${API_TOKEN}` 
+              'Authorization': `Basic ${basic_auth}` 
             }
         })
         .then(function (response) {

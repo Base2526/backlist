@@ -47,7 +47,7 @@ import Toast, {DURATION} from 'react-native-easy-toast'
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
 import {API_URL, API_TOKEN} from "./constants"
-import { followUp, fetchMyApps } from './actions/user';
+import { fetchMyApps } from './actions/user';
 import {toTimestamp, isEmpty} from './Utils'
 
 class AddBanlistScreen extends Component {
@@ -873,7 +873,6 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = {
-  followUp,
   fetchMyApps
 }
 

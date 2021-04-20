@@ -256,9 +256,15 @@ class FilterScreen extends Component {
     }
 
     search = () =>{
+        let {user} = this.props
         let {type, offset, key_word} = this.state
 
         // console.log(type, offset, key_word)
+
+        let basic_auth = API_TOKEN;
+        if(!isEmpty(user)){
+            basic_auth = user.basic_auth
+        }
 
         let _this = this;
         _this.setState({loading: true})
@@ -268,7 +274,7 @@ class FilterScreen extends Component {
             key_word,
             offset
         }, {
-            headers: {'Authorization': `Basic ${API_TOKEN}`}
+            headers: {'Authorization': `Basic ${basic_auth}`}
         })
         .then(function (response) {
             let results = response.data

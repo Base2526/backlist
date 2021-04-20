@@ -345,11 +345,7 @@ class Profile extends Component {
 
       axios.post(`${API_URL}/api/login?_format=json`, {
         name, password
-      } /*, {
-        headers: { 
-          'Authorization': `Basic ${API_TOKEN}` 
-        }
-      }*/)
+      })
       .then(function (response) {
         let results = response.data
         console.log(results)

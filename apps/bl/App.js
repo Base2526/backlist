@@ -379,7 +379,6 @@ class App extends Component {
   //   return false
   // }
 
-
   componentWillUnmount() {
     BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton());
 

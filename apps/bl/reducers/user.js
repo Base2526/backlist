@@ -49,6 +49,9 @@ export const user = (state = initialState, action) => {
 
     case FOLLOW_UP: {
       // console.log('Reduces > FOLLOW_UP > ', action.data)
+
+      let follow_ups = state.follow_ups
+
       return {...state, follow_ups: action.data}
     }
 
