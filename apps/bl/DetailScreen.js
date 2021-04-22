@@ -43,6 +43,8 @@ const Image = createImageProgress(FastImage);
 
 import ModalLogin from './ModalLogin'
 
+import {___followUp} from './actions/user'
+
 const formatData = (data, numColumns) => {
     const numberOfFullRows = Math.floor(data.length / numColumns);
 
@@ -105,13 +107,13 @@ class DetailScreen extends React.Component {
     }
 
     componentDidUpdate(prevProps){
-        if(!compare2Arrays(prevProps.follow_ups, this.props.follow_ups)){
+        // if(!compare2Arrays(prevProps.___follow_ups, this.props.___follow_ups)){
             this.updateNavigation()
-        }
+        // }
     }
 
     updateNavigation(){
-        let { navigation, route, user, follow_ups} = this.props;
+        let { navigation, route, user, follow_ups, ___followUp,  ___follow_ups} = this.props;
 
         let data =  route.params.data;
         // console.log('user >>>', user)
@@ -125,12 +127,16 @@ class DetailScreen extends React.Component {
                         style={{  }}
                         onPress={ async()=>{
                             // 
-                            let cL = this.props.user
+
+                            // let {user, ___followUp,  ___follow_ups} = this.props
+                            // let cL = this.props.user
                             // console.log(cL.uid, data.id, getUniqueId(), API_URL_SOCKET_IO())
                   
-                            if(isEmpty(cL)){
+                            console.log('user : ', user)
+                            if(isEmpty(user)){
                                 _this.setState({showModalLogin: true})
                             }else{
+                                /*
                                 axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
                                         uid: cL.uid,
                                         id_follow_up: data.id,
@@ -155,10 +161,44 @@ class DetailScreen extends React.Component {
                                     console.log(error)
                                     // _this.setState({loading: false})
                                 });
-                            }
+                                */
+
+                                let find_fup = ___follow_ups.find(value => String(value.id) === String(data.id) )
+                                // console.log('fup : ', find_fup, item.id)
+
+                                let follow_up = true;
+                                if(!isEmpty(find_fup)){
+                                    follow_up = !find_fup.follow_up
+                                    // console.log('find_fup.follow_up', !find_fup.follow_up)
+                                }
+
+                                if(follow_up){
+                                    _this.toast.show("Follow up");
+                                }else{
+                                    _this.toast.show("Unfollow up");
+                                }
+
+                                ___followUp({"id": data.id, 
+                                            "local": true, 
+                                            "follow_up": follow_up, 
+                                            "uid": user.uid, 
+                                            "unique_id": getUniqueId(), 
+                                            "owner_id": data.owner_id, 
+                                            "date": Date.now()}, 0);
+                                        }
                             
                         }}>
-                        { !this.isOwner(data.id) && <Ionicons name="shield-checkmark-outline" size={25} color={isEmpty(follow_ups.find( f => f === data.id )) ? 'gray' : 'red'} />} 
+                        { !this.isOwner(data.id) && 
+                            <Ionicons name="shield-checkmark-outline" size={25} color={isEmpty(___follow_ups.find( value => String(value.id) === String(data.id) && value.follow_up )) ? 'gray' : 'red'} />} 
+
+
+                        {/* 
+                        <Ionicons 
+                      name="shield-checkmark-outline" 
+                      size={25} 
+                      color={isEmpty(___follow_ups) ? 'gray' : (isEmpty(___follow_ups.find( value => String(value.id) === String(item.id) && value.follow_up )) ? 'gray' : 'red')} />
+
+                        */}
                     </TouchableOpacity>
                     
                     <View style={{marginRight: 5}}>
@@ -485,8 +525,17 @@ const mapStateToProps = state => {
     return{
         user: state.user.data,
         follow_ups: state.user.follow_ups,
-        my_apps: state.user.my_apps
+        my_apps: state.user.my_apps,
+
+        ___follow_ups: state.user.___follow_ups
     }
 }
 
-export default connect(mapStateToProps, null)(DetailScreen)
+/*
+ is function call by user
+*/
+const mapDispatchToProps = {
+    ___followUp
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(DetailScreen)

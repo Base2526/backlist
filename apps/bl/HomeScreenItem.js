@@ -11,6 +11,7 @@ import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { getUniqueId, getVersion } from 'react-native-device-info';
+import Share from 'react-native-share';
 const axios = require('axios');
 
 import {API_URL, API_URL_SOCKET_IO} from "./constants"
@@ -18,12 +19,46 @@ import { isEmpty } from './Utils'
 
 export default class HomeScreenItem extends Component {
     shouldComponentUpdate(nextProps, nextState) {   
-      const { follow_ups, item } = this.props;
-      // fase = reload item, true = not reload item
+    //   const { follow_ups, item } = this.props;
+    //   // fase = not reload item, true =  reload item all
   
-      // T - T, F - F = 0 << use case ***
-      // T - F, F - T = 1
-      return  (nextProps.follow_ups.includes(item.id) ^ follow_ups.includes(item.id))
+    //   // T - T, F - F = 0 << use case ***
+    //   // T - F, F - T = 1
+    //   return  (nextProps.follow_ups.includes(item.id) ^ follow_ups.includes(item.id))
+
+      const {___follow_ups, item} = this.props;
+
+      // // console.log("item : ", item)
+      // console.log("nextProps.___follow_ups : ", nextProps.___follow_ups.find(value=> String(value.id) === String(item.id) && value.follow_up ))
+      // console.log("___follow_ups : ", ___follow_ups.find(value=> String(value.id) === String(item.id) && value.follow_up ))
+      
+
+      // if( String(item.id) === '70277'){
+
+        // console.log("item : ", item)
+        // console.log("nextProps.___follow_ups : ", nextProps.___follow_ups.find(value=> String(value.id) === String(item.id)))
+        // console.log("___follow_ups : ", ___follow_ups.find(value=> String(value.id) === String(item.id) ))
+      
+        const n = nextProps.___follow_ups.find(value=> String(value.id) === String(item.id));
+        const nn = ___follow_ups.find(value=> String(value.id) === String(item.id))
+
+        if( !isEmpty(n) && !isEmpty(nn) ){
+          if(!(n.follow_up && nn.follow_up)){
+            return true
+          }
+          return false
+        }else if( !isEmpty(n) ){
+          return true
+        }else if( !isEmpty(nn) ){
+          return true
+        }else{
+          return false
+        }
+
+        
+      // }else{
+      //   return false
+      // }
     }
   
     renderImage = (item) =>{
@@ -380,9 +415,11 @@ export default class HomeScreenItem extends Component {
     }
   
     render() {
-      const { navigation, follow_ups, item, testFetchData } = this.props;
+      const { navigation, follow_ups, item, testFetchData, ___follow_ups, ___followUp } = this.props;
       let _menu = null;
       let _this = this;
+
+      // console.log('___i : ', ___i)
 
       return (
         <TouchableOpacity 
@@ -402,33 +439,65 @@ export default class HomeScreenItem extends Component {
                     if(isEmpty(cL)){
                       _this.props.onChange({showModalLogin: true})
                     }else{
-                      axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
-                        uid: cL.uid,
-                        id_follow_up: item.id,
-                        unique_id: getUniqueId(),
-                        owner_id: item.owner_id
-                      }, {
-                        headers: { 
-                          'Content-Type': 'application/json',
-                        }
-                      })
-                      .then(function (response) {
-                        let {result, message} = response.data
+                      // axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
+                      //   uid: cL.uid,
+                      //   id_follow_up: item.id,
+                      //   unique_id: getUniqueId(),
+                      //   owner_id: item.owner_id
+                      // }, {
+                      //   headers: { 
+                      //     'Content-Type': 'application/json',
+                      //   }
+                      // })
+                      // .then(function (response) {
+                      //   let {result, message} = response.data
   
-                        // console.log('message :', message)
-                        if(result){
+                      //   // console.log('message :', message)
+                      //   if(result){
   
-                        }else{
+                      //   }else{
                           
-                        }
+                      //   }
   
-                        _this.props.toast.show(message);
-                      })
-                      .catch(function (error) {
-                        console.log('error :', error)
+                      //   _this.props.toast.show(message);
+                      // })
+                      // .catch(function (error) {
+                      //   console.log('error :', error)
     
-                        _this.props.toast.show(error.message);
-                      });
+                      //   _this.props.toast.show(error.message);
+                      // });
+
+                      //  (isEmpty(follow_ups.find( f => String(f) === String(item.id) )) ? 'gray' : 'red')} />
+                      // console.log("item > this.props.___follow_ups :", this.props.___follow_ups)
+
+                      let find_fup = ___follow_ups.find(value => String(value.id) === String(item.id) )
+                      // console.log('fup : ', find_fup, item.id)
+
+                      let follow_up = true;
+                      if(!isEmpty(find_fup)){
+                        follow_up = !find_fup.follow_up
+                      }
+
+                      if(follow_up){
+                        _this.props.toast.show("Follow up");
+                      }else{
+                        _this.props.toast.show("Unfollow up");
+                      }
+
+                      const follow_ups = ___follow_ups.filter(item=> {
+                        console.log("item.local: ", item.local)
+                        return item.local
+                      })
+
+                      console.log('follow_ups filter : ', follow_ups.length)
+
+                      ___followUp({"id": item.id, 
+                                   "local": true, 
+                                   "follow_up": follow_up, 
+                                   "uid": cL.uid, 
+                                   "unique_id": getUniqueId(), 
+                                   "owner_id": item.owner_id, 
+                                   "date": Date.now()}, 0);
                     }
                     
                   }}>
@@ -438,7 +507,7 @@ export default class HomeScreenItem extends Component {
                       name="shield-checkmark-outline" 
                       size={25} 
                       /*color={isEmpty(follow_ups.find( f => f === id )) ? 'gray' : 'red'}*/ 
-                      color={isEmpty(follow_ups) ? 'gray' : (isEmpty(follow_ups.find( f => String(f) === String(item.id) )) ? 'gray' : 'red')} />
+                      color={isEmpty(___follow_ups) ? 'gray' : (isEmpty(___follow_ups.find( value => String(value.id) === String(item.id) && value.follow_up )) ? 'gray' : 'red')} />
                   }
                 </TouchableOpacity>
                 
@@ -455,21 +524,21 @@ export default class HomeScreenItem extends Component {
                       </TouchableOpacity>
                     }>
                     <MenuItem onPress={() => {
-                            _menu.hide();
-                            const shareOptions = {
-                                title: 'Share Banlist',
-                                url: API_URL + "/node/" +item.id,
-                                failOnCancel: false,
-                            };
-  
-                            Share.open(shareOptions)
-                            .then((res) => {
-                                // console.log(res);
-                            })
-                            .catch((err) => {
-                                err && console.log(err);
-                            });
-                          }} style={{flex:1, justifyContent:'center'}}>
+                      _menu.hide();
+                      const shareOptions = {
+                          title: 'Share Banlist',
+                          url: API_URL + "/node/" +item.id,
+                          failOnCancel: false,
+                      };
+
+                      Share.open(shareOptions)
+                      .then((res) => {
+                          // console.log(res);
+                      })
+                      .catch((err) => {
+                          err && console.log(err);
+                      });
+                    }} style={{flex:1, justifyContent:'center'}}>
                       <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                         <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="share" size={25} color={'grey'}  />
                         <Text style={{ textAlign: 'center' }}>Share</Text>

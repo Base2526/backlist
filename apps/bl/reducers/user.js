@@ -1,5 +1,5 @@
 import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE, 
-         FOLLOW_UP, FETCH_MY_APPS, ADD_HISTORY, 
+         FOLLOW_UP, ___FOLLOW_UP, FETCH_MY_APPS, ADD_HISTORY, 
          DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST } from '../constants/app';
 
 export const  mergeArrays = (...arrays) => {
@@ -18,10 +18,28 @@ export const  mergeArrays = (...arrays) => {
   return uniqueArray
 }
 
+export const  mergeArraysId = (...arrays) => {
+  let jointArray = []
+
+  arrays.forEach(array => {
+      jointArray = [...jointArray, ...array]
+  })
+  const uniqueArray = jointArray.reduce((newArray, item) =>{
+      let found = newArray.find(({ id }) => id === item.id);
+      if (found){
+          return newArray
+      } else {
+          return [...newArray, item]
+      }
+  }, [])
+  return uniqueArray
+}
+
 const initialState = {
   data: [],
   profile: [],
   follow_ups: [],
+  ___follow_ups: [],
   my_apps: [],
   historys: [],
   follower_post: []
@@ -50,9 +68,51 @@ export const user = (state = initialState, action) => {
     case FOLLOW_UP: {
       // console.log('Reduces > FOLLOW_UP > ', action.data)
 
-      let follow_ups = state.follow_ups
+      // let follow_ups = state.follow_ups
 
       return {...state, follow_ups: action.data}
+    }
+
+
+    case ___FOLLOW_UP:{
+      // export const  mergeArrays = (...arrays) => {
+      //   let jointArray = []
+      //   arrays.forEach(array => {
+      //       jointArray = [...jointArray, ...array]
+      //   })
+      //   const uniqueArray = jointArray.reduce((newArray, item) =>{
+      //       let found = newArray.find(({ id }) => id === item.id);
+      //       if (found){
+      //           return newArray
+      //       } else {
+      //           return [...newArray, item]
+      //       }
+      //   }, [])
+      //   return uniqueArray
+      // }
+      console.log('____t : ', action)
+      
+      let ___follow_ups = mergeArraysId([action.data], state.___follow_ups)
+
+      // let arrays = [action.data, ...state.___follow_ups]
+      // let jointArray = []
+      
+      // arrays.forEach(array => {
+      //     jointArray = [...jointArray, ...array]
+      // })
+      // const uniqueArray = jointArray.reduce((newArray, item) =>{
+      //   let found = newArray.find(({ id }) => id === item.id);
+      //   if (found){
+      //       return newArray
+      //   } else {
+      //       return [...newArray, item]
+      //   }
+      // }, [])
+      // console.log("___FOLLOW_UP > result : ", ___follow_ups)
+
+      return {
+        ...state, ___follow_ups
+      }
     }
 
     case FETCH_MY_APPS: {

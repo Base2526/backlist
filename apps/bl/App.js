@@ -42,6 +42,7 @@ import SplashScreen from 'react-native-splash-screen'
 import io from 'socket.io-client';
 var Buffer = require('buffer/').Buffer
 
+
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react'
 
@@ -331,33 +332,46 @@ class App extends Component {
     //   let min = 1;
     //   let max = 10000000;
     //   let rand = Math.floor( min + Math.random() * (max - min) );
-
     //   // testFetchData
-      
-
     //   if(tests.length < 5){
     //     tests = [...tests, {id: rand, value: rand}]
     //     testFetchData(tests)
-
     //     console.log('tests : ', tests)
     //   }else{
-
     //     min = 0;
     //     max = 5;
     //     rand = Math.floor( min + Math.random() * (max - min) );
-
     //     let markers = [ ...tests ];
     //     markers[rand] = {...markers[rand], value: Math.random() * Math.random() };
     //     // this.setState({ markers });
-
     //     console.log('markers : >>>>>>>>>>>>>>>>>>> ', markers[rand], rand)
     //     testFetchData(markers)
     //   }
     // }, 10000);
 
     interval = setInterval(() => {
-      console.log('setInterval');
-    }, 1000 * 60);
+      const {___follow_ups} = this.props
+
+      const follow_ups = ___follow_ups.filter(item=> { return item.local })
+      console.log('setInterval ___follow_ups  count : ', follow_ups.length);
+
+      axios.post(`http://localhost:3000/post_test`, {
+                      uid: follow_ups
+                    }, {
+                      headers: { 
+                        'Content-Type': 'application/json',
+                      }
+                    })
+                    .then(function (response) {
+                      let {result, message} = response.data
+                      console.log('result, message :', result, message)
+                    })
+                    .catch(function (error) {
+                      console.log('error :', error)
+                    });
+
+      // post_test
+    }, 1000 * 60 );
 
 
     // historys.removeItem('init_app')
@@ -407,8 +421,7 @@ class App extends Component {
   onSocket = async () =>{
     // let API_URL_SOCKET_IO='http://localhost:3000'
     let cL = this.props.user
-    console.log('API_URL_SOCKET_IO : ', API_URL_SOCKET_IO())
-
+    // console.log('API_URL_SOCKET_IO : ', API_URL_SOCKET_IO())
 
     if(!isEmpty(cL)){    
       socket = io(API_URL_SOCKET_IO(), { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${getUniqueId()}&version=${getVersion()}&uid=${cL.uid}` });
@@ -426,7 +439,6 @@ class App extends Component {
   offSocket = () =>{
     if(isEmpty(socket)){
       return ;
-    
     }
     
     socket.off('message', this.onSocketMessage);
@@ -436,7 +448,6 @@ class App extends Component {
     socket.off('follower_post', this.onFollowerPost)
   }
 
- 
   onSocketMessage = (data) => {
 
     // data =  [ {"detail": "กู้เงิน", "id": 70277, "images": [], "name": "ธีรวัฒน์", "owner_id": 142, "surname": "สีใส", "title": "เงินกู้ออนไลน์", "transfer_amount": 500, "transfer_date": "2021-04-14"},
@@ -575,7 +586,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => {
   return{
     user: state.user.data,
-    tests: state.app.tests
+    tests: state.app.tests,
+    ___follow_ups: state.user.___follow_ups
   }
 }
 

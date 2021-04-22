@@ -12,6 +12,7 @@ export const USER_LOGIN     = 'USER_LOGIN';
 export const USER_LOGOUT    = 'USER_LOGOUT';
 export const FETCH_PROFILE  = 'FETCH_PROFILE';
 export const FOLLOW_UP      = 'FOLLOW_UP';
+export const ___FOLLOW_UP   = '___FOLLOW_UP';
 export const FETCH_MY_APPS  = 'FETCH_MY_APPS';
 export const ADD_HISTORY    = 'ADD_HISTORY';
 export const DELETE_HISTORY = 'DELETE_HISTORY';

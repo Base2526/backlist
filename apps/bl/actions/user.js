@@ -2,7 +2,7 @@ const axios = require('axios');
 
 import {API_URL} from "../constants"
 import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE, 
-         FOLLOW_UP, FETCH_MY_APPS, ADD_HISTORY, 
+         FOLLOW_UP, ___FOLLOW_UP, FETCH_MY_APPS, ADD_HISTORY, 
          DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST } from '../constants/app';
 
 const _dataUserLogin = data => ({
@@ -24,6 +24,18 @@ const _fetchProfile = data => ({
 const _dataFollowup = data => ({
   type: FOLLOW_UP,
   data,
+});
+
+
+/*
+Mode
+ 0 : single
+ 1 : multi
+*/
+const ___dataFollowup= (data, mode) => ({
+  type: ___FOLLOW_UP,
+  data,
+  mode
 });
 
 const _fetchMyApps = data => ({
@@ -89,6 +101,10 @@ export const fetchProfile = (basic_auth) => dispatch =>{
 
 export const followUp = (data) => dispatch => {
   dispatch(_dataFollowup(data));
+}
+
+export const ___followUp = (data, mode) => dispatch => {
+  dispatch(___dataFollowup(data, mode));
 }
 
 export const fetchMyApps = (basic_auth) => dispatch => {

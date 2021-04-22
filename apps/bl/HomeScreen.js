@@ -42,7 +42,10 @@ import * as Progress from 'react-native-progress';
 const Image = createImageProgress(FastImage);
 import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID} from "./constants"
 import { isEmpty } from './Utils'
-import { fetchData, fetchDataAll, checkFetchData, clearData, testFetchData } from './actions/app';
+import { fetchData, fetchDataAll, checkFetchData, clearData, testFetchData,  } from './actions/app';
+
+import {___followUp} from './actions/user'
+
 import ModalLogin from './ModalLogin'
 import HomeScreenItem from './HomeScreenItem'
 import { SafeAreaView } from 'react-native';
@@ -869,6 +872,8 @@ const mapStateToProps = state => {
     user: state.user.data,
     follow_ups: state.user.follow_ups,
     my_apps: state.user.my_apps,
+
+    ___follow_ups: state.user.___follow_ups
   }
 }
 
@@ -882,7 +887,10 @@ const mapDispatchToProps = {
   clearData,
 
 
-  testFetchData
+  testFetchData,
+
+
+  ___followUp
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen)

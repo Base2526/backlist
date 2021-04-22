@@ -88,6 +88,17 @@ app.get('/api/hello', async(req, res) => {
   res.send({ express: config.mongo.url });
 });
 
+app.post('/post_test', async(req, res) => {
+  try {
+    console.log(req)
+    console.log(req.body)
+    
+    res.status(200).send({ 'result': true });
+  } catch (err) {
+    res.status(500).send({errors: err});
+  }
+});
+
 // case login will add uid to socketsModel and logout will clear uid for socketsModel
 app.post('/api/login', async(req, res) => {
   try {
