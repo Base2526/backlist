@@ -48,6 +48,8 @@ import { PersistGate } from 'redux-persist/integration/react'
 
 import { getUniqueId, getVersion } from 'react-native-device-info';
 
+import NetInfo from "@react-native-community/netinfo";
+
 import HomeScreen from './HomeScreen';
 // import SearchScreen from './SearchScreen';
 import ResultScreen from './ResultScreen';
@@ -84,7 +86,7 @@ import * as historys from './utils/historys';
 
 import {store, persistor} from './reduxStore'
 
-import { fetchProfile, followUp, fetchMyApps, followerPost } from './actions/user';
+import { fetchProfile, followUp, fetchMyApps, followerPost, ___followUp, netInfo } from './actions/user';
 import { fetchData, testFetchData, clearData } from './actions/app'
 
 const Tab = createBottomTabNavigator();
@@ -303,6 +305,7 @@ function MeStackScreen({navigation, route}) {
 
 let socket;
 let interval;
+let unsubscribeNetInfo;
 class App extends Component {
 
   constructor(props) {
@@ -350,18 +353,20 @@ class App extends Component {
     // }, 10000);
 
     interval = setInterval(() => {
-      const {___follow_ups} = this.props
+      const {user, ___follow_ups, net_info} = this.props
+
+      console.log('user-net_info: ', user, net_info)
+      if(!net_info.isConnected || isEmpty(user)){
+        console.log('Not connect internet OR Without login.')
+        return ;
+      }
 
       const follow_ups = ___follow_ups.filter(item=> { return item.local })
       console.log('setInterval ___follow_ups  count : ', follow_ups.length);
 
-      axios.post(`http://localhost:3000/post_test`, {
-                      uid: follow_ups
-                    }, {
-                      headers: { 
-                        'Content-Type': 'application/json',
-                      }
-                    })
+      axios.post(`${API_URL_SOCKET_IO()}/api/___follow_up`
+                    ,{ uid:user.uid, follow_ups }
+                    ,{ headers: {'Content-Type': 'application/json',}})
                     .then(function (response) {
                       let {result, message} = response.data
                       console.log('result, message :', result, message)
@@ -371,7 +376,7 @@ class App extends Component {
                     });
 
       // post_test
-    }, 1000 * 60 );
+    }, 2000 * 60 );
 
 
     // historys.removeItem('init_app')
@@ -380,6 +385,15 @@ class App extends Component {
     // console.log('init_app : >>>>>>>>>>>>>>> ', await historys.getItem('first_install')) 
 
     // console.log('firstInstall : >>>> ',  await this.firstInstall())
+
+
+    // Subscribe
+    unsubscribeNetInfo = NetInfo.addEventListener(state => {
+      // console.log("Connection state", state);
+      // console.log("Connection type", state.type);
+      // console.log("Is connected?", state.isConnected);
+      this.props.netInfo(state)
+    });
   }
 
   // firstInstall= async () =>{
@@ -399,6 +413,8 @@ class App extends Component {
     this.offSocket()
 
     clearInterval(interval)
+
+    unsubscribeNetInfo()
   }
 
   handleBackButton(){
@@ -432,6 +448,7 @@ class App extends Component {
     socket.on('message', this.onSocketMessage);
     socket.on('update_profile', this.onSocketUpdateProfile)
     socket.on('follow_up', this.onSocketFollowUp)
+    socket.on('___follow_up', this.onSocket___FollowUp)
     socket.on('my_apps', this.onSocketMyApps)
     socket.on('follower_post', this.onFollowerPost)
   }
@@ -444,6 +461,7 @@ class App extends Component {
     socket.off('message', this.onSocketMessage);
     socket.off('update_profile', this.onSocketUpdateProfile)
     socket.off('follow_up', this.onSocketFollowUp)
+    socket.off('___follow_up', this.onSocket___FollowUp)
     socket.off('my_apps', this.onSocketMyApps)
     socket.off('follower_post', this.onFollowerPost)
   }
@@ -466,7 +484,12 @@ class App extends Component {
 
   onSocketFollowUp = (data) => {
     console.log('onSocketFollowUp >>>> ')
-    this.props.followUp(JSON.parse(data))
+    // this.props.followUp(JSON.parse(data))
+  }
+
+  onSocket___FollowUp = (data) => {
+    console.log('onSocket___FollowUp >>>> ')
+    this.props.___followUp(JSON.parse(data), 1)
   }
 
   onSocketMyApps = (data) => {
@@ -587,7 +610,9 @@ const mapStateToProps = state => {
   return{
     user: state.user.data,
     tests: state.app.tests,
-    ___follow_ups: state.user.___follow_ups
+    ___follow_ups: state.user.___follow_ups,
+
+    net_info: state.user.net_info
   }
 }
 
@@ -600,7 +625,10 @@ const mapDispatchToProps = {
   testFetchData,
   clearData,
 
-  fetchData
+  fetchData,
+
+  ___followUp,
+  netInfo
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

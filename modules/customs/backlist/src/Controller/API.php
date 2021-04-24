@@ -1260,6 +1260,9 @@ class API extends ControllerBase {
            3 : surname
            4 : detail
            5 : name & surname
+
+
+           8 : by nids ex. nids = array(1,2,3,4)
         */
 
         switch($type){
@@ -1299,6 +1302,13 @@ class API extends ControllerBase {
               $query->addCondition('field_sales_person_name', $ky[0]);
             }
 
+            break;
+          }
+
+          case 8:{
+            $key_word = json_decode($key_word);
+            \Drupal::logger('SearchApi, case 8')->notice($key_word);
+            $query->addCondition('nid', $key_word, "IN");
             break;
           }
 

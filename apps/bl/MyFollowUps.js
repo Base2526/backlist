@@ -43,7 +43,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
 import FastImage from 'react-native-fast-image'
-
+import Toast, {DURATION} from 'react-native-easy-toast'
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { isEmpty, compare2Arrays } from './Utils'
 
@@ -51,14 +51,18 @@ import { getUniqueId, getVersion } from 'react-native-device-info';
 import {API_URL, API_URL_SOCKET_IO} from "./constants"
 
 import { fetchData } from './actions/app';
-// 
+import { ___followUp } from './actions/user'
+
 class MyFollowUps extends Component {
   constructor(props) {
     super(props);
+    this.is_mounted = false;
+
     this.state = {
               data:[],
               loading: false,
               nid_last: 0,
+              offset: 0,
 
               selected: false,
 
@@ -70,35 +74,9 @@ class MyFollowUps extends Component {
   }
      
   componentDidMount() {
-    let _this = this
+    this.is_mounted = true;
 
-    let {data, follow_ups} = this.props
-    // 
-    // let new_data = data.filter(item => (follow_ups.includes(item.id)))
-
-    // console.log('follow_ups > ', follow_ups)
-
-    let {basic_auth} = this.props.user
-
-    axios.post(`${API_URL}/api/fetch_post_by_id?_format=json`, {
-      data: JSON.stringify(follow_ups)
-    }, {
-      headers: { 
-        'Authorization': `Basic ${basic_auth}` 
-      }
-    })
-    .then(function (response) {
-      let results = response.data
-      if(results.result){
-        let {datas} = results
-
-        _this.props.fetchData(datas)
-      }
-    })
-    .catch(function (error) {
-      console.log(error)
-    });
-
+    this.getData();
     this.updateNavigation();
   }
 
@@ -108,23 +86,76 @@ class MyFollowUps extends Component {
     }
   }
 
+  componentWillUnmount(){
+    this.is_mounted = false;
+  }
+
+  // refresh = () =>{
+  //   this.is_mounted && this.setState({offset: 0},() => { this.getData() });
+  // }
+
+  getData = () => {
+    let _this     = this;
+
+    let { offset }  = _this.state;
+    let { data, user, ___follow_ups } = this.props
+
+    _this.setState({loading: true})
+
+    // ___follow_ups.filter(itm=>itm.follow_up)
+
+    let ____data = data.map(ite=>{return ite.id})
+
+    ___follow_ups = ___follow_ups.filter(itm=>itm.follow_up)
+    let fups = ___follow_ups.map(ite=>{return ite.id})
+    // console.log('---------> fups : ', fups, fups.length)
+    // check is data local, only pass not local
+    let ____data_fups = ____data.filter(value=>!fups.includes(value))
+
+    axios.post(`${API_URL}/api/search?_format=json`, {
+      type:8,
+      key_word:JSON.stringify(____data_fups),
+      offset
+    }, {
+        headers: {'Authorization': `Basic ${user.basic_auth}`}
+    })
+    .then(function (response) {
+      let results = response.data
+      console.log('--> MyFollowUps : ', results)
+      if(results.result){
+       
+        if(!isEmpty(results.datas)){
+          _this.props.fetchData(results.datas)
+        }else{
+          _this.setState({loading: false})
+        }
+        
+
+        // _this.setState({data: results.datas})
+      }
+    })
+    .catch(function (error) {
+      console.log(error)
+    });
+  }
+
   updateNavigation(){
-    let { navigation, follow_ups} = this.props;
+    let { navigation, ___follow_ups} = this.props;
 
     let _this = this
     let _menu = null;
     navigation.setOptions({
-      title: 'My follow ups (' + follow_ups.length + ')', 
+      title: 'My follow ups (' + (___follow_ups.filter(itm=>itm.follow_up)).length + ')', 
     })
   }
 
-  renderItem = (item) =>{
-    let { navigation, follow_ups } = this.props;
+  renderItem = (item, index) =>{
+    let { navigation, follow_ups, ___followUp, ___follow_ups } = this.props;
 
     let _this = this
     let _menu = null
 
-    // console.log('follow_ups : ', follow_ups)
+    // console.log('renderItem-index : ', index)
     return (
         <TouchableOpacity 
             key={Math.floor(Math.random() * 100) + 1}
@@ -139,6 +170,7 @@ class MyFollowUps extends Component {
                   <TouchableOpacity 
                     style={{ padding:3,}}
                     onPress={ async ()=>{
+                      /*
                       let cL = this.props.user
                       axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
                         uid: cL.uid,
@@ -163,12 +195,41 @@ class MyFollowUps extends Component {
                         console.log(error)
                         // _this.setState({loading: false})
                       });
+                      */
+
+                      let find_fup = ___follow_ups.find(value => String(value.id) === String(item.id) )
+                      // console.log('fup : ', find_fup, item.id)
+
+                      let follow_up = true;
+                      if(!isEmpty(find_fup)){
+                          follow_up = !find_fup.follow_up
+                          // console.log('find_fup.follow_up', !find_fup.follow_up)
+                      }
+
+                      if(follow_up){
+                          _this.toast.show("Follow up");
+                      }else{
+                          _this.toast.show("Unfollow up");
+                      }
+
+                      ___followUp({"id": item.id, 
+                                  "local": true, 
+                                  "follow_up": follow_up, 
+                                  // "uid": user.uid, 
+                                  "unique_id": getUniqueId(), 
+                                  "owner_id": item.owner_id, 
+                                  "date": Date.now()}, 0);
+                      
+                      
                     }}>
-                    <Ionicons 
+                    {/* <Ionicons 
                       name="shield-checkmark-outline" 
                       size={25} 
                       color={isEmpty(follow_ups) ? 'gray' : (isEmpty(follow_ups.find( f => String(f) === String(item.id) )) ? 'gray' : 'red')} 
-                    />
+                    /> */}
+
+                     <Ionicons name="shield-checkmark-outline" size={25} color={isEmpty(___follow_ups.find( value => String(value.id) === String(item.id) && value.follow_up )) ? 'gray' : 'red'} /> 
+
                   </TouchableOpacity>
                 </View>
               </View>
@@ -216,16 +277,43 @@ class MyFollowUps extends Component {
       );
   }
 
+  renderFooter = () => {
+    let {loading, offset} = this.state
+    return (
+      //Footer View with Load More button
+      <TouchableOpacity
+          activeOpacity={0.9}
+          // onPress={this.getData}
+          onPress={()=>{
+            this.setState({
+                offset:  offset + 1
+            },() => {
+                this.getData();
+            });
+          }}
+          >
+          <View style={{backgroundColor:'#fff', alignItems: 'center', padding:10, margin:5}}> 
+            <View style={{flexDirection:'row'}}>
+              <Text>Load More</Text>
+              {loading ? (
+                <ActivityIndicator color="black" style={{marginLeft: 8}} />
+              ) : null}
+            </View>
+          </View>
+      </TouchableOpacity>
+    );
+  };
+
   render(){
-    const { navigation, data } = this.props;
-    return (<View style={styles.container}>
+    const { data } = this.props;
+    return (<SafeAreaView style={styles.container}>
+            <View style={styles.container}>
               <FlatList
                   ref={(ref) => this.flatlistref = ref}
                   style={{flex:1}}
                   data={data}
-                  renderItem={({ item }) => this.renderItem(item)}
+                  renderItem={({ item, index }) => this.renderItem(item, index)}
                   enableEmptySections={true}
-                  // ListFooterComponent={this.renderFooter()}
                   keyExtractor={(item, index) => String(index)}
                   // refreshControl={
                   //   <RefreshControl
@@ -233,8 +321,17 @@ class MyFollowUps extends Component {
                   //       onRefresh={this.refresh}
                   //   />
                   // }
+                  ListFooterComponent={this.renderFooter()}
               />
-              </View>)
+              <Toast
+                ref={(toast) => this.toast = toast}
+                position='bottom'
+                positionValue={200}
+                fadeInDuration={750}
+                fadeOutDuration={1000}
+                opacity={0.8}/>
+              </View>
+            </SafeAreaView>)
   }
 }
   
@@ -314,16 +411,27 @@ const styles = StyleSheet.create({
    
 
 const mapStateToProps = state => {
+
+  let ___follow_ups = state.user.___follow_ups
+  ___follow_ups = ___follow_ups.filter(itm=>itm.follow_up)
+  let fups = ___follow_ups.map(ite=>{return ite.id})
+  // let vn = state.app.data.filter(item => (fups.includes(item.id)))
+  // console.log('-->state.app.data : ', fups.length, vn.length, state.app.data.length)
   return{
-    data: state.app.data.filter(item => (state.user.follow_ups.includes(item.id))),
+    data: state.app.data.filter(item => (fups.includes(item.id))),//state.app.data.filter(item => (state.user.follow_ups.includes(item.id))),
     user: state.user.data,
-    follow_ups: state.user.follow_ups
+    follow_ups: state.user.follow_ups,
+
+
+    ___follow_ups: state.user.___follow_ups
   }
 }
 
 // fetchData
 const mapDispatchToProps = {
-  fetchData
+  fetchData,
+
+  ___followUp
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(MyFollowUps)

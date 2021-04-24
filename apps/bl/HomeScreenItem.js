@@ -39,6 +39,10 @@ export default class HomeScreenItem extends Component {
         // console.log("nextProps.___follow_ups : ", nextProps.___follow_ups.find(value=> String(value.id) === String(item.id)))
         // console.log("___follow_ups : ", ___follow_ups.find(value=> String(value.id) === String(item.id) ))
       
+        if(isEmpty(nextProps.___follow_ups)){
+          return true
+        }
+
         const n = nextProps.___follow_ups.find(value=> String(value.id) === String(item.id));
         const nn = ___follow_ups.find(value=> String(value.id) === String(item.id))
 
@@ -470,12 +474,15 @@ export default class HomeScreenItem extends Component {
                       //  (isEmpty(follow_ups.find( f => String(f) === String(item.id) )) ? 'gray' : 'red')} />
                       // console.log("item > this.props.___follow_ups :", this.props.___follow_ups)
 
-                      let find_fup = ___follow_ups.find(value => String(value.id) === String(item.id) )
-                      // console.log('fup : ', find_fup, item.id)
-
                       let follow_up = true;
-                      if(!isEmpty(find_fup)){
-                        follow_up = !find_fup.follow_up
+                      if(!isEmpty(___follow_ups)){
+                        let find_fup = ___follow_ups.find(value => String(value.id) === String(item.id) )
+                        // console.log('fup : ', find_fup, item.id)
+  
+                        
+                        if(!isEmpty(find_fup)){
+                          follow_up = !find_fup.follow_up
+                        }
                       }
 
                       if(follow_up){
@@ -484,17 +491,17 @@ export default class HomeScreenItem extends Component {
                         _this.props.toast.show("Unfollow up");
                       }
 
-                      const follow_ups = ___follow_ups.filter(item=> {
-                        console.log("item.local: ", item.local)
-                        return item.local
-                      })
+                      // const follow_ups = ___follow_ups.filter(item=> {
+                      //   console.log("item.local: ", item.local)
+                      //   return item.local
+                      // })
 
-                      console.log('follow_ups filter : ', follow_ups.length)
+                      // console.log('follow_ups filter : ', follow_ups.length)
 
                       ___followUp({"id": item.id, 
                                    "local": true, 
                                    "follow_up": follow_up, 
-                                   "uid": cL.uid, 
+                                  //  "uid": cL.uid, 
                                    "unique_id": getUniqueId(), 
                                    "owner_id": item.owner_id, 
                                    "date": Date.now()}, 0);
@@ -570,7 +577,7 @@ export default class HomeScreenItem extends Component {
                     onPress={()=>{
                       navigation.navigate('filter', {data:item})
                     }}>
-                    <Text style={{color:'#1a73e8'}}>{item.name} {item.surname}</Text>
+                    <Text style={{color:'#1a73e8'}}>{item.name} {item.surname} - {item.id}</Text>
                   </TouchableOpacity>
                 </View>
                 <View style={{flexDirection:'row'}}>

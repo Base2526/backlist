@@ -76,7 +76,7 @@ const httpPostSearch = () => {
   });
 };
 
-app.get('/api/hello', async(req, res) => {
+app.post('/api/hello', async(req, res) => {
   // db.collection('sockets').insert(res, (err, message) => {
   //   console.log(err)
   //   console.log(message)
@@ -85,19 +85,11 @@ app.get('/api/hello', async(req, res) => {
   // const body = await httpPostSearch();
   // console.log('body >>> ', body)
 
+  console.log(req)
+
   res.send({ express: config.mongo.url });
 });
 
-app.post('/post_test', async(req, res) => {
-  try {
-    console.log(req)
-    console.log(req.body)
-    
-    res.status(200).send({ 'result': true });
-  } catch (err) {
-    res.status(500).send({errors: err});
-  }
-});
 
 // case login will add uid to socketsModel and logout will clear uid for socketsModel
 app.post('/api/login', async(req, res) => {
@@ -118,7 +110,7 @@ app.post('/api/login', async(req, res) => {
       });
 
       let user = await usersModel.findOne({ uid });
-      var followUps = user.followUps.toObject();
+      var followUps = user.follow_ups.toObject();
       // let fs = await socketsModel.findOne({ uniqueId: unique_id });
       // if ( fs !== null ){
       //   if(fs.socketId){
@@ -221,7 +213,7 @@ app.post('/api/follow_up', async (req, res) => {
           }
         }
 
-        let fp = await onFollowerPost(uid, id_follow_up, unique_id, owner_id);
+        // let fp = await onFollowerPost(uid, id_follow_up, unique_id, owner_id);
         console.log('fp : ', fp);
 
         return res.status(200).send({'result': true, 'message': message});
@@ -283,22 +275,262 @@ app.post('/api/my_apps', async (req, res) => {
   }
 });
 
-// follower_post
+app.post('/api/___follow_up', async(req, res) => {
+  try {
+    // console.log(req)
+    // console.log(req.body)
 
-async function onFollowerPost(uid, id_follow_up, unique_id, owner_id) {
+    let {uid, follow_ups} = req.body
+
+    if(!uid || !follow_ups){    
+      res.status(500).send({errors: "params"});
+      return;
+    }
+    // console.log('follow_ups : ' , follow_ups)
+
+//     follow_ups.map((obj, i) => {
+//       console.log('obj : ' , i,  obj)
+//     })
+
+//     let um = await usersModel.updateMany({ uid }, { uid, follow_ups }, (err, result)=>{
+//       console.log(err, result)
+//     });
+
+
+    // let um =  await usersModel.findOneAndUpdate(
+    //              { uid }, 
+    //              { $push: { follow_ups  } }
+    //           )
+
+    // console.log('um :', um)
+
+    let user = await usersModel.findOne({ uid });
+    follow_ups.map( async item=>{
+      // return {...item, local:false}
+
+      let { unique_id, owner_id } = item
+      if(!unique_id || !owner_id){    
+        // return res.status(404).send({'message': 'ERROR'});
+        console.log("___follow_up > !unique_id || !owner_id")
+      }else{
+        item.local = false // update all local = false
+        if ( user === null ){
+          await new usersModel({ uid, follow_ups: [item]}).save()
+
+          await onFollowerPost(uid, item);
+        }else{
+
+          let find_user = await usersModel.findOne({ "follow_ups.id": item.id })
+          // console.log('find_user : ', find_user)
+          let noti = false
+          if ( find_user === undefined || find_user === null ) {
+            console.log("insert new")
+
+            noti = true
+            
+            await usersModel.findOneAndUpdate(
+                        { uid },
+                        { $push: { follow_ups: item } },
+                        { new: true, upsert: true }
+                      );
+
+            await onFollowerPost(uid, item);
+          }else{
+            find_user = find_user.toObject();
+            // console.log("update : ", find_user.follow_ups)
+
+            let fi = find_user.follow_ups.find(e => String(e.id) === String(item.id) );
+            if(fi !== undefined){
+              if(fi.date < item.date){
+                await usersModel.updateOne({ uid, "follow_ups.id": item.id }, 
+                                {'$set': 
+                                  {
+                                    'follow_ups.$.date': item.date,
+                                    'follow_ups.$.local': false,
+                                    'follow_ups.$.follow_up': item.follow_up
+                                  }
+                                }
+                            )
+
+                console.log("update new : ", item)
+
+                noti = true
+
+                await onFollowerPost(uid, item);
+              }
+            }
+          }
+
+          if(noti){
+            let fss = await socketsModel.find({ uid });
+            if ( fss !== null ){
+
+              user = await usersModel.findOne({ uid });
+              user = user.toObject()
+              fss.map((obj, i) => {
+                console.log('obj.socketId : >>> ', obj, user.follow_ups)
+                if(obj.socketId){
+                  io.to(obj.socketId).emit('___follow_up', JSON.stringify(user.follow_ups));
+                }
+              })
+            }
+          }else{
+            console.log('noti : >>> ', noti)
+          }
+          // var follow_ups = user.follow_ups.toObject();
+
+          // let f_findIndex = follow_ups.findIndex(ite => ite.id === item.id && ite.id < item.date)
+          // if(f_findIndex != -1){
+          //   follow_ups[f_findIndex] = item
+          //   follow_ups[f_findIndex].local = false
+          // }else{
+          //   item.local = false
+          //   follow_ups.push(item)
+          // }
+
+//           console.log('follow_ups >> ', follow_ups, uid)
+
+//           let um = await usersModel.findOneAndUpdate({ uid }, { uid, follow_ups }, {
+//             new: true,
+//             upsert: true 
+//           });
+          
+          /*
+          var message = 'Follow up'
+          if(followUps.includes(id_follow_up)){
+            followUps = followUps.filter((v) => {return v != id_follow_up})
+
+            var message = 'Upfollow up'
+          }else{
+            followUps = [...followUps, id_follow_up]
+          }
+
+          let um = await  usersModel.findOneAndUpdate({ uid }, { uid, followUps }, {
+            new: true,
+            upsert: true 
+          });
+
+          if ( um !== null ){
+            let fss = await socketsModel.find({ uid });
+            if ( fss !== null ){
+              fss.map((obj, i) => {
+                if(obj.socketId){
+                  io.to(obj.socketId).emit('___follow_up', JSON.stringify(followUps));
+                }
+              })
+            }
+          }
+
+          let fp = await onFollowerPost(uid, id_follow_up, unique_id, owner_id);
+          console.log('fp : ', fp);
+          */
+
+          // return res.status(200).send({'result': true});
+        }
+      }
+    })
+
+    // console.log('update_follow_ups : ' , update_follow_ups)
+    
+    res.status(200).send({ 'result': true });
+  } catch (err) {
+    res.status(500).send({errors: err});
+  }
+});
+
+// follower_post
+async function noti_follower_post(uid, post_id, follower ) {
+
+  let fss = await socketsModel.find({ uid });
+  if ( fss !== null ){
+    // case uid have muli devices
+    fss.map((obj, i) => {
+      if(obj.socketId){
+        io.to(obj.socketId).emit('follower_post', JSON.stringify({'post_id': post_id, 'follower':follower}) );
+      }
+    })
+  }
+}
+
+async function onFollowerPost(uid, item  /*, id_follow_up, unique_id, owner_id*/) {
   try {
 
-    console.log('onFollowerPost > ', uid, id_follow_up, unique_id, owner_id)
-    if(!uid || !id_follow_up || !unique_id || !owner_id){    
-      return false;
+    /*
+    date: 1619190378575
+follow_up: false
+id: 69677
+local: false
+owner_id: 1
+uid: "59"
+unique_id: "BF540C0D-FCB3-4D44-B779-AEC52EF68F91"
+    */
+
+    console.log("onFollowerPost  >>>>", item)
+
+    let { id, unique_id, owner_id, follow_up } = item
+    if(!unique_id || !owner_id){    
+      // return res.status(404).send({'message': 'ERROR'});
+      console.log("onFollowerPost : !unique_id || !owner_id")
     }else{
 
+      
+      // followerPostModel.updateOne( // select your doc in moongo
+      //   { post_id: id }, // your query, usually match by _id
+      //   { $pull: { results: { $elemMatch: { score: 8 , item: "B" } } } }, // item(s) to match from array you want to pull/remove
+      //   { multi: true } // set this to true if you want to remove multiple elements.
+      // )
+      // { $push: { follow_ups: item } },
+
+      if(!follow_up){
+        followerPostModel.findOneAndUpdate({ post_id: id }, {$pull: {follower: uid}}, (err, data) => {
+          if (err) {
+              // return res.status(500).json({ error: 'error in deleting address' });
+          }
+          // res.json(data);   
+
+          
+        });
+      }else{
+
+        let followerPost = await followerPostModel.findOne({ post_id: id });
+        if ( followerPost === null ){
+          await new followerPostModel({ post_id: id, follower: [uid]}).save()
+
+          await noti_follower_post(uid, id, [uid])
+        }else{
+          /*
+            find_user = find_user.toObject();
+            // console.log("update : ", find_user.follow_ups)
+
+            let fi = find_user.follow_ups.find(e => String(e.id) === String(item.id) );
+            if(fi !== undefined){
+          */
+
+            followerPost = followerPost.toObject();
+            let fi = followerPost.follower.find(e => String(e) === String(uid) );
+            if(fi === undefined){
+              await followerPostModel.findOneAndUpdate(
+                { post_id: id },
+                { $push: { follower: uid } },
+                { new: true, upsert: true }
+              );
+
+              let followerPost = await followerPostModel.findOne({ post_id });
+              followerPost = followerPost.toObject();
+
+              await noti_follower_post(uid, id, followerPost.follower)
+            }
+        }
+      }
+      
+
+      /*
       // followerPostModel
-      let followerPost = await followerPostModel.findOne({ post_id: id_follow_up });
+      let followerPost = await followerPostModel.findOne({ post_id: id });
 
       var follower =[]
       if ( followerPost === null ){
-        await new followerPostModel({ post_id: id_follow_up, follower: [uid]}).save()
+        await new followerPostModel({ post_id: id, follower: [uid]}).save()
       
         follower = [uid]
       }else{
@@ -312,7 +544,7 @@ async function onFollowerPost(uid, id_follow_up, unique_id, owner_id) {
         }
 
         console.log('follower > ', follower)
-        let _followerPostModel = await  followerPostModel.findOneAndUpdate({ post_id: id_follow_up }, { post_id: id_follow_up, follower }, { new: true, upsert: true });
+        let _followerPostModel = await  followerPostModel.findOneAndUpdate({ post_id: id }, { post_id: id, follower }, { new: true, upsert: true });
         // if ( _followerPostModel !== null ){
           // follower.map( async (_uid, i) => {
           //    console.log('_uid, i :', _uid, i)
@@ -321,7 +553,7 @@ async function onFollowerPost(uid, id_follow_up, unique_id, owner_id) {
               // case uid have muli devices
               fss.map((obj, i) => {
                 if(obj.socketId){
-                  io.to(obj.socketId).emit('follower_post', JSON.stringify({'post_id': id_follow_up, 'follower':follower}) );
+                  io.to(obj.socketId).emit('follower_post', JSON.stringify({'post_id': id, 'follower':follower}) );
                 }
               })
             }
@@ -330,21 +562,21 @@ async function onFollowerPost(uid, id_follow_up, unique_id, owner_id) {
         
       }  
 
-      let fss = await socketsModel.find({ uid:owner_id });
+      let fss = await socketsModel.find({ uid });
       if ( fss !== null ){
         // case uid have muli devices
         fss.map((obj, i) => {
           if(obj.socketId){
-            io.to(obj.socketId).emit('follower_post', JSON.stringify({'post_id': id_follow_up, 'follower':follower}) );
+            io.to(obj.socketId).emit('follower_post', JSON.stringify({'post_id': id, 'follower':follower}) );
           }
         })
       }
 
+      */
       return true;
     }
-    return true;
   } catch(err) {
-    console.err(err);
+    console.log(err);
 
     return false;
   }
@@ -440,7 +672,7 @@ function onUserJoined(userId, socket) {
       _sendExistingMessages(socket);
     }
   } catch(err) {
-    console.err(err);
+    console.log(err);
   }
 }
 

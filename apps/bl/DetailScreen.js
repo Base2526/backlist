@@ -181,7 +181,7 @@ class DetailScreen extends React.Component {
                                 ___followUp({"id": data.id, 
                                             "local": true, 
                                             "follow_up": follow_up, 
-                                            "uid": user.uid, 
+                                            // "uid": user.uid, 
                                             "unique_id": getUniqueId(), 
                                             "owner_id": data.owner_id, 
                                             "date": Date.now()}, 0);

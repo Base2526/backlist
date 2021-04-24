@@ -169,7 +169,7 @@ class HomeScreen extends Component {
     let {data, user} = this.props
    
     let _this     = this;
-    let { nid_last, offset }  = _this.state;
+    let { offset }  = _this.state;
 
     _this.setState({loading: true})
 
@@ -714,32 +714,32 @@ class HomeScreen extends Component {
                   onMove={data => console.log(data)}
                   enableSwipeDown={true}
                   renderImage={(props)=>{
-                      return(
-                          <Image {...props}
-                              indicator={Progress.Pie}
-                              indicatorProps={{
-                                  size: 50,
-                                  borderWidth: 1,
-                                  color: '#ffffff',
-                                  // unfilledColor: 'rgba(60,14,101, 0.2)',
-                              }}
-                              onLoadStart={e => console.log('Loading Start >>> ')}
-                              onProgress={e =>
-                                  console.log(
-                                  'Loading Progress ' +
-                                      e.nativeEvent.loaded / e.nativeEvent.total
-                                  )
-                              }
-                              onLoad={e =>
-                                  console.log(
-                                  'Loading Loaded ' + e.nativeEvent.width,
-                                  e.nativeEvent.height
-                                  )
-                              }
-                              onLoadEnd={e => console.log('Loading Ended')}
-                              />
-                          )
-                      }}
+                    return(
+                      <Image {...props}
+                          indicator={Progress.Pie}
+                          indicatorProps={{
+                              size: 50,
+                              borderWidth: 1,
+                              color: '#ffffff',
+                              // unfilledColor: 'rgba(60,14,101, 0.2)',
+                          }}
+                          onLoadStart={e => console.log('Loading Start >>> ')}
+                          onProgress={e =>
+                              console.log(
+                              'Loading Progress ' +
+                                  e.nativeEvent.loaded / e.nativeEvent.total
+                              )
+                          }
+                          onLoad={e =>
+                              console.log(
+                              'Loading Loaded ' + e.nativeEvent.width,
+                              e.nativeEvent.height
+                              )
+                          }
+                          onLoadEnd={e => console.log('Loading Ended')}
+                          />
+                      )
+                    }}
                   />
               {/* {this.renderFooterImageViewer()} */}
             </Modal>

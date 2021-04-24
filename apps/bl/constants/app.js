@@ -20,3 +20,6 @@ export const DELETE_MY_APP  = 'DELETE_MY_APP';
 
 export const ADD_FOLLOWER_POST = 'ADD_FOLLOWER_POST' // use first login insert all
 export const FOLLOWER_POST  = 'FOLLOWER_POST';       // case add each item
+
+
+export const NET_INFO   = 'NET_INFO'

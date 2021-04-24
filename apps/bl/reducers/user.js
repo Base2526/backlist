@@ -1,6 +1,6 @@
 import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE, 
          FOLLOW_UP, ___FOLLOW_UP, FETCH_MY_APPS, ADD_HISTORY, 
-         DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST } from '../constants/app';
+         DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST, NET_INFO } from '../constants/app';
 
 export const  mergeArrays = (...arrays) => {
   let jointArray = []
@@ -42,7 +42,9 @@ const initialState = {
   ___follow_ups: [],
   my_apps: [],
   historys: [],
-  follower_post: []
+  follower_post: [],
+
+  net_info:{}
 }
 
 export const user = (state = initialState, action) => {
@@ -90,9 +92,25 @@ export const user = (state = initialState, action) => {
       //   }, [])
       //   return uniqueArray
       // }
-      console.log('____t : ', action)
+      // console.log('____t : ', action)
+
+      if(action.mode == 0){
+        let ___follow_ups = mergeArraysId([action.data], state.___follow_ups)
+        return {
+          ...state, ___follow_ups
+        }
+      }else if(action.mode == 1){
+        let ___follow_ups = mergeArraysId(action.data, state.___follow_ups)
+        // let filt = ___follow_ups.filter(ite=>ite.follow_up)
+        // console.log("____________action.data .length : ", ___follow_ups.length, filt.length, ___follow_ups)
+        return {
+          ...state, ___follow_ups
+        }
+      }
+
+      return state;
       
-      let ___follow_ups = mergeArraysId([action.data], state.___follow_ups)
+      
 
       // let arrays = [action.data, ...state.___follow_ups]
       // let jointArray = []
@@ -110,9 +128,7 @@ export const user = (state = initialState, action) => {
       // }, [])
       // console.log("___FOLLOW_UP > result : ", ___follow_ups)
 
-      return {
-        ...state, ___follow_ups
-      }
+      
     }
 
     case FETCH_MY_APPS: {
@@ -139,6 +155,10 @@ export const user = (state = initialState, action) => {
     case FOLLOWER_POST: {
       let follower_post = state.follower_post.filter((item)=>{ return item.post_id !== action.data.post_id })
       return { ...state, follower_post:[...follower_post, action.data] }
+    }
+
+    case NET_INFO: {
+      return { ...state, net_info:action.data}
     }
    
     default:

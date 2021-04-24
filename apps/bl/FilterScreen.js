@@ -37,15 +37,41 @@ import {API_URL, API_TOKEN, API_URL_SOCKET_IO} from "./constants"
 import { NumberFormat, isEmpty } from './Utils'
 
 import ModalLogin from './ModalLogin'
+import {___followUp} from './actions/user'
 
 class MyListItem extends React.Component {
     shouldComponentUpdate(nextProps, nextState) {   
-      const { follow_ups, item } = this.props;
-      // true = reload item, false = not reload item
+        const {___follow_ups, item} = this.props;
+        // true = reload item, false = not reload item
+    
+        // T - T, F - F = 0 << use case ***
+        // T - F, F - T = 1
+        // return  (nextProps.follow_ups.includes(item.id) ^ follow_ups.includes(item.id))
+
+
+        // console.log("item : ", item)
+        // console.log("nextProps.___follow_ups : ", nextProps.___follow_ups.find(value=> String(value.id) === String(item.id)))
+        // console.log("___follow_ups : ", ___follow_ups.find(value=> String(value.id) === String(item.id) ))
+      
+        if(isEmpty(nextProps.___follow_ups)){
+            return true
+        }
   
-      // T - T, F - F = 0 << use case ***
-      // T - F, F - T = 1
-      return  (nextProps.follow_ups.includes(item.id) ^ follow_ups.includes(item.id))
+        const n = nextProps.___follow_ups.find(value=> String(value.id) === String(item.id));
+        const nn = ___follow_ups.find(value=> String(value.id) === String(item.id))
+  
+        if( !isEmpty(n) && !isEmpty(nn) ){
+            if(!(n.follow_up && nn.follow_up)){
+                return true
+            }
+            return false
+        }else if( !isEmpty(n) ){
+            return true
+        }else if( !isEmpty(nn) ){
+            return true
+        }else{
+            return false
+        }
     }
 
     isOwner = (id_check) => {
@@ -53,7 +79,7 @@ class MyListItem extends React.Component {
     }
   
     render() {
-        const { navigation, follow_ups, item, user, my_apps } = this.props;
+        const { navigation, follow_ups, item, user, my_apps, ___follow_ups, ___followUp } = this.props;
         let _menu = null;
         let _this = this;
 
@@ -78,12 +104,39 @@ class MyListItem extends React.Component {
                     <TouchableOpacity 
                         style={{ padding:3,}}
                         onPress={ async ()=>{
-                            let cL = _this.props.user
-                            console.log(API_URL_SOCKET_IO(), cL.uid, item.id, getUniqueId())
+
+                            // let {user, ___follow_ups, ___followUp } = _this.props;
+                            // let cL = _this.props.user
+                            // console.log(API_URL_SOCKET_IO(), cL.uid, item.id, getUniqueId())
                             
-                            if(isEmpty(cL)){
+                            if(isEmpty(user)){
                                 _this.props.updateState({ showModalLogin: true })
                             }else{
+
+                                let follow_up = true;
+                                if(!isEmpty(___follow_ups)){
+                                    let find_fup = ___follow_ups.find(value => String(value.id) === String(item.id) )
+                                
+                                    if(!isEmpty(find_fup)){
+                                        follow_up = !find_fup.follow_up
+                                    }
+                                }
+
+                                if(follow_up){
+                                  _this.props.toast.show("Follow up");
+                                }else{
+                                  _this.props.toast.show("Unfollow up");
+                                }
+        
+                                ___followUp({"id": item.id, 
+                                             "local": true, 
+                                             "follow_up": follow_up, 
+                                            //  "uid": cL.uid, 
+                                             "unique_id": getUniqueId(), 
+                                             "owner_id": item.owner_id, 
+                                             "date": Date.now()}, 0);
+
+                                /*
                                 axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
                                     uid: cL.uid,
                                     id_follow_up: item.id,
@@ -109,15 +162,25 @@ class MyListItem extends React.Component {
                                     console.log('error :', error)
                                     // _this.setState({loading: false})
                                 });
+                                */
                             }
                         }}>
-                        { !_this.isOwner(item.id) &&
+                        {/* { !_this.isOwner(item.id) &&
                                 <Ionicons 
                                 name="shield-checkmark-outline" 
                                 size={25} 
                                 color={isEmpty(follow_ups) ? 'gray' : (isEmpty(follow_ups.find( f => String(f) === String(item.id) )) ? 'gray' : 'red')} 
                                 />
+                        } */}
+                        { 
+                            !this.isOwner(item.id) &&
+                            <Ionicons 
+                                name="shield-checkmark-outline" 
+                                size={25} 
+                                /*color={isEmpty(follow_ups.find( f => f === id )) ? 'gray' : 'red'}*/ 
+                                color={isEmpty(___follow_ups) ? 'gray' : (isEmpty(___follow_ups.find( value => String(value.id) === String(item.id) && value.follow_up )) ? 'gray' : 'red')} />
                         }
+
                     </TouchableOpacity>
                     <View style={{justifyContent:'center'}}>
                         <Menu
@@ -308,15 +371,21 @@ class FilterScreen extends Component {
     }
     
     renderItem = (item) =>{
-        let { navigation, follow_ups, user, my_apps } = this.props;
-        return <MyListItem
-                    item={item}
-                    navigation={navigation}
-                    follow_ups={follow_ups}
-                    user={user}
-                    my_apps={my_apps}
-                    toast={this.toast}
-                    updateState={this.onUpdateState}/>
+        // let { navigation, follow_ups, user, my_apps } = this.props;
+        // return <MyListItem
+        //             item={item}
+        //             navigation={navigation}
+        //             follow_ups={follow_ups}
+        //             user={user}
+        //             my_apps={my_apps}
+        //             toast={this.toast}
+        //             updateState={this.onUpdateState}/>
+
+        return  <MyListItem
+                {...this.props}
+                item={item}
+                toast={this.toast}
+                updateState={this.onUpdateState} />
     }
     
     renderFooter = () => {
@@ -423,9 +492,17 @@ const mapStateToProps = state => {
     return{
       user: state.user.data,
       follow_ups: state.user.follow_ups,
-      my_apps: state.user.my_apps
+      my_apps: state.user.my_apps,
+
+
+
+      ___follow_ups: state.user.___follow_ups
     }
 }
 
-export default connect(mapStateToProps, null)(FilterScreen)
+const mapDispatchToProps = {
+    ___followUp
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(FilterScreen)
  

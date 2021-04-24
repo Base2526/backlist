@@ -30,7 +30,7 @@ import {API_URL, API_TOKEN} from "./constants"
 import Spinner from 'react-native-loading-spinner-overlay';
 import Toast, {DURATION} from 'react-native-easy-toast'
 import { ValidateEmail, isEmpty, Base64 } from './Utils'
-import { userLogin, followUp, fetchMyApps, addfollowerPost } from './actions/user';
+import { userLogin, followUp, ___followUp,fetchMyApps, addfollowerPost } from './actions/user';
 
 class LoginScreen extends Component {
   constructor(props) {
@@ -76,7 +76,9 @@ class LoginScreen extends Component {
         // console.log('cccc : ', typeof results.result);
         if(results.result === true){ 
           _this.props.userLogin(results.user)
-          _this.props.followUp( isEmpty(results.follow_ups) ? results.follow_ups : JSON.parse(results.follow_ups)) // follow_ups
+          // _this.props.followUp( isEmpty(results.follow_ups) ? results.follow_ups : JSON.parse(results.follow_ups)) // follow_ups
+          
+          _this.props.___followUp( isEmpty(results.follow_ups) ? results.follow_ups : JSON.parse(results.follow_ups), 1)
           _this.props.fetchMyApps(results.user.basic_auth)
           _this.props.addfollowerPost( isEmpty(results.follower_post) ? results.follower_post : JSON.parse(results.follower_post))
 
@@ -221,6 +223,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = {
   userLogin,
   followUp,
+  ___followUp,
   fetchMyApps,
   addfollowerPost
 }

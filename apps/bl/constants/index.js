@@ -8,7 +8,7 @@ export const IOS_CLIENT_ID="693724870615-sctm232nea5uoce5us2l5le0mj7bi77p.apps.g
 
 export const API_URL_SOCKET_IO = () => {
     // if (process.env.NODE_ENV === 'development') {
-    //     return "http://localhost:3000"
+        // return "http://localhost:3000"
     // }else{
         return "http://143.198.223.146:3000"
     // }
