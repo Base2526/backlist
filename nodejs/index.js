@@ -19,6 +19,8 @@ const followerPostModel    = require('./models/follower_post');
 
 const connection = require("./connection")
 
+const {empty} = require("./utils")
+
 require('./log-interceptor')(server);
 
 connection().then((db) => {
@@ -85,6 +87,8 @@ app.post('/api/hello', async(req, res) => {
   // const body = await httpPostSearch();
   // console.log('body >>> ', body)
 
+  console.log("empty :", empty(1))
+
   console.log(req)
 
   res.send({ express: config.mongo.url });
@@ -97,7 +101,7 @@ app.post('/api/login', async(req, res) => {
     console.log(req.body)
     
     let {unique_id, uid} = req.body
-    if(!unique_id || !uid){    
+    if( !empty(unique_id) || !empty(uid) ){    
       res.status(404).send({'message': 'ERROR'});
     }else{
 
@@ -131,7 +135,7 @@ app.post('/api/logout', (req, res) => {
     console.log(req.body)
     
     let {unique_id, uid} = req.body
-    if(!unique_id || !uid){    
+    if(!empty(unique_id) || !empty(uid)){    
       res.status(404).send({'message': 'ERROR'});
     }else{
 
@@ -155,7 +159,7 @@ app.post('/api/update_profile', async(req, res) => {
     console.log(req.body)
     
     let { uid } = req.body
-    if( !uid ){    
+    if( !empty(uid) ){    
       res.status(404).send({ 'result': false });
     }else{
       let fs = await socketsModel.findOne({ uid });
@@ -178,7 +182,7 @@ app.post('/api/follow_up', async (req, res) => {
     console.log(req.body)
     
     let { uid, id_follow_up, unique_id, owner_id } = req.body
-    if(!uid || !id_follow_up || !unique_id || !owner_id){    
+    if(!empty(uid) || !empty(id_follow_up) || !empty(unique_id) || !empty(owner_id)){    
       return res.status(404).send({'message': 'ERROR'});
     }else{
       let user = await usersModel.findOne({ uid });
@@ -226,12 +230,30 @@ app.post('/api/follow_up', async (req, res) => {
   }
 });
 
+app.post('/api/fetch____follow_up', async (req, res) => {
+  try {
+    console.log("/api/fetch____follow_up > req.body : ", req.body)
+    
+    let {uid} = req.body
+
+    if(empty(uid)){
+      res.status(300).send({'result': false, message: 'empty uid'});
+    }else{
+      let user = await usersModel.findOne({ uid });
+      res.status(200).send({'result': true, 'message': 'OK', 'followUps': JSON.stringify(user.follow_ups.toObject())});
+    }
+  } catch (err) {
+    console.log(err)
+    res.status(500).send({'result': false, errors: err});
+  }
+});
+
 app.post('/api/follower_post', async (req, res) => {
   try {
     console.log(req.body)
     
     let { posts } = req.body
-    if( !posts){    
+    if( !posts ){    
       return res.status(404).send({'result': false});
     }
     let follower_post =  await Promise.all( posts.map(async(post_id)=>{ return await followerPostModel.findOne({ post_id }); }))
@@ -251,14 +273,12 @@ app.post('/api/follower_post', async (req, res) => {
   }
 });
 
-
-// my_apps
 app.post('/api/my_apps', async (req, res) => {
   try {
     console.log(req.body)
     
     let { uid } = req.body
-    if(!uid){    
+    if(!empty(uid)){    
       return res.status(404).send({'message': 'ERROR'});
     }else{
       let fs = await socketsModel.findOne({ uid });
@@ -282,7 +302,7 @@ app.post('/api/___follow_up', async(req, res) => {
 
     let {uid, follow_ups} = req.body
 
-    if(!uid || !follow_ups){    
+    if(!empty(uid) || !empty(follow_ups)){    
       res.status(500).send({errors: "params"});
       return;
     }
@@ -309,7 +329,7 @@ app.post('/api/___follow_up', async(req, res) => {
       // return {...item, local:false}
 
       let { unique_id, owner_id } = item
-      if(!unique_id || !owner_id){    
+      if(!empty(unique_id) || !empty(owner_id)){    
         // return res.status(404).send({'message': 'ERROR'});
         console.log("___follow_up > !unique_id || !owner_id")
       }else{
@@ -468,7 +488,7 @@ unique_id: "BF540C0D-FCB3-4D44-B779-AEC52EF68F91"
     console.log("onFollowerPost  >>>>", item)
 
     let { id, unique_id, owner_id, follow_up } = item
-    if(!unique_id || !owner_id){    
+    if(!empty(unique_id) || !empty(owner_id)){    
       // return res.status(404).send({'message': 'ERROR'});
       console.log("onFollowerPost : !unique_id || !owner_id")
     }else{

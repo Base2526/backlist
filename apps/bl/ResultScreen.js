@@ -231,7 +231,13 @@ class MyListItem extends React.Component {
               <View style={{ flex:1, padding:10 }}>
                   <View style={{flexDirection:'row'}}>
                   <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
-                  <Text>{item.name} {item.surname}</Text>
+                  <TouchableOpacity 
+                    style={{ }}
+                    onPress={()=>{
+                      navigation.navigate('filter', {data:item})
+                    }}>
+                    <Text style={{color:'#1a73e8'}}>{item.name} {item.surname}</Text>
+                  </TouchableOpacity>
                   </View>
                   <View style={{flexDirection:'row'}}>
                   <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>

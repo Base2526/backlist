@@ -577,7 +577,7 @@ export default class HomeScreenItem extends Component {
                     onPress={()=>{
                       navigation.navigate('filter', {data:item})
                     }}>
-                    <Text style={{color:'#1a73e8'}}>{item.name} {item.surname} - {item.id}</Text>
+                    <Text style={{color:'#1a73e8'}}>{item.name} {item.surname}</Text>
                   </TouchableOpacity>
                 </View>
                 <View style={{flexDirection:'row'}}>

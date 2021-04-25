@@ -4038,7 +4038,7 @@ class Utils extends ControllerBase {
     $node->save();
   }
 
-  public static function node_login($uid, $unique_id){
+  public static function node_login($unique_id){
 
     $global       = ConfigPages::config('banlist');
     $node_server  = '';
@@ -4047,12 +4047,68 @@ class Utils extends ControllerBase {
     }
 
     $data_obj = [
-      "uid" => $uid,
+      "uid" => \Drupal::currentUser()->id(),
       "unique_id" => $unique_id
     ];
     $ch = curl_init();
     curl_setopt_array($ch, array(
       CURLOPT_URL => $node_server . "/api/login",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_HEADER => true,
+      //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_POSTFIELDS => json_encode($data_obj),
+      CURLOPT_HTTPHEADER => array(
+        // "Authorization: Basic " . $basic_auth,
+        "Accept: application/json",
+        "Content-Type: application/json",
+      ),
+    ));
+
+    $response = curl_exec($ch);
+    // dpm($response);
+    // \Drupal::logger('Login : response')->notice( serialize($response) );
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    // dpm($httpcode);
+    // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
+
+    // \Drupal::logger('Login : response')->notice( serialize($response) );
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    // dpm($httpcode);
+    // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
+
+    if($httpcode == 200){
+      // $response = json_decode($response);
+      $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+      $header = substr($response, 0, $header_size);
+      $body = substr($response, $header_size);
+      $body = json_decode($body);
+
+      if($body->result){
+        return $body->followUps;
+      }
+    }
+
+    curl_close($ch);
+
+    return array();
+  }
+
+  // fetch____follow_up
+  public static function node_fetch____follow_up(){
+
+    $global       = ConfigPages::config('banlist');
+    $node_server  = '';
+    if(isset( $global )){
+      $node_server =  $global->get('field_node_server')->value;
+    }
+
+    $data_obj = [
+      "uid" => \Drupal::currentUser()->id()
+    ];
+    $ch = curl_init();
+    curl_setopt_array($ch, array(
+      CURLOPT_URL => $node_server . "/api/fetch____follow_up",
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_HEADER => true,
       //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,

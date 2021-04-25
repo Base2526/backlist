@@ -141,8 +141,9 @@ class API extends ControllerBase {
           // /api/login , unique_id
 
           // ---------------- follow_ups -----------------
-          $response_array['follow_ups'] = Utils::node_login($uid, $unique_id);
+          Utils::node_login($unique_id);
 
+          $response_array['follow_ups'] = Utils::node_fetch____follow_up();
           // ---------------- follow_ups -----------------
 
 
@@ -166,14 +167,14 @@ class API extends ControllerBase {
           // ---------------- follower_post -----------------
 
           
-          // ------------
+          // -----  my_apps  -------
           $storage = $this->entityTypeManager->getStorage('node');
           $query   = $storage->getQuery();
           $query->condition('type', 'back_list');
           $query->condition('uid', $uid);
 
           $response_array['my_apps'] = json_encode(array_values($query->execute()));
-          // ------------
+          // -----  my_apps  -------
         }else{
 
           $response_array['result']           = FALSE;
@@ -555,6 +556,60 @@ class API extends ControllerBase {
       $response_array['message']  = $e->__toString();
       return new JsonResponse( $response_array );
     }
+  }
+
+  /*
+   - แก้ปัญหากรณีเปิดหลายๆ เครื่องระหว่างนี้มีการ follow up, .... จะไม่ได้ current data เราต้อง syc เพอืให้ข้อมูลเท่ากัน
+  */
+  public function SycNodeJs(Request $request){
+    $response_array = array();
+    try {
+      $time1      = microtime(true);
+      $content    = json_decode( $request->getContent(), TRUE );
+
+      $uid = \Drupal::currentUser()->id();
+
+      // ---------------- follow_ups -----------------
+      $response_array['follow_ups'] = Utils::node_fetch____follow_up();
+      // ---------------- follow_ups -----------------
+
+      // ---------------- follower_post -----------------
+      $response_array['follower_post'] =array();
+
+      // $storage = \Drupal::entityTypeManager()->getStorage('node');
+      $storage = $this->entityTypeManager->getStorage('node');
+      $query   = $storage->getQuery();
+      // $query->condition('status', \Drupal\node\NodeInterface::PUBLISHED);
+      $query->condition('type', 'back_list');
+
+      $query->condition('uid', $uid);
+      $posts = array_values($query->execute());
+
+      if(!empty($posts)){
+        $response_array['follower_post'] = Utils::node_follower_post(  $posts );
+      }
+      // ---------------- follower_post -----------------
+
+      // -----  my_apps  -------
+      $storage = $this->entityTypeManager->getStorage('node');
+      $query   = $storage->getQuery();
+      $query->condition('type', 'back_list');
+      $query->condition('uid', $uid);
+
+      $response_array['my_apps'] = json_encode(array_values($query->execute()));
+      // -----  my_apps  -------
+
+      $response_array['result']           = TRUE;
+      // $response_array['data']          = $data;
+      $response_array['execution_time']   = microtime(true) - $time1;
+    } catch (\Throwable $e) {
+      \Drupal::logger('SearchApi')->notice($e->__toString());
+
+      $response_array['result']   = FALSE;
+      $response_array['message']  = $e->__toString();
+    }
+
+    return new JsonResponse( $response_array );
   }
 
   /*

@@ -106,6 +106,16 @@ api.check_banlist:
   options:
     _auth: ['basic_auth']
 
+api.syc_nodejs:
+  path: '/api/syc_nodejs'
+  methods: [POST]
+  defaults: 
+    _controller: '\Drupal\backlist\Controller\API::SycNodeJs'
+  requirements: 
+    _role: 'authenticated+administrator'
+  options:
+    _auth: ['basic_auth']
+
 # search
 api.search:
   path: '/api/search'

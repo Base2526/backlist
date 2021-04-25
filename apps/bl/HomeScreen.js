@@ -669,7 +669,7 @@ class HomeScreen extends Component {
                 <MaterialIcons
                   name='close'
                   style={{alignSelf: 'flex-end',
-                          color: 'gray',
+                          color: 'black',
                           fontSize: 30,
                           padding:5
                           }}

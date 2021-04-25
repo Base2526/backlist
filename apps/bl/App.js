@@ -76,7 +76,7 @@ import EditName from './EditName'
 
 import Test from './Test'
 
-import {API_URL_SOCKET_IO} from "./constants"
+import {API_URL, API_URL_SOCKET_IO} from "./constants"
 
 import Toast, {DURATION} from 'react-native-easy-toast'
 
@@ -86,7 +86,7 @@ import * as historys from './utils/historys';
 
 import {store, persistor} from './reduxStore'
 
-import { fetchProfile, followUp, fetchMyApps, followerPost, ___followUp, netInfo } from './actions/user';
+import { fetchProfile, followUp, fetchMyApps, followerPost, ___followUp, netInfo, addfollowerPost } from './actions/user';
 import { fetchData, testFetchData, clearData } from './actions/app'
 
 const Tab = createBottomTabNavigator();
@@ -436,11 +436,12 @@ class App extends Component {
   // https://github.com/vinnyoodles/react-native-socket-io-example/blob/master/client/index.js
   onSocket = async () =>{
     // let API_URL_SOCKET_IO='http://localhost:3000'
-    let cL = this.props.user
+    let {user} = this.props
     // console.log('API_URL_SOCKET_IO : ', API_URL_SOCKET_IO())
 
-    if(!isEmpty(cL)){    
-      socket = io(API_URL_SOCKET_IO(), { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${getUniqueId()}&version=${getVersion()}&uid=${cL.uid}` });
+    if(!isEmpty(user)){    
+      socket = io(API_URL_SOCKET_IO(), { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${getUniqueId()}&version=${getVersion()}&uid=${user.uid}` });
+      this.onSycNodeJs()
     }else{
       socket = io(API_URL_SOCKET_IO(), { query:`platform=${Base64.btoa(JSON.stringify(Platform))}&unique_id=${getUniqueId()}&version=${getVersion()}` });
     }
@@ -500,6 +501,32 @@ class App extends Component {
   onFollowerPost = (data) => {
     console.log('onFollowerPost >>>> ', JSON.parse(data))
     this.props.followerPost(JSON.parse(data))
+  }
+
+  /*
+  Syc current data when open first
+  */
+  onSycNodeJs = () =>{
+
+    let {user, ___followUp, fetchMyApps, addfollowerPost} = this.props
+
+    axios.post(`${API_URL}/api/syc_nodejs?_format=json`
+              , {}
+              , { headers: {'Authorization': `Basic ${user.basic_auth}` } })
+    .then(function (response) {
+        let results = response.data
+        console.log('onSycNodeJs')
+        if(results.result){
+          let {follow_ups, follower_post} = results;
+
+          ___followUp( isEmpty(follow_ups) ? follow_ups : JSON.parse(follow_ups), 1)
+          fetchMyApps(user.basic_auth)
+          addfollowerPost( isEmpty(follower_post) ? follower_post : JSON.parse(follower_post))
+        }
+    })
+    .catch(function (error) {
+        console.log('onSycNodeJs error : ', error);
+    });
   }
 
   render(){
@@ -628,7 +655,10 @@ const mapDispatchToProps = {
   fetchData,
 
   ___followUp,
-  netInfo
+  netInfo,
+
+
+  addfollowerPost,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)
