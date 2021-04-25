@@ -37,7 +37,7 @@ export default ModalLogin = (props) => {
             let { navigation, onSelect } = props;
             console.log('useEffect bottomModalAndTitle >>> ', showModalLogin, props.showModalLogin)
 
-            console.log('props >>> ', props)
+            // console.log('props >>> ', props)
         } else {
             // do componentDidUpdate logic
 

@@ -6,7 +6,7 @@ import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE,
          DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST ,
         
         
-         NET_INFO} from '../constants/app';
+         NET_INFO, NOTIFICATIONS} from '../constants/app';
 
 const _dataUserLogin = data => ({
   type: USER_LOGIN,
@@ -74,7 +74,11 @@ const _netInfo = data => ({
   data,
 });
 
-
+// NOTIFICATIONS
+const _notifications = data => ({
+  type: NOTIFICATIONS,
+  data,
+});
 
 export const userLogin = (data) => dispatch => {
   // axios.get('https://jsonplaceholder.typicode.com/users')
@@ -151,7 +155,10 @@ export const followerPost = (data) => dispatch => {
   dispatch(_followerPost(data));
 }
 
-
 export const netInfo = (data) => dispatch => {
   dispatch(_netInfo(data));
+}
+
+export const onNotifications = (data) => dispatch => {
+  dispatch(_notifications(data));
 }

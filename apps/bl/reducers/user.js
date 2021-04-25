@@ -1,6 +1,6 @@
 import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE, 
          FOLLOW_UP, ___FOLLOW_UP, FETCH_MY_APPS, ADD_HISTORY, 
-         DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST, NET_INFO } from '../constants/app';
+         DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST, NET_INFO, NOTIFICATIONS } from '../constants/app';
 
 export const  mergeArrays = (...arrays) => {
   let jointArray = []
@@ -44,7 +44,9 @@ const initialState = {
   historys: [],
   follower_post: [],
 
-  net_info:{}
+  net_info:{},
+
+  notifications:[],
 }
 
 export const user = (state = initialState, action) => {
@@ -75,25 +77,7 @@ export const user = (state = initialState, action) => {
       return {...state, follow_ups: action.data}
     }
 
-
     case ___FOLLOW_UP:{
-      // export const  mergeArrays = (...arrays) => {
-      //   let jointArray = []
-      //   arrays.forEach(array => {
-      //       jointArray = [...jointArray, ...array]
-      //   })
-      //   const uniqueArray = jointArray.reduce((newArray, item) =>{
-      //       let found = newArray.find(({ id }) => id === item.id);
-      //       if (found){
-      //           return newArray
-      //       } else {
-      //           return [...newArray, item]
-      //       }
-      //   }, [])
-      //   return uniqueArray
-      // }
-      // console.log('____t : ', action)
-
       if(action.mode == 0){
         let ___follow_ups = mergeArraysId([action.data], state.___follow_ups)
         return {
@@ -107,28 +91,14 @@ export const user = (state = initialState, action) => {
           ...state, ___follow_ups
         }
       }
-
       return state;
-      
-      
+    }
 
-      // let arrays = [action.data, ...state.___follow_ups]
-      // let jointArray = []
-      
-      // arrays.forEach(array => {
-      //     jointArray = [...jointArray, ...array]
-      // })
-      // const uniqueArray = jointArray.reduce((newArray, item) =>{
-      //   let found = newArray.find(({ id }) => id === item.id);
-      //   if (found){
-      //       return newArray
-      //   } else {
-      //       return [...newArray, item]
-      //   }
-      // }, [])
-      // console.log("___FOLLOW_UP > result : ", ___follow_ups)
-
-      
+    case NOTIFICATIONS: {
+      let notifications = mergeArraysId(action.data, state.notifications)
+      return {
+        ...state, notifications
+      }
     }
 
     case FETCH_MY_APPS: {

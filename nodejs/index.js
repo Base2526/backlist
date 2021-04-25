@@ -13,9 +13,10 @@ var app = express();
 var server = http.Server(app);
 var io = socketio(server);
 
-const socketsModel  = require('./models/sockets');
-const usersModel    = require('./models/users');
-const followerPostModel    = require('./models/follower_post');
+const socketsModel       = require('./models/sockets');
+const usersModel         = require('./models/users');
+const followerPostModel  = require('./models/follower_post');
+const notificationsModel = require('./models/notifications')
 
 const connection = require("./connection")
 
@@ -87,13 +88,18 @@ app.post('/api/hello', async(req, res) => {
   // const body = await httpPostSearch();
   // console.log('body >>> ', body)
 
-  console.log("empty :", empty(1))
+  // console.log("empty :", empty(1))
 
-  console.log(req)
+  // console.log(req)
+
+  console.log(req.body)
+
+  let {uid, item} = req.body
+
+  await notification(uid, item);
 
   res.send({ express: config.mongo.url });
 });
-
 
 // case login will add uid to socketsModel and logout will clear uid for socketsModel
 app.post('/api/login', async(req, res) => {
@@ -101,7 +107,7 @@ app.post('/api/login', async(req, res) => {
     console.log(req.body)
     
     let {unique_id, uid} = req.body
-    if( !empty(unique_id) || !empty(uid) ){    
+    if( empty(unique_id) || empty(uid) ){    
       res.status(404).send({'message': 'ERROR'});
     }else{
 
@@ -135,7 +141,7 @@ app.post('/api/logout', (req, res) => {
     console.log(req.body)
     
     let {unique_id, uid} = req.body
-    if(!empty(unique_id) || !empty(uid)){    
+    if( empty(unique_id) || empty(uid)){    
       res.status(404).send({'message': 'ERROR'});
     }else{
 
@@ -159,7 +165,7 @@ app.post('/api/update_profile', async(req, res) => {
     console.log(req.body)
     
     let { uid } = req.body
-    if( !empty(uid) ){    
+    if( empty(uid) ){    
       res.status(404).send({ 'result': false });
     }else{
       let fs = await socketsModel.findOne({ uid });
@@ -182,8 +188,8 @@ app.post('/api/follow_up', async (req, res) => {
     console.log(req.body)
     
     let { uid, id_follow_up, unique_id, owner_id } = req.body
-    if(!empty(uid) || !empty(id_follow_up) || !empty(unique_id) || !empty(owner_id)){    
-      return res.status(404).send({'message': 'ERROR'});
+    if( empty(uid) || empty(id_follow_up) || empty(unique_id) || empty(owner_id)){    
+      res.status(404).send({'message': 'ERROR'});
     }else{
       let user = await usersModel.findOne({ uid });
       
@@ -220,13 +226,13 @@ app.post('/api/follow_up', async (req, res) => {
         // let fp = await onFollowerPost(uid, id_follow_up, unique_id, owner_id);
         console.log('fp : ', fp);
 
-        return res.status(200).send({'result': true, 'message': message});
+        res.status(200).send({'result': true, 'message': message});
       }
     }
     
-    return res.status(200).send({'result': true, 'message': 'OK'});
+    res.status(200).send({'result': true, 'message': 'OK'});
   } catch (err) {
-    return res.status(500).send({'result': false, errors: err});
+    res.status(500).send({'result': false, errors: err});
   }
 });
 
@@ -278,8 +284,8 @@ app.post('/api/my_apps', async (req, res) => {
     console.log(req.body)
     
     let { uid } = req.body
-    if(!empty(uid)){    
-      return res.status(404).send({'message': 'ERROR'});
+    if(empty(uid)){    
+      res.status(404).send({'message': 'ERROR'});
     }else{
       let fs = await socketsModel.findOne({ uid });
       if ( fs !== null ){
@@ -289,9 +295,9 @@ app.post('/api/my_apps', async (req, res) => {
       }
     }
     
-    return res.status(200).send({'message': 'OK'});
-  } catch (err) {
-    return res.status(500).send({errors: err});
+    res.status(200).send({'message': 'OK'});
+  } catch (error) {
+    res.status(500).send({error: error});
   }
 });
 
@@ -302,7 +308,7 @@ app.post('/api/___follow_up', async(req, res) => {
 
     let {uid, follow_ups} = req.body
 
-    if(!empty(uid) || !empty(follow_ups)){    
+    if( empty(uid) || empty(follow_ups) ){    
       res.status(500).send({errors: "params"});
       return;
     }
@@ -329,7 +335,7 @@ app.post('/api/___follow_up', async(req, res) => {
       // return {...item, local:false}
 
       let { unique_id, owner_id } = item
-      if(!empty(unique_id) || !empty(owner_id)){    
+      if( empty(unique_id) || empty(owner_id)){    
         // return res.status(404).send({'message': 'ERROR'});
         console.log("___follow_up > !unique_id || !owner_id")
       }else{
@@ -458,6 +464,23 @@ app.post('/api/___follow_up', async(req, res) => {
   }
 });
 
+app.post('/api/fetch_notification', async (req, res) => {
+  try {
+    console.log(req.body)
+    
+    let { uid } = req.body
+
+    if(empty(uid)){    
+      res.status(404).send({'message': 'ERROR'});
+    }else{
+      let notifications_model = await notificationsModel.findOne({ uid });      
+      res.status(200).send({'result': true, 'message': 'OK', 'notification': JSON.stringify( notifications_model.notification.toObject() )});
+    }
+  } catch (err) {
+    res.status(500).send({errors: err});
+  }
+});
+
 // follower_post
 async function noti_follower_post(uid, post_id, follower ) {
 
@@ -485,10 +508,10 @@ uid: "59"
 unique_id: "BF540C0D-FCB3-4D44-B779-AEC52EF68F91"
     */
 
-    console.log("onFollowerPost  >>>>", item)
+    // console.log("onFollowerPost  >>>>", item)
 
     let { id, unique_id, owner_id, follow_up } = item
-    if(!empty(unique_id) || !empty(owner_id)){    
+    if( empty(unique_id) ||  empty(owner_id)){    
       // return res.status(404).send({'message': 'ERROR'});
       console.log("onFollowerPost : !unique_id || !owner_id")
     }else{
@@ -502,14 +525,7 @@ unique_id: "BF540C0D-FCB3-4D44-B779-AEC52EF68F91"
       // { $push: { follow_ups: item } },
 
       if(!follow_up){
-        followerPostModel.findOneAndUpdate({ post_id: id }, {$pull: {follower: uid}}, (err, data) => {
-          if (err) {
-              // return res.status(500).json({ error: 'error in deleting address' });
-          }
-          // res.json(data);   
-
-          
-        });
+        await followerPostModel.findOneAndUpdate( { post_id: id }, {$pull: {follower: uid}} );
       }else{
 
         let followerPost = await followerPostModel.findOne({ post_id: id });
@@ -602,6 +618,48 @@ unique_id: "BF540C0D-FCB3-4D44-B779-AEC52EF68F91"
   }
 }
 
+// notificationsModel
+const notification = async(uid, item)=>{
+  try{
+
+    if(empty(uid) || item === null){
+      console.log("notification uid, item null : ", uid, item)
+    }else{
+      let notifications_model = await notificationsModel.findOne({ uid });
+
+      item = {...item, "date":new Date()}
+  
+      if ( notifications_model === null ){
+        await new notificationsModel({ uid, notification: [item]}).save()
+      }else {
+        let notification = notifications_model.notification.toObject();
+  
+        if ( notification.length === 0 ){
+          await notificationsModel.findOneAndUpdate(
+            { uid },
+            { $push: { notification: item } },
+            { new: true, upsert: true }
+          );
+        }else{
+          let find_notification = notification.find(itm=>{return itm.type === item.type && itm.id === item.id})
+          if ( find_notification  === undefined ){
+            await notificationsModel.findOneAndUpdate(
+              { uid },
+              { $push: { notification: item } },
+              { new: true, upsert: true }
+            );
+          }
+        }
+      }
+    }
+    return true
+
+  }catch(error){
+    console.log('notification, error : ', error);
+
+    return false
+  }
+}
 
 // Mapping objects to easily map sockets and users.
 var clients = {};

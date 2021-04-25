@@ -86,7 +86,7 @@ import * as historys from './utils/historys';
 
 import {store, persistor} from './reduxStore'
 
-import { fetchProfile, followUp, fetchMyApps, followerPost, ___followUp, netInfo, addfollowerPost } from './actions/user';
+import { fetchProfile, followUp, fetchMyApps, followerPost, ___followUp, netInfo, addfollowerPost, onNotifications } from './actions/user';
 import { fetchData, testFetchData, clearData } from './actions/app'
 
 const Tab = createBottomTabNavigator();
@@ -394,6 +394,10 @@ class App extends Component {
       // console.log("Is connected?", state.isConnected);
       this.props.netInfo(state)
     });
+
+    // console.log("--------------->")
+    this.props.onNotifications([{"id":"1", "type":"1"}, {"id":"2", "type":"1"}, {"id":"3", "type":"1"}])
+    // console.log("<---------------")
   }
 
   // firstInstall= async () =>{
@@ -515,9 +519,11 @@ class App extends Component {
               , { headers: {'Authorization': `Basic ${user.basic_auth}` } })
     .then(function (response) {
         let results = response.data
-        console.log('onSycNodeJs')
+        console.log('onSycNodeJs : ', results)
         if(results.result){
-          let {follow_ups, follower_post} = results;
+          let {follow_ups, follower_post, notification} = results;
+
+          console.log('--> notification', notification)
 
           ___followUp( isEmpty(follow_ups) ? follow_ups : JSON.parse(follow_ups), 1)
           fetchMyApps(user.basic_auth)
@@ -659,6 +665,8 @@ const mapDispatchToProps = {
 
 
   addfollowerPost,
+
+  onNotifications,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

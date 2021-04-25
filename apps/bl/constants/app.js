@@ -23,3 +23,4 @@ export const FOLLOWER_POST  = 'FOLLOWER_POST';       // case add each item
 
 
 export const NET_INFO   = 'NET_INFO'
+export const NOTIFICATIONS   = 'NOTIFICATIONS'

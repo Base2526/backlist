@@ -28,7 +28,9 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 const mapStateToProps = state => {
     return{
       user: state.user.data,
-      tests: state.app.tests
+      tests: state.app.tests,
+
+      notifications: state.user.notifications
     }
 }
 
@@ -69,114 +71,91 @@ const dummyArray = [
     { id: '26', value: 'Z' }
 ];
 
-class MyListItem extends React.Component {
-
-    shouldComponentUpdate(nextProps, nextState) {   
+class NotificationItem extends React.Component {
+  shouldComponentUpdate(nextProps, nextState) {   
     //   console.log('nextProps -> item : ', nextProps.items.item)
     //   console.log('nextState : ', nextState)
     //   console.log('this.props.items -> item : ', this.props.items.item)
     //   return true;
-      const newValue = nextProps.items.item.value
-      const oldValue = this.props.items.item.value
+    // const newValue = nextProps.items.item.value
+    // const oldValue = this.props.items.item.value
 
-      return newValue !== oldValue
-    }
+    // return newValue !== oldValue
+
+    return true;
+  }
   
-    render() {
-        let _menu = null
+  render() {
+      let _menu = null
 
-        let {index, item} = this.props.items
-        console.log('index : ', index, ', item', item)
-        return (
-            <TouchableOpacity style={{
-                        margin:5,
-                        paddingTop:10,
-                        paddingBottom:10,
-                        paddingLeft:10,
-                        backgroundColor:"#FFF",
-                        borderRadius:5
-                    }}
-                    onPress={()=>{
-                        // console.log('--Y--')
-                    }}>
-                <View style={{flex:1}}>
-                  <View style={{flexDirection:'row'}}>
-                    <View style={{position:'absolute', right: 0, flexDirection:'row'}}>
-                      <View style={{justifyContent:'center'}}>
-                        <Menu
-                          ref={(ref) => (_menu = ref)}
-                          button={
-                            <TouchableOpacity 
-                              style={{ paddingLeft:3, }}
-                              onPress={()=>{
-                                _menu.show()
-                              }}>
-                            <MaterialIcons name="more-vert" size={25} color={'grey'}  />
-                            </TouchableOpacity>
-                          }>
-                          <MenuItem 
-                            onPress={() => { _menu.hide(); }} 
-                            style={{flex:1, justifyContent:'center'}}>
-                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
-                              <Ionicons style={{justifyContent:'center', alignItems: 'center', marginRight:5}}  name="people-outline" size={25} color={'gray'} />
-                              <Text style={{ textAlign: 'center' }}>--</Text>
-                            </View>
-                          </MenuItem>
-                          <MenuItem 
-                            onPress={() => { _menu.hide(); }} 
-                            style={{flex:1, justifyContent:'center'}}>
-                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                              <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="share" size={25} color={'grey'}  />
-                              <Text style={{ textAlign: 'center' }}>Share</Text>
-                            </View>
-                          </MenuItem>
-                          <MenuItem 
-                            onPress={() => {_menu.hide();}} 
-                            style={{flex:1, justifyContent:'center'}}>
-                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                              <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="edit" size={25} color={'grey'}  />
-                              <Text style={{ textAlign: 'center' }}>Edite</Text>
-                            </View>
-                          </MenuItem>
-                          <MenuItem 
-                            onPress={() => { _menu.hide() }} 
-                            style={{flex:1, justifyContent:'center'}}>
-                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
-                              <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5, color:'red'}} name="delete" size={25} color={'grey'}  />
-                              <Text style={{ textAlign: 'center', color:'red' }}>Delete</Text>
-                            </View>
-                          </MenuItem>
-                        </Menu>
-                      </View>
-                    </View>
-                    <View>
-                      <View style={{flexDirection:'row'}}>
-                        <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
-                        <Text style={{color:'gray'}}>{index} - {item.value}</Text>
-                      </View>
-                      <View style={{flexDirection:'row'}}>
-                        <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
-                        <Text style={{color:'gray'}}>--</Text>
-                      </View>
-                      <View style={{flexDirection:'row'}}>
-                        <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
-                        <Text style={{color:'gray'}}>--</Text>
-                      </View>
-                      {/* transfer_date */}
-                      <View style={{flexDirection:'row'}}>
-                        <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
-                        <Text style={{color:'gray'}}>--</Text>
-                      </View>
+      let {index, item} = this.props.items
+      console.log('index : ', index, ', item', item)
+      return (
+          <TouchableOpacity style={{
+                      margin:5,
+                      paddingTop:10,
+                      paddingBottom:10,
+                      paddingLeft:10,
+                      backgroundColor:"#FFF",
+                      borderRadius:5
+                  }}
+                  onPress={()=>{
+                      // console.log('--Y--')
+                  }}>
+              <View style={{flex:1}}>
+                <View style={{flexDirection:'row'}}>
+                  <View style={{position:'absolute', right: 0, flexDirection:'row'}}>
+                    <View style={{justifyContent:'center'}}>
+                      <Menu
+                        ref={(ref) => (_menu = ref)}
+                        button={
+                          <TouchableOpacity 
+                            style={{ paddingLeft:3, }}
+                            onPress={()=>{
+                              _menu.show()
+                            }}>
+                          <MaterialIcons name="more-vert" size={25} color={'grey'}  />
+                          </TouchableOpacity>
+                        }>
+                        <MenuItem 
+                          onPress={() => { _menu.hide() }} 
+                          style={{flex:1, justifyContent:'center'}}>
+                          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
+                            <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5, color:'red'}} name="delete" size={25} color={'grey'}  />
+                            <Text style={{ textAlign: 'center', color:'red' }}>Delete</Text>
+                          </View>
+                        </MenuItem>
+                      </Menu>
                     </View>
                   </View>
-                  <View style={{flexDirection:'column'}}>
-                    <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
-                    
+                  <View>
+                    <View style={{flexDirection:'row'}}>
+                      <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
+                      <Text style={{color:'gray'}}>{index} - {item.value}</Text>
+                    </View>
+                    <View style={{flexDirection:'row'}}>
+                      <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
+                      <Text style={{color:'gray'}}>--</Text>
+                    </View>
+                    <View style={{flexDirection:'row'}}>
+                      <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
+                      <Text style={{color:'gray'}}>--</Text>
+                    </View>
+                    {/* transfer_date */}
+                    <View style={{flexDirection:'row'}}>
+                      <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
+                      <Text style={{color:'gray'}}>--</Text>
+                    </View>
                   </View>
                 </View>
-            </TouchableOpacity>);
-    }
+                <View style={{flexDirection:'column'}}>
+                  <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
+                  
+                </View>
+              </View>
+          </TouchableOpacity>);
   }
+}
 
 const Notification = (props) => {
     const flatListRef = React.useRef()
@@ -185,218 +164,49 @@ const Notification = (props) => {
     const [headerTitle, setHeaderTitle] = useState('Notifications');
     // Rerender after headerTitle change
     useEffect(() => {
-        props.navigation.setOptions({
-            title: headerTitle,
-            headerRight: () => (
-                  <View style={{ marginRight:5 }}>
-                    <Menu
-                    ref={(ref) => (_menu = ref)}
-                    button={
-                        <TouchableOpacity 
-                        style={{ paddingLeft:3,  }}
-                        onPress={()=>{
-                            _menu.show()
-                        }}>
-                        <MaterialIcons name="more-vert" size={25} color={'grey'}  />
-                        </TouchableOpacity>
-                    }>
-                    <MenuItem onPress={() => {
-                            _menu.hide();
-                            const shareOptions = {
-                                title: 'Share Banlist',
-                                url: API_URL + "/node/" +item.id,
-                                failOnCancel: false,
-                            };
+      const {notifications} = props
+      navigationSetOptions(props)
 
-                            Share.open(shareOptions)
-                            .then((res) => {
-                                // console.log(res);
-                            })
-                            .catch((err) => {
-                                err && console.log(err);
-                            });
-                            }} style={{flex:1, justifyContent:'center'}}>
-                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                            <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="share" size={25} color={'grey'}  />
-                            <Text style={{ textAlign: 'center' }}>Share</Text>
-                        </View>
-                    </MenuItem>
+      setListItems(notifications)
+    }, []);
 
-                    <MenuItem onPress={ async () => {
-                            _menu.hide();
-                            
-                            let cL = this.props.user
-                            if(isEmpty(cL)){
-                                this.setState({ bottomModalAndTitle: true })
-                            }else{
-                                navigation.navigate('report', {data:item})
-                            }
-                            }} style={{flex:1, justifyContent:'center'}}>
-                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
-                            <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="report" size={25} color={'grey'}  />
-                            <Text style={{ textAlign: 'center' }}>Report</Text>
-                        </View>
-                    </MenuItem>
-                    </Menu>
-                  </View>
-            )
-        });
-
-        // console.log("props.tests > ", props)
-    }, [headerTitle, props.navigation]);
-
-    // console.log("props.tests > ", props.tests)
-    if (props.tests !== listItems) setListItems(props.tests);
-    // setListItems(props.tests)
+    const navigationSetOptions = (props) =>{
+      const {navigation, notifications} = props
+      navigation.setOptions({
+        title: headerTitle + "(" +notifications.length+")",
+        headerRight: () => (
+              <View style={{ marginRight:5 }}>
+                <Menu
+                ref={(ref) => (_menu = ref)}
+                button={
+                    <TouchableOpacity 
+                    style={{ paddingLeft:3,  }}
+                    onPress={()=>{
+                        _menu.show()
+                    }}>
+                    <MaterialIcons name="more-vert" size={25} color={'grey'}  />
+                    </TouchableOpacity>
+                }>
+                <MenuItem onPress={() => {
+                        _menu.hide();
+                        console.log("Clear all")
+                        }} style={{flex:1, justifyContent:'center'}}>
+                    <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                        <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="delete-outline" size={25} color={'grey'}  />
+                        <Text style={{ textAlign: 'center' }}>Clear all</Text>
+                    </View>
+                </MenuItem>
+                </Menu>
+              </View>
+        )
+      });
+    }
 
     const ItemView = (items) => {
-
-        console.log('items : ', items)
-
-        return <MyListItem items={items}/>
-
-        // console.log(`-${index}-`)
-        let _menu = null
-        return (<TouchableOpacity style={{
-                    margin:5,
-                    paddingTop:10,
-                    paddingBottom:10,
-                    paddingLeft:10,
-                    backgroundColor:"#FFF",
-                    borderRadius:5
-                }}
-                onPress={()=>{
-                    console.log('--Y--')
-                }}>
-            <View style={{flex:1}}>
-              <View style={{flexDirection:'row'}}>
-                <View style={{position:'absolute', right: 0, flexDirection:'row'}}>
-                  <View style={{justifyContent:'center'}}>
-                    <Menu
-                      ref={(ref) => (_menu = ref)}
-                      button={
-                        <TouchableOpacity 
-                          style={{ paddingLeft:3, }}
-                          onPress={()=>{
-                            _menu.show()
-                          }}>
-                        <MaterialIcons name="more-vert" size={25} color={'grey'}  />
-                        </TouchableOpacity>
-                      }>
-                      <MenuItem onPress={() => {
-                            // _menu.hide();
-
-                            // if(isEmpty(fp)){
-                            //   _this.toast.show('Empty follow up');
-                            // }else{
-                            //   navigation.navigate('follow_up', {data:item})
-                            // }
-                            
-                          }} style={{flex:1, justifyContent:'center'}}>
-                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
-                          <Ionicons style={{justifyContent:'center', alignItems: 'center', marginRight:5}}  name="people-outline" size={25} color={'gray'} />
-                          <Text style={{ textAlign: 'center' }}>--</Text>
-                        </View>
-                      </MenuItem>
-                      <MenuItem onPress={() => {
-                            // _menu.hide();
-                            // const shareOptions = {
-                            //   title: 'Share Banlist',
-                            //   url:  API_URL + '/node/24443',
-                            //   failOnCancel: false,
-                            // };
-
-                            // // console.log(route.params.data.id)
-
-                            // Share.open(shareOptions)
-                            // .then((res) => {
-                            //     console.log(res);
-                            // })
-                            // .catch((err) => {
-                            //     err && console.log(err);
-                            // });
-                          }} style={{flex:1, justifyContent:'center'}}>
-                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                          {/* <Ionicons style={{justifyContent:'center', alignItems: 'center', marginRight:5}}  name="share" size={25} color={'gray'} /> */}
-                          <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="share" size={25} color={'grey'}  />
-                          <Text style={{ textAlign: 'center' }}>Share</Text>
-                        </View>
-                      </MenuItem>
-                      <MenuItem onPress={() => {
-                            // _menu.hide();
-
-                            // navigation.navigate('add_banlist', {data: item});
-
-                          }} style={{flex:1, justifyContent:'center'}}>
-                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                          <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5}} name="edit" size={25} color={'grey'}  />
-                          <Text style={{ textAlign: 'center' }}>Edite</Text>
-                        </View>
-                      </MenuItem>
-                      <MenuItem onPress={() => {
-                            // _menu.hide();
-
-                            // Alert.alert(
-                            //   "Comfirm",
-                            //   "Are you sure delete?",
-                            //   [
-                            //       {
-                            //       text: "Cancel",
-                            //       onPress: () => console.log("Cancel Pressed"),
-                            //       style: "cancel"
-                            //       },
-                            //       { text: "Delete", onPress: () => {
-
-                            //         let {deleteMyApp, user} = _this.props
-                            //         deleteMyApp(user.basic_auth, item.id)
-                            //       } }
-                            //   ]
-                            //   );
-                            // navigation.navigate('report', {data:item})
-                          }} style={{flex:1, justifyContent:'center'}}>
-                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
-                          <MaterialIcons style={{justifyContent:'center', alignItems: 'center', marginRight:5, color:'red'}} name="delete" size={25} color={'grey'}  />
-                          <Text style={{ textAlign: 'center', color:'red' }}>Delete</Text>
-                        </View>
-                      </MenuItem>
-                    </Menu>
-                  </View>
-                </View>
-                <View>
-                  <View style={{flexDirection:'row'}}>
-                    <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
-                    {/* <TouchableOpacity 
-                      style={{ }}
-                      onPress={()=>{
-                        navigation.navigate('filter', {data:item})
-                      }}> */}
-                      <Text style={{color:'gray'}}>{index} - {item.value}</Text>
-                    {/* </TouchableOpacity> */}
-                  </View>
-                  <View style={{flexDirection:'row'}}>
-                    <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
-                    <Text style={{color:'gray'}}>--</Text>
-                  </View>
-                  <View style={{flexDirection:'row'}}>
-                    <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
-                    <Text style={{color:'gray'}}>--</Text>
-                  </View>
-                  {/* transfer_date */}
-                  <View style={{flexDirection:'row'}}>
-                    <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
-                    <Text style={{color:'gray'}}>--</Text>
-                  </View>
-                </View>
-              </View>
-              <View style={{flexDirection:'column'}}>
-                <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
-                
-              </View>
-            </View>
-        
-                </TouchableOpacity>);
+      console.log('ItemView: ', items)
+      return <NotificationItem {...props} items={items}/>
     }
-    
+        
     return (
         <SafeAreaView style={{flex:1}}>
            <FlatList
@@ -407,7 +217,7 @@ const Notification = (props) => {
             //Item Separator View
             renderItem={ItemView}
             keyExtractor={(item, index) => index.toString()}
-            extraData={listItems}
+            // extraData={listItems}
             />
         </SafeAreaView>
     );
@@ -430,5 +240,5 @@ const areEqual=(prevProps,nextProps)=>{
     return false
 }
 
-export default connect(mapStateToProps, null)(React.memo(Notification, areEqual))
+export default connect(mapStateToProps, null)(Notification)
 // export default connect(mapStateToProps, null)(Notification)

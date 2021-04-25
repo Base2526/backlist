@@ -599,6 +599,12 @@ class API extends ControllerBase {
       $response_array['my_apps'] = json_encode(array_values($query->execute()));
       // -----  my_apps  -------
 
+
+      // ----- notification -------
+      $response_array['notification'] = Utils::node_fetch_notification();
+      // ----- notification -------
+
+
       $response_array['result']           = TRUE;
       // $response_array['data']          = $data;
       $response_array['execution_time']   = microtime(true) - $time1;

@@ -167,17 +167,16 @@ class SettingsScreen extends Component {
     }
 
     myInfo() {
-        let { navigation, user, my_apps, ___follow_ups } = this.props;
-
-        // console.log('---> ___follow_ups', ___follow_ups)
+        let { navigation, user, my_apps, ___follow_ups, notifications } = this.props;
 
         ___follow_ups = ___follow_ups.filter(itm=>itm.follow_up)
-        // console.log('---> ___follow_ups > filter', ___follow_ups)
+
+        // console.log('notifications : ', notifications)
 
         let infos = [{'id': 0, 'title': 'Account', 'icon_name': "person-outline", 'color': 'gray', 'info': ''}, 
                     {'id': 1, 'title': 'My post', 'icon_name': "add-circle-outline", 'color': 'gray', 'info': (!isEmpty(my_apps) ? String(my_apps.length) : '') },
                     {'id': 2, 'title': 'My follow up', 'icon_name': "shield-checkmark-outline", 'color': 'gray', 'info':(!isEmpty(___follow_ups) ? String(___follow_ups.length) : '')   },
-                    {'id': 3, 'title': 'Notification', 'icon_name': "notifications-outline", 'color': 'gray', 'info': '99' }
+                    {'id': 3, 'title': 'Notification', 'icon_name': "notifications-outline", 'color': 'gray', 'info': (!isEmpty(notifications) ? String(notifications.length) : '') }
                 ]
 
         if(!isEmpty(user)){
@@ -336,7 +335,10 @@ const mapStateToProps = state => {
     //   follow_ups: state.user.follow_ups,
       my_apps: state.user.my_apps,
 
-      ___follow_ups: state.user.___follow_ups
+      ___follow_ups: state.user.___follow_ups,
+
+
+      notifications: state.user.notifications
     }
 }
 
