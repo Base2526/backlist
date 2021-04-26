@@ -45,8 +45,7 @@ class API extends ControllerBase {
   protected $entityTypeManager;
 
   /**
-   * Constructs a new CustomRestController object.
-
+  * Constructs a new CustomRestController object.
   * @param \Drupal\Core\Entity\Query\QueryFactory $entityQuery
   * The entity query factory.
   */
@@ -475,7 +474,7 @@ class API extends ControllerBase {
     }
   }
 
-   /* https://stackoverflow.com/questions/4247405/how-do-i-send-an-email-notification-when-programatically-creating-a-drupal-user/10603541
+  /* https://stackoverflow.com/questions/4247405/how-do-i-send-an-email-notification-when-programatically-creating-a-drupal-user/10603541
   * @param $op
   *   The operation being performed on the account. Possible values:
   *   - 'register_admin_created': Welcome message for user created by the admin.
@@ -609,7 +608,7 @@ class API extends ControllerBase {
       // $response_array['data']          = $data;
       $response_array['execution_time']   = microtime(true) - $time1;
     } catch (\Throwable $e) {
-      \Drupal::logger('SearchApi')->notice($e->__toString());
+      \Drupal::logger('SycNodeJs')->notice($e->__toString());
 
       $response_array['result']   = FALSE;
       $response_array['message']  = $e->__toString();
@@ -1291,12 +1290,12 @@ class API extends ControllerBase {
       $offset  = trim( $content['offset'] );
       $type    = trim( $content['type'] );
       
-      \Drupal::logger('SearchApi')->notice( serialize($content) );
+      // \Drupal::logger('SearchApi')->notice( serialize($content) );
 
       if(!empty($key_word)){
 
-        \Drupal::logger('SearchApi')->notice( 'offset = %offset, type = %type, key_word = %key_word', 
-                                              array('%offset'=>$offset, '%type'=>$type, '%key_word'=>$key_word));
+        // \Drupal::logger('SearchApi')->notice( 'offset = %offset, type = %type, key_word = %key_word', 
+        //                                       array('%offset'=>$offset, '%type'=>$type, '%key_word'=>$key_word));
 
         $index = Index::load('content_back_list');
         $query = $index->query();
@@ -1368,7 +1367,7 @@ class API extends ControllerBase {
 
           case 8:{
             $key_word = json_decode($key_word);
-            \Drupal::logger('SearchApi, case 8')->notice($key_word);
+            // \Drupal::logger('SearchApi, case 8')->notice($key_word);
             $query->addCondition('nid', $key_word, "IN");
             break;
           }
@@ -1469,7 +1468,7 @@ class API extends ControllerBase {
               $images['medium'][]    = array('fid'=>$imv, 'url'=> Utils::ImageStyle_BN($imv, 'bn_medium')) ;
               $images['thumbnail'][] = array('fid'=>$imv, 'url'=> Utils::ImageStyle_BN($imv, 'bn_thumbnail')) ;
 
-              \Drupal::logger('SearchApi')->notice($imv);
+              // \Drupal::logger('SearchApi')->notice($imv);
             }
           } catch (\Throwable $e) {
             \Drupal::logger('SearchApi')->notice($e->__toString());
@@ -1803,7 +1802,7 @@ class API extends ControllerBase {
       return new JsonResponse( $response_array );
 
     } catch (\Throwable $e) {
-      \Drupal::logger('SearchApi')->notice($e->__toString());
+      \Drupal::logger('FetchMyPost')->notice($e->__toString());
 
       $response_array['result']   = FALSE;
       $response_array['message']  = $e->__toString();
@@ -1829,7 +1828,7 @@ class API extends ControllerBase {
       return new JsonResponse( $response_array );
 
     } catch (\Throwable $e) {
-      \Drupal::logger('SearchApi')->notice($e->__toString());
+      \Drupal::logger('FetchPostById')->notice($e->__toString());
 
       $response_array['result']   = FALSE;
       $response_array['message']  = $e->__toString();

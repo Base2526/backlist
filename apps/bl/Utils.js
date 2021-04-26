@@ -121,7 +121,7 @@ export const compare2Arrays = (a, b) =>{
 // 
 
 // https://dev.to/riversun/introducing-a-handy-javascript-date-formatting-function-5cd7
-export const  formatDate = (formatStr, date, opts) => {
+export const onFormatDate = (formatStr, date, opts) => {
 
   if (!date) {
       date = new Date();

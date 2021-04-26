@@ -396,7 +396,7 @@ class App extends Component {
     });
 
     // console.log("--------------->")
-    this.props.onNotifications([{"id":"1", "type":"1"}, {"id":"2", "type":"1"}, {"id":"3", "type":"1"}])
+    // this.props.onNotifications([{"id":"1", "type":"1"}, {"id":"2", "type":"1"}, {"id":"3", "type":"1"}])
     // console.log("<---------------")
   }
 
@@ -456,6 +456,8 @@ class App extends Component {
     socket.on('___follow_up', this.onSocket___FollowUp)
     socket.on('my_apps', this.onSocketMyApps)
     socket.on('follower_post', this.onFollowerPost)
+
+    socket.on('notification_center', this.onNotificationCenter)
   }
 
   offSocket = () =>{
@@ -469,6 +471,8 @@ class App extends Component {
     socket.off('___follow_up', this.onSocket___FollowUp)
     socket.off('my_apps', this.onSocketMyApps)
     socket.off('follower_post', this.onFollowerPost)
+
+    socket.off('notification_center', this.onNotificationCenter)
   }
 
   onSocketMessage = (data) => {
@@ -507,12 +511,16 @@ class App extends Component {
     this.props.followerPost(JSON.parse(data))
   }
 
+  onNotificationCenter = (data) =>{
+    console.log('onNotificationCenter >>>> ', JSON.parse(data))
+  }
+
   /*
   Syc current data when open first
   */
   onSycNodeJs = () =>{
 
-    let {user, ___followUp, fetchMyApps, addfollowerPost} = this.props
+    let {user, ___followUp, fetchMyApps, addfollowerPost, onNotifications} = this.props
 
     axios.post(`${API_URL}/api/syc_nodejs?_format=json`
               , {}
@@ -523,11 +531,13 @@ class App extends Component {
         if(results.result){
           let {follow_ups, follower_post, notification} = results;
 
-          console.log('--> notification', notification)
+          console.log('--> notification', notification, JSON.parse(notification) )
 
           ___followUp( isEmpty(follow_ups) ? follow_ups : JSON.parse(follow_ups), 1)
           fetchMyApps(user.basic_auth)
           addfollowerPost( isEmpty(follower_post) ? follower_post : JSON.parse(follower_post))
+        
+          onNotifications( JSON.parse(notification) )
         }
     })
     .catch(function (error) {

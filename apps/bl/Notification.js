@@ -19,6 +19,13 @@ import {connect} from "react-redux";
 import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
+
+import FastImage from 'react-native-fast-image'
+import { createImageProgress } from 'react-native-image-progress';
+import * as Progress from 'react-native-progress';
+const Image = createImageProgress(FastImage);
+
+import { onFormatDate } from './Utils'
 // const mapStateToProps = state = {
 //     return {
 //         user: state.user.data 
@@ -88,7 +95,7 @@ class NotificationItem extends React.Component {
   render() {
       let _menu = null
 
-      let {index, item} = this.props.items
+      let {index, item} = this.props.item
       console.log('index : ', index, ', item', item)
       return (
           <TouchableOpacity style={{
@@ -129,28 +136,31 @@ class NotificationItem extends React.Component {
                     </View>
                   </View>
                   <View>
-                    <View style={{flexDirection:'row'}}>
-                      <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
-                      <Text style={{color:'gray'}}>{index} - {item.value}</Text>
+                  <View style={{flexDirection:'row'}}>
+                    <View style={{}}>
+                      <FastImage
+                        style={{ borderWidth:.3, borderColor:'gray', height: 50, width: 50, borderRadius:25 }}
+                        // containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        // style={{ height: 50, width: 50, }}
+                        source={{
+                            uri: 'http://banlist.info/sites/default/files/styles/thumbnail/public/102889044862407437181_04-14-2021_1158am.png?itok=UqxY0huh',
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover} />
                     </View>
-                    <View style={{flexDirection:'row'}}>
-                      <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
-                      <Text style={{color:'gray'}}>--</Text>
-                    </View>
-                    <View style={{flexDirection:'row'}}>
-                      <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
-                      <Text style={{color:'gray'}}>--</Text>
-                    </View>
-                    {/* transfer_date */}
-                    <View style={{flexDirection:'row'}}>
-                      <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
-                      <Text style={{color:'gray'}}>--</Text>
+                    <View style={{backgroundColor:'yellow', marginLeft:10}}>
+                      <View style={{flexDirection:'row'}}>
+                        <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
+                        <Text style={{color:'gray'}}>{index} - {item.id}</Text>
+                      </View>
+                      
+                      <View style={{flexDirection:'row'}}>
+                        <Text style={{color:'gray'}}>{onFormatDate("MMM dd, yyyy", new Date(item.date))}</Text>
+                      </View>
                     </View>
                   </View>
-                </View>
-                <View style={{flexDirection:'column'}}>
-                  <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
-                  
+                  </View>
                 </View>
               </View>
           </TouchableOpacity>);
@@ -167,6 +177,7 @@ const Notification = (props) => {
       const {notifications} = props
       navigationSetOptions(props)
 
+      // console.log('--> notifications : ', notifications)
       setListItems(notifications)
     }, []);
 
@@ -202,9 +213,9 @@ const Notification = (props) => {
       });
     }
 
-    const ItemView = (items) => {
-      console.log('ItemView: ', items)
-      return <NotificationItem {...props} items={items}/>
+    const ItemView = (item) => {
+      // console.log('ItemView: ', item)
+      return <NotificationItem {...props} item={item}/>
     }
         
     return (
