@@ -1480,7 +1480,7 @@ class API extends ControllerBase {
           
           if(!empty($field_transfer_date)){
             $transfer_date = $field_transfer_date[0];
-            \Drupal::logger('SearchApi transfer_date')->notice( $transfer_date );
+            // \Drupal::logger('SearchApi transfer_date')->notice( $transfer_date );
             // foreach ($transfer_date as $key => $value){
             //   \Drupal::logger('SearchApi transfer_date')->notice( 'key : ' . $key . ' value : ' . $value );
             // }

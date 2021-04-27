@@ -5,10 +5,8 @@ docker exec -t -u postgres your-db-container pg_dumpall -c > dump_`date +%d-%m-%
 
 docker exec -t -u postgres 49b9509f7e98 pg_dumpall -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
 
-
 Restore:
 cat backlist_21122020_2106.sql | docker exec -i 17f16008f1ac psql -Upostgres
-
 
 Facebook Login
  - https://www.thaicreate.com/community/php-facebook-login-api-sdk-v5.html
@@ -478,3 +476,8 @@ foreach ($results as $result) {
 
 /// REACT_HOOK ///
 https://dev.to/ltsharma/performance-optimisation-react-native-with-hooks-a77
+
+
+react-native Deeplink
+https://github.com/cheetahcoding/React-Native-Tutorials/blob/react_navigation_v5/App.js
+https://dev.to/techtalks/deep-linking-in-react-native-app-with-react-navigation-v5-41id

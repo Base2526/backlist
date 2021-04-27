@@ -4281,7 +4281,7 @@ class Utils extends ControllerBase {
     // dpm($httpcode);
     // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
 
-    \Drupal::logger('node_fetch_notification : httpcode')->notice( serialize($httpcode) );
+    // \Drupal::logger('node_fetch_notification : httpcode')->notice( serialize($httpcode) );
 
     if($httpcode == 200){
       // $response = json_decode($response);
@@ -4290,7 +4290,7 @@ class Utils extends ControllerBase {
       $body = substr($response, $header_size);
       $body = json_decode($body);
 
-      \Drupal::logger('node_fetch_notification : body')->notice( serialize($body->notification) );
+      // \Drupal::logger('node_fetch_notification : body')->notice( serialize($body->notification) );
 
       if($body->result){
         return $body->notification;
