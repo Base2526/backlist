@@ -29,6 +29,7 @@ use voku\helper\SimpleHtmlDomNode;
 use voku\helper\SimpleHtmlDomNodeInterface;
 
 use Drupal\image\Entity\ImageStyle;
+use Drupal\search_api\Entity\Index;
 
 class Utils extends ControllerBase {
 
@@ -4300,5 +4301,262 @@ class Utils extends ControllerBase {
     curl_close($ch);
 
     return array();
+  }
+
+  public static function search_api($key_word, $offset, $type, $fulltextFields = [ 'title', 'field_sales_person_name', 'field_sales_person_surname', 'body', 'field_selling_website']){
+    $response_array = array();
+    $time1          = microtime(true);
+
+    if(!empty($key_word)){
+
+      // \Drupal::logger('SearchApi')->notice( 'offset = %offset, type = %type, key_word = %key_word', 
+      //                                       array('%offset'=>$offset, '%type'=>$type, '%key_word'=>$key_word));
+
+      $index = Index::load('content_back_list');
+      $query = $index->query();
+
+      // Change the parse mode for the search.
+      $parse_mode = \Drupal::service('plugin.manager.search_api.parse_mode')->createInstance('direct');
+      $parse_mode->setConjunction('OR');
+      $query->setParseMode($parse_mode);
+
+      $query->addCondition('type', 'back_list');
+
+      /*
+      $query->addCondition('field_sales_person_name', 'ทัศนีย์');
+      $query->addCondition('field_sales_person_surname', 'แย้มกลาง');
+      */
+
+      /*
+      type : 
+         default : all
+         1 : title
+         2 : name
+         3 : surname
+         4 : detail
+         5 : name & surname
+
+
+         8 : by nids ex. nids = array(1,2,3,4)
+      */
+
+      switch($type){
+        case 0:{
+          $query->sort('nid', 'DESC');
+
+          break;
+        }
+
+        case 1:{
+          $query->addCondition('title', $key_word);
+          break;
+        }
+
+        case 2:{
+          $query->addCondition('field_sales_person_name', $key_word);
+          break;
+        }
+
+        case 3:{
+          $query->addCondition('field_sales_person_surname', $key_word);
+          break;
+        }
+
+        case 4:{
+          $query->addCondition('body', $key_word);
+          break;
+        }
+
+        case 5:{
+          $ky = explode("&", $key_word);
+          if(count($ky) > 1){
+            $query->addCondition('field_sales_person_name', $ky[0]);
+            $query->addCondition('field_sales_person_surname', $ky[1]);
+          }else{
+            $query->addCondition('field_sales_person_name', $ky[0]);
+          }
+
+          break;
+        }
+
+        case 8:{
+          $key_word = json_decode($key_word);
+          // \Drupal::logger('SearchApi, case 8')->notice($key_word);
+          $query->addCondition('nid', $key_word, "IN");
+          break;
+        }
+
+        default:{
+          // Set fulltext search keywords and fields.
+          $field_sales_person_name = 'field_sales_person_name';
+          $field_sales_person_surname = 'field_sales_person_surname';
+          if (in_array($field_sales_person_name, $fulltextFields) && in_array($field_sales_person_surname, $fulltextFields)){            
+            $fulltextFields = array_diff( $fulltextFields, [$field_sales_person_name, $field_sales_person_surname] );
+          
+            if (!in_array("banlist_book_bank_field", $fulltextFields)){
+              $fulltextFields[] = 'banlist_book_bank_field';
+            }
+          }
+
+          $query->keys($key_word);
+          $query->setFulltextFields($fulltextFields);
+
+          break;
+        }
+
+      }
+
+      // Set additional conditions.
+      $query->addCondition('status', 1);
+
+      // Restrict the search to specific languages.
+      // $query->setLanguages(['th', 'en']);
+
+      $pagging = 30; 
+
+      $start = 0;
+      $end   = $pagging;
+      if(empty($offset)){
+      
+      }else{
+        if($offset > 0){
+          $start = ($pagging * $offset) + 1;
+          // $end   = $pagging * ($offset + 1);
+        }
+      }
+
+      $query->range($start, $end);
+
+      // Execute the search.
+      $results = $query->execute();
+
+      $count = count($results->getResultItems());
+      // echo "Result count: { $count }\n";
+
+      // $ids = implode(', ', array_keys($results->getResultItems()));
+      // echo "Returned IDs: $ids.\n";
+
+      $datas = array();
+      foreach ($results as $result) {
+        $item = array();
+
+        $owner_id = 0;
+        $result_uid    = $result->getField('uid')->getValues();
+        if(!empty($result_uid)){
+          $owner_id = $result_uid[0];
+        }
+        
+        $nid = 0;
+        $result_nid    = $result->getField('nid')->getValues();
+        if(!empty($result_nid)){
+          $nid = $result_nid[0];
+        }
+
+        $title  = '';
+        $result_title  = $result->getField('title')->getValues();
+        if(!empty($result_title)){
+          $title = $result_title[0];// ->getText();
+        }
+
+        $body   = '';
+        $result_body   = $result->getField('body')->getValues();
+        if(!empty($result_body)){
+          $body = $result_body[0];//->getText();
+        }
+
+        $transfer_amount = 0;
+        $result_transfer_amount = $result->getField('field_transfer_amount')->getValues();  
+        if(!empty($result_transfer_amount)){
+          $transfer_amount = $result_transfer_amount[0];
+        }
+
+        $name = '';
+        $result_name = $result->getField('field_sales_person_name')->getValues();
+        if(!empty($result_name)){
+          $name = $result_name[0];// ->getText();
+        }
+
+        $surname = '';
+        $result_surname = $result->getField('field_sales_person_surname')->getValues();
+        if(!empty($result_surname)){
+          $surname = $result_surname[0];// ->getText();
+        }
+
+        $name_surname = '';
+        $banlist_name_surname_field = $result->getField('banlist_name_surname_field')->getValues();
+        if(!empty($banlist_name_surname_field)){
+          $name_surname = $banlist_name_surname_field[0];// ->getText();
+        }
+
+        // รูปภาพประกอบ
+        $images = array();
+        try {
+          foreach ($result->getField('field_images')->getValues() as $imi=>$imv){
+            // $images[] = Utils::get_file_url($imv) ;
+            $images['medium'][]    = array('fid'=>$imv, 'url'=> Utils::ImageStyle_BN($imv, 'bn_medium')) ;
+            $images['thumbnail'][] = array('fid'=>$imv, 'url'=> Utils::ImageStyle_BN($imv, 'bn_thumbnail')) ;
+
+            // \Drupal::logger('SearchApi')->notice($imv);
+          }
+        } catch (\Throwable $e) {
+          \Drupal::logger('SearchApi images : ')->notice($e->__toString());
+        }
+
+        // field_transfer_date
+        $transfer_date = '';
+        $field_transfer_date = $result->getField('field_transfer_date')->getValues();
+        
+        if(!empty($field_transfer_date)){
+          $transfer_date = $field_transfer_date[0];
+          // \Drupal::logger('SearchApi transfer_date')->notice( $transfer_date );
+          // foreach ($transfer_date as $key => $value){
+          //   \Drupal::logger('SearchApi transfer_date')->notice( 'key : ' . $key . ' value : ' . $value );
+          // }
+          
+        }
+
+        // field_merchant_bank_account
+        // $banlist_book_bank_field = $result->getField('banlist_book_bank_field')->getValues();
+        // dpm($banlist_book_bank_field);
+
+        // Book bank
+        $book_banks = array();
+        try {
+          foreach ($result->getField('banlist_book_bank_field')->getValues() as $book_bank){
+            $book_banks[] = $book_bank;
+          }
+        } catch (\Throwable $e) {
+          \Drupal::logger('SearchApi banlist_book_bank_field : ')->notice($e->__toString());
+        }
+
+        $item = array('owner_id'=> $owner_id,
+                      'id'      => $nid, 
+                      'name'    => $name, 
+                      'surname' => $surname, 
+                      'name_surname' => $name_surname,
+                      'title'   => $title,
+                      'detail'  => $body,
+                      'transfer_amount' => $transfer_amount,
+                      'images'  => $images,
+                      'transfer_date' => empty($transfer_date) ? '' : date('Y-m-d', strtotime($transfer_date)),
+                      'book_banks' => $book_banks );
+
+        
+        $datas[] = $item;
+        
+      }
+      // dpm($output);
+
+      $response_array['result']           = TRUE;
+      $response_array['execution_time']   = microtime(true) - $time1;
+      $response_array['count']            = $count;//count($response_array);
+      $response_array['datas']            = $datas;
+    }else{
+      $response_array['result']   = FALSE;
+      $response_array['message']  = 'Empty key_word.';
+      // $response_array['content']  = $content;
+    }
+
+    return $response_array;
   }
 }

@@ -450,6 +450,9 @@ $query->addCondition('type', 'back_list');
 // $query->addCondition('nid', 70260, '<');
 $query->sort('nid', 'DESC');
 
+// $query->keys('45246');
+// $query->setFulltextFields(["field_images"]);
+
 $query->range(2,2);
 
 // $query->sort('field1', 'DESC');
@@ -481,3 +484,7 @@ https://dev.to/ltsharma/performance-optimisation-react-native-with-hooks-a77
 react-native Deeplink
 https://github.com/cheetahcoding/React-Native-Tutorials/blob/react_navigation_v5/App.js
 https://dev.to/techtalks/deep-linking-in-react-native-app-with-react-navigation-v5-41id
+
+
+// Check elasticsearch
+http://68.183.183.121:9200/elasticsearch_index_banlist_content_back_list/_search

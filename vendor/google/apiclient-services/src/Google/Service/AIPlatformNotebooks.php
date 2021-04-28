@@ -37,8 +37,10 @@ class Google_Service_AIPlatformNotebooks extends Google_Service
 
   public $projects_locations;
   public $projects_locations_environments;
+  public $projects_locations_executions;
   public $projects_locations_instances;
   public $projects_locations_operations;
+  public $projects_locations_schedules;
 
   /**
    * Constructs the internal representation of the AIPlatformNotebooks service.
@@ -159,6 +161,76 @@ class Google_Service_AIPlatformNotebooks extends Google_Service
           )
         )
     );
+    $this->projects_locations_executions = new Google_Service_AIPlatformNotebooks_Resource_ProjectsLocationsExecutions(
+        $this,
+        $this->serviceName,
+        'executions',
+        array(
+          'methods' => array(
+            'create' => array(
+              'path' => 'v1/{+parent}/executions',
+              'httpMethod' => 'POST',
+              'parameters' => array(
+                'parent' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'executionId' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+              ),
+            ),'delete' => array(
+              'path' => 'v1/{+name}',
+              'httpMethod' => 'DELETE',
+              'parameters' => array(
+                'name' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),'get' => array(
+              'path' => 'v1/{+name}',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'name' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),'list' => array(
+              'path' => 'v1/{+parent}/executions',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'parent' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'filter' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'orderBy' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'pageSize' => array(
+                  'location' => 'query',
+                  'type' => 'integer',
+                ),
+                'pageToken' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+              ),
+            ),
+          )
+        )
+    );
     $this->projects_locations_instances = new Google_Service_AIPlatformNotebooks_Resource_ProjectsLocationsInstances(
         $this,
         $this->serviceName,
@@ -211,6 +283,16 @@ class Google_Service_AIPlatformNotebooks extends Google_Service
                 'options.requestedPolicyVersion' => array(
                   'location' => 'query',
                   'type' => 'integer',
+                ),
+              ),
+            ),'getInstanceHealth' => array(
+              'path' => 'v1/{+name}:getInstanceHealth',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'name' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
                 ),
               ),
             ),'isUpgradeable' => array(
@@ -421,6 +503,86 @@ class Google_Service_AIPlatformNotebooks extends Google_Service
                 'pageToken' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+              ),
+            ),
+          )
+        )
+    );
+    $this->projects_locations_schedules = new Google_Service_AIPlatformNotebooks_Resource_ProjectsLocationsSchedules(
+        $this,
+        $this->serviceName,
+        'schedules',
+        array(
+          'methods' => array(
+            'create' => array(
+              'path' => 'v1/{+parent}/schedules',
+              'httpMethod' => 'POST',
+              'parameters' => array(
+                'parent' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'scheduleId' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+              ),
+            ),'delete' => array(
+              'path' => 'v1/{+name}',
+              'httpMethod' => 'DELETE',
+              'parameters' => array(
+                'name' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),'get' => array(
+              'path' => 'v1/{+name}',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'name' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),'list' => array(
+              'path' => 'v1/{+parent}/schedules',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'parent' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'filter' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'orderBy' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'pageSize' => array(
+                  'location' => 'query',
+                  'type' => 'integer',
+                ),
+                'pageToken' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+              ),
+            ),'trigger' => array(
+              'path' => 'v1/{+name}:trigger',
+              'httpMethod' => 'POST',
+              'parameters' => array(
+                'name' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
                 ),
               ),
             ),

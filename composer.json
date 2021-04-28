@@ -22,6 +22,7 @@
         "drupal/core-composer-scaffold": "^9",
         "drupal/core-project-message": "^9",
         "drupal/core-recommended": "^9",
+        "drupal/elasticsearch_connector": "^7.0@alpha",
         "drupal/phpmailer_smtp": "^2.0",
         "facebook/graph-sdk": "^5.7",
         "google/apiclient": "^2.7",

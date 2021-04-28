@@ -1283,7 +1283,7 @@ class API extends ControllerBase {
   public function SearchApi(Request $request){
     $response_array = array();
     try {
-      $time1          = microtime(true);
+      
 
       $content = json_decode( $request->getContent(), TRUE );
       $key_word= trim( $content['key_word'] );
@@ -1291,7 +1291,7 @@ class API extends ControllerBase {
       $type    = trim( $content['type'] );
       
       // \Drupal::logger('SearchApi')->notice( serialize($content) );
-
+/*
       if(!empty($key_word)){
 
         // \Drupal::logger('SearchApi')->notice( 'offset = %offset, type = %type, key_word = %key_word', 
@@ -1307,23 +1307,20 @@ class API extends ControllerBase {
 
         $query->addCondition('type', 'back_list');
 
-        /*
-        $query->addCondition('field_sales_person_name', 'ทัศนีย์');
-        $query->addCondition('field_sales_person_surname', 'แย้มกลาง');
-        */
+       
 
-        /*
-        type : 
-           default : all
-           1 : title
-           2 : name
-           3 : surname
-           4 : detail
-           5 : name & surname
+        
+        // type : 
+        //    default : all
+        //    1 : title
+        //    2 : name
+        //    3 : surname
+        //    4 : detail
+        //    5 : name & surname
 
 
-           8 : by nids ex. nids = array(1,2,3,4)
-        */
+        //    8 : by nids ex. nids = array(1,2,3,4)
+        
 
         switch($type){
           case 0:{
@@ -1512,6 +1509,9 @@ class API extends ControllerBase {
         $response_array['message']  = 'Empty key_word.';
         $response_array['content']  = $content;
       }
+*/
+
+      $response_array = Utils::search_api($key_word, $offset, $type);
 
       // Add the node_list cache tag so the endpoint results will update when nodes are
       // updated.
