@@ -21,11 +21,11 @@ import {
   Image,
   Keyboard
 } from 'react-native';
-
+import { connect } from 'react-redux';
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
 
-import {API_URL, API_TOKEN} from "@env"
+import {API_URL, API_TOKEN} from "./constants"
 
 import Spinner from 'react-native-loading-spinner-overlay';
 import Toast, {DURATION} from 'react-native-easy-toast'
@@ -233,4 +233,14 @@ const styles = StyleSheet.create({
   }
 });
 
-export default SignUp;
+// export default SignUp;
+const mapStateToProps = state => {  
+  return{
+    user: state.user.data
+  }
+}
+
+// is function call by user
+const mapDispatchToProps = {}
+
+export default connect(null, null)(SignUp)

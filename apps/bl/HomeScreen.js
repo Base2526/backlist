@@ -4,61 +4,93 @@
  *
  * @format
  * @flow strict-local
- */
+ */ 
 
-import React, {Component, useEffect} from 'react';
+import React, {Component, useEffect, PureComponent} from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
-  ScrollView,
   View,
   Text,
-  StatusBar,
   TouchableOpacity,
-  TextInput,
   ActivityIndicator,
   FlatList,
-  Image ,
+  Modal,
+  RefreshControl,
+  DeviceEventEmitter,
 } from 'react-native';
 
+import { connect } from 'react-redux';
+import {
+  LoginButton,
+  AccessToken,
+  GraphRequest,
+  GraphRequestManager,
+  LoginManager
+} from 'react-native-fbsdk';
+
 import ActionButton from 'react-native-action-button';
-
 const axios = require('axios');
-var Buffer = require('buffer/').Buffer
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+import FastImage from 'react-native-fast-image'
+import Toast, {DURATION} from 'react-native-easy-toast'
+import CameraRoll from "@react-native-community/cameraroll";
+import ImageViewer from 'react-native-image-zoom-viewer';
+import {GoogleSignin, GoogleSigninButton, statusCodes} from '@react-native-community/google-signin';
+import { createImageProgress } from 'react-native-image-progress';
+import * as Progress from 'react-native-progress';
+const Image = createImageProgress(FastImage);
+import {API_URL, API_TOKEN, WEB_CLIENT_ID, IOS_CLIENT_ID} from "./constants"
+import { isEmpty } from './Utils'
+import { fetchData, fetchDataAll, checkFetchData, clearData, testFetchData,  } from './actions/app';
 
-import {API_URL, API_TOKEN} from "@env"
+import {___followUp} from './actions/user'
 
-import { NumberFormat } from './Utils'
+import ModalLogin from './ModalLogin'
+import HomeScreenItem from './HomeScreenItem'
+import { SafeAreaView } from 'react-native';
+
+import SafeArea, { withSafeArea } from 'react-native-safe-area'
 
 class HomeScreen extends Component {
   constructor(props) {
       super(props);
 
-      // useEffect(() => this.getData(), []);
+      this.is_mounted = false;
 
       this.state = {
                   data:[],
                   loading: false,
                   nid_last: 0,
+                  offset: 0,
 
-                  selected: false
+                  selected: false,
+
+                  chatMessage: "",
+                  chatMessages: [],
+
+                  refreshing: false,
+
+                  modalVisible: false,
+                  init_index: 0,
+                  mv: 0,
+
+
+                  showModalLogin:false
                   };
   }
 
-  componentDidMount() {
-    // useEffect(() => this.getData(), []);
+  componentDidMount(){
+    this.is_mounted = true;
+    const { navigation, data } = this.props;
 
-    const { route, navigation } = this.props;
-
-    let _this = this
-    let _menu = null;
     navigation.setOptions({
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => { this.scrollToOffset() }}>
+            <Text style={{ fontSize: 20, paddingLeft:10}}>Home</Text>
+          </TouchableOpacity>
+        ),
         headerRight: () => (
             <View style={{flexDirection:'row'}}>
               <TouchableOpacity 
@@ -68,94 +100,76 @@ class HomeScreen extends Component {
                 }}>
                 <Ionicons name="search-outline" size={25} color={'grey'} />
               </TouchableOpacity>
-              <View style={{}}>
-                        <Menu
-                        ref={(ref) => (_menu = ref)}
-                        button={
-                            <TouchableOpacity 
-                                style={{ marginHorizontal: 10 }}
-                                onPress={()=>{
-                                    _menu.show()
-                            }}>
-                            <MaterialIcons name="more-vert" size={25} color={'grey'}  />
-                            </TouchableOpacity>
-                        }>
-
-                        
-                        <MenuItem onPress={() => {
-                            _menu.hide();
-                            _this.refresh();
-                        }}>
-                            
-                            <View style={{flexDirection:'row', alignItems: 'center',}}>
-                                <MaterialIcons style={{padding:10}} name="cached" size={20} color={'grey'}  />
-                                <Text>Refresh</Text>
-                            </View>
-                        </MenuItem>
-                        </Menu>
-                    </View>
             </View>
-          )
+        )
     })
 
-    this.getData()
-
-    this.renderItem = this.renderItem.bind(this)
-
-    this.saveData()
-  }
-
-  refresh = () =>{
-    this.setState({
-      data:[],
-      nid_last: 0,
-    },() => {
+    if(isEmpty(data)){
       this.getData()
+    }
+
+    GoogleSignin.configure({
+      webClientId: WEB_CLIENT_ID,
+      offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
+      forceCodeForRefreshToken: true, // [Android] related to `serverAuthCode`, read the docs link below *.
+      iosClientId: IOS_CLIENT_ID, // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
     });
+
+    DeviceEventEmitter.removeListener("event.homeScrollToOffset");
+    DeviceEventEmitter.addListener("event.homeScrollToOffset", (event)=>{
+      this.scrollToOffset()
+    })
   }
 
-  saveData = async () => {
-    try {
-      await AsyncStorage.setItem('save_age', '1000')
-      console.log('Data successfully saved')
-    } catch (e) {
-      console.log('Failed to save the data to the storage')
+  componentWillUnmount(){
+    this.is_mounted = false;
+
+    DeviceEventEmitter.removeListener("event.homeScrollToOffset");
+  }
+
+  componentDidUpdate(prevProps){
+    // console.log('componentDidUpdate :  >> ', prevProps.data)
+    // console.log('componentDidUpdate :  this.props.data ', this.props.data)
+
+    // if (this.props.data !== prevProps.data) {
+
+    //   console.log('componentDidUpdate 1, ::: ', prevProps.data)
+    //   console.log('componentDidUpdate 2, ::: ', this.props.data)
+    //   this.setState({data: prevProps.data})
+    // }
+  }
+
+  scrollToOffset = () =>{
+    if(this.flatlistref){
+      this.flatlistref.scrollToOffset({ animated: true, offset: 0 });
     }
   }
 
-  onSelect = data => {
-
-    console.log('onSelect');
-  };
-
-  handleSearch= () => {
-      console.log(this.state.name);
-      console.log(this.state.surname);
-      console.log(this.state.bank_account);
+  isOwner = (id_check) => {
+    return this.props.my_apps.includes(id_check)
   }
 
-//   detail
+  refresh = () =>{
+    this.is_mounted && this.setState({offset: 0},() => { this.getData() });
+  }
+
+  onUpdateState = data => {
+    this.setState(data);
+  }
+
+  handleSearch= () => {
+    console.log(this.state.name);
+    console.log(this.state.surname);
+    console.log(this.state.bank_account);
+  }
 
   getData = () => {
     // console.log('getData');
-    // setLoading(true);
-  //   //Service to get the data from the server to render
-  //   fetch('https://aboutreact.herokuapp.com/getpost.php?offset=' + offset)
-  //     //Sending the currect offset with get request
-  //     .then((response) => response.json())
-  //     .then((responseJson) => {
-  //       // //Successful response from the API Call
-  //       // setOffset(offset + 1);
-  //       // //After the response increasing the offset for the next API call.
-  //       // setDataSource([...dataSource, ...responseJson.results]);
-  //       // setLoading(false);
-  //     })
-  //     .catch((error) => {
-  //       console.error(error);
-  //     });
 
+    let {data, user} = this.props
+   
     let _this     = this;
-    let {data, nid_last}  = _this.state;
+    let { offset }  = _this.state;
 
     _this.setState({loading: true})
 
@@ -163,98 +177,431 @@ class HomeScreen extends Component {
       nid_last = data[data.length - 1].id; 
     }
 
-    axios.post(`${API_URL}/api/fetch?_format=json`, {
-      nid_last,
+    console.log('start : > ')
+    
+    let basic_auth = API_TOKEN;
+    if(!isEmpty(user)){
+      basic_auth = this.props.user.basic_auth
+    }
+
+    axios.post(`${API_URL}/api/search?_format=json`, {
+      type: 0,
+      key_word: '*',
+      offset
     }, {
-      headers: { 
-        'Authorization': `Basic ${API_TOKEN}` 
-      }
+        headers: {'Authorization': `Basic ${basic_auth}`}
     })
     .then(function (response) {
       let results = response.data
-      // console.log()
+      console.log('end : > ')
       if(results.result){
         // true
-        // console.log('true');
-        // console.log(results);
-
         let {execution_time, datas, count} = results;
-        // console.log(execution_time);
-        // console.log(count);
-        // console.log(datas);
-
-        // if(datas && datas.length > 0){
-        //   _this.setState({spinner: false, execution_time, datas, count});
-        // }else{
-
-        _this.setState({data: [ ..._this.state.data, ...datas]});
-        
-        // _this.setState({data: [...this.state.data, ...datas]})
-        //   alert('Empty result.');
-        // }
-        
-      }else{
-        // false
-        // console.log('false');
-
-        // _this.setState({spinner: false})
+        _this.props.fetchData(datas);
       }
 
       _this.setState({loading: false})
     })
     .catch(function (error) {
+      // alert(error.message)
+
+      // console.log("error :", error)
+
+      _this.toast.show(error.message);
+
       _this.setState({loading: false})
     });
   }
 
+  _saveImage = uri => {
+    let _this = this
+    let promise = CameraRoll.saveToCameraRoll(uri);
+
+    promise.then(function(result) {
+            _this.toast.show('Image Saved to Photo Gallery');
+        })
+        .catch(function(error) {
+            _this.toast.show('Error Saving Image');
+        });
+  }
+
+  renderImage = (item) =>{
+    let thumbnail = item.images.thumbnail
+    switch(thumbnail.length){
+      case 0:{
+        return(<View />)
+        break;
+      }
+      case 1 :{
+        return (<View style={{width: '100%', height: 300, flexDirection: 'row'}}>
+                  <View style={{flex: 1, flexDirection: 'row'}}>
+                    <TouchableOpacity
+                    onPress={()=>{
+                      this.setState({modalVisible: true, init_index: 0, mv: item.id})
+                    }}
+                    style={{flex: 1, margin: 2, }} >
+                    <FastImage
+                      style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                      containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                      source={{
+                          uri: thumbnail[0],
+                          headers: { Authorization: 'someAuthToken' },
+                          priority: FastImage.priority.normal,
+                      }}
+                      resizeMode={FastImage.resizeMode.cover}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>)
+      }
+
+      case 2 :{
+        return (<View style={{width: '100%', height: 300, flexDirection: 'row'}}>
+              <View style={{flex: 1, flexDirection: 'row'}}>
+                <TouchableOpacity 
+                  onPress={()=>{
+                    this.setState({modalVisible: true, init_index: 0, mv: item.id})
+                  }} 
+                  style={{flex: 1, margin: 2, }} >
+                  <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: thumbnail[0],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  onPress={()=>{
+                    this.setState({modalVisible: true, init_index: 1, mv: item.id})
+                  }} 
+                  style={{flex: 1, margin: 2, }} >
+                  <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: thumbnail[1],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                    
+                </TouchableOpacity>
+                
+              </View>
+            </View>)
+      }
+
+      default:{
+        return (<View style={{width: '100%', height: 300, flexDirection: 'row'}}>
+              <View style={{flex: 1, flexDirection: 'column'}}>
+                <TouchableOpacity 
+                  onPress={()=>{
+                    this.setState({modalVisible: true, init_index: 0, mv: item.id})
+                  }} 
+                  style={{flex: 1, margin: 2, }} >
+                  <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: thumbnail[0],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+
+                        onLoadStart={e => console.log('Loading Start')}
+                        onProgress={e =>
+                          console.log(
+                            'Loading Progress ' +
+                              e.nativeEvent.loaded / e.nativeEvent.total
+                          )
+                        }
+                        onLoad={e =>
+                          console.log(
+                            'Loading Loaded ' + e.nativeEvent.width,
+                            e.nativeEvent.height
+                          )
+                        }
+                        onLoadEnd={e => console.log('Loading Ended')}
+                        />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  onPress={()=>{
+                    this.setState({modalVisible: true, init_index: 1, mv: item.id})
+                  }} 
+                  style={{flex: 1, margin: 2, }} >
+                  <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: thumbnail[1],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+
+
+
+                        onLoadStart={e => console.log('Loading Start')}
+                        onProgress={e =>
+                          console.log(
+                            'Loading Progress ' +
+                              e.nativeEvent.loaded / e.nativeEvent.total
+                          )
+                        }
+                        onLoad={e =>
+                          console.log(
+                            'Loading Loaded ' + e.nativeEvent.width,
+                            e.nativeEvent.height
+                          )
+                        }
+                        onLoadEnd={e => console.log('Loading Ended')}
+                        />
+                </TouchableOpacity>
+              </View>
+              <View style={{flex: 1, flexDirection: 'row'}}>
+                <TouchableOpacity 
+                  onPress={()=>{
+                    this.setState({modalVisible: true, init_index: 2, mv: item.id})
+                  }} 
+                  style={{flex: 1, margin: 2, }} >
+                  <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: thumbnail[2],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+
+
+                        onLoadStart={e => console.log('Loading Start')}
+    onProgress={e =>
+      console.log(
+        'Loading Progress ' +
+          e.nativeEvent.loaded / e.nativeEvent.total
+      )
+    }
+    onLoad={e =>
+      console.log(
+        'Loading Loaded ' + e.nativeEvent.width,
+        e.nativeEvent.height
+      )
+    }
+    onLoadEnd={e => console.log('Loading Ended')}
+                        />
+
+                  <View style={{flex: 1, justifyContent: 'center', alignItems: 'center',  opacity: 0.5, backgroundColor: 'black', }} >
+                    <Text style={{fontWeight:'bold', fontSize:33, color:'white'}}>+{thumbnail.length - 3}</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>)
+      }
+
+      /*
+      case 4:{
+        return (<View style={{width: '100%', height: 300, flexDirection: 'column'}}>
+              <View style={{flex: 1, flexDirection: 'row'}}>
+                <TouchableOpacity 
+                  onPress={()=>{
+                    this.setState({modalVisible: true, init_index: 0, mv: item.id})
+                  }} 
+                  style={{flex: 1, margin: 2, }} >
+                  <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: thumbnail[0],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  onPress={()=>{
+                    this.setState({modalVisible: true, init_index: 1, mv: item.id})
+                  }} 
+                  style={{flex: 1, margin: 2, }} >
+                  <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: thumbnail[1],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                </TouchableOpacity>
+              </View>
+              <View style={{flex: 1, flexDirection: 'row'}}>
+                <TouchableOpacity 
+                  onPress={()=>{
+                    this.setState({modalVisible: true, init_index: 2, mv: item.id})
+                  }} 
+                  style={{flex: 1, margin: 2, }} >
+                  <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: thumbnail[2],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  onPress={()=>{
+                    this.setState({modalVisible: true, init_index: 3, mv: item.id})
+                  }} 
+                  style={{flex: 1, margin: 2, }} >
+                  <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: thumbnail[3],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                </TouchableOpacity>
+              </View>
+            </View>)
+      }
+
+      default:{
+        return (<View style={{width: '100%', height: 300, flexDirection: 'column'}}>
+                  <View style={{flex: 2, flexDirection: 'row'}}>
+                    <TouchableOpacity 
+                    onPress={()=>{
+                      this.setState({modalVisible: true, init_index: 0, mv: item.id})
+                    }} 
+                    style={{flex: 1, margin: 2, }} >
+                      <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: thumbnail[0],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                    onPress={()=>{
+                      this.setState({modalVisible: true, init_index: 1, mv: item.id})
+                    }} 
+                    style={{flex: 1, margin: 2, }} >
+                      <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: thumbnail[1],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                    </TouchableOpacity>
+                  </View>
+                  <View style={{flex: 1, flexDirection: 'row'}}>
+                    <TouchableOpacity 
+                    onPress={()=>{
+                      this.setState({modalVisible: true, init_index: 2, mv: item.id})
+                    }} 
+                    style={{flex: 1, margin: 2, }} >
+                      <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: thumbnail[2],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                    onPress={()=>{
+                      this.setState({modalVisible: true, init_index: 3, mv: item.id})
+                    }} 
+                    style={{flex: 1, margin: 2, }} >
+                      <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: thumbnail[3],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                    onPress={()=>{
+                      this.setState({modalVisible: true, init_index: 4, mv: item.id})
+                    }} 
+                    style={{flex: 1, margin: 2, }} >
+                      <FastImage
+                        style={{ ...StyleSheet.absoluteFillObject, borderWidth:.3, borderColor:'gray' }}
+                        containerStyle={{ ...StyleSheet.absoluteFillObject }}
+                        source={{
+                            uri: thumbnail[4],
+                            headers: { Authorization: 'someAuthToken' },
+                            priority: FastImage.priority.normal,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                        />
+                        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center',  opacity: 0.5, backgroundColor: 'black', }} >
+                          <Text style={{fontWeight:'bold', fontSize:33, color:'white'}}>+{thumbnail.length - 5}</Text>
+                        </View>
+                    </TouchableOpacity>
+                  </View>
+                </View>)
+      }
+
+      */
+    }
+  }
+
+  changeHandler = (val) => {
+    this.setState(val)
+  }
+
   renderItem = (item) =>{
-      const { navigation } = this.props;
-      return (
-          <TouchableOpacity 
-              key={Math.floor(Math.random() * 100) + 1}
-              style={styles.listItem}
-              onPress={()=>{
-                navigation.navigate('detail', {data:item})
-              }}>
-            {/* <Image source={{uri:item.photo}}  style={{width:60, height:60,borderRadius:30}} /> */}
-            <View style={{flex:1}}>
-              {/* <Text style={{fontWeight:"bold"}}>{item.name} {item.surname}</Text> */}
-              <View style={{flexDirection:'row'}}>
-                <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
-                <Text>{item.name} {item.surname}</Text>
-              </View>
-              <View style={{flexDirection:'row'}}>
-                <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
-                <Text>{item.title}</Text>
-              </View>
-              <View style={{flexDirection:'row'}}>
-                <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
-                <Text>{item.transfer_amount}</Text>
-              </View>
-              {/* transfer_date */}
-              <View style={{flexDirection:'row'}}>
-                <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
-                <Text>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
-              </View>
-              <View style={{flexDirection:'column'}}>
-                <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
-                <Text>{item.detail}</Text>
-              </View>
-            </View>
-            {/* <TouchableOpacity style={{height:50,width:50, justifyContent:"center",alignItems:"center"}}>
-              <Text style={{color:"green"}}>Call</Text>
-            </TouchableOpacity> */}
-          </TouchableOpacity>
-        );
+    return  <HomeScreenItem
+              {...this.props}
+              item={item}
+              toast={this.toast}
+              onChange={this.changeHandler} />
   }
 
   renderFooter = () => {
-    let {loading} = this.state
+    let {loading, offset} = this.state
     return (
       //Footer View with Load More button
       <TouchableOpacity
           activeOpacity={0.9}
-          onPress={this.getData}>
+          // onPress={this.getData}
+          onPress={()=>{
+            this.setState({
+                offset:  offset + 1
+            },() => {
+                this.getData();
+            });
+          }}
+          >
           <View style={{backgroundColor:'#fff', alignItems: 'center', padding:10, margin:5}}> 
             <View style={{flexDirection:'row'}}>
               <Text>Load More</Text>
@@ -267,24 +614,192 @@ class HomeScreen extends Component {
     );
   };
 
+  handleLoginWithFacebook= () =>{
+    // console.log('handleLoginWithFacebook')
+
+    // Attempt a login using the Facebook login dialog asking for default permissions.
+    LoginManager.logInWithPermissions(["public_profile"]).then(
+      function(result) {
+        console.log(result)
+        if (result.isCancelled) {
+          console.log("Login cancelled");
+        } else {
+          console.log(
+            "Login success with permissions: " +
+              result.grantedPermissions.toString()
+          );
+        }
+      },
+      function(error) {
+        console.log("Login fail with error: " + error);
+      }
+    );
+  }
+
+  handleLoginWithGoogle = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      console.log(userInfo)
+      // setUser(userInfo)
+    } catch (error) {
+      console.log('Message', error.message);
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        console.log('User Cancelled the Login Flow');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        console.log('Signing In');
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        console.log('Play Services Not Available or Outdated');
+      } else {
+        console.log('Some Other Error Happened');
+      }
+    }
+  }
+
+  imageViewerHeader = () =>{
+    return (<View style={[
+                          { position:'absolute',
+                            top:10,
+                            right:10,
+                            opacity: 0.5,
+                            zIndex: 9999},
+                          Platform.OS === 'ios' ? { paddingTop: 48 } : { }
+                        ]}>
+              <TouchableOpacity style={{ borderRadius: 20,  backgroundColor:'white', }}>
+                <MaterialIcons
+                  name='close'
+                  style={{alignSelf: 'flex-end',
+                          color: 'black',
+                          fontSize: 30,
+                          padding:5
+                          }}
+                  onPress={()=>{
+                    this.setState({modalVisible: false})
+                  }}/>
+              </TouchableOpacity>
+            </View>)
+  }
+
+  imageViewer = () =>{
+    let {modalVisible, mv, init_index} = this.state
+   
+    let found = this.props.data.find( item =>{ return item.id === mv } );
+      
+    let images = []
+
+    if ( !isEmpty(found) && !isEmpty(found.images) ){
+      if ( found.images.medium){
+        found.images.medium.map( (itm) => {
+          return images.push({url:itm.url});
+        })
+      }
+    }
+
+    return (
+            <Modal 
+              visible={modalVisible}
+              transparent={true}
+              onRequestClose={() => this.setState({ modalVisible: false })}>
+              <ImageViewer 
+                  imageUrls={images.filter(function(item){return item.empty !== true;})}
+                  index={init_index}
+                  renderHeader={this.imageViewerHeader}
+                  // renderFooter={this.renderFooterImageViewer}
+                  onSwipeDown={() => {
+                      this.setState({modalVisible: false})
+                  }}
+                  onSave={uri => {
+                      this._saveImage(uri)
+                  }}
+                  onMove={data => console.log(data)}
+                  enableSwipeDown={true}
+                  renderImage={(props)=>{
+                    return(
+                      <Image {...props}
+                          indicator={Progress.Pie}
+                          indicatorProps={{
+                              size: 50,
+                              borderWidth: 1,
+                              color: '#ffffff',
+                              // unfilledColor: 'rgba(60,14,101, 0.2)',
+                          }}
+                          onLoadStart={e => console.log('Loading Start >>> ')}
+                          onProgress={e =>
+                              console.log(
+                              'Loading Progress ' +
+                                  e.nativeEvent.loaded / e.nativeEvent.total
+                              )
+                          }
+                          onLoad={e =>
+                              console.log(
+                              'Loading Loaded ' + e.nativeEvent.width,
+                              e.nativeEvent.height
+                              )
+                          }
+                          onLoadEnd={e => console.log('Loading Ended')}
+                          />
+                      )
+                    }}
+                  />
+              {/* {this.renderFooterImageViewer()} */}
+            </Modal>
+
+    )
+  }
+
   render(){
-      const { navigation } = this.props;
+      const { navigation, data } = this.props;
+      const {showModalLogin, modalVisible} = this.state
+
       return (<View style={styles.container}>
-              <FlatList
-                style={{flex:1}}
-                data={this.state.data}
-                renderItem={({ item }) => this.renderItem(item)}
-                enableEmptySections={true}
-                ListFooterComponent={this.renderFooter()}
-                keyExtractor={(item, index) => String(index)}
+                <FlatList
+                  ref={(ref) => this.flatlistref = ref}
+                  style={{flex:1}}
+                  data={data}
+                  renderItem={({ item }) => this.renderItem(item)}
+                  enableEmptySections={true}
+                  ListFooterComponent={this.renderFooter()}
+                  keyExtractor={(item, index) => String(index)}
+                  refreshControl={
+                    <RefreshControl
+                        refreshing={this.state.refreshing}
+                        onRefresh={this.refresh}
+                    />
+                  }
+
+                  // Performance settings
+                  removeClippedSubviews={true} // Unmount components when outside of window 
+                  initialNumToRender={2} // Reduce initial render amount
+                  maxToRenderPerBatch={1} // Reduce number in each render batch
+                  updateCellsBatchingPeriod={100} // Increase time between renders
+                  windowSize={7} // Reduce the window size
                 />
-              <ActionButton
-                buttonColor="rgba(231,76,60,1)"
-                onPress={() => { 
-                  navigation.navigate('add_banlist');
-                }}
-              />
-              </View>)
+                <ActionButton
+                  buttonColor="rgba(231,76,60,1)"
+                  onPress={() => { 
+                    // console.log(this.props.user)
+                    if(isEmpty(this.props.user)){
+                      this.setState({showModalLogin: true})
+                    }else{
+                      navigation.navigate('add_banlist', { updateState: this.onUpdateState })
+                    }
+                  }}/>
+                { 
+                  isEmpty(this.props.user)  
+                  && <ModalLogin {...this.props } showModalLogin={showModalLogin} updateState={ this.onUpdateState } />
+                }
+                
+                <Toast
+                  ref={(toast) => this.toast = toast}
+                  position='bottom'
+                  positionValue={220}
+                  fadeInDuration={750}
+                  fadeOutDuration={1000}
+                  opacity={0.8}/>
+
+                { modalVisible && this.imageViewer()}
+
+            </View>)
   }
 }
 
@@ -292,7 +807,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    paddingHorizontal: 10
   },
   engine: {
     position: 'absolute',
@@ -305,13 +819,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 24,
     fontWeight: '600',
-    // color: Colors.black,
   },
   sectionDescription: {
     marginTop: 8,
     fontSize: 18,
     fontWeight: '400',
-    // color: Colors.dark,
   },
   highlight: {
     fontWeight: '700',
@@ -325,27 +837,60 @@ const styles = StyleSheet.create({
     margin:5,
     padding:10,
     backgroundColor:"#FFF",
-    // width:"80%",
-    // flex:1,
-    // alignSelf:"center",
-    // flexDirection:"row",
     borderRadius:5
   },
   footer: {
-    // padding: 10,
     flex:1,
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
   },
   loadMoreBtn: {
-    // padding: 10,
     backgroundColor: '#800000',
-    // borderRadius: 4,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
+  button: {
+    alignItems: "center",
+    backgroundColor: "#DDDDDD",
+    padding: 10,
+    marginTop: 10
+  },
+  root: {
+    flex: 1,
+  },
+  textStyle: {
+    fontSize: 14,
+    color:'gray'
+  },
 });
 
-export default HomeScreen;
+const mapStateToProps = state => {
+  return{
+    data: state.app.data,
+    user: state.user.data,
+    follow_ups: state.user.follow_ups,
+    my_apps: state.user.my_apps,
+
+    ___follow_ups: state.user.___follow_ups
+  }
+}
+
+/*
+ is function call by user
+*/
+const mapDispatchToProps = {
+  fetchData,
+  fetchDataAll,
+  checkFetchData,
+  clearData,
+
+
+  testFetchData,
+
+
+  ___followUp
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen)

@@ -93,6 +93,8 @@ class FilterByPersonForm extends FormBase {
             );
         }else{
             foreach ($storage->loadMultiple($all_nids) as $node) {
+
+                
                 // ชื่อบัญชี-นามสกุล ผู้รับเงินโอน
                 // $sales_person_name = '';
                 // $field_sales_person_name = $node->get('field_sales_person_name')->getValue();
@@ -121,11 +123,19 @@ class FilterByPersonForm extends FormBase {
                 //     '#suffix' => '',
                 // );
 
+                $body = $node->get('body')->getValue();
+
+                if(!empty($body)){
+                    $body = strip_tags( $body[0]['value']);
+                }else{
+                    $body = '';
+                }
+
                 $form['headers'][] = array(
                     '#type' => 'item',
                     '#prefix' =>    '<tr>
                                         <td><a href="/'. $this->language .'/node/'.$node->id().'?from='. urlencode($name.'&'.$surname) .'">'. $node->label() .'</a></td>
-                                        <td>'. strip_tags($node->get('body')->getValue()[0]['value']) .'</td>
+                                        <td>'. $body .'</td>
                                         <td>'. number_format($transfer_amount, 2, '.', ',') .'</td>
                                     </tr>',
                     '#suffix' => '',

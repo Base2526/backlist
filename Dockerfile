@@ -28,8 +28,8 @@ RUN mkdir web/sites/default/modules && \
 RUN mkdir web/sites/default/files && \
     chmod 777 web/sites/default/files
 
-RUN mkdir  -p .well-known/acme-challenge && \
-    chmod 777 .well-known/acme-challenge
+RUN mkdir  -p web/.well-known/acme-challenge && \
+    chmod 777 web/.well-known/acme-challenge
 
 COPY modules web/sites/default/modules
 

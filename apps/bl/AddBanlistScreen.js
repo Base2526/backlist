@@ -26,11 +26,14 @@ import {
   Header,
   Colors,
 } from 'react-native/Libraries/NewAppScreen';
-
+import { connect } from 'react-redux';
 import DropDownPicker from 'react-native-dropdown-picker';
+
+import ModalSelector from 'react-native-modal-selector'
+
 import Icon from 'react-native-vector-icons/Feather';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import ImagePicker from 'react-native-image-crop-picker';
 import ActionSheet from 'react-native-actionsheet';
 
@@ -43,10 +46,8 @@ import Toast, {DURATION} from 'react-native-easy-toast'
 
 const axios = require('axios');
 var Buffer = require('buffer/').Buffer
-import {API_URL, API_TOKEN} from "@env"
-
-// toTimestamp
-
+import {API_URL, API_TOKEN} from "./constants"
+import { fetchMyApps } from './actions/user';
 import {toTimestamp, isEmpty} from './Utils'
 
 class AddBanlistScreen extends Component {
@@ -71,25 +72,81 @@ class AddBanlistScreen extends Component {
                 
                   showDateTimePicker: false,
                   currentDateTimePicker: new Date(),
-                  spinner: false};  
-  
-    // const [date, setDate] = useState(new Date(1598051730000));
-    // const [mode, setMode] = useState('date');
-    // const [show, setShow] = useState(false);
+                  spinner: false,
 
-    // this.state = {
-    //   logs: 'ahihi',
-    //   selectedPhotoIndex: 0,
-    //   localPhotos: []
-    // };
+                  nid: undefined,
+                  items_merchant_bank_account: [
+                    {'key':1,'value': 'ธนาคารกรุงศรีอยุธยา'},
+                    {'key':2,'value': 'ธนาคารกรุงเทพ'},
+                    {'key':3,'value': 'ธนาคารซีไอเอ็มบี'},
+                    {'key':4,'value': 'ธนาคารออมสิน'},
+                    {'key':5,'value': 'ธนาคารอิสลาม'},
+                    {'key':6,'value': 'ธนาคารกสิกรไทย'},
+                    {'key':7,'value': 'ธนาคารเกียรตินาคิน'},
+                    {'key':8,'value': 'ธนาคารกรุงไทย'},
+                    {'key':9,'value': 'ธนาคารไทยพาณิชย์'},
+                    {'key':10,'value': 'Standard Chartered'},
+                    {'key':11,'value': 'ธนาคารธนชาติ'},
+                    {'key':12,'value': 'ทิสโก้แบงค์'},
+                    {'key':13,'value': 'ธนาคารทหารไทย'},
+                    {'key':14,'value': 'ธนาคารยูโอบี'},
+                    {'key':15,'value': 'ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร'},
+                    {'key':16,'value': 'True Wallet'},
+                    {'key':17,'value': 'พร้อมเพย์ (PromptPay)'},
+                    {'key':18,'value': 'ธนาคารอาคารสงเคราะห์'},
+                    {'key':19,'value': 'AirPay (แอร์เพย์)'},
+                    {'key':20,'value': 'mPay'},
+                    {'key':21,'value': '123 เซอร์วิส'},
+                    {'key':22,'value': 'ธ.ไทยเครดิตเพื่อรายย่อย'},
+                    {'key':23,'value': 'ธนาคารแลนด์แอนด์เฮ้าส์'},
+                    {'key':24,'value': 'เก็บเงินปลายทาง'} 
+                  ]};  
     this.onDoUploadPress = this.onDoUploadPress.bind(this);
 
+    this.addItemsMerchantBankAccount = this.addItemsMerchantBankAccount.bind(this);
   }
 
   componentDidMount() {
     Moment.locale('en');
-
     const { route, navigation } = this.props;
+    let {params} =  route;
+    
+
+    if(!isEmpty(params) && !isEmpty(params.data)){
+      console.log('data >>>', params)
+
+      let {data} = params
+      let itemsMerchantBankAccount = data.banks.map((item, i)=>{
+                                        return {key: 0, bank_account: item.bank_account, bank_wallet: item.bank_wallet}
+                                      })
+
+
+      let localPhotos = []
+      if(!isEmpty(data.images)){
+        localPhotos= data.images.thumbnail.map((item, i)=>{
+
+          console.log('--------->')
+          return {fid:item.fid, path: item.url}
+        })
+      }
+      
+      this.setState({
+        nid: data.id,
+        title: data.title, 
+        name: data.name, 
+        surname: data.surname, 
+        id_card_number: data.id_card,
+        selling_website: data.selling_website,
+        detail: data.detail,
+        transfer_amount: data.transfer_amount,
+        date:data.transfer_date,
+        itemsMerchantBankAccount,
+        localPhotos
+      })
+    }
+
+    console.log('this.state.nid : ', this.state.nid)
+
     let _this = this
     navigation.setOptions({
       headerRight: () => (
@@ -99,7 +156,7 @@ class AddBanlistScreen extends Component {
                   onPress={()=>{
                     _this.handleAdd()
                   }}>
-                  <Text style={{ fontSize:18 }}>ADD</Text>
+                  <Text style={{ fontSize: 18, paddingRight:10, color:'#0288D1'}}>{ !isEmpty(this.state.nid) ? 'Edit' : 'ADD'}</Text>
               </TouchableOpacity>
           </View>
         )
@@ -111,23 +168,6 @@ class AddBanlistScreen extends Component {
   }
 
   handleAdd= () => {
-    // console.log(this.state.name);
-    // console.log(this.state.surname);
-    // console.log(this.state.bank_account);
-
-    /*
-    $product_type   = trim( $content['product_type'] );       // สินค้า/ประเภท
-    $transfer_amount= trim( $content['transfer_amount'] );    // ยอดเงิน
-    $person_name    = trim( $content['person_name'] );        // ชื่อบัญชี ผู้รับเงินโอน
-    $person_surname = trim( $content['person_surname'] );     // นามสกุล ผู้รับเงินโอน
-    $id_card_number = trim( $content['id_card_number'] );     // เลขบัตรประชาชนคนขาย
-    $selling_website= trim( $content['selling_website'] );    // เว็บไซด์ประกาศขายของ
-    $transfer_date  = trim( $content['transfer_date'] );      // วันโอนเงิน
-    $details        = trim( $content['details'] );            // รายละเอียดเพิ่มเติม
-    $merchant_bank_account   = $content['merchant_bank_account']; // บัญชีธนาคารคนขาย
-    $images         = $content['images'];            // รูปภาพประกอบ
-    */
-
     let { title, 
           transfer_amount, 
           name, 
@@ -138,8 +178,8 @@ class AddBanlistScreen extends Component {
           detail,
 
           itemsMerchantBankAccount,
-          localPhotos} = this.state
-
+          localPhotos,
+          nid} = this.state
 
     title = title.trim()
     name = name.trim()
@@ -178,8 +218,11 @@ class AddBanlistScreen extends Component {
     // console.log(itemsMerchantBankAccount)  
     console.log(localPhotos)
 
+    let {basic_auth} = this.props.user
+
     const data = new FormData();
 
+    data.append('nid', isEmpty(nid) ? 0 : nid );
     data.append('product_type', title);
     data.append('transfer_amount', transfer_amount);
     data.append('person_name', name);
@@ -193,11 +236,25 @@ class AddBanlistScreen extends Component {
     localPhotos.map(buttonInfo => (
       data.append("files[]", {uri: buttonInfo.path, type: buttonInfo.mime,name: buttonInfo.path.substring(buttonInfo.path.lastIndexOf('/')+1)})
     ));
-
-    // console.log(data)
-
+    /*
+    [{"creationDate": "1255122560", 
+      "cropRect": null, 
+      "data": null, 
+      "duration": null, 
+      "exif": null, 
+      "filename": "IMG_0002.JPG", 
+      "height": 2848, 
+      "localIdentifier": "B84E8479-475C-4727-A4A4-B77AA9980897/L0/001", 
+      "mime": "image/jpeg", 
+      "modificationDate": "1441224147", 
+      "path": "/Users/somkidsimajarn/Library/Developer/CoreSimulator/Devices/0C039879-66BC-4294-A59C-E9A903694F96/data/Containers/Data/Application/D764C94F-953B-49DE-934D-C626A3650019/tmp/react-native-image-crop-picker/E9F93825-F91A-4B8E-9F48-6D140916879E.jpg", 
+      "size": 2604768, 
+      "sourceURL": "file:///Users/somkidsimajarn/Library/Developer/CoreSimulator/Devices/0C039879-66BC-4294-A59C-E9A903694F96/data/Media/DCIM/100APPLE/IMG_0002.JPG", 
+      "width": 4288},
+      {"creationDate": "1522437259", "cropRect": null, "data": null, "duration": null, "exif": null, "filename": "IMG_0006.HEIC", "height": 3024, "localIdentifier": "CC95F08C-88C3-4012-9D6D-64A413D254B3/L0/001", "mime": "image/jpeg", "modificationDate": "1617107619", "path": "/Users/somkidsimajarn/Library/Developer/CoreSimulator/Devices/0C039879-66BC-4294-A59C-E9A903694F96/data/Containers/Data/Application/D764C94F-953B-49DE-934D-C626A3650019/tmp/react-native-image-crop-picker/B81249C6-26DA-4C84-A4C4-EEE209D46793.jpg", "size": 4075105, "sourceURL": "file:///Users/somkidsimajarn/Library/Developer/CoreSimulator/Devices/0C039879-66BC-4294-A59C-E9A903694F96/data/Media/DCIM/100APPLE/IMG_0006.HEIC", "width": 4032}]
+    */
     // return;
-
+   
     // console.log(title, transfer_amount, name, surname, id_card_number, selling_website, currentDateTimePicker)
 
     
@@ -207,11 +264,10 @@ class AddBanlistScreen extends Component {
     //     'content-type': 'multipart/form-data'
     //   }
     // })
-
    
     axios.post(`${API_URL}/api/added_banlist?_format=json`, data, {
       headers: { 
-        'Authorization': `Basic ${API_TOKEN}`,
+        'Authorization': `Basic ${basic_auth}`,
         'content-type': 'multipart/form-data'
       }
     })
@@ -237,11 +293,10 @@ class AddBanlistScreen extends Component {
         //   alert('Empty result.');
         // }
 
+        let {navigation, route} = _this.props;
 
-
-        _this.toast.show('เพิ่มรายงานเรียบร้อย');
-
-        // _this.props.navigation.pop();        
+        navigation.pop();
+        route.params.updateState({});     
       }else{
         // false
         console.log('false');
@@ -263,6 +318,17 @@ class AddBanlistScreen extends Component {
 
   handleDelete=(key)=>{
     console.log('handDelete > ' + key);
+  }
+
+  itemsMerchant = () =>{
+    return this.state.items_merchant_bank_account.map((item, key) => {
+      return {key: item.key, label:item.value}
+    })
+  }
+
+  getNameMerchant = (key) =>{
+    console.log('key : ', key, this.state.items_merchant_bank_account.find( item => String(item.key)  === String(key) ))
+    return this.state.items_merchant_bank_account.find( item => String(item.key)  === String(key) )
   }
 
   listMerchantBank = () =>{
@@ -297,6 +363,8 @@ class AddBanlistScreen extends Component {
     Object.keys(items_merchant_bank_account).forEach(function(i) {
       lists.push({i, label: items_merchant_bank_account[i], value: i, icon: () => <Icon name="flag" size={18}  />, hidden: false})
     });
+
+    console.log(lists)
 
     return lists;
   }
@@ -471,7 +539,7 @@ class AddBanlistScreen extends Component {
     let index = itemsMerchantBankAccount.findIndex(obj => obj.key === key);
     let data = itemsMerchantBankAccount[index];
     // console.log(itemsMerchantBankAccount, key)
-    itemsMerchantBankAccount[index]  = {...data, bank_wallet: item.value}
+    itemsMerchantBankAccount[index]  = {...data, bank_wallet: item}
 
     this.setState({itemsMerchantBankAccount})
   }
@@ -485,10 +553,17 @@ class AddBanlistScreen extends Component {
 
     this.setState({itemsMerchantBankAccount})
   }
+
+  addItemsMerchantBankAccount = (length) => {
+    let itemsMerchantBankAccount = this.state.itemsMerchantBankAccount;
+    itemsMerchantBankAccount.push({key:length, bank_account: '', bank_wallet:''});
+
+    this.setState({itemsMerchantBankAccount});
+  }
   
   render(){
 
-    console.log(this.state.currentDateTimePicker)
+    // console.log(this.state.currentDateTimePicker)
     return (
       <SafeAreaView >
         <KeyboardAwareScrollView contentContainerStyle={{ flexGrow: 1 }} enableOnAndroid={true}>
@@ -607,43 +682,57 @@ class AddBanlistScreen extends Component {
             // autoFocus={true}
             autoCapitalize={'sentences'}/>
 
-          <View style={{ flexDirection:"row", marginTop:10}}>
+          <View style={{ flexDirection:"row", alignItems:'center', marginTop:5}}>
             <Text>บัญชีธนาคารคนขาย</Text>
-            <Button style={{height:5}} title='+' onPress={() => this.addItemsMerchantBankAccount(this.state.itemsMerchantBankAccount.length)} />
+            <TouchableOpacity style={{marginLeft:5, backgroundColor:'#3399cc', borderRadius:5, width: 30, height: 30, justifyContent:'center', alignItems:'center'}} 
+              onPress={() => this.addItemsMerchantBankAccount(this.state.itemsMerchantBankAccount.length)} >
+              <Text style={{ color:'white' }}>+</Text>
+            </TouchableOpacity>
           </View>
           
           {
-          this.state.itemsMerchantBankAccount.map((value, key) => {
-            key = value.key
-            return(
-              <View key={key}>
-                <View style={{ flexDirection:"row", marginTop:10}}>
-                    <Text>เลขบัญชี</Text> 
-                    <Button style={{backgroundColor:"#FF2400", }} title='-' onPress={()=>this.handleDelete(key)} />
-                </View>
-                <TextInput 
-                  key={key}  
-                  keyboardType="numeric"
-                  style={{borderWidth: .5, height: 40}}
-                  onChangeText={e => this.handleChangeItemItemsMerchant(e, key)}/>
-                <Text>ธนาคาร/ระบบ Wallet</Text>
-                
-                <DropDownPicker
-                  items={this.getItemsMerchant()}
-                  defaultValue={'1'}
-                  containerStyle={{height: 50}}
-                  style={{backgroundColor: '#fafafa', }}
-                  itemStyle={{justifyContent: 'flex-start'}}
-                  dropDownStyle={{backgroundColor: '#fafafa'}}
-                  onChangeItem={item => this.onChangeItemItemsMerchant(item, key)}
-                  labelStyle={{
-                      fontSize: 16,
-                      textAlign: 'left',
-                      color: '#000'
-                  }}/>
-              </View>
-            )
-          })
+            this.state.itemsMerchantBankAccount.map((value, key) => {
+              key = value.key
+              console.log('itemsMerchantBankAccount ', value)
+              return(
+                <View key={key}>
+                  <View style={{ flexDirection:"row", padding: 5}}>
+                      <Text>เลขบัญชี</Text> 
+                      {/* <Button style={{backgroundColor:"#FF2400", }} title='-' onPress={()=>this.handleDelete(key)} /> */}
+
+                      <TouchableOpacity style={{backgroundColor:'red', borderRadius:20, width: 25, height: 25, alignItems:'center', justifyContent:'center', marginLeft:5}} 
+                        onPress={() => this.handleDelete(key)} >
+                        <Text style={{ color:'white'}}>-</Text>
+                      </TouchableOpacity>
+                  </View>
+                  <TextInput 
+                    key={key}  
+                    value={value.bank_account}
+                    keyboardType="numeric"
+                    style={{borderWidth: .5, height: 40}}
+                    onChangeText={e => this.handleChangeItemItemsMerchant(e, key)}/>
+                  <Text>ธนาคาร/ระบบ Wallet</Text>
+                    <ModalSelector
+                      data={this.itemsMerchant()}  
+                      onChange={(option)=>{ 
+                        // console.log(`${option.label} (${option.key})`, option) 
+                        this.onChangeItemItemsMerchant(option.key, key)
+                      }}>
+                      <View style={{flex:1, flexDirection:'row', borderWidth: .5,  height: 40,}}>
+                        <TextInput
+                          style={{ flex:9, height: 40, color:'black'}}
+                          editable={false}
+                          placeholder="Select bank"
+                          placeholderTextColor={"black"}
+                          value={isEmpty(value.bank_wallet) ? '' : this.getNameMerchant(value.bank_wallet).value } />
+                        <View style={{justifyContent:'center', alignItems:'center'}} >
+                          <Ionicons name="chevron-down-outline" size={20} color={'gray'} />
+                        </View>
+                      </View>
+                    </ModalSelector>
+                  </View>
+              )
+            })
           }
           
           <ScrollView
@@ -763,8 +852,8 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     color: Colors.white,
-    fontWeight: 'bold',
-    fontSize: 30
+    // fontWeight: 'bold',
+    fontSize: 25
   },
   addButton: {
     alignItems: 'center',
@@ -776,4 +865,15 @@ const styles = StyleSheet.create({
   }
 });
 
-export default AddBanlistScreen;
+const mapStateToProps = state => {
+  return{
+    user: state.user.data,
+    // data: state.app.data
+  }
+}
+
+const mapDispatchToProps = {
+  fetchMyApps
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(AddBanlistScreen)

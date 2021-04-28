@@ -35,7 +35,7 @@ const axios = require('axios');
 var Buffer = require('buffer/').Buffer
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {API_URL, API_TOKEN} from "@env"
+import {API_URL, API_TOKEN} from "../constants"
 
 import ImagePicker from 'react-native-image-crop-picker';
 import ActionSheet from 'react-native-actionsheet';
@@ -49,8 +49,6 @@ import {
   GraphRequestManager,
   LoginManager
 } from 'react-native-fbsdk';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { ValidateEmail } from '../Utils'
 
@@ -263,13 +261,13 @@ class Profile extends Component {
 
   readLogin = async () => {
     try {
-      let user = JSON.parse(await AsyncStorage.getItem('user'))
-      console.log(user)
-      // JSON.parse
+      // let user = JSON.parse(await AsyncStorage.getItem('user'))
+      // console.log(user)
+      // // JSON.parse
 
-      if(Object.keys(user).length > 0){
-        return user
-      }
+      // if(Object.keys(user).length > 0){
+      //   return user
+      // }
       return false
     } catch (e) {
       console.log('Failed to fetch the data from storage')
@@ -278,8 +276,8 @@ class Profile extends Component {
 
   saveLogin = async (user) => {
     try {
-      await AsyncStorage.setItem('user', JSON.stringify(user))
-      return user;
+      // await AsyncStorage.setItem('user', JSON.stringify(user))
+      // return user;
     } catch (e) {
       console.log('Failed to save the data to the storage')
     }
@@ -287,7 +285,7 @@ class Profile extends Component {
 
   saveLogout = async () => {
     try {
-      await AsyncStorage.setItem('user', '')
+      // await AsyncStorage.setItem('user', '')
       console.log()
       console.log('Data successfully saved')
     } catch (e) {
@@ -347,11 +345,7 @@ class Profile extends Component {
 
       axios.post(`${API_URL}/api/login?_format=json`, {
         name, password
-      } /*, {
-        headers: { 
-          'Authorization': `Basic ${API_TOKEN}` 
-        }
-      }*/)
+      })
       .then(function (response) {
         let results = response.data
         console.log(results)
@@ -676,9 +670,9 @@ class Profile extends Component {
           <View style={styles.userNameRow}>
             <Text style={styles.userNameText}>{name}</Text>
           </View>
-          <View style={styles.userBioRow}>
+          {/* <View style={styles.userBioRow}>
             <Text style={styles.userBioText}>{bio}</Text>
-          </View>
+          </View> */}
         </View>
         {/* 
         <View style={styles.socialRow}>
@@ -769,8 +763,6 @@ class Profile extends Component {
       name: path.substring(path.lastIndexOf('/')+1)
     });
 
-    
-
     axios.post(`${API_URL}/api/update_profile?_format=json`, data, {
       headers: { 
         'Authorization': `Basic ${API_TOKEN}` ,
@@ -824,64 +816,64 @@ class Profile extends Component {
 
     if(Object.keys(user).length > 0){
 
-      navigation.setOptions({
-        headerRight: () => (
-          <View style={{flexDirection:'row'}}>
-            <View style={{marginRight: 5}}>
-                <Menu
-                ref={(ref) => (_menu = ref)}
-                button={
-                    <TouchableOpacity 
-                        style={{ marginHorizontal: 10 }}
-                        onPress={()=>{
-                            _menu.show()
-                    }}>
-                    <MaterialIcons name="more-vert" size={25} color={'grey'}  />
-                    </TouchableOpacity>
-                }>
+      // navigation.setOptions({
+      //   headerRight: () => (
+      //     <View style={{flexDirection:'row'}}>
+      //       <View style={{marginRight: 5}}>
+      //           <Menu
+      //           ref={(ref) => (_menu = ref)}
+      //           button={
+      //               <TouchableOpacity 
+      //                   style={{ marginHorizontal: 10 }}
+      //                   onPress={()=>{
+      //                       _menu.show()
+      //               }}>
+      //               <MaterialIcons name="more-vert" size={25} color={'grey'}  />
+      //               </TouchableOpacity>
+      //           }>
 
-                <MenuItem onPress={() => {
-                  _menu.hide();
+      //           <MenuItem onPress={() => {
+      //             _menu.hide();
                     
-                }}>
-                   <View style={{flexDirection:'row', alignItems: 'center',}}>
-                      <MaterialIcons style={{padding:5}} name="cached" size={20} color={'grey'}  />
-                      <Text>Refresh</Text>
-                  </View>
-                </MenuItem>
-                <MenuItem onPress={() => {
-                    _menu.hide();
+      //           }}>
+      //              <View style={{flexDirection:'row', alignItems: 'center',}}>
+      //                 <MaterialIcons style={{padding:5}} name="cached" size={20} color={'grey'}  />
+      //                 <Text>Refresh</Text>
+      //             </View>
+      //           </MenuItem>
+      //           <MenuItem onPress={() => {
+      //               _menu.hide();
                     
-                    Alert.alert(
-                      "Message",
-                      "Are you sure logout?",
-                      [
-                        {
-                          text: "Cancel",
-                          onPress: () => console.log("Cancel Pressed"),
-                          style: "cancel"
-                        },
-                        { text: "OK", onPress: () => {
-                          _this.saveLogout().then(()=>{
-                            _this.setState({user: {}})
-                          })
-                        } 
-                        }
-                      ],
-                      { cancelable: false }
-                    );
-                }}>
+      //               Alert.alert(
+      //                 "Message",
+      //                 "Are you sure logout?",
+      //                 [
+      //                   {
+      //                     text: "Cancel",
+      //                     onPress: () => console.log("Cancel Pressed"),
+      //                     style: "cancel"
+      //                   },
+      //                   { text: "OK", onPress: () => {
+      //                     _this.saveLogout().then(()=>{
+      //                       _this.setState({user: {}})
+      //                     })
+      //                   } 
+      //                   }
+      //                 ],
+      //                 { cancelable: false }
+      //               );
+      //           }}>
                     
-                    <View style={{flexDirection:'row', alignItems: 'center',}}>
-                        <MaterialIcons style={{padding:5}} name="logout" size={20} color={'grey'}  />
-                        <Text>Logout</Text>
-                    </View>
-                </MenuItem>
-                </Menu>
-            </View>
-          </View>
-        )
-      })
+      //               <View style={{flexDirection:'row', alignItems: 'center',}}>
+      //                   <MaterialIcons style={{padding:5}} name="logout" size={20} color={'grey'}  />
+      //                   <Text>Logout</Text>
+      //               </View>
+      //           </MenuItem>
+      //           </Menu>
+      //       </View>
+      //     </View>
+      //   )
+      // })
 
       return (
         <ScrollView style={styles.scroll}>
@@ -898,13 +890,13 @@ class Profile extends Component {
               />
             <View style={styles.cardContainer}>
               {this.renderContactHeader()}
-              {/* <TabView
+              <TabView
                 style={[styles.tabContainer, this.props.tabContainerStyle]}
                 navigationState={this.state.tabs}
                 renderScene={this.renderScene}
                 renderTabBar={this.renderTabBar}
                 onIndexChange={this.handleIndexChange}
-              /> */}
+              />
             </View>
 
             <ActionSheet

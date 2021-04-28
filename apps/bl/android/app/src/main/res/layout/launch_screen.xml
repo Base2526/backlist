@@ -10,17 +10,19 @@
         android:orientation="vertical"
         android:layout_centerInParent="true">
         <ImageView
-            android:layout_width="250px"
-            android:layout_height="250px"
+            android:layout_width="@dimen/logo_width"
+            android:layout_height="@dimen/logo_height"
             android:src="@mipmap/ic_launcher"
             android:scaleType="centerCrop"
             android:layout_gravity="center_horizontal"
             />
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="200px"
-            android:textSize="22dp"
-            android:text="Banlist.info"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textSize="28dp"
+            android:text="Banlist"
+            android:textStyle="bold"
             />
     </LinearLayout>
 </RelativeLayout>

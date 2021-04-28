@@ -45,8 +45,7 @@ class API extends ControllerBase {
   protected $entityTypeManager;
 
   /**
-   * Constructs a new CustomRestController object.
-
+  * Constructs a new CustomRestController object.
   * @param \Drupal\Core\Entity\Query\QueryFactory $entityQuery
   * The entity query factory.
   */
@@ -55,7 +54,6 @@ class API extends ControllerBase {
     $this->entityTypeManager = $entityTypeManager;
   }
 
-  
   /**
    * {@inheritdoc}
    */
@@ -81,8 +79,9 @@ class API extends ControllerBase {
       $content      = json_decode( $request->getContent(), TRUE );
       $name         = strtolower( trim( $content['name'] ) );
       $password     = trim( $content['password'] );
+      $unique_id    = trim( $content['unique_id'] );
   
-      if(empty($name) || empty($password)){
+      if(empty($name) || empty($password) || empty($unique_id) ){
         $response_array['result']   = FALSE;
         $response_array['code']     = '102';
         $response_array['message']  = 'Empty name or password.';
@@ -108,7 +107,15 @@ class API extends ControllerBase {
           $user = User::load($uid);
           $user_login_finalize = user_login_finalize($user);
 
-          $name    = $user->getDisplayName();
+          \Drupal::logger('Login')->notice(serialize($user_login_finalize));
+
+          // $name    = $user->getDisplayName();
+          $display_name    = '';
+          $field_display_name = $user->get('field_display_name')->getValue();
+          if(!empty($field_display_name)){
+            $display_name    = $field_display_name[0]['value'];
+          }
+
           $email   = $user->getEmail();
           $image_url = '';  
           if (!$user->get('user_picture')->isEmpty()) {
@@ -117,15 +124,56 @@ class API extends ControllerBase {
 
           $user = array(
                     'uid'       =>  $uid,
-                    'name'      =>  $name,
+                    'name'      =>  $display_name,
                     'email'     =>  $email,
-                    'image_url' =>  $image_url
+                    'image_url' =>  $image_url,
+                    'session'   =>  \Drupal::service('session')->getId(),
+                    'basic_auth'=>  base64_encode(sprintf('%s:%s', $name, $password))
                   );
 
           $response_array['result']           = TRUE;
           $response_array['execution_time']   = microtime(true) - $time1;
-          // $response_array['data']             = array('uid'=>$uid);
           $response_array['user']             = $user;
+
+          $response_array['follow_ups']       = array();
+
+          // /api/login , unique_id
+
+          // ---------------- follow_ups -----------------
+          Utils::node_login($unique_id);
+
+          $response_array['follow_ups'] = Utils::node_fetch____follow_up();
+          // ---------------- follow_ups -----------------
+
+
+          // ---------------- follower_post -----------------
+
+          $response_array['follower_post'] =array();
+
+          // $storage = \Drupal::entityTypeManager()->getStorage('node');
+          $storage = $this->entityTypeManager->getStorage('node');
+          $query   = $storage->getQuery();
+          // $query->condition('status', \Drupal\node\NodeInterface::PUBLISHED);
+          $query->condition('type', 'back_list');
+
+          $query->condition('uid', $uid);
+          $posts = array_values($query->execute());
+
+          if(!empty($posts)){
+            $response_array['follower_post'] = Utils::node_follower_post(  $posts );
+          }
+
+          // ---------------- follower_post -----------------
+
+          
+          // -----  my_apps  -------
+          $storage = $this->entityTypeManager->getStorage('node');
+          $query   = $storage->getQuery();
+          $query->condition('type', 'back_list');
+          $query->condition('uid', $uid);
+
+          $response_array['my_apps'] = json_encode(array_values($query->execute()));
+          // -----  my_apps  -------
         }else{
 
           $response_array['result']           = FALSE;
@@ -155,11 +203,9 @@ class API extends ControllerBase {
   public function Register(Request $request){
     $response_array = array();
     try {
-      
       $time1    = microtime(true);
-
       $content  = json_decode( $request->getContent(), TRUE );
-      $type    = trim( $content['type'] );
+      $type     = trim( $content['type'] );
 
       switch($type){
         case 0:{
@@ -245,12 +291,13 @@ class API extends ControllerBase {
                   ->range(0, 1)
                   ->execute();
 
+          $password = base64_encode($id);
           if(empty($ids)){
             // Create user
             $user = User::create();
 
             // Mandatory settings
-            $user->setPassword(base64_encode($id));
+            $user->setPassword($password);
             $user->set("langcode", 'en');
             $user->enforceIsNew();
             $user->setEmail($id . '@local.local');
@@ -273,7 +320,8 @@ class API extends ControllerBase {
                         'uid'       =>  $uid,
                         'name'      =>  $name,
                         'email'     =>  $id . '@local.local',
-                        'image_url' => ''
+                        'image_url' => '',
+                        'basic_auth'=>  base64_encode(sprintf('%s:%s', $id, $password))
                       );
 
           $user = User::load($uid);
@@ -337,12 +385,13 @@ class API extends ControllerBase {
                   ->range(0, 1)
                   ->execute();
 
+          $password = base64_encode($id);
           if(empty($ids)){
             // Create user
             $user = User::create();
 
             // Mandatory settings
-            $user->setPassword(base64_encode($id));
+            $user->setPassword($password);
             $user->set("langcode", 'en');
             $user->enforceIsNew();
             $user->setEmail($email);
@@ -365,7 +414,8 @@ class API extends ControllerBase {
                         'uid'       =>  $uid,
                         'name'      =>  $name,
                         'email'     =>  $email,
-                        'image_url' => ''
+                        'image_url' => '',
+                        'basic_auth'=>  base64_encode(sprintf('%s:%s', $id, $password))
                       );
 
           $user = User::load($uid);
@@ -424,7 +474,7 @@ class API extends ControllerBase {
     }
   }
 
-   /* https://stackoverflow.com/questions/4247405/how-do-i-send-an-email-notification-when-programatically-creating-a-drupal-user/10603541
+  /* https://stackoverflow.com/questions/4247405/how-do-i-send-an-email-notification-when-programatically-creating-a-drupal-user/10603541
   * @param $op
   *   The operation being performed on the account. Possible values:
   *   - 'register_admin_created': Welcome message for user created by the admin.
@@ -505,6 +555,66 @@ class API extends ControllerBase {
       $response_array['message']  = $e->__toString();
       return new JsonResponse( $response_array );
     }
+  }
+
+  /*
+   - แก้ปัญหากรณีเปิดหลายๆ เครื่องระหว่างนี้มีการ follow up, .... จะไม่ได้ current data เราต้อง syc เพอืให้ข้อมูลเท่ากัน
+  */
+  public function SycNodeJs(Request $request){
+    $response_array = array();
+    try {
+      $time1      = microtime(true);
+      $content    = json_decode( $request->getContent(), TRUE );
+
+      $uid = \Drupal::currentUser()->id();
+
+      // ---------------- follow_ups -----------------
+      $response_array['follow_ups'] = Utils::node_fetch____follow_up();
+      // ---------------- follow_ups -----------------
+
+      // ---------------- follower_post -----------------
+      $response_array['follower_post'] =array();
+
+      // $storage = \Drupal::entityTypeManager()->getStorage('node');
+      $storage = $this->entityTypeManager->getStorage('node');
+      $query   = $storage->getQuery();
+      // $query->condition('status', \Drupal\node\NodeInterface::PUBLISHED);
+      $query->condition('type', 'back_list');
+
+      $query->condition('uid', $uid);
+      $posts = array_values($query->execute());
+
+      if(!empty($posts)){
+        $response_array['follower_post'] = Utils::node_follower_post(  $posts );
+      }
+      // ---------------- follower_post -----------------
+
+      // -----  my_apps  -------
+      $storage = $this->entityTypeManager->getStorage('node');
+      $query   = $storage->getQuery();
+      $query->condition('type', 'back_list');
+      $query->condition('uid', $uid);
+
+      $response_array['my_apps'] = json_encode(array_values($query->execute()));
+      // -----  my_apps  -------
+
+
+      // ----- notification -------
+      $response_array['notification'] = Utils::node_fetch_notification();
+      // ----- notification -------
+
+
+      $response_array['result']           = TRUE;
+      // $response_array['data']          = $data;
+      $response_array['execution_time']   = microtime(true) - $time1;
+    } catch (\Throwable $e) {
+      \Drupal::logger('SycNodeJs')->notice($e->__toString());
+
+      $response_array['result']   = FALSE;
+      $response_array['message']  = $e->__toString();
+    }
+
+    return new JsonResponse( $response_array );
   }
 
   /*
@@ -718,8 +828,9 @@ class API extends ControllerBase {
 
   private function GetFieldNode($node){
     $data = array();
-    $data['id']     = $node->id();
-    $data['title']  = $node->label();
+    $data['owner_id'] = $node->getOwnerId();
+    $data['id']       = $node->id();
+    $data['title']    = $node->label();
 
     // 2. ชื่อบัญชี-นามสกุล ผู้รับเงินโอน
     $sales_person_name = '';
@@ -740,8 +851,12 @@ class API extends ControllerBase {
     $data['surname']  = $sales_person_surname;
 
     // รายละเอียด
-    $detail = $node->get('body')->getValue()[0]['value'];
-    $data['detail']  = htmlspecialchars($detail) ;
+    $detail = '';
+    $body = $node->get('body')->getValue();
+    if(!empty($body)){
+      $detail = htmlspecialchars($body[0]['value']);
+    }
+    $data['detail']  = $detail;
 
     $merchant_bank_accounts = array();
     foreach ($node->get('field_merchant_bank_account')->getValue() as $mi=>$mv){
@@ -760,7 +875,7 @@ class API extends ControllerBase {
       $bank_wallet_target_id = $p->get('field_bank_wallet')->target_id;
       if(!empty($bank_wallet_target_id)){
         $bank_wallet = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($bank_wallet_target_id);
-        $merchant_bank_account['bank_wallet'] = $bank_wallet->label();
+        $merchant_bank_account['bank_wallet'] = $bank_wallet_target_id;//$bank_wallet->label();
       }
       
       $merchant_bank_accounts[] = $merchant_bank_account;
@@ -771,7 +886,10 @@ class API extends ControllerBase {
     $images = array();
     foreach ($node->get('field_images')->getValue() as $imi=>$imv){
       // dpm( Utils::get_file_uri($imv['target_id']) );
-      $images[] = Utils::get_file_url($imv['target_id']);
+      // $images[] = Utils::get_file_url($imv['target_id']);
+
+      $images['medium'][]    = array('fid'=>$imv['target_id'], 'url'=> Utils::ImageStyle_BN($imv['target_id'], 'bn_medium')) ;
+      $images['thumbnail'][] = array('fid'=>$imv['target_id'], 'url'=> Utils::ImageStyle_BN($imv['target_id'], 'bn_thumbnail')) ;
     }
     $data['images']  = $images;
 
@@ -809,24 +927,6 @@ class API extends ControllerBase {
     return $data;
   }
 
-   /*
-    use Drupal\backlist\Utils\Utils;
-
-    $img = file_get_contents('sites/default/files/styles/large/public/2021-01/61270_135689222_2883573958549573_1784928971614446312_n.jpg');
-
-    $data = base64_encode($img);
-    // dpm($data); 
-
-    // dpm(base64_decode($data)); 
-
-    // $data = base64_decode($data);
-    // dpm($data);
-
-    $file = file_save_data(base64_decode($data), 'public://'. date('m-d-Y_hia') .'.png', FILE_EXISTS_RENAME);
-    // dpm( $file );
-
-    dpm(Utils::get_file_url($file->id()));
-   */
   public function AddedBanlist(Request $request){
     $response_array = array();
     try {
@@ -960,6 +1060,9 @@ class API extends ControllerBase {
 
       // $content        = json_decode( $request->getContent(), TRUE );
 
+      // $basic_auth     = trim( $_REQUEST['basic_auth'] );
+
+      $nid        = trim( $_REQUEST['nid'] );            // new/edit
       $product_type   = trim( $_REQUEST['product_type'] );       // สินค้า/ประเภท
       $transfer_amount= trim( $_REQUEST['transfer_amount'] );    // ยอดเงิน
       $person_name    = trim( $_REQUEST['person_name'] );        // ชื่อบัญชี ผู้รับเงินโอน
@@ -1031,31 +1134,7 @@ class API extends ControllerBase {
       //   );
       // }
 
-      $images_fids = array();
-
-      $total = count($_FILES['files']['name']);
-      // Loop through each file
-      for( $i=0 ; $i < $total ; $i++ ) {
-
-        $target = 'sites/default/files/'. $_FILES['files']['name'][$i];
-        move_uploaded_file( $_FILES['files']['tmp_name'][$i], $target);
-
-        $file = file_save_data( file_get_contents( $target ), 'public://'. date('m-d-Y_hia') .'_'.mt_rand().'.png' , FileSystemInterface::EXISTS_REPLACE);
-
-        // $user = User::load($uid);
-        // if(!empty($user)){
-        //   $user->set('user_picture', $file->id());
-        //   $user->save();
-        // }
-
-        // $response_array['image_url']  =  file_create_url($file->getFileUri());
-
-        $images_fids[] = array(
-          'target_id' => $file->id(),
-          'alt' => '',
-          'title' => empty($_FILES['files']['name'][$i]) ? '' : $_FILES['files']['name'][$i]
-        );
-      }
+  
 
       // $response['images_fids']  = $images_fids;
       /*
@@ -1071,27 +1150,125 @@ class API extends ControllerBase {
       $images         = $content['images'];                     // รูปภาพประกอบ
       */
       
-      $node = Node::create([
-        'type'                   => 'back_list',
-        'uid'                    => \Drupal::currentUser()->id(),
-        'status'                 => 1,
-        'field_channel'          => 32,                // ถูกสร้างผ่านช่องทาง 31: Web, 32: Api
+      if(!empty($nid) && $nid !=  'undefined' ){
+        $node = Node::load($nid);
+        $node->setChangedTime((new \DateTime('now'))->getTimestamp());
 
-        'title'                  => $product_type,     // สินค้า/ประเภท
-        'field_transfer_amount'  => $transfer_amount,  // ยอดเงิน
-        'field_sales_person_name'=> $person_name,      // ชื่อบัญชี ผู้รับเงินโอน
-        'field_sales_person_surname' => $person_surname, // นามสกุล ผู้รับเงินโอน
-        'field_id_card_number'    => $id_card_number,  // เลขบัตรประชาชนคนขาย
-        'field_selling_website'   => $selling_website, // เว็บไซด์ประกาศขายของ
-        'field_transfer_date'     => date('Y-m-d',  strtotime($transfer_date)),   // วันโอนเงิน
-        'body'                    => $details,         // หมายเหตุ
-        'field_merchant_bank_account' => $merchant_bank_account_paragraphs, // บัญชีธนาคารคนขาย
-        'field_images'            => $images_fids      // รูปภาพประกอบ
-      ]);
-      $node->save();
+        if( strcmp($node->label(), $product_type) != 0 ){
+          $node->title = $product_type;
+        }
+
+        $field_transfer_amount = $node->field_transfer_amount->getValue();
+        if(!empty($field_transfer_amount)){
+          $field_transfer_amount = $field_transfer_amount[0]['value'];
+
+          if( strcmp($field_transfer_amount, $transfer_amount) != 0 ){
+            $node->field_transfer_amount = $transfer_amount;
+          }
+        }else{
+          $node->field_transfer_amount = $transfer_amount;
+        }
+
+        $field_sales_person_name = $node->field_sales_person_name->getValue();
+        if(!empty($field_sales_person_name)){
+          $field_sales_person_name = $field_sales_person_name[0]['value'];
+
+          if( strcmp($field_sales_person_name, $person_name) != 0 ){
+            $node->field_sales_person_name = $person_name;
+          }
+        }else{
+          $node->field_sales_person_name = $person_name;
+        }
+
+        $field_sales_person_surname = $node->field_sales_person_surname->getValue();
+        if(!empty($field_sales_person_surname)){
+          $field_sales_person_surname = $field_sales_person_surname[0]['value'];
+
+          if( strcmp($field_sales_person_surname, $person_surname) != 0 ){
+            $node->field_sales_person_surname = $person_surname;
+          }
+        }else{
+          $node->field_sales_person_surname = $person_surname;
+        }
+
+        $field_id_card_number = $node->field_id_card_number->getValue();
+        if(!empty($field_id_card_number)){
+          $field_id_card_number = $field_id_card_number[0]['value'];
+
+          if( strcmp($field_id_card_number, $id_card_number) != 0 ){
+            $node->field_id_card_number = $id_card_number;
+          }
+        }else{
+          $node->field_id_card_number = $id_card_number;
+        }
+
+
+        $field_selling_website = $node->field_selling_website->getValue();
+        if(!empty($field_selling_website)){
+          $field_selling_website = $field_selling_website[0]['value'];
+
+          if( strcmp($field_selling_website, $selling_website) != 0 ){
+            $node->field_selling_website = $selling_website;
+          }
+        }else{
+          $node->field_selling_website = $selling_website;
+        }
+
+        $body = $node->body->getValue();
+        if(!empty($body)){
+          $body = $body[0]['value'];
+          if( strcmp($body, $details) != 0 ){
+            $node->body = $details;
+          }
+        }else{
+          $node->body = $details;
+        }
+
+        $node->save();
+
+      }else{
+
+        $images_fids = array();
+        $total = count($_FILES['files']['name']);
+        // Loop through each file
+        for( $i=0 ; $i < $total ; $i++ ) {
+  
+          $target = 'sites/default/files/'. $_FILES['files']['name'][$i];
+          move_uploaded_file( $_FILES['files']['tmp_name'][$i], $target);
+  
+          $file = file_save_data( file_get_contents( $target ), 'public://'. date('m-d-Y_hia') .'_'.mt_rand().'.png' , FileSystemInterface::EXISTS_REPLACE);
+          $images_fids[] = array(
+            'target_id' => $file->id(),
+            'alt' => '',
+            'title' => empty($_FILES['files']['name'][$i]) ? '' : $_FILES['files']['name'][$i]
+          );
+        }
+
+        $node = Node::create([
+          'type'                   => 'back_list',
+          'uid'                    => \Drupal::currentUser()->id(),
+          'status'                 => 1,
+          'field_channel'          => 32,                // ถูกสร้างผ่านช่องทาง 31: Web, 32: Api
+  
+          'title'                  => $product_type,     // สินค้า/ประเภท
+          'field_transfer_amount'  => $transfer_amount,  // ยอดเงิน
+          'field_sales_person_name'=> $person_name,      // ชื่อบัญชี ผู้รับเงินโอน
+          'field_sales_person_surname' => $person_surname, // นามสกุล ผู้รับเงินโอน
+          'field_id_card_number'    => $id_card_number,  // เลขบัตรประชาชนคนขาย
+          'field_selling_website'   => $selling_website, // เว็บไซด์ประกาศขายของ
+          'field_transfer_date'     => date('Y-m-d',  $transfer_date),   // วันโอนเงิน
+          'body'                    => $details,         // หมายเหตุ
+          'field_merchant_bank_account' => $merchant_bank_account_paragraphs, // บัญชีธนาคารคนขาย
+          'field_images'            => $images_fids      // รูปภาพประกอบ
+        ]);
+        $node->save();
+      }
+      
+      // ------------ noti to user and fetch all my_apps new
+      Utils::node_my_apps(\Drupal::currentUser()->id());
+      // ------------
       
       $response_array['result']   = TRUE;
-      // $response['content']  = $content;
       $response_array['execution_time']   = microtime(true) - $time1;
       return new JsonResponse( $response_array );  
     } catch (\Throwable $e) {
@@ -1110,10 +1287,15 @@ class API extends ControllerBase {
 
       $content = json_decode( $request->getContent(), TRUE );
       $key_word= trim( $content['key_word'] );
-
-      $offset= trim( $content['offset'] );
+      $offset  = trim( $content['offset'] );
+      $type    = trim( $content['type'] );
+      
+      // \Drupal::logger('SearchApi')->notice( serialize($content) );
 
       if(!empty($key_word)){
+
+        // \Drupal::logger('SearchApi')->notice( 'offset = %offset, type = %type, key_word = %key_word', 
+        //                                       array('%offset'=>$offset, '%type'=>$type, '%key_word'=>$key_word));
 
         $index = Index::load('content_back_list');
         $query = $index->query();
@@ -1125,19 +1307,88 @@ class API extends ControllerBase {
 
         $query->addCondition('type', 'back_list');
 
-        // Set fulltext search keywords and fields.
-        $query->keys($key_word);
-        // $query->setFulltextFields([ 'body']);
+        /*
+        $query->addCondition('field_sales_person_name', 'ทัศนีย์');
+        $query->addCondition('field_sales_person_surname', 'แย้มกลาง');
+        */
 
+        /*
+        type : 
+           default : all
+           1 : title
+           2 : name
+           3 : surname
+           4 : detail
+           5 : name & surname
+
+
+           8 : by nids ex. nids = array(1,2,3,4)
+        */
+
+        switch($type){
+          case 0:{
+            $query->sort('nid', 'DESC');
+            // $query->range(2,2);
+
+            break;
+          }
+
+          case 1:{
+            $query->addCondition('title', $key_word);
+            break;
+          }
+
+          case 2:{
+            $query->addCondition('field_sales_person_name', $key_word);
+            break;
+          }
+
+          case 3:{
+            $query->addCondition('field_sales_person_surname', $key_word);
+            break;
+          }
+
+          case 4:{
+            $query->addCondition('body', $key_word);
+            break;
+          }
+
+          case 5:{
+            $ky = explode("&", $key_word);
+            if(count($ky) > 1){
+              $query->addCondition('field_sales_person_name', $ky[0]);
+              $query->addCondition('field_sales_person_surname', $ky[1]);
+            }else{
+              $query->addCondition('field_sales_person_name', $ky[0]);
+            }
+
+            break;
+          }
+
+          case 8:{
+            $key_word = json_decode($key_word);
+            // \Drupal::logger('SearchApi, case 8')->notice($key_word);
+            $query->addCondition('nid', $key_word, "IN");
+            break;
+          }
+
+          default:{
+            // Set fulltext search keywords and fields.
+            $query->keys($key_word);
+            $query->setFulltextFields([ 'title', 'field_sales_person_name', 'field_sales_person_surname', 'body', 'field_selling_website']);
+
+            break;
+          }
+
+        }
 
         // Set additional conditions.
-        //$query->addCondition('status', 1);
+        $query->addCondition('status', 1);
 
         // Restrict the search to specific languages.
         // $query->setLanguages(['th', 'en']);
 
-
-        $pagging = 10; 
+        $pagging = 30; 
 
         $start = 0;
         $end   = $pagging;
@@ -1146,7 +1397,7 @@ class API extends ControllerBase {
         }else{
           if($offset > 0){
             $start = ($pagging * $offset) + 1;
-            $end   = $pagging * ($offset + 1);
+            // $end   = $pagging * ($offset + 1);
           }
         }
 
@@ -1166,6 +1417,12 @@ class API extends ControllerBase {
 
           // $title[0]->getText()
           $item = array();
+
+          $owner_id = 0;
+          $result_uid    = $result->getField('uid')->getValues();
+          if(!empty($result_uid)){
+            $owner_id = $result_uid[0];
+          }
           
           $nid = 0;
           $result_nid    = $result->getField('nid')->getValues();
@@ -1207,9 +1464,11 @@ class API extends ControllerBase {
           $images = array();
           try {
             foreach ($result->getField('field_images')->getValues() as $imi=>$imv){
-              $images[] = Utils::get_file_url($imv) ;
+              // $images[] = Utils::get_file_url($imv) ;
+              $images['medium'][]    = array('fid'=>$imv, 'url'=> Utils::ImageStyle_BN($imv, 'bn_medium')) ;
+              $images['thumbnail'][] = array('fid'=>$imv, 'url'=> Utils::ImageStyle_BN($imv, 'bn_thumbnail')) ;
 
-              \Drupal::logger('SearchApi')->notice($imv);
+              // \Drupal::logger('SearchApi')->notice($imv);
             }
           } catch (\Throwable $e) {
             \Drupal::logger('SearchApi')->notice($e->__toString());
@@ -1229,7 +1488,8 @@ class API extends ControllerBase {
           }
 
           // ;
-          $item = array('id'      => $nid, 
+          $item = array('owner_id'=> $owner_id,
+                        'id'      => $nid, 
                         'name'    => $name, 
                         'surname' => $surname, 
                         'title'   => $title,
@@ -1344,27 +1604,102 @@ class API extends ControllerBase {
     }
   }
 
+  public function FetchProfile(Request $request){
+    $response_array = array();
+    try {
+      $time1          = microtime(true);
+      $content        = json_decode( $request->getContent(), TRUE );
+      
+      if (\Drupal::currentUser()->isAuthenticated()) {
+        // This user is logged in.
+
+        $user = User::load( \Drupal::currentUser()->id() );
+        $name    = $user->getDisplayName();
+
+        $display_name    = '';
+        $field_display_name = $user->get('field_display_name')->getValue();
+        if(!empty($field_display_name)){
+          $display_name    = $field_display_name[0]['value'];
+        }
+
+
+        $email   = $user->getEmail();
+        $image_url = '';  
+        if (!$user->get('user_picture')->isEmpty()) {
+          $image_url = file_create_url($user->get('user_picture')->entity->getFileUri());
+        }
+
+        $profile = array( 'name'      =>  $display_name,
+                          'email'     =>  $email,
+                          'image_url' =>  $image_url,
+                        );
+
+        $response_array['result']           = TRUE;
+        $response_array['profile']          = $profile;
+        $response_array['execution_time']   = microtime(true) - $time1;
+      } else {
+        // This user is not logged in.
+        
+        $response_array['result']   = FALSE;
+        $response_array['message']  = ' This user is not logged in.';
+      }
+
+      return new JsonResponse( $response_array );
+    } catch (\Throwable $e) {
+      \Drupal::logger('FetchProfile')->notice($e->__toString());
+
+      $response_array['result']   = FALSE;
+      $response_array['message']  = $e->__toString();
+      return new JsonResponse( $response_array );
+    }
+  }
+
   public function UpdateProfile(Request $request){
     $response_array = array();
     try {
       $time1          = microtime(true);
       $content        = json_decode( $request->getContent(), TRUE );
-      $uid            = trim( $_REQUEST['uid'] );
+      $type            = trim( $_REQUEST['type'] );
 
-      if(!empty($_FILES)){
-        $target = 'sites/default/files/'. $_FILES['file']['name'];
-        move_uploaded_file( $_FILES['file']['tmp_name'], $target);
+      /*
+      type: 
+        1 = Display name
+        2 = Image profile
+      */
+      switch($type){
+        case 1:{
+          $field_display_name            = trim( $_REQUEST['display_name'] );
 
-        $file = file_save_data( file_get_contents( $target ), 'public://'. date('m-d-Y_hia') .'_'.mt_rand().'.png' , FileSystemInterface::EXISTS_REPLACE);
-
-        $user = User::load($uid);
-        if(!empty($user)){
-          $user->set('user_picture', $file->id());
-          $user->save();
+          $user = User::load(\Drupal::currentUser()->id());
+          if(!empty($user)){
+            $user->set('field_display_name', $field_display_name);
+            $user->save();
+          }
+         
+          break;
         }
 
-        $response_array['image_url']  =  file_create_url($file->getFileUri());
+        case 2:{
+          if(!empty($_FILES)){
+            $target = 'sites/default/files/'. $_FILES['file']['name'];
+            move_uploaded_file( $_FILES['file']['tmp_name'], $target);
+    
+            $file = file_save_data( file_get_contents( $target ), 'public://'. date('m-d-Y_hia') .'_'.mt_rand().'.png' , FileSystemInterface::EXISTS_REPLACE);
+    
+            $user = User::load(\Drupal::currentUser()->id());
+            if(!empty($user)){
+              $user->set('user_picture', $file->id());
+              $user->save();
+            }
+    
+            $response_array['image_url']  =  file_create_url($file->getFileUri());
+          }
+
+          break;
+        }
       }
+
+      
 
       $response_array['result']           = TRUE;
       $response_array['execution_time']   = microtime(true) - $time1;
@@ -1378,4 +1713,198 @@ class API extends ControllerBase {
       return new JsonResponse( $response_array );
     }
   }
+
+  public function Report(Request $request){
+    $response_array = array();
+    try {
+      $time1          = microtime(true);
+
+      $content = json_decode( $request->getContent(), TRUE );
+      $chioce  = json_decode($content['chioce']);
+      $message = trim( $content['message'] );
+
+      // $offset= trim( $content['offset'] );
+
+      if( empty($chioce) || empty($message) ){
+        $response_array['result']           = FALSE;
+        $response_array['execution_time']   = microtime(true) - $time1;
+        return new JsonResponse( $response_array );
+      }
+
+      \Drupal::logger('report')->notice('chioce : %chioce, message: %message',
+      array(
+          '%chioce' => $content['chioce'],
+          '%message' => $message,
+      ));
+
+      $response_array['result']           = TRUE;
+      $response_array['execution_time']   = microtime(true) - $time1;
+      
+      return new JsonResponse( $response_array );
+
+    } catch (\Throwable $e) {
+      \Drupal::logger('SearchApi')->notice($e->__toString());
+
+      $response_array['result']   = FALSE;
+      $response_array['message']  = $e->__toString();
+      return new JsonResponse( $response_array );
+    }
+  }
+
+  public function FetchMyPost(Request $request){
+    $response_array = array();
+    try {
+      $time1          = microtime(true);
+
+      $content = json_decode( $request->getContent(), TRUE );
+      // $chioce  = json_decode($content['chioce']);
+      // $message = trim( $content['message'] );
+
+      // // $offset= trim( $content['offset'] );
+
+      // if( empty($chioce) || empty($message) ){
+      //   $response_array['result']           = FALSE;
+      //   $response_array['execution_time']   = microtime(true) - $time1;
+      //   return new JsonResponse( $response_array );
+      // }
+
+      // \Drupal::logger('report')->notice('chioce : %chioce, message: %message',
+      // array(
+      //     '%chioce' => $content['chioce'],
+      //     '%message' => $message,
+      // ));
+
+      // $node = Node::load($parent->id());
+      // $datas[] = API::GetFieldNode($node);
+
+      // $storage = \Drupal::entityTypeManager()->getStorage('node');
+
+      $storage = $this->entityTypeManager->getStorage('node');
+      $query   = $storage->getQuery();
+      // $query->condition('status', \Drupal\node\NodeInterface::PUBLISHED);
+      $query->condition('type', 'back_list');
+
+      $query->condition('uid', \Drupal::currentUser()->id());
+      $nids = $query->execute();
+
+      $datas = array();
+      foreach ($storage->loadMultiple($nids) as $node) {
+        $datas[] = API::GetFieldNode($node);
+      }
+
+      // dpm(count($nids));
+
+      $response_array['result']           = TRUE;
+      $response_array['execution_time']   = microtime(true) - $time1;
+      // $response_array['uid']              = \Drupal::currentUser()->id();
+      // $response_array['session']          = \Drupal::service('session')->getId();
+      $response_array['datas']               = $datas;
+      return new JsonResponse( $response_array );
+
+    } catch (\Throwable $e) {
+      \Drupal::logger('FetchMyPost')->notice($e->__toString());
+
+      $response_array['result']   = FALSE;
+      $response_array['message']  = $e->__toString();
+      return new JsonResponse( $response_array );
+    }
+  }
+
+  public function FetchPostById(Request $request){
+    $response_array = array();
+    try {
+      $time1          = microtime(true);
+
+      $content = json_decode( $request->getContent(), TRUE );
+      $data    = json_decode($content['data']);
+      $datas   = array();
+      foreach ($data as $nid) {
+        $datas[] = API::GetFieldNode(Node::load($nid));
+      }
+
+      $response_array['result']           = TRUE;
+      $response_array['execution_time']   = microtime(true) - $time1;
+      $response_array['datas']            = $datas;
+      return new JsonResponse( $response_array );
+
+    } catch (\Throwable $e) {
+      \Drupal::logger('FetchPostById')->notice($e->__toString());
+
+      $response_array['result']   = FALSE;
+      $response_array['message']  = $e->__toString();
+      return new JsonResponse( $response_array );
+    }
+  }
+
+  public function FetchProfileById(Request $request){
+    $response_array = array();
+    try {
+      $time1          = microtime(true);
+
+      $content = json_decode( $request->getContent(), TRUE );
+      $data    = json_decode($content['data']);
+      $datas   = array();
+      foreach ($data as $uid) {
+        $user = User::load($uid);
+        $name    = $user->getDisplayName();
+        $email   = $user->getEmail();
+        $image_url = '';  
+        if (!$user->get('user_picture')->isEmpty()) {
+          $image_url = file_create_url($user->get('user_picture')->entity->getFileUri());
+        }
+
+        $datas[] = array(
+                  'uid'       =>  $uid,
+                  'name'      =>  $name,
+                  'email'     =>  $email,
+                  'image_url' =>  $image_url
+                );
+      }
+
+      $response_array['result']           = TRUE;
+      $response_array['execution_time']   = microtime(true) - $time1;
+      $response_array['datas']            = $datas;
+      return new JsonResponse( $response_array );
+
+    } catch (\Throwable $e) {
+      \Drupal::logger('SearchApi')->notice($e->__toString());
+
+      $response_array['result']   = FALSE;
+      $response_array['message']  = $e->__toString();
+      return new JsonResponse( $response_array );
+    }
+  }
+
+  public function DeleteMyApp(Request $request){
+    $response_array = array();
+    try {
+      $time1          = microtime(true);
+
+      $content = json_decode( $request->getContent(), TRUE );
+      $nid = trim( $content['nid'] );
+
+      if(!empty($nid)){
+        $node = $this->entityTypeManager->getStorage('node')->load($nid);
+        // Check if node exists with the given nid.
+        if ($node) {
+          $node->delete();
+        }
+
+        $response_array['result']           = TRUE;
+        $response_array['execution_time']   = microtime(true) - $time1;
+      }else{
+        $response_array['result']           = FALSE;
+        $response_array['execution_time']   = microtime(true) - $time1;
+      }
+
+      return new JsonResponse( $response_array );
+    } catch (\Throwable $e) {
+      \Drupal::logger('SearchApi')->notice($e->__toString());
+
+      $response_array['result']   = FALSE;
+      $response_array['message']  = $e->__toString();
+      return new JsonResponse( $response_array );
+    }
+  }
+
 }

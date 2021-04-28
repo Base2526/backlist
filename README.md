@@ -3,12 +3,12 @@ https://gist.github.com/gilyes/525cc0f471aafae18c3857c27519fc4b
 Backup:
 docker exec -t -u postgres your-db-container pg_dumpall -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
 
+docker exec -t -u postgres 49b9509f7e98 pg_dumpall -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
+
 
 Restore:
-cat your_dump.sql | docker exec -i your-db-container psql -Upostgres
+cat backlist_21122020_2106.sql | docker exec -i 17f16008f1ac psql -Upostgres
 
-
-psql  -d banlist -U postgres -f dump_22-02-2021_10_56_27.sql
 
 Facebook Login
  - https://www.thaicreate.com/community/php-facebook-login-api-sdk-v5.html
@@ -140,6 +140,7 @@ Elasticsearch Drupal 8-9
  - https://www.lullabot.com/articles/indexing-content-from-drupal-8-to-elasticsearch
  - https://medium.com/@ashutoshsngh67/intergration-of-elasticsearch-with-drupal-8-26d2ed56a47c
  - https://www.drupal.org/docs/8/modules/search-api/developer-documentation/executing-a-search-in-code
+ - https://discuss.elastic.co/t/unable-to-set-password-for-elastic-7-1-1/186160/3
 
 Redux
  - https://code.tutsplus.com/tutorials/using-redux-in-a-react-native-app--cms-36001
@@ -375,3 +376,110 @@ dpm($data);
  - console https://dashboard.bugfender.com/bf2/#/bf/app/21292/instructions
 
 
+ Delete file on git server
+ https://stackoverflow.com/questions/38983153/git-ignore-env-files-not-working
+
+
+
+ React native  Layout image
+ https://stackoverflow.com/questions/61528156/trying-to-merge-4-table-cell-of-33-image-grid-in-react-native
+
+
+---- Search api ----
+https://medium.com/@easternstandard/how-to-configure-drupal-8-text-search-to-return-better-more-intuitive-search-results-fe0a78136ad7
+
+https://gist.github.com/WengerK/9523cb4ce9f7e6c220ce0b20773a3ce8
+
+---- Search api ----
+
+
+Node kill post : 3000
+ps -ef | grep node
+# or 
+ps aux | grep node
+
+kill -9 PROCESS_ID 
+
+
+
+///////////////////////////////////////////////////////
+
+Creating custom Text Selection actions with ACTION_PROCESS_TEXT
+https://medium.com/androiddevelopers/custom-text-selection-actions-with-action-process-text-191f792d2999#.h6377bc8j
+
+https://dev.to/bigaru/providing-custom-text-selection-actions-in-android-1akc
+
+China language
+https://www.programmersought.com/article/9272124547/
+
+https://github.com/jicanghai37927/WhatsAndroid
+
+https://mobikul.com/passing-information-from-java-to-javascript-in-react-native/
+
+///////////////////////////////////////////////////////
+
+
+/// React-native optimized 
+https://stackoverflow.com/questions/61043847/react-native-bad-app-performance-after-loading-images
+
+/// React-native Flatlists -- Performance settings
+https://stackoverflow.com/questions/55032060/react-native-lazy-loading-250-images-in-a-scroll-view
+
+
+/// React-native > Android app memory
+https://shift.infinite.red/react-native-android-app-memory-investigation-55695625da9c
+
+
+Perferment react-native clear memory
+https://dev.to/otamnitram/react-useeffect-cleanup-how-and-when-to-use-it-2hbm
+
+
+
+
+
+
+
+
+
+fetch Data
+
+use Drupal\search_api\Entity\Index;
+
+$index = Index::load('content_back_list');
+$query = $index->query();
+
+// Change the parse mode for the search.
+$parse_mode = \Drupal::service('plugin.manager.search_api.parse_mode')->createInstance('direct');
+$parse_mode->setConjunction('OR');
+$query->setParseMode($parse_mode);
+
+$query->addCondition('type', 'back_list');
+// $query->addCondition('nid', 70260, '<');
+$query->sort('nid', 'DESC');
+
+$query->range(2,2);
+
+// $query->sort('field1', 'DESC');
+// $query->sort('field2', 'ASC');
+
+ // Execute the search.
+ $results = $query->execute();
+
+// dpm( count($results) );
+
+$count = count($results->getResultItems());
+
+ // dpm( $count );
+
+foreach ($results as $result) {
+   $result_nid    = $result->getField('nid')->getValues();
+   dpm(  $result_nid );
+}
+
+
+
+
+
+
+/// REACT_HOOK ///
+https://dev.to/ltsharma/performance-optimisation-react-native-with-hooks-a77

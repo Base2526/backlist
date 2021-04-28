@@ -1,307 +1,443 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
-import React, {Component, } from 'react';
+import React from 'react';
 import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
+  SectionList,
+  FlatList,
   TouchableOpacity,
-  TextInput,
-  ActivityIndicator,
-  Animated,
+  Text,
+  View,
+  Image,
+  SafeAreaView,
+  AsyncStorage,
   Platform,
-  FlatList
+  StatusBar 
 } from 'react-native';
+import { Dimensions } from 'react-native';
+import { SearchBar } from 'react-native-elements';
 
-// import {
-//   Header,
-//   LearnMoreLinks,
-//   Colors,
-//   DebugInstructions,
-//   ReloadInstructions,
-// } from 'react-native/Libraries/NewAppScreen';
+import { connect } from 'react-redux';
 
-import { useNavigation } from '@react-navigation/native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import Feather from 'react-native-vector-icons/Feather';
 
-const axios = require('axios');
-var Buffer = require('buffer/').Buffer
+// import * as historys from './utils/historys';
 
-import ActionButton from 'react-native-action-button';
-import Spinner from 'react-native-loading-spinner-overlay';
+import { addHistory, deleteHistory } from './actions/user';
 
-import {API_URL, API_TOKEN} from "@env"
-
-import DropDownPicker from 'react-native-dropdown-picker';
-import Icon from 'react-native-vector-icons/Feather';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
-
-import { NumberFormat } from './Utils'
-
-class SearchScreen extends Component {
+// https://aboutreact.com/react-native-sectionlist/
+class MyListItem extends React.PureComponent {
   constructor(props) {
     super(props);
-    this.state = {key_word: "", 
-                  spinner: false, 
-                  
-                  execution_time:'', 
-                  count:'',
-                  datas:[], 
-                  offset: 0,
-                
-                  loading: false}
-
-    this.handleSearch = this.handleSearch.bind(this)
+    this.state = {
+    isSelected: false,
+    };
   }
 
-  componentDidMount(){
-
-  }
-
-  handleSearch= () => {
-  
-    let {key_word, offset} = this.state
-    console.log(key_word)
-
-    let _this = this;
-    if(key_word.trim() == ""){
-      alert('Empty key word.');
-    }else{
-      if(!offset){
-        _this.setState({spinner: true, datas:[]})
-      }else{
-        _this.setState({loading: true})
-      }
-      
-      axios.post(`${API_URL}/api/search?_format=json`, {
-        key_word,
-        offset
-      }, {
-        headers: { 
-          'Authorization': `Basic ${API_TOKEN}` 
-        }
-      })
-      .then(function (response) {
-        let results = response.data
-        // console.log()
-        if(results.result){
-          // true
-          console.log('true');
-          // console.log(results);
-  
-          let {execution_time, datas, count} = results;
-          // console.log(execution_time);
-          // console.log(count);
-          // console.log(datas);
-
-          if(datas && datas.length > 0){
-
-            console.log(datas)
-            _this.setState({spinner: false, execution_time, datas:[ ..._this.state.datas, ...datas], count, loading: false});
-          }else{
-
-            _this.setState({spinner: false, loading: false})
-            alert('Empty result.');
-          }
-          
-        }else{
-          // false
-          console.log(results);
-
-          _this.setState({spinner: false, loading: false})
-        }
-      })
-      .catch(function (error) {
-
-        _this.setState({spinner: false, loading: false})
-
-        console.log(error);
-      });
-    }
-  }
-
-  renderItem = (item) =>{
-    console.log(item.id)
-    const { navigation } = this.props;
-    return (
-        <TouchableOpacity 
-            key={item.id}
-            style={{padding:5}}
-            onPress={()=>{
-              navigation.navigate('detail', {data:item})
-            }}
-          >
-          {/* <Image source={{uri:item.photo}}  style={{width:60, height:60,borderRadius:30}} /> */}
-          <View style={{ flex:1, backgroundColor:'#fff', padding:10 }}>
-            {/*      'name'    => $name, 
-                      'surname' => $surname,  */}
-            <View style={{flexDirection:'row'}}>
-              <Text style={{fontWeight:"bold"}}>ชื่อ-นามสกุล :</Text>
-              <Text>{item.name} {item.surname}</Text>
-            </View>
-            <View style={{flexDirection:'row'}}>
-              <Text style={{fontWeight:"bold"}}>สินค้า/ประเภท :</Text>
-              <Text>{item.title}</Text>
-            </View>
-            <View style={{flexDirection:'row'}}>
-              <Text style={{fontWeight:"bold"}}>ยอดเงิน :</Text>
-              <Text>{NumberFormat(Number(item.transfer_amount))}</Text>
-            </View>
-            <View style={{flexDirection:'row'}}>
-                    <Text style={{fontWeight:"bold"}}>วันโอนเงิน :</Text>
-                    <Text>{item.transfer_date ==='' ? '-' : item.transfer_date}</Text>
-                </View>
-            <View style={{flexDirection:'column'}}>
-              <Text style={{fontWeight:"bold"}}>รายละเอียดเพิ่มเติม :</Text>
-              <Text>{item.detail}</Text>
-            </View>
-            
-          </View>
-          {/* <TouchableOpacity style={{height:50,width:50, justifyContent:"center",alignItems:"center"}}>
-            <Text style={{color:"green"}}>Call</Text>
-          </TouchableOpacity> */}
-        </TouchableOpacity>
-      );
-  }
-
-  renderFooter = () => {
-    let {loading, offset} = this.state
-    return (
-      //Footer View with Load More button
-      <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={()=>{
-
-            // this.setState({offset: offset+1})
-            this.setState({
-              offset: offset+1
-            },() => {
-              this.handleSearch();
-            });
-          }}
-          >
-          <View style={{backgroundColor:'#fff', alignItems: 'center', padding:10, margin:5}}> 
-            <View style={{flexDirection:'row'}}>
-              <Text>Load More</Text>
-              {loading ? (
-                <ActivityIndicator color="black" style={{marginLeft: 8}} />
-              ) : null}
-            </View>
-          </View>
-      </TouchableOpacity>
-    );
+  _onPress = (changeSelected) => {
+    this.setState((previousState) => ({
+      isSelected: !previousState.isSelected,
+    }));
+    changeSelected();
   };
 
-  render(){
-    const { navigation } = this.props;
-
-    let {datas, execution_time, count} = this.state
-
-    let v = <View />
-    if(datas && datas.length){
-      v = <View style={{flex:1}}>
-          <Text style={{padding:5}}>Search time : {execution_time} / {count}</Text>
-          {/* <Text>Count : {count}</Text> */}
-          <FlatList
-                style={{flex:1}}
-                data={datas}
-                renderItem={({ item }) => this.renderItem(item)}
-  
-                ListFooterComponent={this.renderFooter()}
-                keyExtractor={(item, index) => String(index)}
-            />
-          </View>
-    }
+  render() {
     return (
-            <SafeAreaView style={{flex:1, marginTop:10}}>
-            <View style={styles.container}>
-              <Spinner
-                visible={this.state.spinner}
-                textContent={'Loading...'}
-                textStyle={styles.spinnerTextStyle}/>  
-               <TextInput
-                style={{height: 40, 
-                        borderWidth: .5,
-                        paddingTop: 10}}
-                ref= {(el) => { this.key_word = el; }}
-                onChangeText={(key_word) => this.setState({key_word})}
-                value={this.state.key_word}
-                onSubmitEditing={
-                  this.handleSearch
-                }/>            
+      <TouchableOpacity
+        onPress={() => {
+          let { id, section } = this.props;
+          console.log(id, section);
+        }}>
+        <View
+          style={{
+            backgroundColor: 'white',
+            padding: 10,
+            flexDirection: 'row',
+            alignItems: 'center',
+            flex: 1,
+          }}>
+          <View style={{ alignItems: 'center', flex: 1 }}>
+            {this.props.section == 0 && (
+              <Ionicons name="time-outline" size={20} color="black" />
+            )}
+            {this.props.section == 1 && (
+              <AntDesign name="plussquareo" size={20} color="black" />
+            )}
+          </View>
+          <Text style={{ flex: 8, fontSize: 15, paddingTop: 2 }}>
+            {this.props.title} - {this.props.id} - {this.props.section}
+          </Text>
+          <View style={{ flex: 1 }}>
+            {this.props.section == 0 && (
               <TouchableOpacity
-                style={styles.button}
-                onPress={this.handleSearch}>
-                <Text>Search</Text>
+                onPress={() => {
+                  this.insertSearch(this.props.title);
+                }}
+                style={{ padding: 5, borderRadius: 20 }}>
+                <Ionicons name="close-outline" size={20} color="black" />
               </TouchableOpacity>
-              {/*  execution_time:'', 
-                  count:'', */}
-              
-              { v }
-            </View>
-            </SafeAreaView>)
+            )}
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    // justifyContent: "center",
-    paddingHorizontal: 10
-  },
-//   scrollView: {
-//     backgroundColor: Colors.lighter,
-//   },
-  engine: {
-    position: 'absolute',
-    right: 0,
-  },
-//   body: {
-//     backgroundColor: Colors.white,
-//   },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    // color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    // color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    // color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
-  },
-  button: {
-    marginTop: 10,
-    alignItems: "center",
-    backgroundColor: "#DDDDDD",
-    padding: 10
-  },
-  spinnerTextStyle: {
-    color: '#FFF'
-  }
-});
+class SearchScreen extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      hasSelected: false,
+      search: '',
 
-export default SearchScreen;
+      searchHistory: [], // search history array
+
+      searchText: null,
+      isFocused: false
+    };
+  }
+
+  // static navigationOptions = {
+  //   header: null,
+  // };
+
+  // state = {
+  //   searchText: null,
+  // };
+
+  _handleQueryChange = searchText => {
+    this.setState({ searchText });
+  };
+
+  _executeSearch = () => {
+    alert('do search!');
+  };
+
+  componentDidMount(){
+    // const { route, navigation, historys } = this.props;
+  }
+
+  changeSelected = () => {
+    this.setState((previousState) => ({
+      hasSelected: !previousState.hasSelected,
+    }));
+  };
+
+  _keyExtractor = (item, index) => item.id;
+
+  _ItemSeparatorComponent = () => <View />;
+
+  _renderSectionListItem = ({ item }) => (
+    <FlatList
+      data={item}
+      renderItem={this._renderItem}
+      keyExtractor={this._keyExtractor}
+      keyExtractor={(item, index) => String(index)}
+    />
+  );
+
+  _renderItem = ({ item }) => {
+    const { route, navigation, deleteHistory } = this.props;
+    let {title, id, section, ex} = item
+    switch(section){
+      case '0':{
+        return (<TouchableOpacity onPress={() => {
+                  // console.log(this.props)
+                  this.insertSearch(title);
+                  navigation.navigate('result_search', {key_search:title})
+                }}>
+                  <View
+                    style={{
+                      backgroundColor: 'white',
+                      padding: 10,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      flex: 1,
+                    }}>
+                    <View style={{ alignItems: 'center', flex: 1 }}>
+                    <Ionicons name="time-outline" size={20} color="gray" /> 
+                    </View>
+                    <Text style={{ flex: 8, fontSize: 15, paddingTop: 2, color: 'gray' }}>
+                      {title}
+                    </Text>
+                    <View style={{ alignItems: 'center', flex: 1 }}>
+                      {section == 0 && (
+                        <TouchableOpacity
+                          onPress={() => {
+                            // this.insertSearch(title);
+
+                            /*
+                            let index = this.state.searchHistory.indexOf(title);
+
+                            // let tempArr = historys.arrDelete(this.state.searchHistory, index);
+                            // tempArr.unshift(title);
+                            // historys.setItem('searchHistory', tempArr);
+
+                            // local history none search content
+                            // let tempArr = this.state.searchHistory;
+                            // tempArr.unshift(title);
+                            // historys.setItem("searchHistory", tempArr);
+
+                            var tempArr = [...this.state.searchHistory]; // make a separate copy of the array
+                            // var index = array.indexOf(e.target.value)
+                            if (index !== -1) {
+                              tempArr.splice(index, 1);
+                              historys.setItem("searchHistory", tempArr);
+
+                              this.getHistory()
+                            }
+                            // console.log(this.state.searchHistory)
+                            // console.log(tempArr)
+                            */
+                            
+                            deleteHistory(title)
+                          }}
+                          style={{ padding: 5, borderRadius: 20 }}>
+                          <Ionicons name="close-outline" size={25} color="gray" />
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              )
+      }
+
+      case '1':{
+         return (<TouchableOpacity onPress={() => {
+
+                    let text = '';
+                    switch(id){
+                      case '0':{
+                        text = 'ti:';
+                        break;
+                      }
+
+                      case '1':{
+                        text = 'ns:';
+                        break;
+                      }
+
+                      case '2':{
+                        text = 'in:';
+                        break;
+                      }
+                    }
+                    this.updateSearch(text)
+
+                    console.log(text)
+
+                    this.searchBarInput.focus();
+                  }}>
+                  <View
+                  style={{
+                      backgroundColor: 'white',
+                      padding: 10,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      flex: 1,
+                    }}>
+                    <View style={{ flex: 1 }}>
+                      <AntDesign name="plussquareo" size={20} color="gray" />
+                    </View>
+                    <Text style={{ flex: 4, fontSize: 15, paddingTop: 2, color: 'gray' }}>
+                      {title}
+                    </Text>
+                    <View style={{ flex: 4}}>
+                     <Text style={{ flex: 4, fontSize: 15, paddingTop: 2, color: 'gray', textAlign: 'right'  }}>
+                      {ex}
+                    </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              );
+      }
+
+      default:{
+        return <View />
+      }
+    }
+  };
+
+  _renderSectionHeader = ({ section }) => (
+    <Text
+      style={{ fontSize: 15, fontWeight: 'bold', color: 'black', margin: 10 }}>
+      {section.title}
+    </Text>
+  );
+
+  updateSearch = (search) => {
+    this.setState({ search });
+  };
+
+  // Get history
+  // getHistory() {
+  //   // Query local history
+  //   historys.getItem('searchHistory').then((data) => {
+  //     if (data == null) {
+  //       this.setState({
+  //         searchHistory: [],
+  //       });
+  //     } else {
+  //       this.setState({
+  //         searchHistory: data,
+  //       });
+  //     }
+  //   });
+  // }
+
+  // save the search tag
+  insertSearch(text) {
+    // if (this.state.searchHistory.indexOf(text) != -1) {
+    //   // local history already searched
+    //   let index = this.state.searchHistory.indexOf(text);
+    //   let tempArr = historys.arrDelete(this.state.searchHistory, index);
+    //   tempArr.unshift(text);
+    //   historys.setItem('searchHistory', tempArr);
+    // } else {
+    //   // local history none search content
+    //   let tempArr = this.state.searchHistory;
+    //   tempArr.unshift(text);
+    //   historys.setItem('searchHistory', tempArr);
+    // }
+
+    // this.setState({ search:'' });
+
+    // this.getHistory() 
+
+    this.props.addHistory(text)
+  }
+
+  render() {
+    let { search, searchHistory, isFocused } = this.state;
+    const { navigation, historys } = this.props;
+
+    let _historys = [...historys].slice(0, 5); 
+
+    const sections = [
+      {
+        title: 'Recent searches',
+        data: [_historys.map((title, id) => {return {section : '0', id, title}})],
+      },
+      {
+        title: 'Narrow your search',
+        data: [
+          [
+            { section: '1', id: '0', title: 'ti:', ex: 'Ex. title' },
+            { section: '1', id: '1', title: 'ns:', ex: 'Ex. name subname' },
+            { section: '1', id: '2', title: 'in:', ex: 'Ex. 33209xxxxxx72' },
+          ],
+        ],
+      },
+    ];
+    
+    return (
+      <SafeAreaView style={{ flex: 1, paddingTop: Platform.OS === 'android' ? 0 : 0, backgroundColor:'white' }}>
+        <View style={{ flex: 1, backgroundColor:'white' }}>
+          <View style={{flexDirection:'row'}}>       
+            {!isFocused && <View  style={{flex:1, justifyContent:'center', alignItems:"center"}}>
+                              <TouchableOpacity  
+                              style={{borderRadius:30, padding:5 }} 
+                              onPress={()=>{
+                                navigation.goBack()
+                              }}>
+                                <Feather name="arrow-left" size={25} color="gray" />
+                              </TouchableOpacity>
+                            </View>}     
+            <SearchBar
+              // lightTheme
+              ref={(input) => { this.searchBarInput = input; }}
+              onClear={() => {
+                console.log('onClear');
+              }}
+
+              placeholder="Input key word search"
+              onChangeText={this.updateSearch}
+              // onClear={(text) => searchFilterFunction('')}
+              value={search}
+              // icon = {{type: 'material-community', color: '#86939e', name: 'share' }}
+              // clearIcon = {{type: 'material-community', color: '#86939e', name: 'share' }}
+              // clearIcon={{
+              //   iconStyle: { margin: 10 },
+              //   containerStyle: { margin: -10 },
+              // }}
+              clearIcon={ search == '' ? false : true}
+              searchIcon={{ size: 24 }}
+              // searchIcon={false}
+              onSubmitEditing={() => {
+                // search
+
+                console.log('search : ', search)
+                if(search.trim() == ""){
+                  alert('กรุณากรอกคำค้น.');
+                }else if(search.trim().length < 4){
+                  alert('ต้องมากกว่า 3 ตัวอักษร');
+                }else{
+                  this.insertSearch(search);
+                  navigation.navigate('result_search', {key_search:search})
+                }
+                
+              }}
+              // autoFocus={true}
+              // containerStyle={{flex:8, backgroundColor:'white'}}
+
+              // inputStyle={{backgroundColor: 'white'}}
+              // containerStyle={{flex:8,  /*borderWidth: 1, borderRadius: 5, backgroundColor: 'green'*/}}
+              // placeholderTextColor={'#g5g5g5'}
+
+              inputContainerStyle={{backgroundColor: 'white'}}
+              leftIconContainerStyle={{backgroundColor: 'white'}}
+              inputStyle={{backgroundColor: 'white'}}
+              containerStyle={{
+                backgroundColor: 'white',
+                justifyContent: 'space-around',
+                borderTopWidth:0,
+                borderBottomWidth:0,
+                flex:8,
+              }}
+
+              // lightTheme
+              onFocus={() =>{
+                this.setState({isFocused: true})
+              } }
+              onBlur={() => {
+                this.setState({isFocused: false})
+              }}
+
+              leftIcon={
+                <Feather name="arrow-left" size={25} color="gray" />
+                // <Icon
+                //   name={focus ? "arrow-right" : "magnify"}
+                //   type="material-community"
+                //   color="rgba(0, 0, 0, 0.54)"
+                //   onPress={focus && this.searchbar && this.searchbar.cancel}
+                // />
+              }
+            />
+          </View>
+          <SectionList
+            sections={sections}
+            keyExtractor={(item, index) => item + index}
+            renderItem={this._renderSectionListItem}
+            renderSectionHeader={this._renderSectionHeader}
+            // numColumns={3}
+            columnWrapperStyle={{ borderWidth: 3, borderColor: '#f4f4f4' }}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
+}
+
+const mapStateToProps = state => {
+  return{
+    user: state.user.data,
+    historys: state.user.historys,
+  }
+}
+
+const mapDispatchToProps = {
+  addHistory, 
+  deleteHistory
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SearchScreen)

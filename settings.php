@@ -721,9 +721,10 @@ $settings['trusted_host_patterns'] = [
      '^localhost$',
      '^.+\.localhost$',
      '^d9$',
-     '^.+\.d9$',
+     '^.+\.d9$'
 ];
 
+// http://157.230.240.133/
 /**
  * The default list of directories that will be ignored by Drupal's file API.
  *

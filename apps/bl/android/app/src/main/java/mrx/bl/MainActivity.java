@@ -3,9 +3,11 @@ package mrx.bl;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.view.WindowManager;
 
 import com.facebook.react.ReactActivity;
 
@@ -31,12 +33,31 @@ public class MainActivity extends ReactActivity {
     SplashScreen.show(this);  // here
     super.onCreate(savedInstanceState);
 
+
+
     try {
       PackageInfo info = getPackageManager().getPackageInfo("mrx.bl", PackageManager.GET_SIGNATURES);
       for (Signature signature : info.signatures) {
         MessageDigest md = MessageDigest.getInstance("SHA");
         md.update(signature.toByteArray());
         Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+      }
+
+      Log.d("Build.VERSION_CODES", String.valueOf(Build.VERSION.SDK_INT));
+      Log.d("Build.VERSION_CODES", String.valueOf(Build.VERSION_CODES.LOLLIPOP_MR1));
+
+//      if ( String.valueOf(Build.VERSION.SDK_INT).equals(String.valueOf(Build.VERSION_CODES.LOLLIPOP_MR1))) {
+////        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+//          getWindow().setFlags(
+//                  WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+//                  WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+////        }
+//      }
+
+      if (Build.VERSION.SDK_INT != Build.VERSION_CODES.LOLLIPOP_MR1) {
+        getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
       }
     } catch (PackageManager.NameNotFoundException e) {
       e.printStackTrace();

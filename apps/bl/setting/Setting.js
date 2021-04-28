@@ -7,6 +7,8 @@ import BaseIcon from './Icon'
 import Chevron from './Chevron'
 import InfoText from './InfoText'
 
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
 const styles = StyleSheet.create({
   scroll: {
     backgroundColor: 'white',
@@ -56,34 +58,32 @@ class Setting extends Component {
   }
 
   render() {
-
-   
     // const { avatar, name, emails: [firstEmail] } = this.props
     return (
       <ScrollView style={styles.scroll}>
-        {/* <View style={styles.userRow}>
+        <View style={styles.userRow}>
           <View style={styles.userImage}>
             <Avatar
               rounded
               size="large"
-              source={{uri: avatar}}
+              source={{uri: 'avatar'}}
             />
           </View>
           <View>
-            <Text style={{ fontSize: 16 }}>{name}</Text>
+            <Text style={{ fontSize: 16 }}>name</Text>
             <Text
               style={{
                 color: 'gray',
                 fontSize: 16,
               }}
             >
-              {firstEmail.email}
+              firstEmail.email
             </Text>
           </View>
-        </View> */}
+        </View>
 
         <InfoText text="Account" />
-        <View>
+        <View style={{flex:1}}>
           <ListItem
             hideChevron
             title="Push Notifications"
@@ -95,15 +95,16 @@ class Setting extends Component {
               />
             }
             leftIcon={
-              <BaseIcon
-                containerStyle={{
-                  backgroundColor: '#FFADF2',
-                }}
-                icon={{
-                  type: 'material',
-                  name: 'notifications',
-                }}
-              />
+              // <BaseIcon
+              //   containerStyle={{
+              //     backgroundColor: '#FFADF2',
+              //   }}
+              //   icon={{
+              //     type: 'material',
+              //     name: 'notifications',
+              //   }}
+              // />
+              <Ionicons name="search-outline" size={25} color={'grey'} />
             }
           />
           <ListItem

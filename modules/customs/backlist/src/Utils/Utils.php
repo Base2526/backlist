@@ -28,6 +28,8 @@ use voku\helper\SimpleHtmlDomInterface;
 use voku\helper\SimpleHtmlDomNode;
 use voku\helper\SimpleHtmlDomNodeInterface;
 
+use Drupal\image\Entity\ImageStyle;
+
 class Utils extends ControllerBase {
 
   public static function consent_template_api($lang){
@@ -2401,6 +2403,24 @@ class Utils extends ControllerBase {
     return false;
 	}
 
+  // https://gist.github.com/slivorezka/925dff0369e8eddc7e4ffa4801ab0240
+  public static function ImageStyle_BN($fid, $image_style = 'thumbnail'){
+    try {
+      // Load file.
+      $file = \Drupal::entityTypeManager()->getStorage('file')->load($fid);// File::load($fid);
+      // Get origin image URI.
+      $image_uri = $file->getFileUri();
+      return preg_replace("/^https:/i", "http:",  ImageStyle::load($image_style)->buildUrl($image_uri) );
+
+      // $path = ImageStyle::load($image_style)->buildUrl($image_uri);
+      // $type = pathinfo($path, PATHINFO_EXTENSION);
+      // $data = file_get_contents($path);
+      // return 'data:image/' . $type . ';base64,' . base64_encode($data);
+    } catch (\Throwable $e) {
+      \Drupal::logger('ImageStyle_BN')->notice('%e, %fid', array('%e'=>$e->__toString(), '%fid'=> serialize($fid)  ) );
+    }
+  }
+
   public static function get_file_url($target_id){   
     $file = \Drupal::entityTypeManager()->getStorage('file')->load($target_id);
     $url = file_create_url($file->getFileUri());
@@ -3947,9 +3967,6 @@ class Utils extends ControllerBase {
 
      ///////////////
   
-
-
-    
   }
 
   private static function Syc_Blacklistseller_Save($content){
@@ -4019,5 +4036,269 @@ class Utils extends ControllerBase {
       'field_id_blacklistseller'   => $id_blacklistseller
     ]);
     $node->save();
+  }
+
+  public static function node_login($unique_id){
+
+    $global       = ConfigPages::config('banlist');
+    $node_server  = '';
+    if(isset( $global )){
+      $node_server =  $global->get('field_node_server')->value;
+    }
+
+    $data_obj = [
+      "uid" => \Drupal::currentUser()->id(),
+      "unique_id" => $unique_id
+    ];
+    $ch = curl_init();
+    curl_setopt_array($ch, array(
+      CURLOPT_URL => $node_server . "/api/login",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_HEADER => true,
+      //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_POSTFIELDS => json_encode($data_obj),
+      CURLOPT_HTTPHEADER => array(
+        // "Authorization: Basic " . $basic_auth,
+        "Accept: application/json",
+        "Content-Type: application/json",
+      ),
+    ));
+
+    $response = curl_exec($ch);
+    // dpm($response);
+    // \Drupal::logger('Login : response')->notice( serialize($response) );
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    // dpm($httpcode);
+    // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
+
+    // \Drupal::logger('Login : response')->notice( serialize($response) );
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    // dpm($httpcode);
+    // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
+
+    if($httpcode == 200){
+      // $response = json_decode($response);
+      $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+      $header = substr($response, 0, $header_size);
+      $body = substr($response, $header_size);
+      $body = json_decode($body);
+
+      if($body->result){
+        return $body->followUps;
+      }
+    }
+
+    curl_close($ch);
+
+    return array();
+  }
+
+  // fetch____follow_up
+  public static function node_fetch____follow_up(){
+
+    $global       = ConfigPages::config('banlist');
+    $node_server  = '';
+    if(isset( $global )){
+      $node_server =  $global->get('field_node_server')->value;
+    }
+
+    $data_obj = [
+      "uid" => \Drupal::currentUser()->id()
+    ];
+    $ch = curl_init();
+    curl_setopt_array($ch, array(
+      CURLOPT_URL => $node_server . "/api/fetch____follow_up",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_HEADER => true,
+      //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_POSTFIELDS => json_encode($data_obj),
+      CURLOPT_HTTPHEADER => array(
+        // "Authorization: Basic " . $basic_auth,
+        "Accept: application/json",
+        "Content-Type: application/json",
+      ),
+    ));
+
+    $response = curl_exec($ch);
+    // dpm($response);
+    // \Drupal::logger('Login : response')->notice( serialize($response) );
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    // dpm($httpcode);
+    // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
+
+    // \Drupal::logger('Login : response')->notice( serialize($response) );
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    // dpm($httpcode);
+    // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
+
+    if($httpcode == 200){
+      // $response = json_decode($response);
+      $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+      $header = substr($response, 0, $header_size);
+      $body = substr($response, $header_size);
+      $body = json_decode($body);
+
+      if($body->result){
+        return $body->followUps;
+      }
+    }
+
+    curl_close($ch);
+
+    return array();
+  }
+
+  public static function node_follower_post($posts){
+
+    $global       = ConfigPages::config('banlist');
+    $node_server  = '';
+    if(isset( $global )){
+      $node_server =  $global->get('field_node_server')->value;
+    }
+
+    $data_obj = [
+      "posts" => $posts
+    ];
+    $ch = curl_init();
+    curl_setopt_array($ch, array(
+      CURLOPT_URL => $node_server . "/api/follower_post",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_HEADER => true,
+      //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_POSTFIELDS => json_encode($data_obj),
+      CURLOPT_HTTPHEADER => array(
+        // "Authorization: Basic " . $basic_auth,
+        "Accept: application/json",
+        "Content-Type: application/json",
+      ),
+    ));
+
+    $response = curl_exec($ch);
+    // dpm($response);
+    // \Drupal::logger('Login : response')->notice( serialize($response) );
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    // dpm($httpcode);
+    // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
+
+    // \Drupal::logger('Login : response')->notice( serialize($response) );
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    // dpm($httpcode);
+    // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
+
+    if($httpcode == 200){
+      // $response = json_decode($response);
+      $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+      $header = substr($response, 0, $header_size);
+      $body = substr($response, $header_size);
+      $body = json_decode($body);
+
+      if($body->result){
+        return $body->follower_post;
+      }
+    }
+
+    curl_close($ch);
+
+    return array();
+  }
+
+  public static function node_my_apps($uid){
+
+    $global       = ConfigPages::config('banlist');
+    $node_server  = '';
+    if(isset( $global )){
+      $node_server =  $global->get('field_node_server')->value;
+    }
+
+    $data_obj = [
+      "uid" => $uid
+    ];
+    $ch = curl_init();
+    curl_setopt_array($ch, array(
+      CURLOPT_URL => $node_server . "/api/my_apps",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_HEADER => true,
+      //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_POSTFIELDS => json_encode($data_obj),
+      CURLOPT_HTTPHEADER => array(
+        // "Authorization: Basic " . $basic_auth,
+        "Accept: application/json",
+        "Content-Type: application/json",
+      ),
+    ));
+
+    $response = curl_exec($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if($httpcode == 200){
+      return true;
+    }
+
+    return false;
+  }
+
+  // /api/fetch_notification
+  public static function node_fetch_notification(){
+
+    $global       = ConfigPages::config('banlist');
+    $node_server  = '';
+    if(isset( $global )){
+      $node_server =  $global->get('field_node_server')->value;
+    }
+
+    $data_obj = [
+      "uid" => \Drupal::currentUser()->id()
+    ];
+    $ch = curl_init();
+    curl_setopt_array($ch, array(
+      CURLOPT_URL => $node_server . "/api/fetch_notification",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_HEADER => true,
+      //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_POSTFIELDS => json_encode($data_obj),
+      CURLOPT_HTTPHEADER => array(
+        // "Authorization: Basic " . $basic_auth,
+        "Accept: application/json",
+        "Content-Type: application/json",
+      ),
+    ));
+
+    $response = curl_exec($ch);
+    // dpm($response);
+    // \Drupal::logger('Login : response')->notice( serialize($response) );
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    // dpm($httpcode);
+    // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
+
+    // \Drupal::logger('Login : response')->notice( serialize($response) );
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    // dpm($httpcode);
+    // \Drupal::logger('Login : httpcode')->notice( serialize($httpcode) );
+
+    \Drupal::logger('node_fetch_notification : httpcode')->notice( serialize($httpcode) );
+
+    if($httpcode == 200){
+      // $response = json_decode($response);
+      $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+      $header = substr($response, 0, $header_size);
+      $body = substr($response, $header_size);
+      $body = json_decode($body);
+
+      \Drupal::logger('node_fetch_notification : body')->notice( serialize($body->notification) );
+
+      if($body->result){
+        return $body->notification;
+      }
+    }
+
+    curl_close($ch);
+
+    return array();
   }
 }
