@@ -193,7 +193,7 @@ class HomeScreen extends Component {
     })
     .then(function (response) {
       let results = response.data
-      console.log('end : > ')
+      console.log('end : > ', results)
       if(results.result){
         // true
         let {execution_time, datas, count} = results;

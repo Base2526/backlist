@@ -27,10 +27,10 @@ services:
       - ./composer.lock:/opt/drupal/composer.lock
 
       # Local
-      # - ./files:/opt/drupal/web/sites/default/files
+      - ./files:/opt/drupal/web/sites/default/files
 
       # Cloud
-      - /mnt/volume_sgp1_09/banlist.info/files:/opt/drupal/web/sites/default/files
+      # - /mnt/volume_sgp1_09/banlist.info/files:/opt/drupal/web/sites/default/files
 
       # SSL
       # - ./000-default.conf:/etc/apache2/sites-available/000-default.conf

@@ -22,6 +22,16 @@ search.form:
   requirements:
     _access: 'TRUE'
 
+# WebSearchForm
+websearch.form:
+  path: '/websearch_form'
+  # path: '/printing_view_form/create/{nid}'
+  defaults:
+    _form: '\Drupal\backlist\Form\WebSearchForm'
+  requirements:
+    _access: 'TRUE'
+
+
 filter_by_person.form:
   path: '/filter_by_person/{name}/{surname}'
   defaults:
@@ -74,6 +84,22 @@ report_view.form:
     from: 'frontpage'
   requirements:
     _permission: 'access content'
+
+web_search.form:
+  path: '/web_search_pages'
+  defaults:
+    # _form: '\Drupal\backlist\Form\WebSearchPage'
+    _controller: '\Drupal\backlist\Plugin\Page\WebSearchPage::page'
+  requirements:
+    _permission: 'access content'
+
+# frontpage:
+#   path: '/frontpage'
+#   defaults:
+#     _controller: '\Drupal\backlist\Plugin\Page\FrontPage::page'
+#     # _form: '\Drupal\backlist\Form\SearchForm'
+#   requirements:
+#     _access: 'TRUE'
 
 # ImportAndExportForm
 import_and_export.form:

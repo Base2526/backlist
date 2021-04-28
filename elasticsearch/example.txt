@@ -1,0 +1,44 @@
+use Drupal\search_api\Entity\Index;
+
+$index = Index::load('content_back_list');
+$query = $index->query();
+
+// Change the parse mode for the search.
+$parse_mode = \Drupal::service('plugin.manager.search_api.parse_mode')->createInstance('direct');
+$parse_mode->setConjunction('OR');
+$query->setParseMode($parse_mode);
+
+$query->addCondition('type', 'back_list');
+// $query->addCondition('nid', 70260, '<');
+
+
+// $query->keys('45246');
+// $query->setFulltextFields(["field_images"]);
+
+// $query->sort('nid', 'DESC');
+// $query->range(2,1);
+
+// $query->sort('field1', 'DESC');
+// $query->sort('field2', 'ASC');
+
+// $query->range(0, 100000);
+
+ // Execute the search.
+ $results = $query->execute();
+
+// dpm( count($results) );
+
+$count = count($results->getResultItems());
+
+ // dpm( $count );
+
+// get all result
+// dpm($query->execute()->getResultCount());
+
+foreach ($results as $result) {
+   $result_nid    = $result->getField('nid')->getValues();
+   dpm(  $result_nid );
+
+   // $field_bank_account    = $result->getField('field_bank_wallet');
+   // dpm(  $result );
+}

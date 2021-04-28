@@ -39,49 +39,12 @@ class FrontPage extends ControllerBase {
   }
 
   public function page() {
-    /*
-    $backlists = array();
-    $nids_backlist = \Drupal::entityQuery('node')
-                  ->condition('type','back_list')
-                  ->condition('status', 1)
-                  // ->condition('field_type_privilege','57942')
-                  // ->range(0, 4)
-                  ->sort('changed' , 'DESC')
-                  ->execute();
-
-    foreach( Node::loadMultiple($nids_backlist) as $node ) {
-      $title        = $node->label();
-      $owner_id     = $node->getOwnerId();
-      $account      = User::load($owner_id);
-      $backlists[]  = array( 'owner_id'  =>  $owner_id, 
-                            'owner_name'=>  $account->getDisplayName(), 
-                            'title'     =>  $title);
-    }
-
-    // $user = User::load(\Drupal::currentUser()->id());
-    $block = [
-      '#theme'  => 'front-page',
-      '#cache'  => array("max-age" => 0),
-      '#backlists' => $backlists,
-      '#current_user_id' => \Drupal::currentUser()->id(),
-    ];
-    return $block;
-
-    */
-
+  
     $limit = 30;
 
     //====load filter controller
 	  $form['form'] = $this->formBuilder()->getForm('Drupal\backlist\Form\SearchForm');
  
-
-    /*
-     $url = \Drupal\Core\Url::fromRoute('<front>')
-            ->setRouteParameters(array( 'product_type'=>$product_type,
-                                        'sales_person_name'=>$sales_person_name, 
-                                        'reportor'=>$reportor, 
-                                        'page'=>$page));
-    */
 
     //Get parameter value while submitting filter form  
     $product_type       = \Drupal::request()->query->get('product_type');
@@ -183,7 +146,7 @@ class FrontPage extends ControllerBase {
 
                /*
                $options = ['absolute' => TRUE];
-$url_object = Drupal\Core\Url::fromRoute('entity.node.canonical', ['node' => $nid], $options);
+                $url_object = Drupal\Core\Url::fromRoute('entity.node.canonical', ['node' => $nid], $options);
 
                */
 

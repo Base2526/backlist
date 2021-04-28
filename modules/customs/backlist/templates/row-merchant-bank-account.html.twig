@@ -1,6 +1,7 @@
 <ul>
     {# {{ dump(items) }} #}
     {% for item in items %}
-        <li>{{item.bank_account}}: {{item.bank_wallet}}</li>
+        <li>{{item.bank_account}} {% if item.bank_wallet is not empty %} : {{item.bank_wallet}} {% endif %}</li>
     {% endfor %}
 </ul>
+
