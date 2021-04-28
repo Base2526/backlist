@@ -367,6 +367,11 @@ dpm($data);
  
  Animate card
  https://github.com/jacklam718/react-native-modals
+ 
+ 
+ React-native Logger
+ - https://github.com/bugfender/rn-bugfender#readme
+ - console https://dashboard.bugfender.com/bf2/#/bf/app/21292/instructions
 
 
  Delete file on git server
