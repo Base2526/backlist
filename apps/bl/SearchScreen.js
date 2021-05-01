@@ -12,7 +12,8 @@ import {
   StatusBar 
 } from 'react-native';
 import { Dimensions } from 'react-native';
-import { SearchBar } from 'react-native-elements';
+import { SearchBar, CheckBox } from 'react-native-elements';
+
 
 import { connect } from 'react-redux';
 
@@ -204,49 +205,49 @@ class SearchScreen extends React.PureComponent {
 
       case '1':{
          return (<TouchableOpacity onPress={() => {
+                    // let text = '';
+                    // switch(id){
+                    //   case '0':{
+                    //     text = 'ti:';
+                    //     break;
+                    //   }
 
-                    let text = '';
-                    switch(id){
-                      case '0':{
-                        text = 'ti:';
-                        break;
-                      }
+                    //   case '1':{
+                    //     text = 'ns:';
+                    //     break;
+                    //   }
 
-                      case '1':{
-                        text = 'ns:';
-                        break;
-                      }
+                    //   case '2':{
+                    //     text = 'in:';
+                    //     break;
+                    //   }
+                    // }
+                    // this.updateSearch(text)
 
-                      case '2':{
-                        text = 'in:';
-                        break;
-                      }
-                    }
-                    this.updateSearch(text)
-
-                    console.log(text)
+                    // console.log(text)
 
                     this.searchBarInput.focus();
                   }}>
                   <View
                   style={{
                       backgroundColor: 'white',
-                      padding: 10,
+                      // padding: 10,
                       flexDirection: 'row',
                       alignItems: 'center',
                       flex: 1,
                     }}>
                     <View style={{ flex: 1 }}>
-                      <AntDesign name="plussquareo" size={20} color="gray" />
+                      <CheckBox title={title} checked={true} />
+                      {/* <AntDesign name="plussquareo" size={20} color="gray" /> */}
                     </View>
-                    <Text style={{ flex: 4, fontSize: 15, paddingTop: 2, color: 'gray' }}>
+                    {/* <Text style={{ flex: 4, fontSize: 15, paddingTop: 2, color: 'gray' }}>
                       {title}
                     </Text>
                     <View style={{ flex: 4}}>
                      <Text style={{ flex: 4, fontSize: 15, paddingTop: 2, color: 'gray', textAlign: 'right'  }}>
                       {ex}
                     </Text>
-                    </View>
+                    </View> */}
                   </View>
                 </TouchableOpacity>
               );
@@ -322,13 +323,26 @@ class SearchScreen extends React.PureComponent {
         title: 'Narrow your search',
         data: [
           [
-            { section: '1', id: '0', title: 'ti:', ex: 'Ex. title' },
-            { section: '1', id: '1', title: 'ns:', ex: 'Ex. name subname' },
-            { section: '1', id: '2', title: 'in:', ex: 'Ex. 33209xxxxxx72' },
+            { section: '1', id: 'title', title: 'สินค้า/ประเภท', ex: 'Ex. title' },
+            // { section: '1', id: 'field_sales_person_name', title: 'ชื่อบัญชีผู้รับเงินโอน', ex: 'Ex. name subname' },
+            // { section: '1', id: 'field_sales_person_surname', title: 'นามสกุลบัญชีผู้รับเงินโอน', ex: 'Ex. 33209xxxxxx72' },
+            { section: '1', id: 'banlist_name_surname_field', title: 'ชื่อ-นามสกุล บัญชีผู้รับเงินโอน', ex: 'Ex. 33209xxxxxx72' },
+            { section: '1', id: 'field_id_card_number', title: 'เลขบัตรประชาชนคนขาย', ex: 'Ex. 33209xxxxxx72' },
+            { section: '1', id: 'body', title: 'รายละเอียด', ex: 'Ex. 33209xxxxxx72' },
+            { section: '1', id: 'banlist_book_bank_field', title: 'บัญชีธนาคาร', ex: 'Ex. 33209xxxxxx72' },
           ],
         ],
       },
     ];
+
+    /*
+        $options["title"] = "สินค้า/ประเภท";
+        $options["field_sales_person_name"] = "ชื่อบัญชีผู้รับเงินโอน";
+        $options["field_sales_person_surname"] = "นามสกุลบัญชีผู้รับเงินโอน";
+        $options["field_id_card_number"] = "เลขบัตรประชาชนคนขาย";
+        $options["body"] = "รายละเอียด";
+        $options["banlist_book_bank_field"] = "บัญชีธนาคาร";
+    */
     
     return (
       <SafeAreaView style={{ flex: 1, paddingTop: Platform.OS === 'android' ? 0 : 0, backgroundColor:'white' }}>

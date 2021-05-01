@@ -91,7 +91,7 @@ web_search.form:
     # _form: '\Drupal\backlist\Form\WebSearchPage'
     _controller: '\Drupal\backlist\Plugin\Page\WebSearchPage::page'
   requirements:
-    _permission: 'access content'
+    _access: 'TRUE'
 
 # frontpage:
 #   path: '/frontpage'
