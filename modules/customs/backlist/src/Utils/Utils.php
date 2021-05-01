@@ -4388,15 +4388,15 @@ class Utils extends ControllerBase {
 
         default:{
           // Set fulltext search keywords and fields.
-          $field_sales_person_name = 'field_sales_person_name';
-          $field_sales_person_surname = 'field_sales_person_surname';
-          if (in_array($field_sales_person_name, $fulltextFields) && in_array($field_sales_person_surname, $fulltextFields)){            
-            $fulltextFields = array_diff( $fulltextFields, [$field_sales_person_name, $field_sales_person_surname] );
+          // $field_sales_person_name = 'field_sales_person_name';
+          // $field_sales_person_surname = 'field_sales_person_surname';
+          // if (in_array($field_sales_person_name, $fulltextFields) && in_array($field_sales_person_surname, $fulltextFields)){            
+          //   $fulltextFields = array_diff( $fulltextFields, [$field_sales_person_name, $field_sales_person_surname] );
           
-            if (!in_array("banlist_book_bank_field", $fulltextFields)){
-              $fulltextFields[] = 'banlist_book_bank_field';
-            }
-          }
+          //   if (!in_array("banlist_book_bank_field", $fulltextFields)){
+          //     $fulltextFields[] = 'banlist_book_bank_field';
+          //   }
+          // }
 
           $query->keys($key_word);
           $query->setFulltextFields($fulltextFields);
@@ -4436,6 +4436,9 @@ class Utils extends ControllerBase {
       // $ids = implode(', ', array_keys($results->getResultItems()));
       // echo "Returned IDs: $ids.\n";
 
+      // get all result
+      $all_result_count = $query->execute()->getResultCount();
+
       $datas = array();
       foreach ($results as $result) {
         $item = array();
@@ -4462,6 +4465,13 @@ class Utils extends ControllerBase {
         $result_body   = $result->getField('body')->getValues();
         if(!empty($result_body)){
           $body = $result_body[0];//->getText();
+        }
+
+        // เลขบัตรประชาชนคนขาย field_id_card_number
+        $id_card_number = 0;
+        $result_id_card_number = $result->getField('field_id_card_number')->getValues();  
+        if(!empty($result_id_card_number)){
+          $id_card_number = $result_id_card_number[0];
         }
 
         $transfer_amount = 0;
@@ -4539,7 +4549,8 @@ class Utils extends ControllerBase {
                       'transfer_amount' => $transfer_amount,
                       'images'  => $images,
                       'transfer_date' => empty($transfer_date) ? '' : date('Y-m-d', strtotime($transfer_date)),
-                      'book_banks' => $book_banks );
+                      'book_banks' => $book_banks,
+                      'id_card_number' =>$id_card_number );
 
         
         $datas[] = $item;
@@ -4551,6 +4562,7 @@ class Utils extends ControllerBase {
       $response_array['execution_time']   = microtime(true) - $time1;
       $response_array['count']            = $count;//count($response_array);
       $response_array['datas']            = $datas;
+      $response_array['all_result_count'] = $all_result_count;
     }else{
       $response_array['result']   = FALSE;
       $response_array['message']  = 'Empty key_word.';

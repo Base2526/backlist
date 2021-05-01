@@ -236,9 +236,14 @@ export default class HomeScreenItem extends Component {
                         onLoadEnd={e => console.log('Loading Ended')}
                         />
   
-                    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center',  opacity: 0.5, backgroundColor: 'black', }} >
-                      <Text style={{fontWeight:'bold', fontSize:33, color:'white'}}>+{thumbnail.length - 3}</Text>
-                    </View>
+  {
+    thumbnail.length > 3 ? <View style={{flex: 1, justifyContent: 'center', alignItems: 'center',  opacity: 0.5, backgroundColor: 'black', }} >
+                            <Text style={{fontWeight:'bold', fontSize:33, color:'white'}}>+{thumbnail.length - 3}</Text>
+                          </View>
+                          : <View />
+
+  }
+                    
                   </TouchableOpacity>
                 </View>
               </View>)
