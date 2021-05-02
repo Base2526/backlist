@@ -368,6 +368,7 @@ function backlist_theme($existing, $type, $theme, $path) {
     ),   
     'footer-backlist-block'=> array(
       'variables' => array(
+        'params' => array(),
       ),
     ),   
     'row-merchant-bank-account'=> array(
