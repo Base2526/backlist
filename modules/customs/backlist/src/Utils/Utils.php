@@ -4343,7 +4343,6 @@ class Utils extends ControllerBase {
       switch($type){
         case 0:{
           $query->sort('nid', 'DESC');
-
           break;
         }
 
