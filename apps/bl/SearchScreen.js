@@ -5,84 +5,15 @@ import {
   TouchableOpacity,
   Text,
   View,
-  Image,
   SafeAreaView,
-  AsyncStorage,
   Platform,
-  StatusBar 
 } from 'react-native';
-import { Dimensions } from 'react-native';
+
 import { SearchBar, CheckBox } from 'react-native-elements';
-
-
 import { connect } from 'react-redux';
-
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
-
-// import * as historys from './utils/historys';
-
 import { addHistory, deleteHistory } from './actions/user';
-
-// https://aboutreact.com/react-native-sectionlist/
-class MyListItem extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-    isSelected: false,
-    };
-  }
-
-  _onPress = (changeSelected) => {
-    this.setState((previousState) => ({
-      isSelected: !previousState.isSelected,
-    }));
-    changeSelected();
-  };
-
-  render() {
-    return (
-      <TouchableOpacity
-        onPress={() => {
-          let { id, section } = this.props;
-          console.log(id, section);
-        }}>
-        <View
-          style={{
-            backgroundColor: 'white',
-            padding: 10,
-            flexDirection: 'row',
-            alignItems: 'center',
-            flex: 1,
-          }}>
-          <View style={{ alignItems: 'center', flex: 1 }}>
-            {this.props.section == 0 && (
-              <Ionicons name="time-outline" size={20} color="black" />
-            )}
-            {this.props.section == 1 && (
-              <AntDesign name="plussquareo" size={20} color="black" />
-            )}
-          </View>
-          <Text style={{ flex: 8, fontSize: 15, paddingTop: 2 }}>
-            {this.props.title} - {this.props.id} - {this.props.section}
-          </Text>
-          <View style={{ flex: 1 }}>
-            {this.props.section == 0 && (
-              <TouchableOpacity
-                onPress={() => {
-                  this.insertSearch(this.props.title);
-                }}
-                style={{ padding: 5, borderRadius: 20 }}>
-                <Ionicons name="close-outline" size={20} color="black" />
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  }
-}
 
 class SearchScreen extends React.PureComponent {
   constructor(props) {
@@ -90,21 +21,11 @@ class SearchScreen extends React.PureComponent {
     this.state = {
       hasSelected: false,
       search: '',
-
-      searchHistory: [], // search history array
-
+      searchCategory: ["title"],
       searchText: null,
       isFocused: false
     };
   }
-
-  // static navigationOptions = {
-  //   header: null,
-  // };
-
-  // state = {
-  //   searchText: null,
-  // };
 
   _handleQueryChange = searchText => {
     this.setState({ searchText });
@@ -138,14 +59,18 @@ class SearchScreen extends React.PureComponent {
   );
 
   _renderItem = ({ item }) => {
-    const { route, navigation, deleteHistory } = this.props;
+    const { navigation, historys, deleteHistory } = this.props;
+
+    let {searchCategory} = this.state
+
     let {title, id, section, ex} = item
     switch(section){
       case '0':{
         return (<TouchableOpacity onPress={() => {
-                  // console.log(this.props)
-                  this.insertSearch(title);
-                  navigation.navigate('result_search', {key_search:title})
+                  let history = historys.find((itm)=>itm.search_text === title)
+                  this.insertSearch(title, history.search_category);
+
+                  navigation.navigate('result_search', {search_text:title, search_category: history.search_category})
                 }}>
                   <View
                     style={{
@@ -165,32 +90,6 @@ class SearchScreen extends React.PureComponent {
                       {section == 0 && (
                         <TouchableOpacity
                           onPress={() => {
-                            // this.insertSearch(title);
-
-                            /*
-                            let index = this.state.searchHistory.indexOf(title);
-
-                            // let tempArr = historys.arrDelete(this.state.searchHistory, index);
-                            // tempArr.unshift(title);
-                            // historys.setItem('searchHistory', tempArr);
-
-                            // local history none search content
-                            // let tempArr = this.state.searchHistory;
-                            // tempArr.unshift(title);
-                            // historys.setItem("searchHistory", tempArr);
-
-                            var tempArr = [...this.state.searchHistory]; // make a separate copy of the array
-                            // var index = array.indexOf(e.target.value)
-                            if (index !== -1) {
-                              tempArr.splice(index, 1);
-                              historys.setItem("searchHistory", tempArr);
-
-                              this.getHistory()
-                            }
-                            // console.log(this.state.searchHistory)
-                            // console.log(tempArr)
-                            */
-                            
                             deleteHistory(title)
                           }}
                           style={{ padding: 5, borderRadius: 20 }}>
@@ -204,53 +103,26 @@ class SearchScreen extends React.PureComponent {
       }
 
       case '1':{
-         return (<TouchableOpacity onPress={() => {
-                    // let text = '';
-                    // switch(id){
-                    //   case '0':{
-                    //     text = 'ti:';
-                    //     break;
-                    //   }
-
-                    //   case '1':{
-                    //     text = 'ns:';
-                    //     break;
-                    //   }
-
-                    //   case '2':{
-                    //     text = 'in:';
-                    //     break;
-                    //   }
-                    // }
-                    // this.updateSearch(text)
-
-                    // console.log(text)
-
-                    this.searchBarInput.focus();
-                  }}>
-                  <View
-                  style={{
-                      backgroundColor: 'white',
-                      // padding: 10,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      flex: 1,
-                    }}>
+         return (<View style={{ backgroundColor: 'white', flexDirection: 'row', alignItems: 'center', flex: 1 }}>
                     <View style={{ flex: 1 }}>
-                      <CheckBox title={title} checked={true} />
-                      {/* <AntDesign name="plussquareo" size={20} color="gray" /> */}
+                      <CheckBox 
+                        title={title} 
+                        checked={searchCategory.includes(id) ? true : false} 
+                        onPress={()=>{
+                          let search_category  = [...searchCategory]
+                          if(search_category.includes(id)){
+                            var index = search_category.indexOf(id);
+                            if (index !== -1) {
+                              search_category.splice(index, 1);
+                            }
+                          }else{
+                            search_category.push(id);
+                          }
+                          this.setState({searchCategory:search_category})
+                        }}
+                      />
                     </View>
-                    {/* <Text style={{ flex: 4, fontSize: 15, paddingTop: 2, color: 'gray' }}>
-                      {title}
-                    </Text>
-                    <View style={{ flex: 4}}>
-                     <Text style={{ flex: 4, fontSize: 15, paddingTop: 2, color: 'gray', textAlign: 'right'  }}>
-                      {ex}
-                    </Text>
-                    </View> */}
-                  </View>
-                </TouchableOpacity>
-              );
+                  </View>);
       }
 
       default:{
@@ -270,57 +142,24 @@ class SearchScreen extends React.PureComponent {
     this.setState({ search });
   };
 
-  // Get history
-  // getHistory() {
-  //   // Query local history
-  //   historys.getItem('searchHistory').then((data) => {
-  //     if (data == null) {
-  //       this.setState({
-  //         searchHistory: [],
-  //       });
-  //     } else {
-  //       this.setState({
-  //         searchHistory: data,
-  //       });
-  //     }
-  //   });
-  // }
+  insertSearch(search_text, search_category) {
+    this.setState({search:search_text, searchCategory: search_category})
 
-  // save the search tag
-  insertSearch(text) {
-    // if (this.state.searchHistory.indexOf(text) != -1) {
-    //   // local history already searched
-    //   let index = this.state.searchHistory.indexOf(text);
-    //   let tempArr = historys.arrDelete(this.state.searchHistory, index);
-    //   tempArr.unshift(text);
-    //   historys.setItem('searchHistory', tempArr);
-    // } else {
-    //   // local history none search content
-    //   let tempArr = this.state.searchHistory;
-    //   tempArr.unshift(text);
-    //   historys.setItem('searchHistory', tempArr);
-    // }
-
-    // this.setState({ search:'' });
-
-    // this.getHistory() 
-
-    this.props.addHistory(text)
+    this.props.addHistory({ search_text, search_category })
   }
 
   render() {
-    let { search, searchHistory, isFocused } = this.state;
+    let { search, isFocused, searchCategory } = this.state;
     const { navigation, historys } = this.props;
-
     let _historys = [...historys].slice(0, 5); 
 
     const sections = [
       {
         title: 'Recent searches',
-        data: [_historys.map((title, id) => {return {section : '0', id, title}})],
+        data: [_historys.map((item, id) => {return {section : '0', id, title : item.search_text}})],
       },
       {
-        title: 'Narrow your search',
+        title: 'Category searches',
         data: [
           [
             { section: '1', id: 'title', title: 'สินค้า/ประเภท', ex: 'Ex. title' },
@@ -379,15 +218,20 @@ class SearchScreen extends React.PureComponent {
               // searchIcon={false}
               onSubmitEditing={() => {
                 // search
+                // let {searchCategory} = this.state
 
-                console.log('search : ', search)
+                console.log('search : ', search, searchCategory)
                 if(search.trim() == ""){
                   alert('กรุณากรอกคำค้น.');
                 }else if(search.trim().length < 4){
                   alert('ต้องมากกว่า 3 ตัวอักษร');
+                }else if(searchCategory.length <= 0){
+                  alert('ยังไม่ได้เลือกหมวดหมู่การค้นหา');
                 }else{
-                  this.insertSearch(search);
-                  navigation.navigate('result_search', {key_search:search})
+                  this.insertSearch(search, searchCategory);
+                  // navigation.navigate('result_search', {key_search:search})
+
+                  navigation.navigate('result_search', {search_text:search, search_category: searchCategory})
                 }
                 
               }}

@@ -3089,9 +3089,10 @@ class Utils extends ControllerBase {
 
   public static function logind9( $data ){
     $name   = $data['id'];
-    $gener  = $data['gener'];
-    $email  = $data['email'];
-    $link  = $data['link'];
+    $gener  = isset($data['gener']) ? $data['gener'] : '';
+    $email  = isset($data['email']) ? $data['email'] : $data['id'] .'@local.local';
+    $link    = isset($data['link']) ? $data['link'] : '';
+
 
     $strPicture = '';
     switch($data['type']){
@@ -3115,9 +3116,9 @@ class Utils extends ControllerBase {
                                         array(
                                           '%id' => $data['id'],
                                           '%name' => $data['name'],
-                                          '%gener' => $data['gener'],
-                                          '%email' => $data['email'],
-                                          '%link' => $data['link'],
+                                          '%gener' => $gener,
+                                          '%email' => $email,
+                                          '%link' => $link,
                                           '%strPicture' => $strPicture,
                                         ) );
 
@@ -3135,7 +3136,7 @@ class Utils extends ControllerBase {
       $user->setUsername( $name );
       $user->setPassword( MD5($name) );
       $user->enforceIsNew();
-      $user->setEmail( $data['email'] );
+      $user->setEmail( $email );
   
       //Optional settings
       $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
@@ -4343,7 +4344,6 @@ class Utils extends ControllerBase {
       switch($type){
         case 0:{
           $query->sort('nid', 'DESC');
-
           break;
         }
 

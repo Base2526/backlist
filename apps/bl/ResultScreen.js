@@ -275,9 +275,6 @@ class ResultScreen extends Component {
   }
 
   componentDidMount() {
-    // let { navigation, route } = this.props;
-    // let key_search =  route.params.key_search;
-
     this.handleSearch()
     this.updateNavigation()
   }
@@ -285,12 +282,12 @@ class ResultScreen extends Component {
   updateNavigation(){
     let { navigation, route} = this.props;
 
-    if (route.params.key_search){
-        // console.log(route.params.data)
+    if (route.params.search_text){
+        console.log("search_category : ", route.params.search_category)
 
-        let key_search = route.params.key_search;
+        let search_text = route.params.search_text;
         navigation.setOptions({
-            title: "คำค้น : " + key_search, 
+            title: "คำค้น : " + search_text, 
         })
     }    
   }
@@ -338,32 +335,36 @@ class ResultScreen extends Component {
       5 : name & surname
     */
 
-    let key_search = route.params.key_search;
+    let search_text = route.params.search_text;
+    let search_category = route.params.search_category;
     let type = 99;
-    switch(key_search.substring(0, 3)){
+    /*
+    switch(search_text.substring(0, 3)){
       case 'ti:':{
         type = 1;
-        key_search = key_search.substring(3, key_search.length)
+        search_text = search_text.substring(3, search_text.length)
         break;
       }
 
       case 'ns:':{
         type = 5;
-        key_search = key_search.substring(3, key_search.length)
+        search_text = search_text.substring(3, search_text.length)
         break;
       }
 
       case 'in:':{
         type = 6;
-        key_search = key_search.substring(3, key_search.length).replace(" ", "&")
+        search_text = search_text.substring(3, search_text.length).replace(" ", "&")
         break;
       }
     }
+    */
 
     axios.post(`${API_URL}/api/search?_format=json`, {
-      key_word: key_search,
+      key_word: search_text,
       offset,
-      type
+      type,
+      full_text_fields: JSON.stringify(search_category)
     }, {
       headers: { 
         'Authorization': `Basic YWRtaW46U29ta2lkMDU4ODQ4Mzkx` 

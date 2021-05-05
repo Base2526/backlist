@@ -12,57 +12,40 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import ReadMore from '@fawazahmed/react-native-read-more';
 import { getUniqueId, getVersion } from 'react-native-device-info';
 import Share from 'react-native-share';
-const axios = require('axios');
-
-import {API_URL, API_URL_SOCKET_IO} from "./constants"
+import { API_URL } from "./constants"
 import { isEmpty } from './Utils'
 
 export default class HomeScreenItem extends Component {
     shouldComponentUpdate(nextProps, nextState) {   
-    //   const { follow_ups, item } = this.props;
-    //   // fase = not reload item, true =  reload item all
-  
-    //   // T - T, F - F = 0 << use case ***
-    //   // T - F, F - T = 1
-    //   return  (nextProps.follow_ups.includes(item.id) ^ follow_ups.includes(item.id))
+      //   const { follow_ups, item } = this.props;
+      //   // fase = not reload item, true =  reload item all
+    
+      //   // T - T, F - F = 0 << use case ***
+      //   // T - F, F - T = 1
+      //   return  (nextProps.follow_ups.includes(item.id) ^ follow_ups.includes(item.id))
 
       const {___follow_ups, item} = this.props;
 
-      // // console.log("item : ", item)
-      // console.log("nextProps.___follow_ups : ", nextProps.___follow_ups.find(value=> String(value.id) === String(item.id) && value.follow_up ))
-      // console.log("___follow_ups : ", ___follow_ups.find(value=> String(value.id) === String(item.id) && value.follow_up ))
-      
+      if(isEmpty(nextProps.___follow_ups)){
+        return true
+      }
 
-      // if( String(item.id) === '70277'){
+      const n = nextProps.___follow_ups.find(value=> String(value.id) === String(item.id));
+      const nn = ___follow_ups.find(value=> String(value.id) === String(item.id))
 
-        // console.log("item : ", item)
-        // console.log("nextProps.___follow_ups : ", nextProps.___follow_ups.find(value=> String(value.id) === String(item.id)))
-        // console.log("___follow_ups : ", ___follow_ups.find(value=> String(value.id) === String(item.id) ))
-      
-        if(isEmpty(nextProps.___follow_ups)){
+      if( !isEmpty(n) && !isEmpty(nn) ){
+        if(!(n.follow_up && nn.follow_up)){
           return true
         }
+        return false
+      }else if( !isEmpty(n) ){
+        return true
+      }else if( !isEmpty(nn) ){
+        return true
+      }else{
+        return false
+      }
 
-        const n = nextProps.___follow_ups.find(value=> String(value.id) === String(item.id));
-        const nn = ___follow_ups.find(value=> String(value.id) === String(item.id))
-
-        if( !isEmpty(n) && !isEmpty(nn) ){
-          if(!(n.follow_up && nn.follow_up)){
-            return true
-          }
-          return false
-        }else if( !isEmpty(n) ){
-          return true
-        }else if( !isEmpty(nn) ){
-          return true
-        }else{
-          return false
-        }
-
-        
-      // }else{
-      //   return false
-      // }
     }
   
     renderImage = (item) =>{
@@ -80,7 +63,7 @@ export default class HomeScreenItem extends Component {
                     <View style={{flex: 1, flexDirection: 'row'}}>
                       <TouchableOpacity
                       onPress={()=>{
-                        this.props.onChange({modalVisible: true, init_index: 0, mv: item.id})
+                        this.props.onUpdateState({showModalLogin:false, modalVisible: true, init_index: 0, mv: item.id})
                       }}
                       style={{flex: 1, margin: 2, }} >
                       <FastImage
@@ -103,7 +86,7 @@ export default class HomeScreenItem extends Component {
                 <View style={{flex: 1, flexDirection: 'row'}}>
                   <TouchableOpacity 
                     onPress={()=>{
-                      this.props.onChange({modalVisible: true, init_index: 0, mv: item.id})
+                      this.props.onUpdateState({showModalLogin:false, modalVisible: true, init_index: 0, mv: item.id})
                     }} 
                     style={{flex: 1, margin: 2, }} >
                     <FastImage
@@ -119,7 +102,7 @@ export default class HomeScreenItem extends Component {
                   </TouchableOpacity>
                   <TouchableOpacity 
                     onPress={()=>{
-                      this.props.onChange({modalVisible: true, init_index: 1, mv: item.id})
+                      this.props.onUpdateState({showModalLogin:false, modalVisible: true, init_index: 1, mv: item.id})
                     }} 
                     style={{flex: 1, margin: 2, }} >
                     <FastImage
@@ -145,7 +128,7 @@ export default class HomeScreenItem extends Component {
                   <TouchableOpacity 
                     onPress={()=>{
                       // this.setState({modalVisible: true, init_index: 0, mv: item.id})
-                      this.props.onChange({modalVisible: true, init_index: 0, mv: item.id})
+                      this.props.onUpdateState({showModalLogin:false, modalVisible: true, init_index: 0, mv: item.id})
                     }} 
                     style={{flex: 1, margin: 2, }} >
                     <FastImage
@@ -176,7 +159,7 @@ export default class HomeScreenItem extends Component {
                   </TouchableOpacity>
                   <TouchableOpacity 
                     onPress={()=>{
-                      this.props.onChange({modalVisible: true, init_index: 1, mv: item.id})
+                      this.props.onUpdateState({showModalLogin:false, modalVisible: true, init_index: 1, mv: item.id})
                     }} 
                     style={{flex: 1, margin: 2, }} >
                     <FastImage
@@ -208,7 +191,7 @@ export default class HomeScreenItem extends Component {
                 <View style={{flex: 1, flexDirection: 'row'}}>
                   <TouchableOpacity 
                     onPress={()=>{
-                      this.props.onChange({modalVisible: true, init_index: 2, mv: item.id})
+                      this.props.onUpdateState({showModalLogin:false, modalVisible: true, init_index: 2, mv: item.id})
                     }} 
                     style={{flex: 1, margin: 2, }} >
                     <FastImage
@@ -424,11 +407,9 @@ export default class HomeScreenItem extends Component {
     }
   
     render() {
-      const { navigation, follow_ups, item, testFetchData, ___follow_ups, ___followUp } = this.props;
+      const { navigation, item, ___follow_ups, ___followUp } = this.props;
       let _menu = null;
       let _this = this;
-
-      // console.log('___i : ', ___i)
 
       return (
         <TouchableOpacity 
@@ -446,45 +427,14 @@ export default class HomeScreenItem extends Component {
   
                     let cL = this.props.user
                     if(isEmpty(cL)){
-                      _this.props.onChange({showModalLogin: true})
+                      _this.props.onUpdateState({showModalLogin: true})
                     }else{
-                      // axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
-                      //   uid: cL.uid,
-                      //   id_follow_up: item.id,
-                      //   unique_id: getUniqueId(),
-                      //   owner_id: item.owner_id
-                      // }, {
-                      //   headers: { 
-                      //     'Content-Type': 'application/json',
-                      //   }
-                      // })
-                      // .then(function (response) {
-                      //   let {result, message} = response.data
-  
-                      //   // console.log('message :', message)
-                      //   if(result){
-  
-                      //   }else{
-                          
-                      //   }
-  
-                      //   _this.props.toast.show(message);
-                      // })
-                      // .catch(function (error) {
-                      //   console.log('error :', error)
-    
-                      //   _this.props.toast.show(error.message);
-                      // });
-
-                      //  (isEmpty(follow_ups.find( f => String(f) === String(item.id) )) ? 'gray' : 'red')} />
-                      // console.log("item > this.props.___follow_ups :", this.props.___follow_ups)
-
+                   
                       let follow_up = true;
                       if(!isEmpty(___follow_ups)){
                         let find_fup = ___follow_ups.find(value => String(value.id) === String(item.id) )
                         // console.log('fup : ', find_fup, item.id)
   
-                        
                         if(!isEmpty(find_fup)){
                           follow_up = !find_fup.follow_up
                         }
@@ -496,17 +446,9 @@ export default class HomeScreenItem extends Component {
                         _this.props.toast.show("Unfollow up");
                       }
 
-                      // const follow_ups = ___follow_ups.filter(item=> {
-                      //   console.log("item.local: ", item.local)
-                      //   return item.local
-                      // })
-
-                      // console.log('follow_ups filter : ', follow_ups.length)
-
                       ___followUp({"id": item.id, 
                                    "local": true, 
                                    "follow_up": follow_up, 
-                                  //  "uid": cL.uid, 
                                    "unique_id": getUniqueId(), 
                                    "owner_id": item.owner_id, 
                                    "date": Date.now()}, 0);
@@ -561,7 +503,7 @@ export default class HomeScreenItem extends Component {
                         _menu.hide();
                         
                         if(isEmpty(this.props.user)){
-                          this.setState({ showModalLogin: true })
+                          _this.props.onUpdateState({showModalLogin: true})
                         }else{
                           navigation.navigate('report', {data:item})
                         }

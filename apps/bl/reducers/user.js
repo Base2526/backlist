@@ -108,13 +108,15 @@ export const user = (state = initialState, action) => {
     }
 
     case ADD_HISTORY: {
-      let historys = state.historys.filter((item)=>{ return item !== action.data })
+
+      let historys = state.historys.filter((item)=>{ return item.search_text !== action.data.search_text })
       historys.splice(0, 0, action.data);
+
       return { ...state, historys }
     }
 
     case DELETE_HISTORY: {
-      let historys = state.historys.filter((item)=>{ return item !== action.data })
+      let historys = state.historys.filter((item)=>{ return item.search_text !== action.data.search_text })
       return { ...state, historys }
     }
 

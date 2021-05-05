@@ -53,13 +53,16 @@ class FooterBacklistBlock extends BlockBase {
     // }
     // // dpm($footer_tree);
 
+    $params = array();
+    $params['module_path'] = drupal_get_path('module', 'backlist');
+
     $block = array();
     $block =[
               '#theme'     => 'footer-backlist-block',
-              // '#params'    => array(
-              //   'footer_tree' => $footer_tree
-              // ),
+              '#params'    => $params,
             ];
+
+            // drupal_get_path('module', 'backlist')
 
     $build['footer_backlist'] = $block;
     return $build;

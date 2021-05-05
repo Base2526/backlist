@@ -1283,14 +1283,18 @@ class API extends ControllerBase {
   public function SearchApi(Request $request){
     $response_array = array();
     try {
-      
-
       $content = json_decode( $request->getContent(), TRUE );
       $key_word= trim( $content['key_word'] );
       $offset  = trim( $content['offset'] );
       $type    = trim( $content['type'] );
+      $full_text_fields = array();
       
-      // \Drupal::logger('SearchApi')->notice( serialize($content) );
+      if(isset($content['full_text_fields'])){
+        $full_text_fields = json_decode($content['full_text_fields']);
+      }
+      
+      
+      \Drupal::logger('SearchApi, full_text_fields : ')->notice( serialize($full_text_fields) );
 /*
       if(!empty($key_word)){
 
@@ -1511,7 +1515,12 @@ class API extends ControllerBase {
       }
 */
 
-      $response_array = Utils::search_api($key_word, $offset, $type);
+      if(empty($full_text_fields)){
+        $response_array = Utils::search_api($key_word, $offset, $type);
+      }else{
+        $response_array = Utils::search_api($key_word, $offset, $type, $full_text_fields);
+      }
+      
 
       // Add the node_list cache tag so the endpoint results will update when nodes are
       // updated.

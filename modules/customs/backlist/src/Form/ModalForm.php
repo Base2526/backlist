@@ -142,8 +142,8 @@ class ModalForm extends FormBase {
 
         // dpm('nid >>> ' . $form_state->getUserInput()['container']['nid']);
 
-        \Drupal::messenger()->addMessage($this->t('Form Submitted Successfully'), 'status', TRUE);
-        $form_state->setRebuild(TRUE);
+        // \Drupal::messenger()->addMessage($this->t('Form Submitted Successfully'), 'status', TRUE);
+        // $form_state->setRebuild(TRUE);
         // dpm('bigcard >>> ' . $form_state->getUserInput()['container']['bigcard']);
 
         // dpm();

@@ -496,3 +496,10 @@ http://68.183.183.121:9200/elasticsearch_index_banlist_content_back_list/_search
 
 Php pagging
 https://www.web-max.ca/PHP/misc_1.php
+
+Drupal 8 
+$url = 'https://i.ytimg.com/vi/E_lByLdKeKY/maxresdefault.jpg';
+$image = file_get_contents($url);
+if ($image !== false){
+   dpm('data:image/jpg;base64,'.base64_encode($image));
+}
