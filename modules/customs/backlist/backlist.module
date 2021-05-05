@@ -395,7 +395,6 @@ function backlist_theme($existing, $type, $theme, $path) {
 function backlist_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   $form['#attached']['library'][] = 'backlist/backlist_js';
 
-  // dpm( $form_id );
   $form['revision_information']['#access'] = false;
   if($form_id == 'user_login_form'){
     // dpm($form);
@@ -484,21 +483,21 @@ function backlist_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
 
   // node_back_list_edit_form
-  if ( $form_id == 'node_back_list_edit_form') {
+  if ( $form_id == 'node_back_list_edit_form' || $form_id == 'comment_comment_form') {
     $node = $form_state->getFormObject()->getEntity();
 
     if(!empty($node)){
-      // $form['report_modal'] = [
-      //   '#type' => 'link',
-      //   '#title' => 'Report',
-      //   '#url' => Url::fromRoute('modal_form_controller.form', ['type' => $node->id()]),
-      //   '#attributes' => [
-      //     'class' => [
-      //       'use-ajax',
-      //       'button',
-      //     ],
-      //   ],
-      // ];
+      $form['report_modal'] = [
+        '#type' => 'link',
+        '#title' => 'Report',
+        '#url' => Url::fromRoute('modal_form_controller.form', ['type' => $node->id()]),
+        '#attributes' => [
+          'class' => [
+            'use-ajax',
+            'button',
+          ],
+        ],
+      ];
     }
     
   
@@ -594,6 +593,20 @@ function backlist_node_view(array &$build, EntityInterface $entity, \Drupal\Core
         $build['field_images'][$imi]['#prefix'] = '<a href="'. Utils::get_file_url($imv['target_id']) .'" target="_blank" class="thumbnail">';
         $build['field_images'][$imi]['#suffix'] = '</a>';
       }
+
+
+      // $build['report_modal'] = [
+      //   '#type' => 'link',
+      //   '#title' => t('Report'),
+      //   '#url' => Url::fromRoute('modal_form_controller.form', ['type' => $entity->id()]),
+      //   '#attributes' => [
+      //     'class' => [
+      //       'use-ajax',
+      //       'button',
+      //     ],
+      //   ],
+      //   '#weight'=> -999,
+      // ];
       break;
     }
   }

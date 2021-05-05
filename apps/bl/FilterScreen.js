@@ -83,14 +83,6 @@ class MyListItem extends React.Component {
         let _menu = null;
         let _this = this;
 
-        // let { navigation, follow_ups, user } = this.props;
-        // let _menu = null;
-        // let _this = this
-
-        // console.log(item)
-        // console.log('follow_ups ?? : ', follow_ups, item.id )
-
-        // console.log( '>>> 009', follow_ups.find( f => String(f) === String(item.id)) )
         return (
             <TouchableOpacity 
                 key={item.id}
@@ -135,49 +127,13 @@ class MyListItem extends React.Component {
                                              "unique_id": getUniqueId(), 
                                              "owner_id": item.owner_id, 
                                              "date": Date.now()}, 0);
-
-                                /*
-                                axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
-                                    uid: cL.uid,
-                                    id_follow_up: item.id,
-                                    unique_id: getUniqueId(),
-                                    owner_id: item.owner_id
-                                }, {
-                                headers: { 
-                                    'Content-Type': 'application/json',
-                                }
-                                })
-                                .then(function (response) {
-                                    let {result, message} = response.data
-
-                                    // console.log('message :', message)
-                                    if(result){
-
-                                    }else{
-                                        
-                                    }
-                                    _this.props.toast.show(message);
-                                })
-                                .catch(function (error) {
-                                    console.log('error :', error)
-                                    // _this.setState({loading: false})
-                                });
-                                */
                             }
                         }}>
-                        {/* { !_this.isOwner(item.id) &&
-                                <Ionicons 
-                                name="shield-checkmark-outline" 
-                                size={25} 
-                                color={isEmpty(follow_ups) ? 'gray' : (isEmpty(follow_ups.find( f => String(f) === String(item.id) )) ? 'gray' : 'red')} 
-                                />
-                        } */}
                         { 
                             !this.isOwner(item.id) &&
                             <Ionicons 
                                 name="shield-checkmark-outline" 
                                 size={25} 
-                                /*color={isEmpty(follow_ups.find( f => f === id )) ? 'gray' : 'red'}*/ 
                                 color={isEmpty(___follow_ups) ? 'gray' : (isEmpty(___follow_ups.find( value => String(value.id) === String(item.id) && value.follow_up )) ? 'gray' : 'red')} />
                         }
 
@@ -271,11 +227,11 @@ class FilterScreen extends Component {
                     execution_time: '', 
                     count: '',
                     datas: [], 
-                    type : 5,
+                    type : 99,
                     offset: 0,
                     
                     loading: false,
-                
+                    last_item: false,
                     showModalLogin:false}
     }
  
@@ -335,32 +291,31 @@ class FilterScreen extends Component {
         axios.post(`${API_URL}/api/search?_format=json`, {
             type,
             key_word,
-            offset
+            offset,
+            full_text_fields: JSON.stringify(['banlist_book_bank_field'])
         }, {
             headers: {'Authorization': `Basic ${basic_auth}`}
         })
         .then(function (response) {
             let results = response.data
-            // console.log('FilterScreen : ', results)
+            console.log('FilterScreen : ', results)
             if(results.result){
                 // true
-                // console.log('true');
-                // console.log(results);
-        
-                let {execution_time, datas, count} = results;
-                // console.log(execution_time);
-                // console.log(count);
+                let {execution_time, datas, count, all_result_count} = results;
     
                 if(datas && datas.length > 0){
-                    _this.setState({execution_time, datas:[ ..._this.state.datas, ...datas], count, loading: false});
+                    if(count == all_result_count){
+                        _this.setState({last_item:true, execution_time, datas:[ ..._this.state.datas, ...datas], count, loading: false});
+                    }else{
+                        _this.setState({execution_time, datas:[ ..._this.state.datas, ...datas], count, loading: false});
+                    }
+                    
                 }else{
-                    _this.setState({loading: false})
+                    _this.setState({loading: false, last_item:true})
                     _this.toast.show('Empty result.');
                 }
-                
             }else{
                 // false
-                // console.log(results);
                 _this.setState({loading: false})
             }
         })
@@ -389,7 +344,10 @@ class FilterScreen extends Component {
     }
     
     renderFooter = () => {
-        let {loading, offset} = this.state
+        let {loading, offset, last_item} = this.state
+        if(last_item){
+            return <View />
+        }
         return (
         //Footer View with Load More button
         <TouchableOpacity

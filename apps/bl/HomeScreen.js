@@ -153,16 +153,6 @@ class HomeScreen extends Component {
     this.is_mounted && this.setState({offset: 0},() => { this.getData() });
   }
 
-  onUpdateState = data => {
-    this.setState(data);
-  }
-
-  handleSearch= () => {
-    console.log(this.state.name);
-    console.log(this.state.surname);
-    console.log(this.state.bank_account);
-  }
-
   getData = () => {
     // console.log('getData');
 
@@ -575,8 +565,8 @@ class HomeScreen extends Component {
     }
   }
 
-  changeHandler = (val) => {
-    this.setState(val)
+  onUpdateState = data => {
+    this.setState(data);
   }
 
   renderItem = (item) =>{
@@ -584,7 +574,7 @@ class HomeScreen extends Component {
               {...this.props}
               item={item}
               toast={this.toast}
-              onChange={this.changeHandler} />
+              onUpdateState={this.onUpdateState} />
   }
 
   renderFooter = () => {

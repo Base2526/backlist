@@ -30,37 +30,23 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-// import { ModalPortal } from 'react-native-modals';
-
 import Ionicons from 'react-native-vector-icons/Ionicons';
 const axios = require('axios');
 import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { SearchBar } from 'react-native-elements';
 import SplashScreen from 'react-native-splash-screen'
 import io from 'socket.io-client';
 var Buffer = require('buffer/').Buffer
-
-
-import { Provider } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react'
-
 import { getUniqueId, getVersion } from 'react-native-device-info';
-
 import NetInfo from "@react-native-community/netinfo";
-
 import HomeScreen from './HomeScreen';
-// import SearchScreen from './SearchScreen';
 import ResultScreen from './ResultScreen';
 import AddBanlistScreen from './AddBanlistScreen';
 import DetailScreen from './DetailScreen'
 import LoginScreen from './LoginScreen'
 import FilterScreen from './FilterScreen'
-
 import SearchScreen from './SearchScreen'
-
-import MeScreen from './MeScreen'
 import ForgotPassword from './ForgotPassword'
 import SignUp from './SignUp'
 import Profile from './Profile1/Profile'
@@ -80,10 +66,7 @@ import {API_URL, API_URL_SOCKET_IO} from "./constants"
 
 import Toast, {DURATION} from 'react-native-easy-toast'
 
-import { Base64, checkLogin, isEmpty} from './Utils'
-
-import * as historys from './utils/historys';
-
+import { Base64, isEmpty} from './Utils'
 import {store, persistor} from './reduxStore'
 
 import { fetchProfile, followUp, fetchMyApps, followerPost, ___followUp, netInfo, addfollowerPost, onNotifications } from './actions/user';
@@ -92,8 +75,6 @@ import { fetchData, testFetchData, clearData } from './actions/app'
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
 const MeStack = createStackNavigator();
-
-const ProfileStack = createStackNavigator()
 
 function HomeStackScreen({navigation, route}) {
   useLayoutEffect(() => {
@@ -132,8 +113,7 @@ function HomeStackScreen({navigation, route}) {
                           <Ionicons name="search-outline" size={28}  />
                         </TouchableOpacity>
                     
-                      ) ,
-                      
+                      )
           }}
         />
         <HomeStack.Screen
@@ -167,15 +147,13 @@ function HomeStackScreen({navigation, route}) {
             tabBarVisible: false,
           }}
         />
-
-        {/* LoginScreen */}
         <HomeStack.Screen 
           name="login" 
           component={LoginScreen}
           options={{
             title: 'Login',
             tabBarVisible: false,
-          }}/>
+        }}/>
         <HomeStack.Screen 
           name="forgot_password" 
           component={ForgotPassword} 
@@ -229,12 +207,20 @@ function MeStackScreen({navigation, route}) {
         <MeStack.Screen 
           name="login" 
           component={LoginScreen}
-          // options={{ title: 'Result Search',  }}
           options={{
             title: 'Login',
             tabBarVisible: false,
           }}
         />
+        <MeStack.Screen 
+          name="forgot_password" 
+          component={ForgotPassword} 
+          options={{ title: 'Forgot password' }}/>
+        <MeStack.Screen 
+          name="sign_up" 
+          component={SignUp} 
+          options={{ title: 'Sign Up' }}/>  
+
         <MeStack.Screen 
           name="profile" 
           component={Profile}

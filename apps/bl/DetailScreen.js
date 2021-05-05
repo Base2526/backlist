@@ -74,17 +74,8 @@ class DetailScreen extends React.Component {
     componentDidMount(){
         let { navigation, route, user, follow_ups, my_apps} = this.props;
 
-        // let cL = await checkLogin()
-        // if(!isEmpty(cL)){
-        //     this.setState({isLogin: true})
-        // }
-
-
         let data =  route.params.data;
-        // console.log('user >>>', user)
-
         this.updateNavigation();
-
         let images = []
         if (data.images.thumbnail){
             data.images.thumbnail.map(function(itm){
@@ -136,33 +127,6 @@ class DetailScreen extends React.Component {
                             if(isEmpty(user)){
                                 _this.setState({showModalLogin: true})
                             }else{
-                                /*
-                                axios.post(`${API_URL_SOCKET_IO()}/api/follow_up`, {
-                                        uid: cL.uid,
-                                        id_follow_up: data.id,
-                                        unique_id: getUniqueId(),
-                                        owner_id: data.owner_id
-                                    }, {
-                                    headers: { 
-                                        'Content-Type': 'application/json',
-                                    }
-                                })
-                                .then(function (response) {
-                                    let {result, message} = response.data
-                
-                                    // console.log(response.data)
-                                    if(result){
-            
-                                    }else{
-                                        _this.toast.show(message);
-                                    }
-                                })
-                                .catch(function (error) {
-                                    console.log(error)
-                                    // _this.setState({loading: false})
-                                });
-                                */
-
                                 let find_fup = ___follow_ups.find(value => String(value.id) === String(data.id) )
                                 // console.log('fup : ', find_fup, item.id)
 
@@ -189,16 +153,8 @@ class DetailScreen extends React.Component {
                             
                         }}>
                         { !this.isOwner(data.id) && 
-                            <Ionicons name="shield-checkmark-outline" size={25} color={isEmpty(___follow_ups.find( value => String(value.id) === String(data.id) && value.follow_up )) ? 'gray' : 'red'} />} 
-
-
-                        {/* 
-                        <Ionicons 
-                      name="shield-checkmark-outline" 
-                      size={25} 
-                      color={isEmpty(___follow_ups) ? 'gray' : (isEmpty(___follow_ups.find( value => String(value.id) === String(item.id) && value.follow_up )) ? 'gray' : 'red')} />
-
-                        */}
+                            <Ionicons name="shield-checkmark-outline" size={25} color={isEmpty(___follow_ups.find( value => String(value.id) === String(data.id) && value.follow_up )) ? 'gray' : 'red'} />
+                        } 
                     </TouchableOpacity>
                     
                     <View style={{marginRight: 5}}>
@@ -290,7 +246,7 @@ class DetailScreen extends React.Component {
                 <TouchableOpacity 
                     style={{  }}
                     onPress={()=>{
-                        this.setState({modalVisible: true, init_index: index})
+                        this.setState({showModalLogin: false, modalVisible: true, init_index: index})
                     }}>
                     <FastImage
                         style={{ width:80, height:80,  borderRadius: 15, borderWidth:.3, borderColor:'gray'}}
