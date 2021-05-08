@@ -2,16 +2,18 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 
 import axios from 'axios';
-import Lightbox from "react-image-lightbox";
 import "react-image-lightbox/style.css";
+import { CircularProgress } from '@material-ui/core';
 
 import Countries from './Countries';
 
 import Pagination from "./Pagination";
 import CountryCard from "./CountryCard";
 
-import HomeItem from "./HomeItem";
+import UseHomeItem from "./UseHomeItem";
 import Checkbox from "./Checkbox";
+
+import AddBanlistForm from './AddBanlistForm'
 
 import "../../App.css";
 
@@ -41,23 +43,111 @@ class HomePage extends Component {
       totalPages: null,
 
       searchWord: '',
+
+      allResultCount: 0,
+      offset: 0,
+      loading: false,
+      showModal : false
     };
   }
 
   componentDidMount() {
-    const allCountries = Countries;    
-    this.setState({ allCountries });
+    // const allCountries = Countries;    
+    // this.setState({ allCountries });
+
+    this.getData()
   }
 
   onPageChanged = data => {
+    
     const { allCountries } = this.state;
     const { currentPage, totalPages, pageLimit } = data;
 
     const offset = (currentPage - 1) * pageLimit;
     const currentCountries = allCountries.slice(offset, offset + pageLimit);
 
-    this.setState({ currentPage, currentCountries, totalPages });
+    this.setState({ currentPage, currentCountries, totalPages, offset: currentPage -1 }, ()=>{
+      this.getData()
+    });
+
+    // console.log('onPageChanged : ',  currentPage, data);
+    
   };
+
+  mergeArrays = (...arrays) => {
+    let jointArray = []
+  
+    arrays.forEach(array => {
+        jointArray = [...jointArray, ...array]
+    })
+    const uniqueArray = jointArray.reduce((newArray, item) =>{
+        let found = newArray.find(({ id }) => id === item.id);
+        if (found){
+            return newArray
+        } else {
+            return [...newArray, item]
+        }
+    }, [])
+    return uniqueArray
+  }
+
+  getData = () =>{
+    let _this = this
+
+    let {offset} = _this.state
+
+    _this.setState({loading: true});
+
+    console.log('getData : ', offset)
+    axios.post(`/api/search?_format=json`, {
+      type: 0,
+      key_word: '*',
+      offset
+    }, {
+        headers: {'Authorization': `Basic YWRtaW46U29ta2lkMDU4ODQ4Mzkx`}
+    })
+    .then(function (response) {
+      let results = response.data
+      console.log('getData end : > ', results)
+      if(results.result){
+        // true
+        let {execution_time, datas, count, all_result_count} = results;
+        // _this.props.fetchData(datas);
+
+        console.log(">>>", offset, _this.mergeArrays(_this.state.allCountries, datas))
+
+        let allCountries = _this.mergeArrays(_this.state.allCountries, datas);
+
+
+        let pageLimit = 30
+        let { currentPage, totalPages,  } = _this.state;
+        let currentCountries = []
+        if(currentPage != null){
+          // let offset = (currentPage - 1) * pageLimit;
+          // currentCountries = allCountries.slice(offset, offset + pageLimit);
+          // console.log('allCountries >> ', allCountries, currentCountries)
+
+          currentCountries = datas
+        }
+        
+        console.log('getData currentCountries : ', currentCountries)
+        _this.setState({ allCountries, allResultCount:all_result_count, currentCountries, loading: false });
+      }
+
+      // _this.setState({loading: false})
+    })
+    .catch(function (error) {
+      // alert(error.message)
+
+      console.log('getData : ', error)
+
+      // console.log("error :", error)
+
+      // _this.toast.show(error.message);
+
+      // _this.setState({loading: false})
+    });
+  }
 
   handleFormSubmit = formSubmitEvent => {
     console.log('handleFormSubmit : ', this.selectedCheckboxes, this.state.searchWord);
@@ -79,34 +169,7 @@ class HomePage extends Component {
       
     // }
 
-    
-    axios.post(`/api/search?_format=json`, {
-      type: 0,
-      key_word: '*',
-      offset: 0
-    }, {
-        headers: {'Authorization': `Basic YWRtaW46U29ta2lkMDU4ODQ4Mzkx`}
-    })
-    .then(function (response) {
-      let results = response.data
-      console.log('end : > ', results)
-      // if(results.result){
-      //   // true
-      //   let {execution_time, datas, count} = results;
-      //   _this.props.fetchData(datas);
-      // }
-
-      // _this.setState({loading: false})
-    })
-    .catch(function (error) {
-      // alert(error.message)
-
-      // console.log("error :", error)
-
-      // _this.toast.show(error.message);
-
-      // _this.setState({loading: false})
-    });
+  
     
   }
 
@@ -132,7 +195,7 @@ class HomePage extends Component {
     // items.map(this.createCheckbox)
 
     items.map((itm)=>{
-      console.log('createCheckboxes :', itm)
+      // console.log('createCheckboxes :', itm)
       return this.createCheckbox(itm)
     })
   )
@@ -141,30 +204,43 @@ class HomePage extends Component {
     this.setState({searchWord: event.target.value})
   }
 
+  renderContent = () =>{
+    let {loading, currentCountries}  = this.state
+    if(loading){
+      return <CircularProgress />
+    }else {
+      return currentCountries.map(item => (
+        <UseHomeItem {...this.props} item={item}/>
+      ))
+    }
+  }
+
   render() {
     const {
       allCountries,
       currentCountries,
       currentPage,
-      totalPages
+      totalPages,
+      allResultCount,
+
+      loading,
+      showModal
     } = this.state;
-    const totalCountries = allCountries.length;
 
-    // const { openLightbox } = useLightbox();
+    console.log('--1--', showModal);
+    if (allResultCount === 0) return null;
 
-    let photoIndex = 0
-
-    if (totalCountries === 0) return null;
-
-    const headerClass = [
-      "text-dark py-2 pr-4 m-0",
-      currentPage ? "border-gray border-right" : ""
-    ]
-      .join(" ")
-      .trim();
-
+    console.log('--2--' , currentCountries);
     return (
       <div className="container mb-5">
+        <button style={{outline: 'none !important', backgroundColor:'red'}}  onClick={()=>{
+            // console.log(this.props)
+            this.setState({showModal:true})
+          }}>
+            เพิ่ม Banlist
+        </button>
+
+        <AddBanlistForm showModal={showModal} onClose = {()=>{this.setState({showModal:false})}} />
         <div>
           <form onSubmit={this.handleFormSubmit}>
             {this.createCheckboxes()}
@@ -174,49 +250,21 @@ class HomePage extends Component {
               value={this.state.searchWord} 
               onChange={this.handleChange.bind(this)}
               required/>
-            <button className="btn btn-default" type="submit">ค้นหา</button>
+            <button type="submit">ค้นหา</button>
           </form>
         </div>
-        <div className="row d-flex flex-row py-5">
-
-          {/* <Lightbox
-            mainSrc={images[photoIndex]}
-            nextSrc={images[(photoIndex + 1) % images.length]}
-            prevSrc={images[(photoIndex + images.length - 1) % images.length]}
-            onCloseRequest={() => this.setState({ isOpen: false })}
-            onMovePrevRequest={() =>
-              this.setState({
-                photoIndex: (photoIndex + images.length - 1) % images.length
-              })
-            }
-            onMoveNextRequest={() =>
-              this.setState({
-                photoIndex: (photoIndex + 1) % images.length
-              })
-            }
-          /> */}
-          
-          {currentCountries.map(country => (
-            // <CountryCard {...this.props} key={country.cca3} country={country} />
-            // <Buttonx country={country}/>
-
-            <HomeItem {...this.props} />
-          ))}
-
+        <div className="row d-flex flex-row py-5"> 
+          {this.renderContent()}
           <div className="w-100 px-4 py-5 d-flex flex-row flex-wrap align-items-center justify-content-between">
             <div className="d-flex flex-row py-4 align-items-center">
               <Pagination
-                totalRecords={totalCountries}
-                pageLimit={18}
+                totalRecords={allResultCount}
+                pageLimit={30}
                 pageNeighbours={1}
                 onPageChanged={this.onPageChanged}
               />
             </div>
             <div className="d-flex flex-row align-items-center">
-              {/* <h2 className={headerClass}>
-                <strong className="text-secondary">{totalCountries}</strong>{" "}
-                Countries
-              </h2> */}
               {currentPage && (
                 <span className="current-page d-inline-block h-100 pl-4 text-secondary">
                   Page <span className="font-weight-bold">{currentPage}</span> /{" "}

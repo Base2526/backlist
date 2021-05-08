@@ -9,6 +9,8 @@ import ContactUsPage from './Components/Members/ContactUsPage';
 // import AddBankPage from './Components/Members/AddBankPage';
 import LoginPage from './Components/Setting/LoginPage';
 
+// import AddBanlistPage from './Components/Home/AddBanlistPage'
+
 // import AffiliatePage from './Components/Members/AffiliatePage'
 // import StatementPage from './Components/Members/StatementPage'
 // import RequestAllPage from './Components/Members/RequestAllPage'
@@ -110,7 +112,7 @@ export default [
     { path: "/login", name: "เข้าสู่ระบบ", Component: LoginPage },
     { path: "/register", name: "สมัครสมาชิก", Component: RegisterPage },
     { path: "/forget-password", name: "ลืมรหัสผ่าน", Component: ForgetPasswordPage },
-    // { path: "/profile-page", name: "โปรไฟล์", Component: ProfilePage },
+    // { path: "/add-banlist", name: "เพิ่ม banlist", Component: AddBanlistPage },
     // { path: "/affiliate-page", name: "แนะนำเพือน", Component: AffiliatePage },
     // { path: "/statement", name: "รายงานการเงิน", Component: StatementPage },
     // { path: "/request-all", name: "สถานะ ฝาก/ถอนเงิน", Component: RequestAllPage },

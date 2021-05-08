@@ -3,6 +3,10 @@ import React, { Component, Fragment } from "react";
 import Lightbox from "react-image-lightbox";
 import "react-image-lightbox/style.css";
 
+import MenuItem from "@material-ui/core/MenuItem";
+import Button from "@material-ui/core/Button";
+import Menu from "@material-ui/core/Menu";
+
 import "../../App.css";
 
 const images = [
@@ -19,6 +23,7 @@ class HomeItem extends Component {
     
         this.state = {
             isOpen: false,
+            isOpenMenu: false,
             photoIndex: 0
         }
     }
@@ -26,18 +31,43 @@ class HomeItem extends Component {
     componentDidMount(){    
     }
 
+    handleClick = () =>{
+        console.log('handleClick')
+
+        this.setState({isOpenMenu:true})
+    }
+
+    handleClose = () =>{
+        console.log('handleClose')
+
+        this.setState({isOpenMenu:false})
+    }
+
     render() {
 
-        let {isOpen , photoIndex} = this.state
+        let {isOpen, isOpenMenu, photoIndex} = this.state
         return (
             <div style={{margin: 10}}>  
-                {/* <button 
+                <button 
                     tyle={{outline: 'none !important'}}  
                     onClick={()=>{
-                        this.setState({isOpen:true})
+                        // this.setState({isOpen:true})
+                        this.handleClick()
                     }}>
                     Open Lightbox
-                </button> */}
+                </button>
+
+                <Menu
+                    keepMounted
+                    // anchorEl={anchorEl}
+                    onClose={()=>{this.handleClose()}}
+                    open={isOpenMenu}
+                >
+                    <MenuItem onClick={()=>{this.handleClose()}}>My Account</MenuItem>
+                    <MenuItem onClick={()=>{this.handleClose()}}>Settings</MenuItem>
+                    <MenuItem onClick={()=>{this.handleClose()}}>Profile</MenuItem>
+                    <MenuItem onClick={()=>{this.handleClose()}}>Logout</MenuItem>
+                </Menu>
 
                 <div class="hi-container">
                     <div class="hi-sub-container1">

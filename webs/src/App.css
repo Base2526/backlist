@@ -67,11 +67,13 @@
     flex:1;
     background-color : #c40707;
     margin : 5%;
+    cursor: pointer;
   }
   .hi-item2{
     flex:1;
     background-color : #3ef112;
     margin : 5%;
+    cursor: pointer;
   }
   .hi-sub-container2{
     flex:1;
@@ -82,6 +84,7 @@
     flex:1;
     background-color : #a10808;
     margin : 5%;
+    cursor: pointer;
   }
 
   /* Home item */
