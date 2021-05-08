@@ -1,0 +1,88 @@
+.current-page {
+    font-size: 1.5rem;
+    vertical-align: middle;
+  }
+  
+  .country-card-container {
+    height: 60px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .country-name {
+    font-size: 0.9rem;
+  }
+  
+  .country-region {
+    font-size: 0.7rem;
+  }
+  
+  .country-page,
+  .country-name,
+  .country-region {
+    line-height: 1;
+  }
+  
+  ul.pagination {
+    margin-top: 0;
+    margin-bottom: 0;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  }
+  ul.pagination li.page-item.active a.page-link {
+    color: #445565 !important;
+    background-color: #e3e7eb !important;
+    border-color: #ced4da !important;
+  }
+  ul.pagination a.page-link {
+    padding: 0.75rem 1rem;
+    min-width: 3.5rem;
+    text-align: center;
+    box-shadow: none !important;
+    border-color: #ced4da !important;
+    color: #6b88a4;
+    font-weight: 900;
+    font-size: 1rem;
+  }
+  ul.pagination a.page-link:hover {
+    background-color: #f4f4f4;
+  }
+
+  .images {  display: flex;  }
+
+
+  /* Home item */
+  .hi-container{
+    width : 300px;
+    height : 300px;
+    display: flex;
+  }
+  .hi-sub-container1{
+    flex : 1;
+    display:flex;
+    flex-direction : column;
+    background-color : #245878;
+  }
+  .hi-item1{
+    flex:1;
+    background-color : #c40707;
+    margin : 5%;
+  }
+  .hi-item2{
+    flex:1;
+    background-color : #3ef112;
+    margin : 5%;
+  }
+  .hi-sub-container2{
+    flex:1;
+    display:flex;
+    background-color : #451589;
+  }
+  .hi-item3{
+    flex:1;
+    background-color : #a10808;
+    margin : 5%;
+  }
+
+  /* Home item */
+  
