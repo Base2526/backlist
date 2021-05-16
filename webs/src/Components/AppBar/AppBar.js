@@ -219,30 +219,6 @@ const UseHomeItem = (props) => {
 
 
   return (
-    // <div key={item.id} style={{margin: 10}}>                 
-    //   <div style={{cursor: 'pointer'}}> 
-          
-    //       <button 
-    //           style={{outline: 'none !important', }}  
-    //           onClick={handleClick}>
-    //           Menu
-    //       </button>
-    //   </div>
-                 
-    //   <Menu
-    //       keepMounted
-    //       anchorEl={anchorEl}
-    //       onClose={handleClose}
-    //       open={Boolean(anchorEl)}>
-    //       <MenuItem onClick={handleClose}>My Account</MenuItem>
-    //       <MenuItem onClick={handleClose}>Settings</MenuItem>
-    //       <MenuItem onClick={handleClose}>Profile</MenuItem>
-    //       <MenuItem onClick={handleClose}>Logout</MenuItem>
-    //   </Menu> 
-    // </div>
-
-
-
     <div style={{flexGrow: 1}}>
                <AppBar position="static">
                  <Toolbar>
@@ -255,16 +231,16 @@ const UseHomeItem = (props) => {
                       onClick={()=>{
                         setShowModal(true)
                       }}>
-                        เข้าสู่ระบบ
+                        เข้าสู่ระบบ/สมัครสมาชิก
                     </button>
-                    <button 
+                    {/* <button 
                       style={{ outline: 'none !important' }}  
                       onClick={()=>{
                        
                         setShowModal(true)
                       }}>
-                        สมัครสมาชิก
-                    </button>
+                        
+                    </button> */}
 
                     <button 
                       style={{ outline: 'none !important' }}  
@@ -286,7 +262,7 @@ const UseHomeItem = (props) => {
                     {/* <Link  href="#" style={{color: 'white', paddingRight:'5px'}} to="/login">เข้าสู่ระบบ</Link>
                     <Link  href="#" style={{color: 'white'}} to="/register">สมัครสมาชิก</Link> */}
 
-                    <LoginForm showModal={showModal} onClose = {()=>{setShowModal(false)}} />
+                    <LoginForm showModal={showModal} mode={"login"} onClose = {()=>{setShowModal(false)}} />
                   </div>
                 </Toolbar>
               </AppBar>

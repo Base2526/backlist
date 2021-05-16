@@ -2,13 +2,11 @@ import React, { useEffect } from "react";
 import Lightbox from "react-image-lightbox";
 import "react-image-lightbox/style.css";
 import MenuItem from "@material-ui/core/MenuItem";
-import Button from "@material-ui/core/Button";
 import Menu from "@material-ui/core/Menu";
 
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import "../../App.css";
-
 
 const UseHomeItem = (props) => {
   const [item, setItem] = React.useState({});
@@ -36,7 +34,7 @@ const UseHomeItem = (props) => {
   };
 
   const itemView = () =>{
-    console.log('itemView :', item)
+    // console.log('itemView :', item)
 
     if(Object.keys(item).length === 0 ){
         return <div />
@@ -107,6 +105,7 @@ const UseHomeItem = (props) => {
                             nextSrc={medium[(photoIndex + 1) % medium.length].url}
                             prevSrc={medium[(photoIndex + medium.length - 1) % medium.length].url}
 
+                            imageTitle= { (photoIndex + 1) + "/" + medium.length }
                             // mainSrcThumbnail={images[photoIndex]}
                             // nextSrcThumbnail={images[(photoIndex + 1) % images.length]}
                             // prevSrcThumbnail={images[(photoIndex + images.length - 1) % images.length]}
@@ -143,8 +142,12 @@ const UseHomeItem = (props) => {
       </Button> */}
       
                 {itemView()}
-                
-                <div style={{cursor: 'pointer'}}> 
+   
+                <div style={{cursor: 'pointer'}} onClick={()=>{
+                  // console.log('/detail/:id : ', props)
+                  // /detail/:id
+                  props.history.push({pathname: `detail/${2222}`, state: { indexedDB:'444'} })
+                }}> 
                     <div>
                       <div>ชื่อ-นามสกุล: {item.name_surname}</div>
                     </div>
@@ -176,10 +179,8 @@ const UseHomeItem = (props) => {
                 anchorEl={anchorEl}
                 onClose={handleClose}
                 open={Boolean(anchorEl)}>
-                <MenuItem onClick={handleClose}>My Account</MenuItem>
-                <MenuItem onClick={handleClose}>Settings</MenuItem>
-                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>Logout</MenuItem>
+                <MenuItem onClick={handleClose}>Copy link</MenuItem>
+                <MenuItem onClick={handleClose}>Report</MenuItem>
             </Menu> 
             
     </div>

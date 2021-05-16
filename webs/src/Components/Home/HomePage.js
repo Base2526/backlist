@@ -1,25 +1,20 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
-
 import axios from 'axios';
 import "react-image-lightbox/style.css";
 import { CircularProgress } from '@material-ui/core';
 
 import Countries from './Countries';
-
 import Pagination from "./Pagination";
 import CountryCard from "./CountryCard";
-
 import UseHomeItem from "./UseHomeItem";
 import Checkbox from "./Checkbox";
-
 import AddBanlistForm from './AddBanlistForm'
-
 import "../../App.css";
 
-// import { API_URL, API_TOKEN } from "../../constants"
+import LoginForm from '../Setting/LoginForm'
 
-
+import {isEmpty} from '../Utils/Utils'
 
 // http://react.tips/checkboxes-in-react/
 const items = [
@@ -47,15 +42,16 @@ class HomePage extends Component {
       allResultCount: 0,
       offset: 0,
       loading: false,
-      showModal : false
+      showModal : false,
+
+      showModalLogin: false
     };
   }
 
   componentDidMount() {
-    // const allCountries = Countries;    
-    // this.setState({ allCountries });
-
     this.getData()
+
+    // console.log("isEmpty : ", isEmpty(''));
   }
 
   onPageChanged = data => {
@@ -68,10 +64,7 @@ class HomePage extends Component {
 
     this.setState({ currentPage, currentCountries, totalPages, offset: currentPage -1 }, ()=>{
       this.getData()
-    });
-
-    // console.log('onPageChanged : ',  currentPage, data);
-    
+    });    
   };
 
   mergeArrays = (...arrays) => {
@@ -153,24 +146,58 @@ class HomePage extends Component {
     console.log('handleFormSubmit : ', this.selectedCheckboxes, this.state.searchWord);
     formSubmitEvent.preventDefault();
 
-    // formSubmitEvent.stopPropagation();
-
-    // for (const checkbox of this.selectedCheckboxes) {
-    //   console.log(checkbox, 'is selected.');
-    // }
-
-    // let response  = await axios.post('/api/login', 
-    //                                   {name: email, pass: password}, 
-    //                                   {headers:headers()});
-
-    // // this.setState({ is_active:false })
-    // console.log(response);
-    // if( response.status==200 && response.statusText == "OK" ){
+    /*
+    axios.post(`${API_URL}/api/added_banlist?_format=json`, data, {
+      headers: { 
+        'Authorization': `Basic ${basic_auth}`,
+        'content-type': 'multipart/form-data'
+      }
+    })
+    .then(function (response) {
+      let results = response.data
+      console.log(results)
       
-    // }
+      if(results.result){
+        // true
+        console.log('true');
+        console.log(results);
 
-  
-    
+        // let {execution_time, datas, count} = results;
+        // console.log(execution_time);
+        // console.log(count);
+        // console.log(datas);
+
+        // if(datas && datas.length > 0){
+        //   _this.setState({spinner: false, execution_time, datas, count});
+        // }else{
+
+        _this.setState({spinner: false})
+        //   alert('Empty result.');
+        // }
+
+        let {navigation, route} = _this.props;
+
+        navigation.pop();
+        route.params.updateState({});     
+      }else{
+        // false
+        console.log('false');
+
+        _this.setState({spinner: false})
+
+        _this.toast.show('ไม่สามารถเพิ่มรายงาน');
+      }
+    })
+    .catch(function (error) {
+
+      _this.setState({spinner: false})
+
+      // _this.toast.show('ไม่สามารถเพิ่มรายงาน');
+
+      console.log('Error >  ' + error);
+    });
+    */
+
   }
 
   toggleCheckbox = value => {
@@ -224,23 +251,29 @@ class HomePage extends Component {
       allResultCount,
 
       loading,
-      showModal
+      showModal,
+      showModalLogin
     } = this.state;
 
-    console.log('--1--', showModal);
+    let {user} = this.props
+
+    console.log('--1--', showModal, user);
     if (allResultCount === 0) return null;
 
     console.log('--2--' , currentCountries);
     return (
       <div className="container mb-5">
         <button style={{outline: 'none !important', backgroundColor:'red'}}  onClick={()=>{
-            // console.log(this.props)
-            this.setState({showModal:true})
+            if(isEmpty(user)){
+              this.setState({showModalLogin:true})
+            }else{
+              this.setState({showModal:true})
+            }
           }}>
             เพิ่ม Banlist
         </button>
 
-        <AddBanlistForm showModal={showModal} onClose = {()=>{this.setState({showModal:false})}} />
+        <AddBanlistForm showModal={showModal} onClose = {()=>{ console.log('--0999--');  this.setState({showModal:false})   }} />
         <div>
           <form onSubmit={this.handleFormSubmit}>
             {this.createCheckboxes()}
@@ -274,13 +307,20 @@ class HomePage extends Component {
             </div>
           </div>
         </div>
+     
+        {
+          showModalLogin &&  <LoginForm showModal={showModalLogin} onClose = {()=>{this.setState({showModalLogin:false})}} />
+        }
+        
       </div>
     );
   }
 }
 
 const mapStateToProps = (state, ownProps) => {
-	return {};
+	return {
+    user: state.user.data,
+  };
 }
 
 export default connect(mapStateToProps, null)(HomePage)
