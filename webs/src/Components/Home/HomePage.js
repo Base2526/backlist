@@ -1,20 +1,18 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import axios from 'axios';
-import "react-image-lightbox/style.css";
 import { CircularProgress } from '@material-ui/core';
+import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 
-import Countries from './Countries';
 import Pagination from "./Pagination";
-import CountryCard from "./CountryCard";
 import UseHomeItem from "./UseHomeItem";
 import Checkbox from "./Checkbox";
 import AddBanlistForm from './AddBanlistForm'
-import "../../App.css";
 
 import LoginForm from '../Setting/LoginForm'
-
 import {isEmpty} from '../Utils/Utils'
+import { fetchData } from '../../actions/app';
+import { ___followUp } from '../../actions/user';
 
 // http://react.tips/checkboxes-in-react/
 const items = [
@@ -24,6 +22,9 @@ const items = [
   { id: 'body', title: 'รายละเอียด'},
   { id: 'banlist_book_bank_field', title: 'บัญชีธนาคาร'},
 ]
+
+const allResultCount = 10000;
+const pageLimit = 30;
 
 class HomePage extends Component {
   constructor(props) {
@@ -39,7 +40,7 @@ class HomePage extends Component {
 
       searchWord: '',
 
-      allResultCount: 0,
+      // allResultCount: 0,
       offset: 0,
       loading: false,
       showModal : false,
@@ -49,21 +50,26 @@ class HomePage extends Component {
   }
 
   componentDidMount() {
-    this.getData()
-
-    // console.log("isEmpty : ", isEmpty(''));
+    let {data} = this.props
+    console.log("componentDidMount : 1 ", this.props)
+    if(isEmpty(data)){
+      this.getData()
+    }
   }
 
   onPageChanged = data => {
-    
+
     const { allCountries } = this.state;
     const { currentPage, totalPages, pageLimit } = data;
-
     const offset = (currentPage - 1) * pageLimit;
     const currentCountries = allCountries.slice(offset, offset + pageLimit);
 
+    // console.log("onPageChanged: ", allCountries, currentPage, totalPages, pageLimit, offset, currentCountries)
+
     this.setState({ currentPage, currentCountries, totalPages, offset: currentPage -1 }, ()=>{
-      this.getData()
+      if( offset || isEmpty(this.props.data)  ){
+        this.getData()
+      }
     });    
   };
 
@@ -105,14 +111,19 @@ class HomePage extends Component {
       if(results.result){
         // true
         let {execution_time, datas, count, all_result_count} = results;
-        // _this.props.fetchData(datas);
+        _this.props.fetchData(datas);
 
-        console.log(">>>", offset, _this.mergeArrays(_this.state.allCountries, datas))
+        /*
+        let {execution_time, datas, count} = results;
+        _this.props.fetchData(datas);
+        */
+
+        // console.log(">>>", offset, _this.mergeArrays(_this.state.allCountries, datas))
 
         let allCountries = _this.mergeArrays(_this.state.allCountries, datas);
 
 
-        let pageLimit = 30
+        // let pageLimit = 30
         let { currentPage, totalPages,  } = _this.state;
         let currentCountries = []
         if(currentPage != null){
@@ -124,7 +135,7 @@ class HomePage extends Component {
         }
         
         console.log('getData currentCountries : ', currentCountries)
-        _this.setState({ allCountries, allResultCount:all_result_count, currentCountries, loading: false });
+        _this.setState({ allCountries /*, allResultCount:all_result_count */ , currentCountries, loading: false });
       }
 
       // _this.setState({loading: false})
@@ -210,60 +221,66 @@ class HomePage extends Component {
   }
 
   // id: 'title', title:
-  createCheckbox = (itm) => (
-    <Checkbox
-      label={itm.title}
-      handleCheckboxChange={this.toggleCheckbox}
-      value={itm.id}
-      key={itm.id}/>
-  )
+  // createCheckbox = (itm) => (
+  //   <Checkbox
+  //     label={itm.title}
+  //     handleCheckboxChange={this.toggleCheckbox}
+  //     value={itm.id}
+  //     key={itm.id}/>
+  // )
 
-  createCheckboxes = () => (
-    // items.map(this.createCheckbox)
-
-    items.map((itm)=>{
-      // console.log('createCheckboxes :', itm)
-      return this.createCheckbox(itm)
-    })
-  )
+  // createCheckboxes = () => (
+    
+  // )
 
   handleChange(event) {
     this.setState({searchWord: event.target.value})
   }
 
+
+  updateState = data => {
+    this.setState(data);
+  }
+
   renderContent = () =>{
-    let {loading, currentCountries}  = this.state
+    let {loading}  = this.state
+    let {data} = this.props
+
     if(loading){
       return <CircularProgress />
     }else {
-      return currentCountries.map(item => (
-        <UseHomeItem {...this.props} item={item}/>
+      return data.map(item => (
+        <UseHomeItem 
+          {...this.props} 
+          item={item}
+          updateState={this.updateState}/>
       ))
     }
   }
 
   render() {
-    const {
+    let {
       allCountries,
       currentCountries,
       currentPage,
       totalPages,
-      allResultCount,
+      // allResultCount,
 
       loading,
       showModal,
       showModalLogin
     } = this.state;
 
-    let {user} = this.props
+    let {user, data} = this.props
 
-    console.log('--1--', showModal, user);
+    console.log('--1-- >>> >>>>', this.props, data );
+    // allResultCount = 10000;
     if (allResultCount === 0) return null;
 
-    console.log('--2--' , currentCountries);
+    // console.log('--2--' , currentCountries);
     return (
       <div className="container mb-5">
-        <button style={{outline: 'none !important', backgroundColor:'red'}}  onClick={()=>{
+        {/* <button style={{outline: 'none !important', backgroundColor:'red'}}  onClick={()=>{
             if(isEmpty(user)){
               this.setState({showModalLogin:true})
             }else{
@@ -271,19 +288,49 @@ class HomePage extends Component {
             }
           }}>
             เพิ่ม Banlist
-        </button>
+        </button> */}
+
+        {/* <div style={{cursor:"pointer"}} onClick={()=>{
+          if(isEmpty(user)){
+            this.setState({showModalLogin:true})
+          }else{
+            this.setState({showModal:true})
+          }
+        }}>
+         <span className="bl-border-bottom">เพิ่ม Banlist</span>
+        </div> */}
 
         <AddBanlistForm showModal={showModal} onClose = {()=>{ console.log('--0999--');  this.setState({showModal:false})   }} />
         <div>
           <form onSubmit={this.handleFormSubmit}>
-            {this.createCheckboxes()}
-            <input 
-              type="text" 
-              name="title" 
-              value={this.state.searchWord} 
-              onChange={this.handleChange.bind(this)}
-              required/>
-            <button type="submit">ค้นหา</button>
+            <div>
+              <div>
+                <input 
+                  type="text" 
+                  name="title" 
+                  value={this.state.searchWord} 
+                  onChange={this.handleChange.bind(this)}
+                  required/>
+                <button type="submit">ค้นหา</button>
+              </div>
+              <div>
+              <ul class="flex-container row">
+                {
+                  items.map((itm)=>{
+                    return <li class="flex-item">
+                              <Checkbox
+                                label={itm.title}
+                                handleCheckboxChange={this.toggleCheckbox}
+                                value={itm.id}
+                                key={itm.id}/>
+                          </li>
+                  })
+                }
+              </ul>
+              </div>
+              
+              
+            </div>
           </form>
         </div>
         <div className="row d-flex flex-row py-5"> 
@@ -292,7 +339,7 @@ class HomePage extends Component {
             <div className="d-flex flex-row py-4 align-items-center">
               <Pagination
                 totalRecords={allResultCount}
-                pageLimit={30}
+                pageLimit={pageLimit}
                 pageNeighbours={1}
                 onPageChanged={this.onPageChanged}
               />
@@ -311,7 +358,18 @@ class HomePage extends Component {
         {
           showModalLogin &&  <LoginForm showModal={showModalLogin} onClose = {()=>{this.setState({showModalLogin:false})}} />
         }
-        
+
+        <div 
+          className="fab"
+          onClick={()=>{
+            if(isEmpty(user)){
+              this.setState({showModalLogin:true})
+            }else{
+              this.setState({showModal:true})
+            }
+          }}>
+          <AddCircleOutlinedIcon className="floating-icon"/>
+          </div>       
       </div>
     );
   }
@@ -320,7 +378,13 @@ class HomePage extends Component {
 const mapStateToProps = (state, ownProps) => {
 	return {
     user: state.user.data,
+    data: state.app.data,
   };
 }
 
-export default connect(mapStateToProps, null)(HomePage)
+const mapDispatchToProps = {
+  fetchData,
+  ___followUp,
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomePage)

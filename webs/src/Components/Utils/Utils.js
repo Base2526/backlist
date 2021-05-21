@@ -1,3 +1,5 @@
+import ls from 'local-storage';
+
 export function isEmpty(val){
     return (val === undefined || val == null || val.length <= 0) ? true : false;
 }
@@ -26,4 +28,14 @@ export function isEmailValid(email) {
         return false;
 
     return true;
+}
+
+export const uniqueId =() => {
+    let uniqueId = ls.get('uniqueId')
+    if(!uniqueId){
+        const uint32 = window.crypto.getRandomValues(new Uint32Array(1))[0];
+        uniqueId = uint32.toString(16)
+        ls.set('uniqueId', uniqueId)
+    }
+    return uniqueId;
 }

@@ -103,4 +103,86 @@
   .file-preview {
     margin: 0 10px;
   }
+
+  .lazy-load-image-border-radius{
+    border-radius: 50%;
+    /* margin: 10px;
+    padding: 5px; */
+    cursor: pointer;
+  }
+
+  .lazy-load-image{
+    object-fit: contain;
+  }
+
+  .notifications-item{
+    border-style: solid;
+    border-width: thin;
+    margin: 5px;
+    padding: 4px;
+  }
+
+  .notifications-icon{
+    /* margin: 10px; */
+    width: 22px !important;
+    height: 22px !important;
+    cursor: pointer;
+  }
+
+  .notifications-span{
+    font-size: 12px; 
+    position: absolute;
+  }
+
+
+  .flex-container {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    
+    -ms-box-orient: horizontal;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -moz-flex;
+    display: -webkit-flex;
+    display: flex;
+    align-items: center;
+  }
+
+  .flex-item{
+    padding-right: 10px;
+  }
   
+  .row            { 
+    -webkit-flex-direction: row; 
+    flex-direction: row;
+  }
+
+  .lazy-load-image-background.blur {
+    filter: blur(0px) !important;
+    border-radius: 50%;
+  }
+
+  .bl-border-bottom{
+    border-bottom: 2px solid #212529;
+  }
+
+
+
+
+/* floating */
+.fab {
+  margin: 0px;
+  top: auto;
+  right: 50px;
+  bottom: 80px;
+  left: auto;
+  position: fixed;
+  cursor: pointer;
+}
+.floating-icon{
+  transform: scale(2.5);
+  color: red;
+}
+/* floating */

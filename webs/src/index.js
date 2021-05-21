@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 import {applyMiddleware, createStore } from 'redux'
 import { Provider } from 'react-redux'
 
+import thunk from 'redux-thunk';
+
 // Logger with default options
 import {createLogger} from 'redux-logger'
 
@@ -14,8 +16,11 @@ import { BrowserRouter } from 'react-router-dom';
 import rootReducer from './reducers'
 import App from './App'
 
-
+import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "react-toastify/dist/ReactToastify.css";
+import "react-image-lightbox/style.css";
+import 'react-lazy-load-image-component/src/effects/blur.css';
 
 const persistConfig = {
     key: 'root',
@@ -31,7 +36,9 @@ const logger = createLogger({
     // predicate: () => process.env.NODE_ENV !== 'production'
 });
 
-const store = createStore(pReducer, applyMiddleware(logger));
+// thunk
+
+const store = createStore(pReducer, applyMiddleware(thunk, logger));
 const persistor = persistStore(store);
 
 ReactDOM.render(<Provider store={store}>

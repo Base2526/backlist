@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 
-// import "../../App.css";
 /*
 We can use the provided hook in case you want
 to open the lightbox from a button or anything :)

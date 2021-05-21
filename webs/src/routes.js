@@ -10,7 +10,20 @@ import ContactUsPage from './Components/Members/ContactUsPage';
 import LoginPage from './Components/Setting/LoginPage';
 
 import DetailPage from './Components/Home/DetailPage'
-import DetailPage2 from './Components/Home/DetailPage2'
+import ProfilePage from './Components/Home/ProfilePage'
+import SettingsPage from './Components/Home/SettingsPage'
+import NotificationsPage from './Components/Home/NotificationsPage'
+
+import MyPostPage from './Components/Home/MyPostPage'
+import MyFollowUpPage from './Components/Home/MyFollowUpPage'
+
+import TermsofServicePage from './Components/Home/TermsofServicePage'
+import AboutupPage from './Components/Home/AboutupPage'
+import ForDeveloperPage from './Components/Home/ForDeveloperPage'
+import ContactWebsitePage from './Components/Home/ContactWebsitePage'
+
+// 
+// 
 
 // import AddBanlistPage from './Components/Home/AddBanlistPage'
 
@@ -115,8 +128,19 @@ export default [
     { path: "/login", name: "เข้าสู่ระบบ", Component: LoginPage },
     { path: "/register", name: "สมัครสมาชิก", Component: RegisterPage },
     { path: "/forget-password", name: "ลืมรหัสผ่าน", Component: ForgetPasswordPage },
-    { path: "/detail/:id", name: "รายละเอียด", Component: DetailPage },
-    { path: "/detail2/:id", name: "รายละเอียด 2", Component: DetailPage2 },
+    { path: "/detail/:nid", name: "รายละเอียด", Component: DetailPage },
+    { path: "/my-profile", name: "My Profile", Component: ProfilePage },
+    { path: "/my-profile/my-post", name: "My Post", Component: MyPostPage },
+    { path: "/my-profile/my-followup", name: "My follow up", Component: MyFollowUpPage },
+    { path: "/settings", name: "Settings", Component: SettingsPage },
+    { path: "/notifications", name: "Notifications", Component: NotificationsPage },
+    { path: "/terms-of-service", name: "Terms of Service", Component: TermsofServicePage },
+    { path: "/about-up", name: "About up", Component: AboutupPage },
+    { path: "/for-developer", name: "For Developer", Component: ForDeveloperPage },
+    { path: "/contact-website", name: "Contact Website", Component: ContactWebsitePage },
+    // ContactWebsitePage
+
+    
     
     // { path: "/affiliate-page", name: "แนะนำเพือน", Component: AffiliatePage },
     // { path: "/statement", name: "รายงานการเงิน", Component: StatementPage },

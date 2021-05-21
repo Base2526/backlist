@@ -1,12 +1,13 @@
-const axios = require('axios');
+// const axios = require('axios');
 
-import {API_URL} from "../constants"
+// import {API_URL} from "../constants"
 import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE, 
          FOLLOW_UP, ___FOLLOW_UP, FETCH_MY_APPS, ADD_HISTORY, 
          DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST ,
         
         
          NET_INFO, NOTIFICATIONS} from '../constants/app';
+
 
 const _dataUserLogin = data => ({
   type: USER_LOGIN,
@@ -17,7 +18,6 @@ const _dataUserLogout = data => ({
   type: USER_LOGOUT,
   data,
 });
-
 
 const _fetchProfile = data => ({
   type: FETCH_PROFILE,
@@ -74,18 +74,13 @@ const _netInfo = data => ({
   data,
 });
 
-// NOTIFICATIONS
+
 const _notifications = data => ({
   type: NOTIFICATIONS,
   data,
 });
 
 export const userLogin = (data) => dispatch => {
-  // axios.get('https://jsonplaceholder.typicode.com/users')
-  //   .then((response) => {
-  //    //  console.log('fetchDataAll >>>> ' , response.data)
-  //     dispatch(dataFetch([{'1': '2'}]));
-  //   })
   dispatch(_dataUserLogin(data));
 }
 
@@ -94,23 +89,23 @@ export const userLogout = () => dispatch => {
 }
 
 export const fetchProfile = (basic_auth) => dispatch =>{
-  axios.post(`${API_URL}/api/fetch_profile?_format=json`, {}, {
-    headers: { 
-      'Authorization': `Basic ${basic_auth}` 
-    }
-  })
-  .then(function (response) {
-    let results = response.data
+  // axios.post(`${API_URL}/api/fetch_profile?_format=json`, {}, {
+  //   headers: { 
+  //     'Authorization': `Basic ${basic_auth}` 
+  //   }
+  // })
+  // .then(function (response) {
+  //   let results = response.data
 
-    console.log('updateProfile : ', results)
-    if(results.result){
-      let {profile} = results
-      dispatch(_fetchProfile(profile));
-    }
-  })
-  .catch(function (error) {
-    console.log(error)
-  });
+  //   console.log('updateProfile : ', results)
+  //   if(results.result){
+  //     let {profile} = results
+  //     dispatch(_fetchProfile(profile));
+  //   }
+  // })
+  // .catch(function (error) {
+  //   console.log(error)
+  // });
 }
 
 export const followUp = (data) => dispatch => {
@@ -122,21 +117,21 @@ export const ___followUp = (data, mode) => dispatch => {
 }
 
 export const fetchMyApps = (basic_auth) => dispatch => {
-  axios.post(`${API_URL}/api/fetch_mypost?_format=json`, {}, {
-    headers: { 
-      'Authorization': `Basic ${basic_auth}` 
-    }
-  })
-  .then(function (response) {
-    let results = response.data
-    if(results.result){
-      let {datas} = results
-      dispatch(_fetchMyApps(datas.map(function (my_app) {return my_app.id})));
-    }
-  })
-  .catch(function (error) {
-    console.log(error)
-  });
+  // axios.post(`${API_URL}/api/fetch_mypost?_format=json`, {}, {
+  //   headers: { 
+  //     'Authorization': `Basic ${basic_auth}` 
+  //   }
+  // })
+  // .then(function (response) {
+  //   let results = response.data
+  //   if(results.result){
+  //     let {datas} = results
+  //     dispatch(_fetchMyApps(datas.map(function (my_app) {return my_app.id})));
+  //   }
+  // })
+  // .catch(function (error) {
+  //   console.log(error)
+  // });
 }
 
 export const addHistory = (data) => dispatch => {

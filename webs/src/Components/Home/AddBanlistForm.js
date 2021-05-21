@@ -47,7 +47,6 @@ const AddBanlistForm = (props) => {
     {'key':24,'value': 'เก็บเงินปลายทาง'} 
   ]);
 
-
   useEffect(() => {
     console.log('showModal >> ', props.showModal)
     setShowModal(props.showModal)

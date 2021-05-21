@@ -1,12 +1,13 @@
 import React, { useEffect } from "react";
 import Lightbox from "react-image-lightbox";
-import "react-image-lightbox/style.css";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
-
+import MoreVertOutlinedIcon from '@material-ui/icons/MoreVertOutlined';
+import VerifiedUserOutlinedIcon from '@material-ui/icons/VerifiedUserOutlined';
+import { toast } from 'react-toastify';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import 'react-lazy-load-image-component/src/effects/blur.css';
-import "../../App.css";
+import { isEmpty } from "../Utils/Utils";
 
 const UseHomeItem = (props) => {
   const [item, setItem] = React.useState({});
@@ -16,9 +17,6 @@ const UseHomeItem = (props) => {
   const [photoIndex, setPhotoIndex] = React.useState(0);
 
   useEffect(() => {
-    // Update the document title using the browser API
-    // document.title = `You clicked ${count} times`;
-    // console.log('props.item : ', props.item)
     setItem(props.item)
   });
   
@@ -146,41 +144,104 @@ const UseHomeItem = (props) => {
                 <div style={{cursor: 'pointer'}} onClick={()=>{
                   // console.log('/detail/:id : ', props)
                   // /detail/:id
-                  props.history.push({pathname: `detail/${2222}`, state: { indexedDB:'444'} })
+                  // props.history.push({pathname: `detail/${item.id}`, state: { item } })
                 }}> 
-                    <div>
-                      <div>ชื่อ-นามสกุล: {item.name_surname}</div>
-                    </div>
+                  <div style={{cursor: 'pointer'}} onClick={()=>{
+                    // console.log('/detail/:id : ', props)
+                    // /detail/:id
+                    props.history.push({pathname: `detail/${item.id}`, state: { item } })
+                  }}> 
+                      <div>
+                        <div>ชื่อ-นามสกุล: {item.name_surname}</div>
+                      </div>
 
-                    <div>
-                      <div>สินค้า/ประเภท: {item.title}</div>
+                      <div>
+                        <div>สินค้า/ประเภท: {item.title}</div>
+                      </div>
+                      <div>
+                        <div>ยอดเงิน: {item.transfer_amount}</div>
+                      </div>
+                      <div>
+                        <div>วันโอนเงิน: {item.transfer_date}</div>
+                      </div>
+                      <div>
+                        <div>รายละเอียด</div>
+                        <textarea value={item.detail}/>
+                      </div> 
                     </div>
                     <div>
-                      <div>ยอดเงิน: {item.transfer_amount}</div>
+                      <VerifiedUserOutlinedIcon 
+                        onClick={()=>{ 
+                          // toast.info("Wow so easy!", 
+                          //           {
+                          //             position: "bottom-right", 
+                          //             hideProgressBar: true,
+                          //             autoClose: 1000,
+                          //           }) 
+
+                          if(isEmpty(props.user)){
+                            props.updateState({showModalLogin: true})
+                          }
+
+                          /*
+                          let cL = this.props.user
+                          if(isEmpty(cL)){
+                            _this.props.onUpdateState({showModalLogin: true})
+                          }else{
+                        
+                            let follow_up = true;
+                            if(!isEmpty(___follow_ups)){
+                              let find_fup = ___follow_ups.find(value => String(value.id) === String(item.id) )
+                              // console.log('fup : ', find_fup, item.id)
+        
+                              if(!isEmpty(find_fup)){
+                                follow_up = !find_fup.follow_up
+                              }
+                            }
+
+                            if(follow_up){
+                              _this.props.toast.show("Follow up");
+                            }else{
+                              _this.props.toast.show("Unfollow up");
+                            }
+
+                            ___followUp({"id": item.id, 
+                                        "local": true, 
+                                        "follow_up": follow_up, 
+                                        "unique_id": getUniqueId(), 
+                                        "owner_id": item.owner_id, 
+                                        "date": Date.now()}, 0);
+                          }
+                          */
+                        }} />
+                      <MoreVertOutlinedIcon 
+                        onClick={handleClick} />
                     </div>
-                    <div>
-                      <div>วันโอนเงิน: {item.transfer_date}</div>
-                    </div>
-                    <div>
-                      <div>รายละเอียด</div>
-                      <textarea value={item.detail}/>
-                    </div> 
-                    <button style={{ color: 'red' }}> Follow up </button>
-                    <button 
-                        style={{outline: 'none !important', }}  
-                        onClick={handleClick}>
-                        Menu
-                    </button>
                 </div>
-                
-            
             <Menu
                 keepMounted
                 anchorEl={anchorEl}
                 onClose={handleClose}
                 open={Boolean(anchorEl)}>
-                <MenuItem onClick={handleClose}>Copy link</MenuItem>
-                <MenuItem onClick={handleClose}>Report</MenuItem>
+                <CopyToClipboard text={"http://localhost:8099/detail/" + item.id}>
+                  <MenuItem onClick={()=>{
+
+                    toast.info("Link to post copied to clipboard.", 
+                    {
+                        position: "bottom-right", 
+                        hideProgressBar: true,
+                        autoClose: 1000,
+                    }) 
+                    handleClose()
+                  }}>Copy link</MenuItem>
+                </CopyToClipboard>
+                <MenuItem onClick={()=>{
+                  if(isEmpty(props.user)){
+                    props.updateState({showModalLogin: true})
+                  }
+
+                  handleClose()
+                }}>Report</MenuItem>
             </Menu> 
             
     </div>

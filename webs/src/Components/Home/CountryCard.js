@@ -1,14 +1,6 @@
 import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
-// import Flag from "react-flags";
-
-
-import img01 from "../../images/download.jpeg";
-
-// import Button from './Button'
 import Buttonx from "./Button";
-
-import "../../App.css";
 
 const options = {
   // settings: {
