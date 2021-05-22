@@ -186,3 +186,26 @@
   color: red;
 }
 /* floating */
+
+/* scroll-to-top */
+.scroll-to-top {
+  position: fixed;
+  bottom: 0.5rem;
+  /* right: 0.5rem; */
+  left: 1rem;
+  animation: fadeIn 700ms ease-in-out 1s both;
+  cursor: pointer;
+  background-color: gray;
+  /* padding: 5px; */
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* scroll-to-top */

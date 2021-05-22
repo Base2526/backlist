@@ -4,6 +4,8 @@ import { BrowserRouter as BR, Route, Switch } from 'react-router-dom';
 import Container from 'react-bootstrap/Container'
 import { ToastContainer, toast } from 'react-toastify';
 
+import ScrollToTopBtn from "./Components/Fields/ScrollToTopBtn";
+
 // import io from "socket.io-client";
 import {
   CacheSwitch,
@@ -123,6 +125,7 @@ class App extends Component {
                             <Breadcrumbs crumbs={crumbs} />
                             <Component {...props} />
 
+                            <ScrollToTopBtn />
                             <Footer>
                               <span>footer content</span>  
                             </Footer>  
