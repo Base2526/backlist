@@ -2,6 +2,10 @@ import React, { Component, useEffect } from 'react';
 import { useHistory } from "react-router-dom";
 
 import ContactWebsiteDialog from './ContactWebsiteDialog'
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+
+import appStoreIcon from '../../images/app-store-icon.png';
+import googlePlayIcon from '../../images/googleplay-icon.jpeg';
 
 var style = {
     backgroundColor: "#F8F8F8",
@@ -30,54 +34,73 @@ const Footer = (props) => {
         
     })
     return (
-        <div>
+        <div className="footer">
             { showModalContactWebsite && <ContactWebsiteDialog showModal={showModalContactWebsite} onClose = {()=>{  setShowModalContactWebsite(false) }}  /> }
-           
-            <div style={phantom} />
-            <div style={style}>
+            <div>
             <div>
                 <div>
-                    <a href='https://www.facebook.com/banlistinfo' target="_blank" >Fanpage facebook</a>
+                    <div style={{cursor:'pointer'}} 
+                        onClick={()=> window.open("https://www.facebook.com/banlistinfo", "_blank")}>
+                    <span className="span-border-bottom">Fanpage facebook</span>
+                    </div>
                 </div>
                 <div>
-                    <a href='https://twitter.com/8QGI1niUcDpQPin' target="_blank">Twitter</a>
+                    <div style={{cursor:'pointer'}} 
+                        onClick={()=> window.open("https://twitter.com/8QGI1niUcDpQPin", "_blank")}>
+                    <span className="span-border-bottom">Twitter</span>
+                    </div>
                 </div>
                 <div>
                     <div style={{cursor:'pointer'}} onClick={()=>{
                          history.push({pathname: `/terms-of-service`, state: {} }) 
                     }}>
-                    เงื่อนไขการใช้บริการ
+                    <span className="span-border-bottom">เงื่อนไขการใช้บริการ</span>
                     </div>
                 </div>
                 <div>
                     <div style={{cursor:'pointer'}} onClick={()=>{
                          history.push({pathname: `/about-up`, state: {} }) 
                     }}>
-                    เกี่ยวกับเรา
+                    <span className="span-border-bottom">เกี่ยวกับเรา</span>
                     </div>
                 </div>
                 <div>
                     <div style={{cursor:'pointer'}} onClick={()=>{
                          history.push({pathname: `/for-developer`, state: {} }) 
                     }}>
-                    สำหรับนักพัฒนา
+                    <span className="span-border-bottom">สำหรับนักพัฒนา</span>
                     </div>
                 </div>
                 <div>
                     <div style={{cursor:'pointer'}} onClick={()=>{
-                        //  history.push({pathname: `/contact-website`, state: {} }) 
                          setShowModalContactWebsite(true)
                     }}>
-                    ติดต่อเว็บไซต์
+                    <span className="span-border-bottom">ติดต่อเว็บไซต์</span>
                     </div>
                 </div>   
-                {/* <div>
-                    <a href="#"><img style="border-radius: 10px;" src="/{{ params['module_path'] }}/images/app-store-icon.png" alt="apple store" width="200" height="60"></a>
+                <div>
+                    <LazyLoadImage
+                        style={{borderRadius:"10px", cursor:"pointer"}}
+                        alt={'apps.apple.com'}
+                        width="250px"
+                        height="100%"
+                        effect="blur"
+                        onClick={()=> window.open("https://apps.apple.com/", "_blank")}
+                        placeholder={<div style={{textAlign:'center'}}><p>loading...</p></div>}
+                        src={appStoreIcon} />
                 </div> 
                 
                 <div>
-                    <a href="https://play.google.com/store/apps/details?id=mrx.bl" target="_blank"><img style="border-radius: 10px;" src="/{{ params['module_path'] }}/images/googleplay-icon.jpeg" alt="google play" width="200" height="60"></a>
-                </div>  */}
+                    <LazyLoadImage
+                        style={{borderRadius:"10px", cursor:"pointer"}}
+                        alt={'play.google.com'}
+                        width="250px"
+                        height="100%"
+                        effect="blur"
+                        onClick={()=> window.open("https://play.google.com/store/apps/details?id=mrx.bl", "_blank")}
+                        placeholder={<div style={{textAlign:'center'}}><p>loading...</p></div>}
+                        src={googlePlayIcon} />
+                </div> 
             </div>
             </div>
         </div>

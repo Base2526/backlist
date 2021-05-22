@@ -156,7 +156,7 @@ const DetailPage = (props) => {
                             anchorEl={anchorEl}
                             onClose={handleClose}
                             open={Boolean(anchorEl)}>
-                            <CopyToClipboard text={"http://localhost:8099/detail/"}>
+                            <CopyToClipboard text={"http://localhost:8099/detail/" + item.id}>
                             <MenuItem onClick={()=>{
                                 toast.info("Link to post copied to clipboard.", 
                                         {

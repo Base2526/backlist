@@ -6,7 +6,7 @@ import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 
 import Pagination from "./Pagination";
 import UseHomeItem from "./UseHomeItem";
-import Checkbox from "./Checkbox";
+import Checkbox from "../Fields/Checkbox";
 import AddBanlistDialog from './AddBanlistDialog'
 import ReportDialog from './ReportDialog'
 

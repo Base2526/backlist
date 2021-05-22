@@ -20,10 +20,7 @@ import MyFollowUpPage from './Components/Home/MyFollowUpPage'
 import TermsofServicePage from './Components/Home/TermsofServicePage'
 import AboutupPage from './Components/Home/AboutupPage'
 import ForDeveloperPage from './Components/Home/ForDeveloperPage'
-import ContactWebsitePage from './Components/Home/ContactWebsitePage'
 
-// 
-// 
 
 // import AddBanlistPage from './Components/Home/AddBanlistPage'
 
@@ -137,11 +134,8 @@ export default [
     { path: "/terms-of-service", name: "Terms of Service", Component: TermsofServicePage },
     { path: "/about-up", name: "About up", Component: AboutupPage },
     { path: "/for-developer", name: "For Developer", Component: ForDeveloperPage },
-    { path: "/contact-website", name: "Contact Website", Component: ContactWebsitePage },
-    // ContactWebsitePage
 
-    
-    
+        
     // { path: "/affiliate-page", name: "แนะนำเพือน", Component: AffiliatePage },
     // { path: "/statement", name: "รายงานการเงิน", Component: StatementPage },
     // { path: "/request-all", name: "สถานะ ฝาก/ถอนเงิน", Component: RequestAllPage },
