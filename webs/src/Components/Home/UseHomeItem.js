@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { isEmpty } from "../Utils/Utils";
+import ReactReadMoreReadLess from "react-read-more-read-less";
 
 const UseHomeItem = (props) => {
   const [item, setItem] = React.useState({});
@@ -149,7 +150,7 @@ const UseHomeItem = (props) => {
                   <div style={{cursor: 'pointer'}} onClick={()=>{
                     // console.log('/detail/:id : ', props)
                     // /detail/:id
-                    props.history.push({pathname: `detail/${item.id}`, state: { item } })
+                    // props.history.push({pathname: `detail/${item.id}`, state: { item } })
                   }}> 
                       <div>
                         <div>ชื่อ-นามสกุล: {item.name_surname}</div>
@@ -166,7 +167,22 @@ const UseHomeItem = (props) => {
                       </div>
                       <div>
                         <div>รายละเอียด</div>
-                        <div style={{maxWidth:"300px"}}>{item.detail}</div>
+                        <div style={{maxWidth:"300px"}}>
+
+                          {
+                            !isEmpty(item.detail) && 
+                            <ReactReadMoreReadLess
+                              charLimit={50}
+                              readMoreText={"Read more"}
+                              readLessText={"Read less"}
+                              readMoreClassName="read-more-less--more"
+                              readLessClassName="read-more-less--less"
+                            >
+                              {item.detail}
+                            </ReactReadMoreReadLess>
+                          }
+                          
+                        </div>
                       </div> 
                     </div>
                     <div>

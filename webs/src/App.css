@@ -222,3 +222,8 @@
   background-color: gainsboro;
 }
 /* footer */
+
+.read-more-less--more,
+.read-more-less--less {
+  color: #999;
+}
