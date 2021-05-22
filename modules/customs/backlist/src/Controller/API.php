@@ -1919,14 +1919,32 @@ class API extends ControllerBase {
   public function GetHTML(Request $request){
     $response_array = array();
 
-    $node = Node::load(151);
-    $body = $node->get('body')->getValue();
-    if(!empty($body)){
-     $response_array['data']  = $body[0]['value'];
+    try{
+      $content = json_decode( $request->getContent(), TRUE );
+      $nid = trim( $content['nid'] );
+
+      if(!empty($nid)){
+        $node = Node::load($nid);
+        $body = $node->get('body')->getValue();
+        if(!empty($body)){
+          $response_array['data']  = $body[0]['value'];
+        }
+
+        $response_array['result']  = TRUE;
+        return new JsonResponse( $response_array );
+      }
+
+      $response_array['result']  = FALSE;
+      return new JsonResponse( $response_array );
+    } catch (\Throwable $e) {
+      \Drupal::logger('GetHTML')->notice($e->__toString());
+
+      $response_array['result']   = FALSE;
+      $response_array['message']  = $e->__toString();
+      return new JsonResponse( $response_array );
     }
 
-    $response_array['result']  = TRUE;
-    return new JsonResponse( $response_array );
+    
   }
 
 }

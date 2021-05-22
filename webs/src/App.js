@@ -17,7 +17,6 @@ import HeaderBar from './Components/Home/HeaderBar';
 import Footer from './Components/Home/Footer';
 import routes from "./routes";
 
-
 class App extends Component {
   componentDidMount() {
     console.log("process.env : ", process.env); 

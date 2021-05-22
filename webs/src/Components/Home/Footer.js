@@ -1,5 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, useEffect } from 'react';
 import { useHistory } from "react-router-dom";
+
+import ContactWebsiteDialog from './ContactWebsiteDialog'
 
 var style = {
     backgroundColor: "#F8F8F8",
@@ -23,9 +25,14 @@ var phantom = {
 
 const Footer = (props) => {
     const history = useHistory();
-
+    const [showModalContactWebsite, setShowModalContactWebsite]   = React.useState(false);
+    useEffect(() => {
+        
+    })
     return (
         <div>
+            { showModalContactWebsite && <ContactWebsiteDialog showModal={showModalContactWebsite} onClose = {()=>{  setShowModalContactWebsite(false) }}  /> }
+           
             <div style={phantom} />
             <div style={style}>
             <div>
@@ -58,7 +65,8 @@ const Footer = (props) => {
                 </div>
                 <div>
                     <div style={{cursor:'pointer'}} onClick={()=>{
-                         history.push({pathname: `/contact-website`, state: {} }) 
+                        //  history.push({pathname: `/contact-website`, state: {} }) 
+                         setShowModalContactWebsite(true)
                     }}>
                     ติดต่อเว็บไซต์
                     </div>

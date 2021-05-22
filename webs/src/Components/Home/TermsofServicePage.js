@@ -1,27 +1,20 @@
 import React, { useEffect } from "react";
-
 import { useHistory } from "react-router-dom";
-
 import axios from 'axios';
-
+import { Markup } from 'interweave';
+import { CircularProgress } from '@material-ui/core';
+import {isEmpty} from '../Utils/Utils'
 const TermsofServicePage = (props) => {
     const history = useHistory();
     const [data, setData]  = React.useState("");
 
     useEffect(() => {
-        // let {item} = props.location.state
-        // let {id} = props.match.params
-        // console.log('DetailPage useEffect : props > ', props, item)
-    
-        axios.post(`/api/getHTML?_format=json`, {}, {
+        axios.post(`/api/getHTML?_format=json`, {'nid':149}, {
             headers: {'Authorization': `Basic YWRtaW46U29ta2lkMDU4ODQ4Mzkx`}
         })
         .then(function (response) {
-            console.log('TermsofServicePage > response : ', response)
-
             let data = response.data
             if(data.result){
-                console.log('TermsofServicePage > data : ', data.data)
                 setData(data.data)
             }
         })
@@ -29,10 +22,11 @@ const TermsofServicePage = (props) => {
             console.log("TermsofServicePage > error :", error)
         });
     });
-  
+
     return (
-        <div>{data}</div>
-    )
+            isEmpty(data)
+            ?   <div> <CircularProgress /> </div> 
+            :   <div><Markup content={data} /></div>)
 }
   
 export default TermsofServicePage;
