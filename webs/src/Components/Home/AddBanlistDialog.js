@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from "react-bootstrap";
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 
-const AddBanlistForm = (props) => {
+const AddBanlistDialog = (props) => {
   const [showModal, setShowModal] = React.useState(false);
   
   const [title, setTitle] = useState();
@@ -422,4 +421,4 @@ const AddBanlistForm = (props) => {
   
 }
 
-export default AddBanlistForm;
+export default AddBanlistDialog;

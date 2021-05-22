@@ -1916,4 +1916,17 @@ class API extends ControllerBase {
     }
   }
 
+  public function GetHTML(Request $request){
+    $response_array = array();
+
+    $node = Node::load(151);
+    $body = $node->get('body')->getValue();
+    if(!empty($body)){
+     $response_array['data']  = $body[0]['value'];
+    }
+
+    $response_array['result']  = TRUE;
+    return new JsonResponse( $response_array );
+  }
+
 }

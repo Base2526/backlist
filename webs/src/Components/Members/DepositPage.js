@@ -10,12 +10,8 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import DatePicker from "react-datepicker";
 import axios from 'axios';
 import _ from 'lodash';
-
 import { Base64 } from 'js-base64';
-
 import { Redirect} from 'react-router-dom';
-
-import "react-datepicker/dist/react-datepicker.css";
 import { showToast } from '../Utils/Config';
 import { loadingOverlayActive } from '../../actions/huay'
 

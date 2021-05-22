@@ -31,7 +31,6 @@ websearch.form:
   requirements:
     _access: 'TRUE'
 
-
 filter_by_person.form:
   path: '/filter_by_person/{name}/{surname}'
   defaults:
@@ -290,6 +289,16 @@ api.delete_my_app:
   methods: [POST]
   defaults: 
     _controller: '\Drupal\backlist\Controller\API::DeleteMyApp'
+  requirements: 
+    _role: 'authenticated+administrator'
+  options:
+    _auth: ['basic_auth']
+
+api.getHTML:
+  path: '/api/getHTML'
+  methods: [POST]
+  defaults: 
+    _controller: '\Drupal\backlist\Controller\API::GetHTML'
   requirements: 
     _role: 'authenticated+administrator'
   options:

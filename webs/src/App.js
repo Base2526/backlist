@@ -4,7 +4,7 @@ import { BrowserRouter as BR, Route, Switch } from 'react-router-dom';
 import Container from 'react-bootstrap/Container'
 import { ToastContainer, toast } from 'react-toastify';
 
-import io from "socket.io-client";
+// import io from "socket.io-client";
 import {
   CacheSwitch,
   CacheRoute,
@@ -52,12 +52,22 @@ class App extends Component {
 
     // console.log("message >>> 2", socket)
 
-    const socket = io("/nodejs/")
-    socket.on('message', (messageNew) => {
-      // temp.push(messageNew)
-      // this.setState({ message: temp })
-      console.log("message >>> ", messageNew)
-    })
+    // const socket = io("/",  { query:`platform=platform&unique_id=unique_id&version=version` } )
+    // socket.on('message', (messageNew) => {
+    //   // temp.push(messageNew)
+    //   // this.setState({ message: temp })
+    //   console.log("message >>> ", messageNew)
+    // })
+
+    // const socket = io('/', {})
+
+    // if (socket.connected === false && socket.connecting === false) {
+    //   // use a connect() or reconnect() here if you want
+    //   socket.connect()
+    //   console.log('reconnected!');
+    // }
+
+    // console.log('socket', socket)
 
     /*
     

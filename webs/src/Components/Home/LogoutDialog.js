@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 
 import { useHistory } from "react-router-dom";
 import { Modal, Button } from "react-bootstrap";
-import "react-datepicker/dist/react-datepicker.css";
 
 const LogoutDialog = (props) => {
     const history = useHistory();

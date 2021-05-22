@@ -166,7 +166,7 @@ const UseHomeItem = (props) => {
                       </div>
                       <div>
                         <div>รายละเอียด</div>
-                        <textarea value={item.detail}/>
+                        <div style={{maxWidth:"300px"}}>{item.detail}</div>
                       </div> 
                     </div>
                     <div>
@@ -238,6 +238,8 @@ const UseHomeItem = (props) => {
                 <MenuItem onClick={()=>{
                   if(isEmpty(props.user)){
                     props.updateState({showModalLogin: true})
+                  }else{
+                    props.updateState({showModalReport: true})
                   }
 
                   handleClose()

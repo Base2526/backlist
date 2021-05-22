@@ -1,4 +1,3 @@
-const mongoose = require("mongoose");
 var express = require('express');
 var http = require('http')
 var socketio = require('socket.io');
@@ -6,7 +5,7 @@ var mongojs = require('mongojs');
 
 const config    = require('./config')
 
-var ObjectID = mongojs.ObjectID;
+// var ObjectID = mongojs.ObjectID;
 // mongodb://admin:password@localhost:27017/db
 // var db = mongojs("mongodb://mongo:27017/bl");
 var app = express();
@@ -19,7 +18,6 @@ const followerPostModel  = require('./models/follower_post');
 const notificationsModel = require('./models/notifications')
 
 const connection = require("./connection")
-
 const {empty} = require("./utils")
 
 require('./log-interceptor')(server);

@@ -7,7 +7,8 @@ import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 import Pagination from "./Pagination";
 import UseHomeItem from "./UseHomeItem";
 import Checkbox from "./Checkbox";
-import AddBanlistForm from './AddBanlistForm'
+import AddBanlistDialog from './AddBanlistDialog'
+import ReportDialog from './ReportDialog'
 
 import LoginForm from '../Setting/LoginForm'
 import {isEmpty} from '../Utils/Utils'
@@ -45,7 +46,8 @@ class HomePage extends Component {
       loading: false,
       showModal : false,
 
-      showModalLogin: false
+      showModalLogin: false,
+      showModalReport: false
     };
   }
 
@@ -220,24 +222,6 @@ class HomePage extends Component {
     }
   }
 
-  // id: 'title', title:
-  // createCheckbox = (itm) => (
-  //   <Checkbox
-  //     label={itm.title}
-  //     handleCheckboxChange={this.toggleCheckbox}
-  //     value={itm.id}
-  //     key={itm.id}/>
-  // )
-
-  // createCheckboxes = () => (
-    
-  // )
-
-  handleChange(event) {
-    this.setState({searchWord: event.target.value})
-  }
-
-
   updateState = data => {
     this.setState(data);
   }
@@ -250,11 +234,11 @@ class HomePage extends Component {
       return <CircularProgress />
     }else {
       return data.map(item => (
-        <UseHomeItem 
-          {...this.props} 
-          item={item}
-          updateState={this.updateState}/>
-      ))
+              <UseHomeItem 
+                {...this.props} 
+                item={item}
+                updateState={this.updateState}/>
+            ))
     }
   }
 
@@ -268,39 +252,21 @@ class HomePage extends Component {
 
       loading,
       showModal,
-      showModalLogin
+      showModalLogin,
+      showModalReport
     } = this.state;
 
     let {user, data} = this.props
 
-    console.log('--1-- >>> >>>>', this.props, data );
+    // console.log('--1-- >>> >>>>', this.props, data );
     // allResultCount = 10000;
     if (allResultCount === 0) return null;
 
     // console.log('--2--' , currentCountries);
     return (
       <div className="container mb-5">
-        {/* <button style={{outline: 'none !important', backgroundColor:'red'}}  onClick={()=>{
-            if(isEmpty(user)){
-              this.setState({showModalLogin:true})
-            }else{
-              this.setState({showModal:true})
-            }
-          }}>
-            เพิ่ม Banlist
-        </button> */}
-
-        {/* <div style={{cursor:"pointer"}} onClick={()=>{
-          if(isEmpty(user)){
-            this.setState({showModalLogin:true})
-          }else{
-            this.setState({showModal:true})
-          }
-        }}>
-         <span className="bl-border-bottom">เพิ่ม Banlist</span>
-        </div> */}
-
-        <AddBanlistForm showModal={showModal} onClose = {()=>{ console.log('--0999--');  this.setState({showModal:false})   }} />
+        <AddBanlistDialog showModal={showModal} onClose = {()=>{ console.log('--0999--');  this.setState({showModal:false})   }} />
+        { showModalReport && <ReportDialog showModal={showModalReport} onClose = {()=>{  this.setState({showModalReport:false}) }}  /> }
         <div>
           <form onSubmit={this.handleFormSubmit}>
             <div>
@@ -309,27 +275,28 @@ class HomePage extends Component {
                   type="text" 
                   name="title" 
                   value={this.state.searchWord} 
-                  onChange={this.handleChange.bind(this)}
+                  onChange={(event)=>{
+                    this.setState({searchWord: event.target.value})
+                  }}
                   required/>
                 <button type="submit">ค้นหา</button>
               </div>
-              <div>
-              <ul class="flex-container row">
-                {
-                  items.map((itm)=>{
-                    return <li class="flex-item">
-                              <Checkbox
-                                label={itm.title}
-                                handleCheckboxChange={this.toggleCheckbox}
-                                value={itm.id}
-                                key={itm.id}/>
-                          </li>
-                  })
-                }
-              </ul>
+              <div style={{paddingTop:10}}>
+                <div style={{fontSize:"20px"}}>Search by category </div>
+                <ul class="flex-container row">
+                  {
+                    items.map((itm)=>{
+                      return <li class="flex-item">
+                                <Checkbox
+                                  label={itm.title}
+                                  handleCheckboxChange={this.toggleCheckbox}
+                                  value={itm.id}
+                                  key={itm.id}/>
+                            </li>
+                    })
+                  }
+                </ul>
               </div>
-              
-              
             </div>
           </form>
         </div>
