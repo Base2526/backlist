@@ -1,52 +1,38 @@
-import React, { Component } from "react";
+import React, { useEffect } from "react";
 
-import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+const ScrollToTopBtn = (props) => {
+  const [visible, setVisible] = React.useState(false);
 
-export default class ScrollToTop extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      is_visible: false
-    };
-  }
-
-  componentDidMount() {
-    var scrollComponent = this;
-    document.addEventListener("scroll", function(e) {
-      scrollComponent.toggleVisibility();
+  useEffect(() => {
+    document.addEventListener("scroll", function (e) {
+      toggleVisibility();
     });
-  }
+  });
 
-  toggleVisibility() {
-    console.log('toggleVisibility : ', window.pageYOffset)
-    if (window.pageYOffset > 300) {
-      this.setState({
-        is_visible: true
-      });
+  const toggleVisibility = () => {
+    if (window.pageYOffset > 350) {
+      setVisible(true);
     } else {
-      this.setState({
-        is_visible: false
-      });
+      setVisible(false);
     }
-  }
+  };
 
-  scrollToTop() {
+  const scrollToTop = () => {
     window.scrollTo({
       top: 0,
       behavior: "smooth"
     });
-  }
+  };
 
-  render() {
-    const { is_visible } = this.state;
-    return (
-      <div className="scroll-to-top">
-        {is_visible && (
-            <div onClick={() => this.scrollToTop()}>
-                <KeyboardArrowUpIcon />
-            </div>
-        )}
-      </div>
-    );
-  }
-}
+  return (
+    <div className="scroll-to-top">
+      {visible && (
+        <div onClick={() => scrollToTop()}>
+          <span>^</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ScrollToTopBtn;

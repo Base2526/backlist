@@ -147,28 +147,28 @@ const UseHomeItem = (props) => {
                   // /detail/:id
                   // props.history.push({pathname: `detail/${item.id}`, state: { item } })
                 }}> 
-                  <div style={{cursor: 'pointer'}} onClick={()=>{
-                    // console.log('/detail/:id : ', props)
-                    // /detail/:id
-                    // props.history.push({pathname: `detail/${item.id}`, state: { item } })
-                  }}> 
-                      <div>
-                        <div>ชื่อ-นามสกุล: {item.name_surname}</div>
-                      </div>
+                    <div>
+                        <div style={{cursor: 'pointer'}} onClick={()=>{
+                          props.history.push({pathname: `detail/${item.id}`, state: { item } })
+                        }}> 
+                      
+                        <div>
+                          <div>ชื่อ-นามสกุล: {item.name_surname}</div>
+                        </div>
 
-                      <div>
-                        <div>สินค้า/ประเภท: {item.title}</div>
-                      </div>
-                      <div>
-                        <div>ยอดเงิน: {item.transfer_amount}</div>
-                      </div>
-                      <div>
-                        <div>วันโอนเงิน: {item.transfer_date}</div>
+                        <div>
+                          <div>สินค้า/ประเภท: {item.title}</div>
+                        </div>
+                        <div>
+                          <div>ยอดเงิน: {item.transfer_amount}</div>
+                        </div>
+                        <div>
+                          <div>วันโอนเงิน: {item.transfer_date}</div>
+                        </div>
                       </div>
                       <div>
                         <div>รายละเอียด</div>
                         <div style={{maxWidth:"300px"}}>
-
                           {
                             !isEmpty(item.detail) && 
                             <ReactReadMoreReadLess
@@ -177,6 +177,7 @@ const UseHomeItem = (props) => {
                               readLessText={"Read less"}
                               readMoreClassName="read-more-less--more"
                               readLessClassName="read-more-less--less"
+                              onClick={()=>console.log("ReactReadMoreReadLess")}
                             >
                               {item.detail}
                             </ReactReadMoreReadLess>
