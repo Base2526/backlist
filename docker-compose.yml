@@ -1,20 +1,20 @@
 version: "3.3"
 services:
-  frontend:
-    container_name: cfy_frontend
-    build:
-      context: ./webs
-      dockerfile: Dockerfile
-    image: aneeshmelkot/cfy_frontend
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-    ports:
-      - "8099:3000"
-    tty: true
-    volumes:
-      - ./webs:/usr/src/app
-      - /usr/src/app/node_modules # เพิ่มความเร็วในการ load page /usr/src/app < จากด้านบน แล้วตามด้วย node_modules 
-    restart: always
+  # frontend:
+  #   container_name: cfy_frontend
+  #   build:
+  #     context: ./webs
+  #     dockerfile: Dockerfile
+  #   image: aneeshmelkot/cfy_frontend
+  #   environment:
+  #     - CHOKIDAR_USEPOLLING=true
+  #   ports:
+  #     - "8099:3000"
+  #   tty: true
+  #   volumes:
+  #     - ./webs:/usr/src/app
+  #     - /usr/src/app/node_modules # เพิ่มความเร็วในการ load page /usr/src/app < จากด้านบน แล้วตามด้วย node_modules 
+  #   restart: always
   # banlist:
   #   build: '.'
   #   # env_file:
@@ -80,5 +80,21 @@ services:
 #       PGADMIN_DEFAULT_PASSWORD: postgres
 #     hostname: pgadmin4
 #     restart: always
+
+  reactjs:
+    container_name: reactjs
+    build:
+      context: ./reactjs
+      dockerfile: Dockerfile
+    ports:
+      - 8011:6000
+      # - 80:80
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./reactjs/src:/app/src
+      # - /app/node_modules # increment performance load page /usr/src/app < จากด้านบน แล้วตามด้วย node_modules 
+    # environment:
+    #   NODE_ENV: production
 
 
