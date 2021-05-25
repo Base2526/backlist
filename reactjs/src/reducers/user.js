@@ -1,6 +1,6 @@
 import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE, 
          FOLLOW_UP, ___FOLLOW_UP, FETCH_MY_APPS, ADD_HISTORY, 
-         DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST, NET_INFO, NOTIFICATIONS } from '../constants/app';
+         DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST, NET_INFO, NOTIFICATIONS } from '../constants';
 
 export const  mergeArrays = (...arrays) => {
   let jointArray = []

@@ -15,8 +15,8 @@ import {
 } from "react-router-cache-route";
 
 import { Breadcrumbs } from './Components/Breadcrumbs'
-import HeaderBar from './Components/Home/HeaderBar';
-import Footer from './Components/Home/Footer';
+import HeaderBar from './Home/HeaderBar';
+import Footer from './Home/Footer';
 import routes from "./routes";
 
 class App extends Component {

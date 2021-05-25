@@ -2,27 +2,27 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 
-import HomePage from './Components/Home/HomePage';
+import HomePage from './home/HomePage';
 // import DepositPage from './Components/Members/DepositPage';
 // import WithdrawPage from './Components/Members/WithdrawPage';
 import ContactUsPage from './Components/Members/ContactUsPage';
 // import AddBankPage from './Components/Members/AddBankPage';
-import LoginPage from './Components/Setting/LoginPage';
+import LoginPage from './Setting/LoginPage';
 
-import DetailPage from './Components/Home/DetailPage'
-import ProfilePage from './Components/Home/ProfilePage'
-import SettingsPage from './Components/Home/SettingsPage'
-import NotificationsPage from './Components/Home/NotificationsPage'
+import DetailPage from './Home/DetailPage'
+import ProfilePage from './Home/ProfilePage'
+import SettingsPage from './Home/SettingsPage'
+import NotificationsPage from './Home/NotificationsPage'
 
-import MyPostPage from './Components/Home/MyPostPage'
-import MyFollowUpPage from './Components/Home/MyFollowUpPage'
+import MyPostPage from './Home/MyPostPage'
+import MyFollowUpPage from './Home/MyFollowUpPage'
 
-import TermsofServicePage from './Components/Home/TermsofServicePage'
-import AboutupPage from './Components/Home/AboutupPage'
-import ForDeveloperPage from './Components/Home/ForDeveloperPage'
+import TermsofServicePage from './Home/TermsofServicePage'
+import AboutupPage from './Home/AboutupPage'
+import ForDeveloperPage from './Home/ForDeveloperPage'
 
 
-// import AddBanlistPage from './Components/Home/AddBanlistPage'
+// import AddBanlistPage from './Home/AddBanlistPage'
 
 // import AffiliatePage from './Components/Members/AffiliatePage'
 // import StatementPage from './Components/Members/StatementPage'
@@ -40,9 +40,9 @@ import ForDeveloperPage from './Components/Home/ForDeveloperPage'
 // import ChitPage from './Components/Lottery/ChitPage';
 // import RewardPage from './Components/Lottery/RewardPage'
 
-// import ProfilePage from './Components/Setting/ProfilePage';
-import ForgetPasswordPage from './Components/Setting/ForgetPasswordPage';
-import RegisterPage from './Components/Setting/RegisterPage';
+
+import ForgetPasswordPage from './Setting/ForgetPasswordPage';
+import RegisterPage from './Setting/RegisterPage';
 
 import HelpPage from './Components/Help/HelpPage';
 

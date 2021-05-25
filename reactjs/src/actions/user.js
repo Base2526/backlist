@@ -6,7 +6,7 @@ import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE,
          DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST ,
         
         
-         NET_INFO, NOTIFICATIONS} from '../constants/app';
+         NET_INFO, NOTIFICATIONS} from '../constants';
 
 
 const _dataUserLogin = data => ({

@@ -4,7 +4,7 @@ import { BrowserRouter as BR, Route, Switch } from 'react-router-dom';
 import Container from 'react-bootstrap/Container'
 import { ToastContainer, toast } from 'react-toastify';
 
-import ScrollToTopBtn from "./Components/Fields/ScrollToTopBtn";
+import ScrollToTopBtn from "./components/ScrollToTopBtn";
 
 import io from 'socket.io-client';
 
@@ -16,9 +16,9 @@ import {
   useDidRecover
 } from "react-router-cache-route";
 
-import { Breadcrumbs } from './Components/Breadcrumbs'
-import HeaderBar from './Components/Home/HeaderBar';
-import Footer from './Components/Home/Footer';
+import Breadcrumbs from './pages/Breadcrumbs'
+import HeaderBar from './pages/HeaderBar';
+import Footer from './pages/Footer';
 import routes from "./routes";
 
 class App extends Component {

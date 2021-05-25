@@ -1,7 +1,4 @@
-// const axios = require('axios');
-
-// import {API_URL} from "../constants"
-import { FETCH_DATA } from '../constants/app';
+import { FETCH_DATA } from '../constants';
 
 const _fetchData = data => ({
   type: FETCH_DATA,

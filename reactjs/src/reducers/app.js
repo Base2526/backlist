@@ -1,4 +1,4 @@
-import { FETCH_DATA, CHECK_DATA, FETCH_ALL_DATA, TEST_DATA, CLEAR_DATA } from '../constants/app';
+import { FETCH_DATA, CHECK_DATA, FETCH_ALL_DATA, TEST_DATA, CLEAR_DATA } from '../constants';
 
 export const  mergeArrays = (...arrays) => {
   let jointArray = []
