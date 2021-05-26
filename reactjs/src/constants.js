@@ -1,5 +1,3 @@
-
-
 export const API_URL="http://banlist.info"
 export const API_TOKEN="YWRtaW46U29ta2lkMDU4ODQ4Mzkx"
 export const WEB_CLIENT_ID="693724870615-2hkmknke3sj6puo9c88nk67ouuu9m8l1.apps.googleusercontent.com"
@@ -38,3 +36,7 @@ export const ADD_FOLLOWER_POST = 'ADD_FOLLOWER_POST' // use first login insert a
 export const FOLLOWER_POST  = 'FOLLOWER_POST';       // case add each item
 export const NET_INFO   = 'NET_INFO'
 export const NOTIFICATIONS   = 'NOTIFICATIONS'
+
+
+export const LOADING_OVERLAY   = 'LOADING_OVERLAY'
+export const CLEAR_CACHED      = 'CLEAR_CACHED'

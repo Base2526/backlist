@@ -13,7 +13,7 @@ import { LazyLoadImage } from 'react-lazy-load-image-component';
 import axios from 'axios';
 
 import LoginForm from './LoginForm'
-import { isEmpty } from "../utils/Utils";
+import { isEmpty } from "../utils";
 import ReportDialog from './ReportDialog'
 
 const DetailPage = (props) => {

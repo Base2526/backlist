@@ -1,6 +1,8 @@
 import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE, 
          FOLLOW_UP, ___FOLLOW_UP, FETCH_MY_APPS, ADD_HISTORY, 
-         DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST, NET_INFO, NOTIFICATIONS } from '../constants';
+         DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST, 
+         NET_INFO, NOTIFICATIONS,
+         LOADING_OVERLAY, CLEAR_CACHED } from '../constants';
 
 export const  mergeArrays = (...arrays) => {
   let jointArray = []
@@ -47,6 +49,8 @@ const initialState = {
   net_info:{},
 
   notifications:[],
+
+  is_loading_overlay:false
 }
 
 const user = (state = initialState, action) => {
@@ -56,6 +60,10 @@ const user = (state = initialState, action) => {
     }
     
     case USER_LOGOUT: {
+      return initialState
+    }
+
+    case CLEAR_CACHED: {
       return initialState
     }
 
@@ -120,6 +128,11 @@ const user = (state = initialState, action) => {
     case NET_INFO: {
       return { ...state, net_info:action.data}
     }
+
+    case LOADING_OVERLAY:{
+      return { ...state, is_loading_overlay:action.data}
+    }
+
    
     default:
       return state;

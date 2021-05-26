@@ -227,3 +227,24 @@
 .read-more-less--less {
   color: #999;
 }
+
+._loading_overlay_content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+.div-button{
+  border-radius: 25px;
+  background: #73AD21;
+  padding: 5px;
+  border-width: 1px;
+  border-style: solid;
+}
+
+.div-button-disabled{
+  pointer-events: none;
+  opacity: 0.4;
+}

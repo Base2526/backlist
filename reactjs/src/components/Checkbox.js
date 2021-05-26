@@ -5,9 +5,13 @@ class Checkbox extends Component {
     isChecked: false,
   }
 
+  componentDidMount(){
+    const { checked } = this.props;
+    this.setState({isChecked: checked})
+  }
+
   toggleCheckboxChange = () => {
     const { handleCheckboxChange, label, value } = this.props;
-
     this.setState(({ isChecked }) => (
       {
         isChecked: !isChecked,
@@ -25,10 +29,10 @@ class Checkbox extends Component {
       <div className="checkbox">
         <label>
             <input
-                type="checkbox"
-                value={value}
-                checked={isChecked}
-                onChange={this.toggleCheckboxChange}
+              type="checkbox"
+              value={value}
+              checked={isChecked}
+              onChange={this.toggleCheckboxChange}
             />
           {label}
         </label>
@@ -36,10 +40,5 @@ class Checkbox extends Component {
     );
   }
 }
-
-// Checkbox.propTypes = {
-//   label: PropTypes.string.isRequired,
-//   handleCheckboxChange: PropTypes.func.isRequired,
-// };
 
 export default Checkbox;

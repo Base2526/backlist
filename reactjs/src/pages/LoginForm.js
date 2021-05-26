@@ -6,54 +6,38 @@ import FacebookLogin from 'react-facebook-login';
 import { CircularProgress } from '@material-ui/core';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { isEmpty } from "lodash";
-
-import { isEmailValid, uniqueId } from "../utils/Utils"
+import { isEmailValid, uniqueId, onToast, isEmpty } from "../utils"
 import PasswordField from "../components/PasswordField";
 import { userLogin, ___followUp,fetchMyApps, addfollowerPost } from '../actions/user';
 
 const LoginForm = (props) => {
+  const [displayName, setDisplayName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [mode, setMode] = React.useState("login");
   const [showModal, setShowModal] = React.useState(false);
   const [error, setError] = React.useState(false);
   const [errorMessages, setErrorMessages] = React.useState([]);
-  const [loadingEP, setLoadingEP] = React.useState(false);
+  const [loginLoading, setLoginLoading] = React.useState(false);
   const [loadingFacebook, setLoadingFacebook] = React.useState(false);
   const [loadingGoogle, setLoadingGoogle] = React.useState(false);
+
+  const [registerLoading, setRegisterLoading] = React.useState(false);
+  const [forgotLoading, setForgotLoading] = React.useState(false);
+
+  // loadingEP
+  // const [updateLoading, setUpdateLoading] = React.useState(false);
 
   useEffect(() => {
     setShowModal(props.showModal)
   });
 
   const contentBody = () =>{
-    let message_error = <div />
-    if(error){
-      message_error = <div className="alert alert-danger alert-sm">
-                        <button 
-                          type="button" 
-                          className="close" 
-                          data-dismiss="alert" 
-                          aria-hidden="true" 
-                          onClick={()=>{
-                            setError(false);
-                            setErrorMessages([]);
-                          }}>×</button>
-                        <span className="fw-semi-bold">Error:</span> {errorMessages.map((item, index)=>{ return (index ? ', ' : '') +  item } )}
-                      </div> 
-    }
-
     switch(mode){
       case 'login':{
         return (
           <div>
               <form className="form-horizontal form-loanable">
-                {/* <div className="alert alert-danger alert-sm">
-                  <button type="button" className="close" data-dismiss="alert" aria-hidden="true">×</button>
-                  <span className="fw-semi-bold">Error:</span> Login failed.
-                </div> */}
-                {message_error}
                 <fieldset>
                   <div className="form-group has-feedback required">
                     <label htmlFor="login-email" className="col-sm-5">Username or email</label>
@@ -87,13 +71,10 @@ const LoginForm = (props) => {
                 <div className="form-action" class="col-sm-12">
                   <button
                     type="submit"
-                    disabled={loadingEP}
-                    className="btn btn-lg btn-primary btn-left">Enter <span className="icon-arrow-right2 outlined"></span>
-                    {
-                      loadingEP && <CircularProgress size={20}/>
-                    }
-                  </button>
-    
+                    disabled={ (isEmpty(email) && isEmpty(password)) ? true: false }
+                    className={"div-button"} >Login
+                    { loginLoading && <CircularProgress size={15}/> }
+                  </button>    
                   <GoogleLogin
                     clientId="693724870615-2hkmknke3sj6puo9c88nk67ouuu9m8l1.apps.googleusercontent.com"
                     buttonText="Login"
@@ -124,25 +105,40 @@ const LoginForm = (props) => {
           <div>
             <div>
               <form className="form-horizontal form-loanable">
-                {message_error}
                 <fieldset>
                   <div className="form-group has-feedback required">
-                    <label htmlFor="login-email" className="col-sm-5">Username or email</label>
+                    <label htmlFor="login-email" className="col-sm-5">Name</label>
+                    <div className="col-sm-12">
+                      <span className="form-control-feedback" aria-hidden="true"></span>
+                      <input
+                        type="text"
+                        name="name"
+                        id="name"
+                        className="form-control"
+                        placeholder="Enter display name"
+                        value={email}
+                        onChange={(e)=>{
+                          setDisplayName(e.target.value)
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group has-feedback required">
+                    <label htmlFor="login-email" className="col-sm-5">Email</label>
                     <div className="col-sm-12">
                       <span className="form-control-feedback" aria-hidden="true"></span>
                       <input
                         type="text"
                         name="email"
-                        id="login-email"
+                        id="email"
                         className="form-control"
-                        placeholder="Enter username or email"
+                        placeholder="Enter email"
                         value={email}
                         onChange={(e)=>{
                           setEmail(e.target.value)
                         }}
                       />
                     </div>
-                    { /* console.log('error email ::: ' + JSON.stringify(errors)) */}
                   </div>
                   <div className="form-group has-feedback required">
                     <label htmlFor="login-password" className="col-sm-5">Password</label>
@@ -152,7 +148,7 @@ const LoginForm = (props) => {
                         <input
                           type="password"
                           name="password"
-                          id="login-password"
+                          id="password"
                           className="form-control"
                           placeholder="*****"
                           value={password}
@@ -167,55 +163,62 @@ const LoginForm = (props) => {
                 <div className="form-action" className="col-sm-12">
                   <button
                     type="submit"
-                    className="btn btn-lg btn-primary btn-left">Enter <span className="icon-arrow-right2 outlined"></span></button>
+                    disabled={ (isEmpty(displayName) && isEmpty(email) && isEmpty(password)) ? true: false }
+                    className={"div-button"} >Register 
+                    { registerLoading && <CircularProgress size={15}/> }
+                    </button>
                 </div>
               </form>
-            
             </div>
             <div className="col-sm-12">
-              <a href="#"
-                onClick={e => {
-                  e.preventDefault();
-    
+              <span 
+                style={{cursor:'pointer'}} 
+                className={"span-border-bottom "}
+                onClick={ (e) => {
                   setMode("login")
-                }}>Log in here</a>
+                }} >
+                Back to login
+              </span>
             </div>
           </div>
         );
-        break;
       }
 
       case 'forgot':{
         return(
           <div>
             <form className="form-horizontal form-loanable">
-              {message_error}
               <div className="col-sm-12">
                 <span className="form-control-feedback" aria-hidden="true"></span>
                 <input
                   type="text"
                   name="email"
-                  id="login-email"
+                  id="email"
                   className="form-control"
-                  placeholder="Enter username or email"
-                  // onChange={this.onChange}
-                  // value={this.state.email}
+                  placeholder="Enter email"
                   value={email}
                   onChange={(e)=>{
-                    // this.setState({ email: e.target.value });
-    
                     setEmail(e.target.value)
                   }}
-                  // required
                 />
             </div>
               <div className="form-action" className="col-sm-12">
                 <button
                   type="submit"
-                  className="btn btn-lg btn-primary btn-left">Send</button>
+                  disabled={ isEmpty(email) ? true: false }
+                  className={"div-button"} >Send 
+                  { forgotLoading && <CircularProgress size={15}/> }
+                </button>
               </div>
               <div className="col-sm-12">
-                <a href="#" onClick={e => { e.preventDefault(); setMode("login"); }}> Back to login </a>
+                <span 
+                style={{cursor:'pointer'}} 
+                className={"span-border-bottom "}
+                onClick={ (e) => {
+                  setMode("login")
+                }} >
+                Back to login
+              </span>
               </div>
             </form>
           </div>
@@ -224,128 +227,144 @@ const LoginForm = (props) => {
     }
   }
 
-
   const handleFormSubmit = (formSubmitEvent) => {
     console.log("handleFormSubmit mode : ", mode);
     formSubmitEvent.preventDefault();
-  
-    let _email = email.trim()
-    let _password = password.trim()
 
-    if(isEmpty(_email) && isEmpty(_password)){
-      console.log("isEmpty : email, password")
-      this.setState({error: true, errorMessages: ["Email & password is empty."]})
-    }else if(isEmpty(_email)){
-      this.setState({error: true, errorMessages: ["Email is empty."]})
-    }else if(isEmpty(_password)){
-      this.setState({error: true, errorMessages: ["Password is empty."]})
-    }else if(!isEmailValid(_email)){
-      this.setState({error: true, errorMessages: ["Email is Invalid."]})
-    }else {
+    switch(mode){
+      case 'login':{
+        let _email = email.trim()
+        let _password = password.trim()
+    
+        if(isEmpty(_email) && isEmpty(_password)){
+          onToast("error", "Email & password is empty.")
+        }else if(isEmpty(_email)){
+          onToast("error", "Email is empty.")
+        }else if(isEmpty(_password)){
+          onToast("error", "Password is empty.")
+        }else if(!isEmailValid(_email)){
+          onToast("error", "Email is Invalid.")
+        }else {
+          setLoginLoading(true)
+          axios.post(`/api/login?_format=json`, {
+            name: _email, 
+            password: _password, 
+            unique_id: uniqueId()
+          })
+          .then((response) => {
+            let results = response.data
+    
+            let { userLogin,
+                  ___followUp,
+                  fetchMyApps,
+                  addfollowerPost} = props
+    
+            if(results.result === true){ 
+              userLogin(results.user)
+    
+              props.onClose()
+    
+              onToast("info", `Welcome to banlist.info`)
+            }else{
+              onToast("error", results.message)
+            }
+    
+            setLoginLoading(false)
+    
+            console.log('/api/login > results : ', results)
+          })
+          .catch((error)=>{
+            onToast("error", error)
+            setLoginLoading(false)
+          });
+        }
 
-      // this.setState({loadingEP:true})
+        break;
+      }
 
-      axios.post(`/api/login?_format=json`, {
-        name: _email, 
-        password: _password, 
-        unique_id: uniqueId()
-      })
-      .then(function (response) {
-        let results = response.data
-
-        let { userLogin,
-              ___followUp,
-              fetchMyApps,
-              addfollowerPost} = props
-
-        if(results.result === true){ 
-          userLogin(results.user)
-
+      case 'register':{
+        let _displayName = displayName.trim()
+        let _email = email.trim()
+        let _password = password.trim()
+    
+        if(isEmpty(_displayName) && isEmpty(_email) && isEmpty(_password)){
+          onToast("error", "Display name & Email & password is empty.")
+        }else if(isEmpty(_displayName)){
+          onToast("error", "Display name is empty.")
+        }else if(isEmpty(_email)){
+          onToast("error", "Email is empty.")
+        }else if(isEmpty(_password)){
+          onToast("error", "Password is empty.")
+        }else if(!isEmailValid(_email)){
+          onToast("error", "Email is Invalid.")
+        }else {
           props.onClose()
-
-          // console.log("results.user > ", results.user)
-
-          toast.info(`Welcome to banlist.info`, 
-                                  {
-                                    position: "bottom-right", 
-                                    hideProgressBar: true,
-                                    autoClose: 3000,
-                                  }) 
-        }
-
-        console.log('/api/login > results : ', results)
-      })
-      .catch(function (error) {
-
-        console.log(error)
-        // _this.setState({spinner: false})
-      });
-
-      // var intervalId = setInterval(()=>{
-
-      //   console.log("--> 1000")
-
-      //   this.props.onClose()
-      //   console.log("--> 1000 9")
-      // }, 5000);
-    }
-  
-  }
-
-  /*
-    let { navigation, route } = this.props;
-    let { name, password } = this.state
-    name = name.trim()
-    password = password.trim()
-
-    if( isEmpty(name) && isEmpty(password) ){
-      this.toast.show('email && password empty');
-    }else if( isEmpty(name) ) {
-      this.toast.show('email empty');
-    }else if( isEmpty(password) ) {
-      this.toast.show('password empty');
-    }else if( !ValidateEmail(name) ){
-      this.toast.show('email invalidate.');
-    }else{
-
-      this.setState({spinner: true})
-
-      console.log('> /api/login?')
-
-      let _this = this
-      axios.post(`${API_URL}/api/login?_format=json`, {
-        name, password, unique_id: getUniqueId()
-      })
-      .then(function (response) {
-        let results = response.data
-        console.log('/api/login : ', results, results.result)
         
-        // 
-        // console.log('cccc : ', typeof results.result);
-        if(results.result === true){ 
-          _this.props.userLogin(results.user)
-          // _this.props.followUp( isEmpty(results.follow_ups) ? results.follow_ups : JSON.parse(results.follow_ups)) // follow_ups
-          
-          _this.props.___followUp( isEmpty(results.follow_ups) ? results.follow_ups : JSON.parse(results.follow_ups), 1)
-          _this.props.fetchMyApps(results.user.basic_auth)
-          _this.props.addfollowerPost( isEmpty(results.follower_post) ? results.follower_post : JSON.parse(results.follower_post))
+          setRegisterLoading(true)
+          axios.post(`/api/register?_format=json`, {
+            type: 0,
+            name: _displayName,
+            email: _email, 
+            password: _password,
+          })
+          .then((response) => {
+            let results = response.data
+            if(results.result === true){ 
+              onToast("info", `Please check email.`)
+            }else{
+              onToast("error", results.message)
+            }
 
-          _this.setState({spinner: false}) 
-          navigation.pop();
-
-          route.params.updateState({ showModalLogin: false });
-        }else{
-          _this.toast.show(results.message);
-          _this.setState({spinner: false})
+            props.onClose()
+    
+            setRegisterLoading(false)
+    
+            console.log('/api/register > results : ', results)
+          })
+          .catch((error)=>{
+            onToast("error", error)
+            setRegisterLoading(false)
+          });
+        
         }
-      })
-      .catch(function (error) {
+        break;
+      }
 
-        console.log(error)
-        _this.setState({spinner: false})
-      });
+      case 'forgot':{
+        let _email = email.trim()
+        if(isEmpty(_email)){
+          onToast("error", "Email is empty.")
+        }else if(!isEmailValid(_email)){
+          onToast("error", "Email is Invalid.")
+        }else {
+
+          setForgotLoading(true)
+          axios.post(`/api/reset_password?_format=json`, {
+            email: _email
+          })
+          .then((response) => {
+            let results = response.data
+            if(results.result === true){ 
+              onToast("info", `Please check email.`)
+            }else{
+              onToast("error", results.message)
+            }
+
+            props.onClose()
+    
+            setForgotLoading(false)
+          })
+          .catch((error)=>{
+            onToast("error", error)
+            setForgotLoading(false)
+          });
+        }
+        break;
+      }
     }
-  */
+
+   
+  }
 
   const  responseGoogle = (response) => {
     console.log("responseGoogle :", response);

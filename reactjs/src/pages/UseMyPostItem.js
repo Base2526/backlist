@@ -7,13 +7,13 @@ import VerifiedUserOutlinedIcon from '@material-ui/icons/VerifiedUserOutlined';
 import { toast } from 'react-toastify';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import ReactReadMoreReadLess from "react-read-more-read-less";
 
+import ReactReadMoreReadLess from "react-read-more-read-less";
 import moment from "moment";
 
 import { isEmpty, commaFormatted } from "../utils";
 
-const UseHomeItem = (props) => {
+const UseMyPostItem = (props) => {
   const [item, setItem] = React.useState({});
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [isOpen, setIsOpen] = React.useState(false);
@@ -22,8 +22,6 @@ const UseHomeItem = (props) => {
 
   useEffect(() => {
     setItem(props.item)
-
-    
   });
   
   const handleClose = () => {
@@ -55,15 +53,181 @@ const UseHomeItem = (props) => {
         case 0:{
           return(<div />)
         }
+
         case 1:{
-            return(<div>1</div>)
+          return(
+              <div key={item.id}> 
+                  <div class="hi-container">
+                      <div class="hi-sub-container1">
+                          <div class="hi-item1" 
+                              onClick={()=>{ 
+                                  setIsOpen(true); 
+                                  setPhotoIndex(0);
+                              }} >
+                              <LazyLoadImage
+                                  alt={'image.alt'}
+                                  width="100%"
+                                  height="100px"
+                                  effect="blur"
+                                  src={thumbnail[0].url} />
+                          </div>
+                      </div>
+                  </div>
+                  {
+                  isOpen && <Lightbox
+                          mainSrc={medium[photoIndex].url}
+                          nextSrc={medium[(photoIndex + 1) % medium.length].url}
+                          prevSrc={medium[(photoIndex + medium.length - 1) % medium.length].url}
+
+                          imageTitle= { (photoIndex + 1) + "/" + medium.length }
+                          // mainSrcThumbnail={images[photoIndex]}
+                          // nextSrcThumbnail={images[(photoIndex + 1) % images.length]}
+                          // prevSrcThumbnail={images[(photoIndex + images.length - 1) % images.length]}
+
+                          onCloseRequest={() => setIsOpen(false) }
+
+                          onMovePrevRequest={() =>
+                          // this.setState({
+                          //     photoIndex: (photoIndex + images.length - 1) % images.length
+                          // })
+                              setPhotoIndex((photoIndex + medium.length - 1) % medium.length)
+                          }
+                          onMoveNextRequest={() =>
+                          // this.setState({
+                          //     photoIndex: (photoIndex + 1) % images.length
+                          // })
+                              setPhotoIndex((photoIndex + 1) % medium.length)
+                          }
+                      />
+                  } 
+              </div>
+          )
         }
 
         case 2:{
-            return(<div>2</div>)
+            return(<div key={item.id}> 
+                <div class="hi-container">
+                <div class="hi-sub-container1">
+                    <div class="hi-item1" 
+                        onClick={()=>{ 
+                            setIsOpen(true); 
+                            setPhotoIndex(0);
+                        }} >
+                        <LazyLoadImage
+                            alt={'image.alt'}
+                            width="100%"
+                            height="100px"
+                            effect="blur"
+                            src={thumbnail[0].url} />
+                    </div>
+                    <div class="hi-item2" onClick={()=>{ setIsOpen(true); setPhotoIndex(1); }} >
+                        <LazyLoadImage
+                            alt={'image.alt'}
+                            width="100%"
+                            height="100px"
+                            effect="blur"
+                            src={thumbnail[1].url} />
+                    </div>
+                </div>
+            </div>
+            
+            {
+        isOpen && <Lightbox
+                    mainSrc={medium[photoIndex].url}
+                    nextSrc={medium[(photoIndex + 1) % medium.length].url}
+                    prevSrc={medium[(photoIndex + medium.length - 1) % medium.length].url}
+
+                    imageTitle= { (photoIndex + 1) + "/" + medium.length }
+                    // mainSrcThumbnail={images[photoIndex]}
+                    // nextSrcThumbnail={images[(photoIndex + 1) % images.length]}
+                    // prevSrcThumbnail={images[(photoIndex + images.length - 1) % images.length]}
+
+                    onCloseRequest={() => setIsOpen(false) }
+
+                    onMovePrevRequest={() =>
+                    // this.setState({
+                    //     photoIndex: (photoIndex + images.length - 1) % images.length
+                    // })
+                        setPhotoIndex((photoIndex + medium.length - 1) % medium.length)
+                    }
+                    onMoveNextRequest={() =>
+                    // this.setState({
+                    //     photoIndex: (photoIndex + 1) % images.length
+                    // })
+                        setPhotoIndex((photoIndex + 1) % medium.length)
+                    }
+                />
+            } 
+            </div>)
+
         }
+        
         case 3:{
-            return(<div>3</div>)
+            return(<div key={item.id}> 
+                <div class="hi-container">
+                <div class="hi-sub-container1">
+                    <div class="hi-item1" 
+                        onClick={()=>{ 
+                            setIsOpen(true); 
+                            setPhotoIndex(0);
+                        }} >
+                        <LazyLoadImage
+                            alt={'image.alt'}
+                            width="100%"
+                            height="100px"
+                            effect="blur"
+                            src={thumbnail[0].url} />
+                    </div>
+                    <div class="hi-item2" onClick={()=>{ setIsOpen(true); setPhotoIndex(1); }} >
+                        <LazyLoadImage
+                            alt={'image.alt'}
+                            width="100%"
+                            height="100px"
+                            effect="blur"
+                            src={thumbnail[1].url} />
+                    </div>
+                </div>
+                <div class="hi-sub-container2">
+                    <div class="hi-item3" onClick={()=>{ setIsOpen(true); setPhotoIndex(2); }} >
+                        <LazyLoadImage
+                            alt={'image.alt'}
+                            width="100%"
+                            height="100px"
+                            effect="blur"
+                            src={thumbnail[2].url} />
+                    </div>
+                </div>
+            </div>
+            
+            {
+        isOpen && <Lightbox
+                    mainSrc={medium[photoIndex].url}
+                    nextSrc={medium[(photoIndex + 1) % medium.length].url}
+                    prevSrc={medium[(photoIndex + medium.length - 1) % medium.length].url}
+
+                    imageTitle= { (photoIndex + 1) + "/" + medium.length }
+                    // mainSrcThumbnail={images[photoIndex]}
+                    // nextSrcThumbnail={images[(photoIndex + 1) % images.length]}
+                    // prevSrcThumbnail={images[(photoIndex + images.length - 1) % images.length]}
+
+                    onCloseRequest={() => setIsOpen(false) }
+
+                    onMovePrevRequest={() =>
+                    // this.setState({
+                    //     photoIndex: (photoIndex + images.length - 1) % images.length
+                    // })
+                        setPhotoIndex((photoIndex + medium.length - 1) % medium.length)
+                    }
+                    onMoveNextRequest={() =>
+                    // this.setState({
+                    //     photoIndex: (photoIndex + 1) % images.length
+                    // })
+                        setPhotoIndex((photoIndex + 1) % medium.length)
+                    }
+                />
+            } 
+            </div>)
+
         }
 
         default:{
@@ -272,4 +436,4 @@ const UseHomeItem = (props) => {
   );
 };
   
-export default UseHomeItem;
+export default UseMyPostItem;

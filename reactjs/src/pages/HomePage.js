@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux'
 import axios from 'axios';
 import { CircularProgress } from '@material-ui/core';
@@ -11,335 +11,239 @@ import AddBanlistDialog from './AddBanlistDialog'
 import ReportDialog from './ReportDialog'
 
 import LoginForm from './LoginForm'
-import {isEmpty} from '../utils/Utils'
+import {isEmpty, mergeArrays, onToast} from '../utils'
 import { fetchData } from '../actions/app';
 import { ___followUp } from '../actions/user';
 
-// http://react.tips/checkboxes-in-react/
-const items = [
-  { id: 'title', title: 'สินค้า/ประเภท'},
-  { id: 'banlist_name_surname_field', title: 'ชื่อ-นามสกุล บัญชีผู้รับเงินโอน'},
-  { id: 'field_id_card_number', title: 'เลขบัตรประชาชนคนขาย'},
-  { id: 'body', title: 'รายละเอียด'},
-  { id: 'banlist_book_bank_field', title: 'บัญชีธนาคาร'},
-]
+const HomePage = (props) => {
+  const [allDatas, setAllDatas]           = React.useState([]);
+  const [currentDatas, setCurrentDatas]   = React.useState([]);
+  const [currentPage, setCurrentPage]     = React.useState(undefined);
+  const [totalPages, setTotalPages]       = React.useState(0);
+  const [pageLimit, setPageLimit]         = React.useState(30);
+  const [allResultCount, setAllResultCount] = React.useState(10000);
 
-const allResultCount = 10000;
-const pageLimit = 30;
+  const [searchWord, setSearchWord]               = React.useState("");
+  const [loading, setLoading]                     = React.useState(false);
+  const [searchLoading, setSearchLoading]         = React.useState(false);
+  const [showModal, setShowModal]                 = React.useState(false);
+  const [showModalLogin, setShowModalLogin]       = React.useState(false);
+  const [showModalReport, setShowModalReport]     = React.useState(false);
+  const [selectedCheckboxes, setSelectedCheckboxes] = React.useState(["title"]);
 
-class HomePage extends Component {
-  constructor(props) {
-    super(props);
+  const [itemsCategory, setItemCategory] = React.useState([ { id: 'title', title: 'สินค้า/ประเภท'},
+                                                            { id: 'banlist_name_surname_field', title: 'ชื่อ-นามสกุล บัญชีผู้รับเงินโอน'},
+                                                            { id: 'field_id_card_number', title: 'เลขบัตรประชาชนคนขาย'},
+                                                            { id: 'body', title: 'รายละเอียด'},
+                                                            { id: 'banlist_book_bank_field', title: 'บัญชีธนาคาร'},
+                                                          ]);
 
-    this.selectedCheckboxes = new Set();
-    
-    this.state = {
-      allCountries: [],
-      currentCountries: [],
-      currentPage: null,
-      totalPages: null,
+  useEffect(() => {
 
-      searchWord: '',
+  })
 
-      // allResultCount: 0,
-      offset: 0,
-      loading: false,
-      showModal : false,
+  useEffect(() => {
+    if(currentPage !== undefined){
+      setLoading(true)
+      axios.post(`/api/search?_format=json`, {
+        type: 0,
+        key_word: '*',
+        offset: currentPage - 1
+      }, {
+          headers: {'Authorization': `Basic YWRtaW46U29ta2lkMDU4ODQ4Mzkx`}
+      })
+      .then((response) => {
+        let results = response.data
+        console.log('/api/search?_format=json : ', results)
+        if(results.result){
+          // true
+          let {execution_time, datas, count, all_result_count} = results;
+          props.fetchData(datas);
+          setAllDatas(mergeArrays(allDatas, datas))
+          setCurrentDatas(currentDatas)
+          setLoading(false)
+        }
 
-      showModalLogin: false,
-      showModalReport: false
-    };
-  }
-
-  componentDidMount() {
-    let {data} = this.props
-    console.log("componentDidMount : 1 ", this.props)
-    if(isEmpty(data)){
-      this.getData()
+      })
+      .catch( (error) => {
+        console.log('getData : ', error)
+      });
     }
+  }, [currentPage])
+
+  const handleFormSearch = (e) => {
+    e.preventDefault();
+
+    console.log('selectedCheckboxes : ', JSON.stringify(selectedCheckboxes))
+
+    if(isEmpty(selectedCheckboxes)){
+      onToast('error', "Please select category")
+    }else{
+      setSearchLoading(true)
+      axios.post(`/api/search?_format=json`, {
+        type: 99,
+        key_word: searchWord,
+        offset: 0,
+        full_text_fields: JSON.stringify(selectedCheckboxes)
+      }, {
+          headers: {'Authorization': `Basic YWRtaW46U29ta2lkMDU4ODQ4Mzkx`}
+      })
+      .then((response) => {
+        let results = response.data
+        console.log('/api/search?_format=json : ', results)
+        if(results.result){
+          // true
+          let {execution_time, datas, count, all_result_count} = results;
+          props.fetchData(datas);
+          setAllDatas(mergeArrays(allDatas, datas))
+          setCurrentDatas(currentDatas)
+          
+        }
+  
+        setSearchLoading(false)
+  
+      })
+      .catch( (error) => {
+        onToast("error", error)
+  
+        setSearchLoading(false)
+      });
+    }
+    
   }
 
-  onPageChanged = data => {
+  const toggleCheckbox = (data) => {
+    let temp = [...selectedCheckboxes]
+    let select =  temp.find((item)=>item === data)
 
-    const { allCountries } = this.state;
+    if(select !== undefined){
+      temp = temp.filter((item)=>item !== data)
+    }else{
+      temp = [...temp, data]
+    }
+    setSelectedCheckboxes(temp)
+  }
+
+  const onPageChanged = (data) => {
     const { currentPage, totalPages, pageLimit } = data;
     const offset = (currentPage - 1) * pageLimit;
-    const currentCountries = allCountries.slice(offset, offset + pageLimit);
+    const currentDatas = allDatas.slice(offset, offset + pageLimit);
 
-    // console.log("onPageChanged: ", allCountries, currentPage, totalPages, pageLimit, offset, currentCountries)
-
-    this.setState({ currentPage, currentCountries, totalPages, offset: currentPage -1 }, ()=>{
-      if( offset || isEmpty(this.props.data)  ){
-        this.getData()
-      }
-    });    
+    setCurrentPage(currentPage)
+    // setCurrentDatas(currentDatas)
+    setTotalPages(totalPages)
+    console.log("onPageChanged : ", currentPage)
   };
 
-  mergeArrays = (...arrays) => {
-    let jointArray = []
-  
-    arrays.forEach(array => {
-        jointArray = [...jointArray, ...array]
-    })
-    const uniqueArray = jointArray.reduce((newArray, item) =>{
-        let found = newArray.find(({ id }) => id === item.id);
-        if (found){
-            return newArray
-        } else {
-            return [...newArray, item]
-        }
-    }, [])
-    return uniqueArray
-  }
-
-  getData = () =>{
-    let _this = this
-
-    let {offset} = _this.state
-
-    _this.setState({loading: true});
-
-    console.log('getData : ', offset)
-    axios.post(`/api/search?_format=json`, {
-      type: 0,
-      key_word: '*',
-      offset
-    }, {
-        headers: {'Authorization': `Basic YWRtaW46U29ta2lkMDU4ODQ4Mzkx`}
-    })
-    .then(function (response) {
-      let results = response.data
-      console.log('getData end : > ', results)
-      if(results.result){
-        // true
-        let {execution_time, datas, count, all_result_count} = results;
-        _this.props.fetchData(datas);
-
-        /*
-        let {execution_time, datas, count} = results;
-        _this.props.fetchData(datas);
-        */
-
-        // console.log(">>>", offset, _this.mergeArrays(_this.state.allCountries, datas))
-
-        let allCountries = _this.mergeArrays(_this.state.allCountries, datas);
-
-
-        // let pageLimit = 30
-        let { currentPage, totalPages,  } = _this.state;
-        let currentCountries = []
-        if(currentPage != null){
-          // let offset = (currentPage - 1) * pageLimit;
-          // currentCountries = allCountries.slice(offset, offset + pageLimit);
-          // console.log('allCountries >> ', allCountries, currentCountries)
-
-          currentCountries = datas
-        }
-        
-        console.log('getData currentCountries : ', currentCountries)
-        _this.setState({ allCountries /*, allResultCount:all_result_count */ , currentCountries, loading: false });
+  const updateState = data => {
+    switch(Object.keys(data)[0]){
+      case "showModalLogin":{
+        setShowModalLogin(Object.values(data)[0])
+        break;
       }
-
-      // _this.setState({loading: false})
-    })
-    .catch(function (error) {
-      // alert(error.message)
-
-      console.log('getData : ', error)
-
-      // console.log("error :", error)
-
-      // _this.toast.show(error.message);
-
-      // _this.setState({loading: false})
-    });
-  }
-
-  handleFormSubmit = formSubmitEvent => {
-    console.log('handleFormSubmit : ', this.selectedCheckboxes, this.state.searchWord);
-    formSubmitEvent.preventDefault();
-
-    /*
-    axios.post(`${API_URL}/api/added_banlist?_format=json`, data, {
-      headers: { 
-        'Authorization': `Basic ${basic_auth}`,
-        'content-type': 'multipart/form-data'
+      case "showModalReport":{
+        setShowModalReport(Object.values(data)[0])
+        break;
       }
-    })
-    .then(function (response) {
-      let results = response.data
-      console.log(results)
-      
-      if(results.result){
-        // true
-        console.log('true');
-        console.log(results);
-
-        // let {execution_time, datas, count} = results;
-        // console.log(execution_time);
-        // console.log(count);
-        // console.log(datas);
-
-        // if(datas && datas.length > 0){
-        //   _this.setState({spinner: false, execution_time, datas, count});
-        // }else{
-
-        _this.setState({spinner: false})
-        //   alert('Empty result.');
-        // }
-
-        let {navigation, route} = _this.props;
-
-        navigation.pop();
-        route.params.updateState({});     
-      }else{
-        // false
-        console.log('false');
-
-        _this.setState({spinner: false})
-
-        _this.toast.show('ไม่สามารถเพิ่มรายงาน');
-      }
-    })
-    .catch(function (error) {
-
-      _this.setState({spinner: false})
-
-      // _this.toast.show('ไม่สามารถเพิ่มรายงาน');
-
-      console.log('Error >  ' + error);
-    });
-    */
-
-  }
-
-  toggleCheckbox = value => {
-    // console.log(label, this.selectedCheckboxes)
-    if (this.selectedCheckboxes.has(value)) {
-      this.selectedCheckboxes.delete(value);
-    } else {
-      this.selectedCheckboxes.add(value);
     }
   }
 
-  updateState = data => {
-    this.setState(data);
-  }
-
-  renderContent = () =>{
-    let {loading}  = this.state
-    let {data} = this.props
-
+  const renderContent = () =>{
     if(loading){
       return <CircularProgress />
     }else {
-      return data.map(item => (
+      return props.data.map(item => (
               <UseHomeItem 
-                {...this.props} 
+                {...props} 
                 item={item}
-                updateState={this.updateState}/>
+                updateState={updateState}/>
             ))
     }
   }
+    
+  return (  <div className="container mb-5">
+             <AddBanlistDialog showModal={showModal} onClose = {()=>{ setShowModal(false) }} />
+             { showModalReport && <ReportDialog showModal={showModalReport} onClose = {()=>{  setShowModalReport(false) }}  /> }
+             <div>
+               <form /*onSubmit={handleFormSubmit}*/ >
+                 <div>
+                   <div>
+                     <input 
+                      type="text" 
+                      name="title" 
+                      value={searchWord} 
+                      onChange={(event)=>{ setSearchWord(event.target.value) }}
+                      // required
+                      />
+                    <button 
+                      type="submit" 
+                      disabled={isEmpty(searchWord) ? true : false}
+                      onClick={(e)=>{
+                        handleFormSearch(e)
+                      }}
+                      className={"div-button"}>
+                        ค้นหา { searchLoading && <CircularProgress size={10}/> }
+                    </button>
 
-  render() {
-    let {
-      allCountries,
-      currentCountries,
-      currentPage,
-      totalPages,
-      // allResultCount,
-
-      loading,
-      showModal,
-      showModalLogin,
-      showModalReport
-    } = this.state;
-
-    let {user, data} = this.props
-
-    // console.log('--1-- >>> >>>>', this.props, data );
-    // allResultCount = 10000;
-    if (allResultCount === 0) return null;
-
-    // console.log('--2--' , currentCountries);
-    return (
-      <div className="container mb-5">
-        <AddBanlistDialog showModal={showModal} onClose = {()=>{ console.log('--0999--');  this.setState({showModal:false})   }} />
-        { showModalReport && <ReportDialog showModal={showModalReport} onClose = {()=>{  this.setState({showModalReport:false}) }}  /> }
-        <div>
-          <form onSubmit={this.handleFormSubmit}>
-            <div>
-              <div>
-                <input 
-                  type="text" 
-                  name="title" 
-                  value={this.state.searchWord} 
-                  onChange={(event)=>{
-                    this.setState({searchWord: event.target.value})
-                  }}
-                  required/>
-                <button type="submit">ค้นหา</button>
+                    {/* searchLoading */}
+                  </div>
+                  <div style={{paddingTop:10}}>
+                    <div style={{fontSize:"20px"}}>Search by category </div>
+                    <ul class="flex-container row">
+                      {
+                        // selectedCheckboxes
+                        itemsCategory.map((itm)=>{
+                          return  <li class="flex-item">
+                                    <Checkbox
+                                      label={itm.title}
+                                      handleCheckboxChange={toggleCheckbox}
+                                      value={itm.id}
+                                      key={itm.id}
+                                      checked={(selectedCheckboxes.find((item)=>item === itm.id) === undefined) ? false : true}/>
+                                  </li>
+                        })
+                      }
+                    </ul>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div className="row d-flex flex-row py-5"> 
+              { renderContent() }
+              <div className="w-100 px-4 py-5 d-flex flex-row flex-wrap align-items-center justify-content-between">
+                <div className="d-flex flex-row py-4 align-items-center">
+                  <Pagination
+                    totalRecords={allResultCount}
+                    pageLimit={pageLimit}
+                    pageNeighbours={1}
+                    onPageChanged={onPageChanged}
+                  />
+                </div>
+                <div className="d-flex flex-row align-items-center">
+                  {currentPage && (
+                    <span className="current-page d-inline-block h-100 pl-4 text-secondary">
+                      Page <span className="font-weight-bold">{currentPage}</span> /{" "}
+                      <span className="font-weight-bold">{totalPages}</span>
+                    </span>
+                  )}
+                </div>
               </div>
-              <div style={{paddingTop:10}}>
-                <div style={{fontSize:"20px"}}>Search by category </div>
-                <ul class="flex-container row">
-                  {
-                    items.map((itm)=>{
-                      return <li class="flex-item">
-                                <Checkbox
-                                  label={itm.title}
-                                  handleCheckboxChange={this.toggleCheckbox}
-                                  value={itm.id}
-                                  key={itm.id}/>
-                            </li>
-                    })
-                  }
-                </ul>
-              </div>
             </div>
-          </form>
-        </div>
-        <div className="row d-flex flex-row py-5"> 
-          {this.renderContent()}
-          <div className="w-100 px-4 py-5 d-flex flex-row flex-wrap align-items-center justify-content-between">
-            <div className="d-flex flex-row py-4 align-items-center">
-              <Pagination
-                totalRecords={allResultCount}
-                pageLimit={pageLimit}
-                pageNeighbours={1}
-                onPageChanged={this.onPageChanged}
-              />
-            </div>
-            <div className="d-flex flex-row align-items-center">
-              {currentPage && (
-                <span className="current-page d-inline-block h-100 pl-4 text-secondary">
-                  Page <span className="font-weight-bold">{currentPage}</span> /{" "}
-                  <span className="font-weight-bold">{totalPages}</span>
-                </span>
-              )}
-            </div>
+            {showModalLogin &&  <LoginForm showModal={showModalLogin} onClose = {()=>{  setShowModalLogin(false) }} />}
+            <div 
+              className="fab"
+              onClick={()=>{
+                if(isEmpty(props.user)){
+                  setShowModalLogin(true)
+                }else{
+                  setShowModal(true)
+                }
+              }}>
+              <AddCircleOutlinedIcon className="floating-icon"/>
+            </div>  
           </div>
-        </div>
-     
-        {
-          showModalLogin &&  <LoginForm showModal={showModalLogin} onClose = {()=>{this.setState({showModalLogin:false})}} />
-        }
+  )
 
-        <div 
-          className="fab"
-          onClick={()=>{
-            if(isEmpty(user)){
-              this.setState({showModalLogin:true})
-            }else{
-              this.setState({showModal:true})
-            }
-          }}>
-          <AddCircleOutlinedIcon className="floating-icon"/>
-          </div>       
-      </div>
-    );
-  }
 }
 
 const mapStateToProps = (state, ownProps) => {

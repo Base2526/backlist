@@ -1,208 +1,209 @@
-import React, { Component } from 'react';
+import React, { useEffect } from "react";
 import { connect } from 'react-redux'
-import { addTodo, userLogin } from '../actions'
-
-import Image from 'react-bootstrap/Image'
-import Container from 'react-bootstrap/Container'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
-import ls from 'local-storage';
-
+import { useHistory } from "react-router-dom";
 import axios from 'axios';
 
-var styles = {
-  simage: {
-      width: '200px',
-      height: '200px'
-  }
-}
+import Lightbox from "react-image-lightbox";
+import MenuItem from "@material-ui/core/MenuItem";
+import Menu from "@material-ui/core/Menu";
 
-class ProfilePage extends Component {
-  constructor(props) {
-    super(props);
+import AddCircleOutlineOutlinedIcon from '@material-ui/icons/AddCircleOutlineOutlined';
+import VerifiedUserOutlinedIcon from '@material-ui/icons/VerifiedUserOutlined';
+import CameraAltOutlinedIcon from '@material-ui/icons/CameraAltOutlined';
+import { CircularProgress } from '@material-ui/core';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import { toast }    from "react-toastify";
+import { isEmpty }  from "../utils";
+import previewIcon  from "../images/preview-icon.png";
 
-    this.state = {
-      name: '',
-      pass: '',
-      error: false,
-      error_message:'',
-    };
+const ProfilePage = (props) => {
+    const history = useHistory();
+    const [name, setName] = React.useState(props.user.name);
+    const [edit, setEdit] = React.useState(false);
+    const [updateLoading, setUpdateLoading] = React.useState(false);
+    const [files, setFiles] = React.useState([]);
 
-    this.onChange = this.onChange.bind(this);
-    this.submitForm = this.submitForm.bind(this);
-  }
-
-  componentDidMount() {
-    // this.callApi()
-    //   .then(res => console.log(res.express) )
-    //   .catch(err => console.log(err));
-  }
-
-  onChange(e) {
-    this.setState({
-      [e.target.name]: e.target.value
-    });
-  }
-
-  callApi = async () => {
-    const response = await fetch('/api/hello');
-    const body = await response.json();
-    if (response.status !== 200) throw Error(body.message);
-    
-    return body;
-  };
-
-  // submitForm(e) {
-  submitForm = async e => {
-    e.preventDefault();
-    console.log('submitForm');
-    const { user, pass } = this.state;
-
-    if(user.trim() == "" && pass.trim() == "" ){
-      this.setState({
-        error: true,
-        error_message: "Username && Pass is empty."
-          });
-    }else if(user.trim() == ""){
-      this.setState({
-        error: true,
-        error_message: "Username is empty."
-          });
-    }else if(pass.trim() == ""){
-      this.setState({
-        error: true,
-        error_message: "Password is empty."
-          });
-    }
- 
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name:user, pass}),
-    });
-
-    let body = await response.text();
-
-    body = JSON.parse(body);
-    if(!body.result){
-      console.log(body.message);
-    }else{
-      let data = body.data;
-      console.log(data);
-
-      this.props.userLogin();
-    }
-
-    // if(username === "admin" && password === "admin") {
-    //   ls.set("token", "56@cysXs");
-    //   this.setState({
-    //     loggedIn: true
-    //   });
-    // } else {
-    //   return <p>Invalid Creds</p>
-    // }
-    // this.props.userLogin('username', 'password');
-    // this.props.addTodo('4');
-    /*
-    const params = {
-      name: username,
-      pass: password
-    };
-    const headers = {
-      'Content-Type': 'application/json'
-    };
-    axios.post("http://localhost/api/login.json",{ params }, {headers})
-    .then(res => {
-      console.log(res);
-      // console.log(res.data);
+    useEffect(() => {
+        console.log('ProfilePage')
     })
-    .catch(function (error) {
-      console.log(error);
-    });
-    */
-  }
 
-  render() {
-    let {name, email,image_url} = this.props.user;
-    console.log(this.props.user);
-    return (<Container>
-              <Row>
-                <Col>
-                  <div>{name}</div>
-                  <div><Image style={styles.simage} src={image_url} rounded /></div>
-                  <div>{email}</div>
-                </Col>
-              </Row>
-            </Container>);
-  }
-};
-
-// 
-
-
-/*
-	จะเป็น function ที่จะถูกเรียกตลอดเมือ ข้อมูลเปลี่ยนแปลง
-	เราสามารถดึงข้อมูลทั้งหมดที่อยู่ใน redux ได้เลย
-*/
-const mapStateToProps = (state, ownProps) => {
-  console.log(state);
-  console.log(ownProps);
-
-	if(!state._persist.rehydrated){
-		return {};
-  }
-  
-  if(state.auth.isLoggedIn){
-    return { loggedIn: true, user:state.auth.user };
-  }else{
-    return { loggedIn: false };
-  }
-}
-
-/*
-	การที่เราจะเรียก function ที่อยู่ใน actions ได้
-	การใช้
-	แบบที่ 1.
-	const mapDispatchToProps = (dispatch) => {
-		return {
-			function1: (id) => {
-								// function ที่อยู่ใน actions
-								dispatch(addTodo(param1))
-							},
-			function2: (id, val) => {
-								// function ที่อยู่ใน actions
-								dispatch(addTodo(param1, param2))
-							},
-		}
-	}
-	export default connect(null, mapDispatchToProps)(function)
-	แบบที่ 2.
-	export default connect(null, { doFunction1, doFunction2 })(function)
-
-	การเรียกใช้
-	แบบที่ 1 
-	this.props.addTodo(param1, param2);
-
-	แบบที่ 2
-	let {function1, function2} = this.props;
-*/
-const mapDispatchToProps = (dispatch) => {
-	console.log(dispatch);
-
-	return {
-		addTodo: (id) => {
-							dispatch(addTodo(id))
-						},
-		addTodo2: (id, val) => {
-							dispatch(addTodo(val))
-            },
-    userLogin: () =>{
-      dispatch(userLogin())
+    const changeFiles = (e) => {
+        var fileArr = Array.prototype.slice.call(e.target.files);
+        setFiles(fileArr)        
     }
 
-	}
+    const onUpdate = () =>{
+        setUpdateLoading(true)
+        const data = new FormData();
+        if(props.user.name !== name){
+            data.append("type", 1);
+            data.append("display_name", name)
+        }
+
+        if(!isEmpty(files)){
+            data.append("type", 2);
+            files.map((file) => { data.append('file', file) })
+        }
+
+        if(props.user.name !== name && !isEmpty(files)){
+            data.append("type", 3);
+        }
+
+        axios.post(`/api/update_profile?_format=json`, 
+            data, 
+            {
+                headers: { 
+                    'Authorization': `Basic ${props.user.basic_auth}` ,
+                    'content-type': 'multipart/form-data'
+                }
+            }
+        )
+        .then( (response) => {
+            let results = response.data
+            console.log(results) 
+
+            setUpdateLoading(false)
+
+            toast.info("Update success.", 
+                    {
+                        position: "bottom-right", 
+                        hideProgressBar: true,
+                        autoClose: 1000,
+                    }) 
+        })
+        .catch((error) => {
+            console.log(error) 
+
+            toast.error("Error update.", 
+                    {
+                        position: "bottom-right", 
+                        hideProgressBar: true,
+                        autoClose: 1000,
+                    }) 
+        });
+    }
+  
+    return (
+        <div>
+           <div>
+                <div>
+                    {
+                        !edit && <div 
+                                    style={{cursor:'pointer'}}
+                                    onClick={()=>{
+                                        setEdit(true)
+                                    }}><span className={"div-button"}>Edit profile</span></div>
+                    }
+                    <div>
+                    {
+                        isEmpty(files) ?  <LazyLoadImage
+                                            className="lazy-load-image-border-radius"
+                                            alt={'image.alt'}
+                                            width="150px"
+                                            height="150px"
+                                            effect="blur"
+                                            placeholderSrc={previewIcon}
+                                            src={ props.user.image_url} />
+                                        : files.map((file) => {
+                                            return <LazyLoadImage
+                                                    className="lazy-load-image-border-radius"
+                                                    alt={'image.alt'}
+                                                    width="150px"
+                                                    height="150px"
+                                                    effect="blur"
+                                                //   onClick={handleClick}
+                                                    src={  URL.createObjectURL(file) } />
+                                          })                        
+                    }
+                    {
+                        edit && <label style={{cursor:'pointer'}}>
+                                    <input type="file" onChange={changeFiles} />
+                                    <CameraAltOutlinedIcon />
+                                </label>
+                    }
+                        
+                    </div>
+                    <div>Name : </div>
+                    <div>
+                    {
+                        edit 
+                        ? <input
+                            type="text"
+                            name="name"
+                            id="name"
+                            className="form-control"
+                            placeholder="name"
+                            value={name}
+                            onChange={(e)=>{
+                            setName(e.target.value)
+                            }}
+                        />
+                        : props.user.name
+                    }
+                    </div>
+                    <div>Email : </div>
+                    <div>{props.user.email}</div>
+                    {
+                        edit &&
+                        <div>
+                            <div 
+                            style={{cursor:'pointer', padding: "5px", display: "inline"}}
+                            onClick={()=>{
+                                setEdit(false)
+                            }}><span className={"div-button"}>Cancel</span></div>
+                            {
+                                updateLoading 
+                                ? <div style={{cursor:'pointer', padding: "5px", display: "inline", pointerEvents: "none", opacity: "0.4"}}> 
+                                    <span className={"div-button"}>Update <CircularProgress style={{ fontSize: 15, width:15, height:15 }}/></span>
+                                  </div>
+
+                                : 
+                                (props.user.name !== name || !isEmpty(files)) 
+                                ? <div 
+                                    style={{cursor:'pointer', padding: "5px", display: "inline"}}
+                                    onClick={()=>{
+                                        onUpdate()
+                                    }}> 
+                                    <span className={"div-button"}>Update</span>
+                                  </div>
+                                : <div style={{cursor:'pointer', padding: "5px", display: "inline", pointerEvents: "none", opacity: "0.4"}}> 
+                                    <span className={"div-button"}>Update</span>
+                                  </div>
+                            }
+                        </div>
+                    }
+                </div>
+                {/* <div style={{paddingTop:10}}>
+                    <div>
+                        <span 
+                            style={{cursor:'pointer'}}
+                            className={"span-border-bottom"}
+                            onClick={()=>{
+                                history.push("/my-profile/my-post");
+                            }}> <AddCircleOutlineOutlinedIcon />My post (10)
+                        </span>
+                    </div>
+                    <div>
+                        <span 
+                            style={{cursor:'pointer'}}
+                            className={"span-border-bottom"}
+                            onClick={()=>{
+                                history.push("/my-profile/my-followup");
+                            }}> <VerifiedUserOutlinedIcon />My follow up (50)
+                        </span>
+                    </div>
+                </div> */}
+            </div>
+        </div>
+    );
+};
+  
+const mapStateToProps = (state, ownProps) => {
+	return { user: state.user.data }
+}
+
+const mapDispatchToProps = {
+  // fetchData,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProfilePage)

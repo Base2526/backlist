@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux'
 import { Modal } from "react-bootstrap";
 import DatePicker from "react-datepicker";
+import axios from 'axios';
+import { CircularProgress } from '@material-ui/core';
+
+import {isEmpty, onToast} from '../utils'
 
 const AddBanlistDialog = (props) => {
   const [showModal, setShowModal] = React.useState(false);
   
+  const [nid, setNid]     = useState(0);
   const [title, setTitle] = useState();
   const [transferAmount, setTransferAmount] = useState();
   const [personName, setPersonName] = useState();
@@ -17,6 +23,8 @@ const AddBanlistDialog = (props) => {
   const [itemsMBA, setItemsMBA] = useState([]);
   // รูปภาพประกอบ
   const [files, setFiles] = useState([]);
+
+  const [createLoading, setCreateLoading] = useState(false);
 
   const [itemsMerchantBankAccount, setItemsMerchantBankAccount] = useState([
     {'key':0,'value': '--เลือก--'},
@@ -51,9 +59,9 @@ const AddBanlistDialog = (props) => {
     setShowModal(props.showModal)
   });
 
-  const handleFormSubmit = (formSubmitEvent) => {
+  const handleFormSubmit = (e) => {
     console.log("handleFormSubmit : ");
-    formSubmitEvent.preventDefault();
+    e.preventDefault();
 
     console.log('title : ', title)
     console.log('transferAmount : ', transferAmount)
@@ -65,6 +73,83 @@ const AddBanlistDialog = (props) => {
     console.log('ibody : ', ibody)
     console.log('itemsMBA : ', itemsMBA)
     console.log('files : ', files)
+
+    
+
+    if( isEmpty(title) || 
+        isEmpty(transferAmount) ||
+        isEmpty(personName) ||
+        isEmpty(personSurname) ||
+        isEmpty(idCardNumber) ||
+        isEmpty(sellingWebsite) ||
+        isEmpty(ibody) ){
+          
+      onToast('error', "title or transferAmount or personName or personSurname or idCardNumber or sellingWebsite or ibody")
+    }else{
+
+      const data = new FormData();
+      data.append('nid', nid );
+      data.append('product_type', title);
+      data.append('transfer_amount', transferAmount);
+      data.append('person_name', personName);
+      data.append('person_surname', personSurname);
+      data.append('id_card_number', idCardNumber);
+      data.append('selling_website', sellingWebsite);
+      data.append('transfer_date', transferDate);
+      data.append('detail', ibody);
+      data.append('merchant_bank_account', JSON.stringify(itemsMBA));
+  
+      files.map((file) => { data.append('files[]', file) })
+
+      setCreateLoading(true)
+
+      axios.post(`/api/added_banlist?_format=json`, data, {
+        headers: { 
+          'Authorization': `Basic ${props.user.basic_auth}`,
+          'content-type': 'multipart/form-data'
+        }
+      })
+      .then((response) => {
+        let results = response.data
+        console.log("/api/added_banlist > ", results)
+        
+        if(results.result){
+          // // true
+          // console.log('true');
+          // console.log(results);
+  
+          // // let {execution_time, datas, count} = results;
+          // // console.log(execution_time);
+          // // console.log(count);
+          // // console.log(datas);
+  
+          // // if(datas && datas.length > 0){
+          // //   _this.setState({spinner: false, execution_time, datas, count});
+          // // }else{
+  
+          // _this.setState({spinner: false})
+          // //   alert('Empty result.');
+          // // }
+  
+          // let {navigation, route} = _this.props;
+  
+          // navigation.pop();
+          // route.params.updateState({}); 
+          
+          props.onClose()
+          
+          onToast('info', "Add content success")
+        }else{
+          onToast('error', results.message)
+        }
+
+        setCreateLoading(false)
+      })
+      .catch((error) => {
+        onToast('error', error)
+        setCreateLoading(false)
+      });
+    }
 
     /*
     const [title, setTitle] = useState();
@@ -116,7 +201,7 @@ const AddBanlistDialog = (props) => {
                       placeholder="สินค้า/ประเภท"
                       onChange={(e)=>{setTitle(e.target.value)}}
                       value={title}
-                      required
+                      // required
                     />
                   </div>
                 </div>
@@ -135,7 +220,7 @@ const AddBanlistDialog = (props) => {
                       placeholder="ยอดเงิน"
                       onChange={(e)=>{setTransferAmount(e.target.value)}}
                       value={transferAmount}
-                      required
+                      // required
                     />
                   </div>
                 </div>
@@ -153,7 +238,7 @@ const AddBanlistDialog = (props) => {
                       placeholder="ชื่อบัญชี ผู้รับเงินโอน"
                       onChange={(e)=>{ setPersonName(e.target.value) }}
                       value={personName}
-                      required
+                      // required
                     />
                   </div>
                 </div>
@@ -236,7 +321,7 @@ const AddBanlistDialog = (props) => {
                       multiline={true}
                       selected={ibody} 
                       onChange={(e) => {  setIbody(e.target.value) }} 
-                      required
+                      // required
                     />
                   </div>
                 </div>
@@ -362,8 +447,28 @@ const AddBanlistDialog = (props) => {
                 <div class="col-sm-5">
                   <button
                     type="submit"
-                    className="btn btn-lg btn-primary btn-left">สร้าง<span className="icon-arrow-right2 outlined"></span></button>
+                    // disabled={isEmpty(searchWord) ? true : false}
+                    onClick={(e)=>{
+                      handleFormSubmit(e)
+                    }}
+                    className={"div-button"}>
+                    Create
+                    {createLoading && <CircularProgress size={10}/>}
+                  </button>
                 </div>
+
+                {/* 
+                
+                <button 
+                      type="submit" 
+                      disabled={isEmpty(searchWord) ? true : false}
+                      onClick={(e)=>{
+                        handleFormSearch(e)
+                      }}
+                      className={"div-button"}>
+                        ค้นหา { searchLoading && <CircularProgress size={10}/> }
+                    </button>
+                */}
               </div>
             </form>
   }
@@ -421,4 +526,12 @@ const AddBanlistDialog = (props) => {
   
 }
 
-export default AddBanlistDialog;
+const mapStateToProps = (state, ownProps) => {
+	return { user: state.user.data }
+}
+
+const mapDispatchToProps = {
+  // fetchData,
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(AddBanlistDialog)

@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 import axios from 'axios';
 import { Markup } from 'interweave';
 import { CircularProgress } from '@material-ui/core';
-import {isEmpty} from '../utils/Utils'
+import {isEmpty} from '../utils'
 
 const AboutupPage = (props) => {
     const history = useHistory();

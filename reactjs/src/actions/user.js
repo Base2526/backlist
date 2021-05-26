@@ -6,7 +6,8 @@ import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE,
          DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST ,
         
         
-         NET_INFO, NOTIFICATIONS} from '../constants';
+         NET_INFO, NOTIFICATIONS,
+         LOADING_OVERLAY, CLEAR_CACHED} from '../constants';
 
 
 const _dataUserLogin = data => ({
@@ -77,6 +78,17 @@ const _netInfo = data => ({
 
 const _notifications = data => ({
   type: NOTIFICATIONS,
+  data,
+});
+
+const _loading_overlay = data => ({
+  type: LOADING_OVERLAY,
+  data,
+});
+
+// 
+const _clear_cached = data => ({
+  type: CLEAR_CACHED,
   data,
 });
 
@@ -156,4 +168,16 @@ export const netInfo = (data) => dispatch => {
 
 export const onNotifications = (data) => dispatch => {
   dispatch(_notifications(data));
+}
+
+// const _loading_overlay = data => ({
+//   type: LOADING_OVERLAY,
+//   data,
+// });
+export const loadingOverlay = (data) => dispatch => {
+  dispatch(_loading_overlay(data));
+}
+
+export const clearCached = (data) => dispatch => {
+  dispatch(_clear_cached(data));
 }

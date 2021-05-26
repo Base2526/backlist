@@ -1706,6 +1706,39 @@ class API extends ControllerBase {
 
           break;
         }
+
+        case 3:{
+
+          $field_display_name            = trim( $_REQUEST['display_name'] );
+
+          $user = User::load(\Drupal::currentUser()->id());
+          if(!empty($user)){
+            $user->set('field_display_name', $field_display_name);
+            // $user->save();
+          }
+         
+
+          if(!empty($_FILES)){
+            $target = 'sites/default/files/'. $_FILES['file']['name'];
+            move_uploaded_file( $_FILES['file']['tmp_name'], $target);
+    
+            $file = file_save_data( file_get_contents( $target ), 'public://'. date('m-d-Y_hia') .'_'.mt_rand().'.png' , FileSystemInterface::EXISTS_REPLACE);
+    
+            // $user = User::load(\Drupal::currentUser()->id());
+            if(!empty($user)){
+              $user->set('user_picture', $file->id());
+              $user->save();
+            }
+    
+            $response_array['image_url']  =  file_create_url($file->getFileUri());
+          }
+
+          if(!empty($user)){
+            $user->save();
+          }
+
+          break;
+        }
       }
 
       
@@ -1764,29 +1797,7 @@ class API extends ControllerBase {
     $response_array = array();
     try {
       $time1          = microtime(true);
-
       $content = json_decode( $request->getContent(), TRUE );
-      // $chioce  = json_decode($content['chioce']);
-      // $message = trim( $content['message'] );
-
-      // // $offset= trim( $content['offset'] );
-
-      // if( empty($chioce) || empty($message) ){
-      //   $response_array['result']           = FALSE;
-      //   $response_array['execution_time']   = microtime(true) - $time1;
-      //   return new JsonResponse( $response_array );
-      // }
-
-      // \Drupal::logger('report')->notice('chioce : %chioce, message: %message',
-      // array(
-      //     '%chioce' => $content['chioce'],
-      //     '%message' => $message,
-      // ));
-
-      // $node = Node::load($parent->id());
-      // $datas[] = API::GetFieldNode($node);
-
-      // $storage = \Drupal::entityTypeManager()->getStorage('node');
 
       $storage = $this->entityTypeManager->getStorage('node');
       $query   = $storage->getQuery();
@@ -1801,12 +1812,8 @@ class API extends ControllerBase {
         $datas[] = API::GetFieldNode($node);
       }
 
-      // dpm(count($nids));
-
       $response_array['result']           = TRUE;
       $response_array['execution_time']   = microtime(true) - $time1;
-      // $response_array['uid']              = \Drupal::currentUser()->id();
-      // $response_array['session']          = \Drupal::service('session')->getId();
       $response_array['datas']               = $datas;
       return new JsonResponse( $response_array );
 
