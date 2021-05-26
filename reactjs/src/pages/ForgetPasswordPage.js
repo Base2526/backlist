@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Redirect, Link} from 'react-router-dom';
 import { connect } from 'react-redux'
-import { userLogin } from '../actions/auth'
+// import { userLogin } from '../actions/auth'
 
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
@@ -99,7 +99,7 @@ class ForgetPasswordPage extends Component {
       let data = body.data;
       console.log(data);
 
-      this.props.userLogin(data);
+      // this.props.userLogin(data);
     }
 
     // if(username === "admin" && password === "admin") {
@@ -233,9 +233,9 @@ const mapDispatchToProps = (dispatch) => {
 		// addTodo2: (id, val) => {
 		// 					dispatch(addTodo(val))
     //         },
-    userLogin: (data) =>{
-      dispatch(userLogin(data))
-    }
+    // userLogin: (data) =>{
+    //   dispatch(userLogin(data))
+    // }
 
 	}
 }

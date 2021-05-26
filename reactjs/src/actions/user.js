@@ -1,6 +1,3 @@
-// const axios = require('axios');
-
-// import {API_URL} from "../constants"
 import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE, 
          FOLLOW_UP, ___FOLLOW_UP, FETCH_MY_APPS, ADD_HISTORY, 
          DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST ,

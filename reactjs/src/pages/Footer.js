@@ -1,4 +1,5 @@
 import React, { Component, useEffect } from 'react';
+import { connect } from 'react-redux'
 import { useHistory } from "react-router-dom";
 import ContactWebsiteDialog from './ContactWebsiteDialog'
 import { LazyLoadImage } from 'react-lazy-load-image-component';
@@ -28,34 +29,42 @@ const Footer = (props) => {
                     <span className="span-border-bottom">Twitter</span>
                     </div>
                 </div>
-                <div>
-                    <div style={{cursor:'pointer'}} onClick={()=>{
-                         history.push({pathname: `/terms-of-service`, state: {} }) 
-                    }}>
-                    <span className="span-border-bottom">เงื่อนไขการใช้บริการ</span>
-                    </div>
-                </div>
-                <div>
-                    <div style={{cursor:'pointer'}} onClick={()=>{
-                         history.push({pathname: `/about-up`, state: {} }) 
-                    }}>
-                    <span className="span-border-bottom">เกี่ยวกับเรา</span>
-                    </div>
-                </div>
-                <div>
-                    <div style={{cursor:'pointer'}} onClick={()=>{
-                         history.push({pathname: `/for-developer`, state: {} }) 
-                    }}>
-                    <span className="span-border-bottom">สำหรับนักพัฒนา</span>
-                    </div>
-                </div>
-                <div>
-                    <div style={{cursor:'pointer'}} onClick={()=>{
-                         setShowModalContactWebsite(true)
-                    }}>
-                    <span className="span-border-bottom">ติดต่อเว็บไซต์</span>
-                    </div>
-                </div>   
+
+                {
+                    props.maintenance
+                    ?   <div />  
+                    :   <div>
+                            <div>
+                                <div style={{cursor:'pointer'}} onClick={()=>{
+                                    history.push({pathname: `/terms-of-service`, state: {} }) 
+                                }}>
+                                <span className="span-border-bottom">เงื่อนไขการใช้บริการ</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div style={{cursor:'pointer'}} onClick={()=>{
+                                    history.push({pathname: `/about-up`, state: {} }) 
+                                }}>
+                                <span className="span-border-bottom">เกี่ยวกับเรา</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div style={{cursor:'pointer'}} onClick={()=>{
+                                    history.push({pathname: `/for-developer`, state: {} }) 
+                                }}>
+                                <span className="span-border-bottom">สำหรับนักพัฒนา</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div style={{cursor:'pointer'}} onClick={()=>{
+                                    setShowModalContactWebsite(true)
+                                }}>
+                                <span className="span-border-bottom">ติดต่อเว็บไซต์</span>
+                                </div>
+                            </div>   
+                        </div>
+                }
+                
                 <div>
                     <LazyLoadImage
                         style={{borderRadius:"10px", cursor:"pointer"}}
@@ -85,4 +94,10 @@ const Footer = (props) => {
     )
 }
 
-export default Footer
+const mapStateToProps = (state, ownProps) => {
+	return {
+        maintenance: state.setting.maintenance
+    };
+}
+
+export default connect(mapStateToProps, null)(Footer)

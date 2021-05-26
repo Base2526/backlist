@@ -13,10 +13,20 @@ import Footer from './pages/Footer';
 import routes from "./routes";
 import ScrollToTopBtn from "./components/ScrollToTopBtn";
 
+import { uniqueId } from "./utils"
+
 const App = (props) => {
   useEffect(() => {
     socketid()
+
+    const interval = setInterval(() => {
+      syc()
+    }, 30000);
   });
+
+  const syc =()=>{
+    console.log("interval syc :", Date().toLocaleString(), uniqueId())
+  } 
 
   const socketid = () =>{
     const socket = io("/", {}, { transports: ["websocket"] });
@@ -41,7 +51,6 @@ const App = (props) => {
     });
   }
 
-
   return( <BR>
             <LoadingOverlay
               active={props.is_loading_overlay}
@@ -51,8 +60,6 @@ const App = (props) => {
                   <HeaderBar {...props} />
                   <Container>
                   <ToastContainer />
-
-
                   <CacheSwitch>
                     {routes.map(({ path, name, Component }, key) => (
                       <CacheRoute

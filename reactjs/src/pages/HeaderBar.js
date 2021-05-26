@@ -55,93 +55,100 @@ const HeaderBar = (props) => {
                       <span style={{cursor:'pointer'}} >Banlist.info</span>
                     </div>
                    </Typography>
-                   <div>
-                    <div>
 
-                    { isEmpty(props.user) ? <ul class="flex-container row">
-                                              <li class="flex-item">
-                                              <div 
-                                                style={{cursor:'pointer'}}
-                                                onClick={()=>{
-                                                  setShowModal(true)
-                                                }}>
-                                                เข้าสู่ระบบ/สมัครสมาชิก
-                                              </div>
-                                            </li> 
-                                            </ul>
-                                          : <ul class="flex-container row">
-                                              <li class="flex-item">
-                                                  <NotificationsIcon 
-                                                    className="notifications-icon"
-                                                    onClick={()=>{
-                                                      history.push({pathname: `/notifications`, state: {} })
-                                                    }} />
-                                                  <span className="notifications-span">1</span>
-                                              </li>
-                                              <li class="flex-item">
-                                                <LazyLoadImage
-                                                  className="lazy-load-image-border-radius"
-                                                  alt={'image.alt'}
-                                                  width="40px"
-                                                  height="40px"
-                                                  effect="blur"
-                                                  onClick={handleClick}
-                                                  placeholderSrc={previewIcon}
-                                                  src={props.user.image_url} 
-                                                  />
-                                              </li>
-                                            </ul>
-                                           }
-                    </div>
-                    <Menu
-                      keepMounted
-                      anchorEl={anchorEl}
-                      onClose={handleClose}
-                      open={Boolean(anchorEl)}>
-                      <MenuItem 
-                        onClick={()=>{
-                          history.push({pathname: `/my-profile`, state: {} })
-                          setAnchorEl(null);
-                        }}>My Profile</MenuItem>
+                   {
+                     props.maintenance 
+                     ?  <div />
+                     :  <div>
+                          <div>
+      
+                          { isEmpty(props.user) ? <ul class="flex-container row">
+                                                    <li class="flex-item">
+                                                    <div 
+                                                      style={{cursor:'pointer'}}
+                                                      onClick={()=>{
+                                                        setShowModal(true)
+                                                      }}>
+                                                      เข้าสู่ระบบ/สมัครสมาชิก
+                                                    </div>
+                                                  </li> 
+                                                  </ul>
+                                                : <ul class="flex-container row">
+                                                    <li class="flex-item">
+                                                        <NotificationsIcon 
+                                                          className="notifications-icon"
+                                                          onClick={()=>{
+                                                            history.push({pathname: `/notifications`, state: {} })
+                                                          }} />
+                                                        <span className="notifications-span">1</span>
+                                                    </li>
+                                                    <li class="flex-item">
+                                                      <LazyLoadImage
+                                                        className="lazy-load-image-border-radius"
+                                                        alt={'image.alt'}
+                                                        width="40px"
+                                                        height="40px"
+                                                        effect="blur"
+                                                        onClick={handleClick}
+                                                        placeholderSrc={previewIcon}
+                                                        src={props.user.image_url} 
+                                                        />
+                                                    </li>
+                                                  </ul>
+                                                  }
+                          </div>
+                          <Menu
+                            keepMounted
+                            anchorEl={anchorEl}
+                            onClose={handleClose}
+                            open={Boolean(anchorEl)}>
+                            <MenuItem 
+                              onClick={()=>{
+                                history.push({pathname: `/my-profile`, state: {} })
+                                setAnchorEl(null);
+                              }}>My Profile</MenuItem>
+      
+                              {/* My post (10) */}
+      
+                            <MenuItem 
+                              onClick={()=>{
+                                history.push({pathname: `/my-profile/my-post`, state: {} })
+                                setAnchorEl(null);
+                              }}>My post (10)</MenuItem>
+      
+                            <MenuItem 
+                              onClick={()=>{
+                                history.push({pathname: `/my-profile/my-followup`, state: {} })
+                                setAnchorEl(null);
+                              }}>My follow up (50)</MenuItem>
+                            <MenuItem 
+                              onClick={()=>{
+                                // setLoadingOverlay(true)
+      
+                                props.clearCached({})
+                                toast.info("Clear cached success.", 
+                                {
+                                    position: "bottom-right", 
+                                    hideProgressBar: true,
+                                    autoClose: 1000,
+                                }) 
+      
+                                setAnchorEl(null);
+                              }}>Clear cached</MenuItem>
+                            <MenuItem 
+                              onClick={()=>{
+                                setShowModalLogout(true); 
+                                setAnchorEl(null);
+      
+                                props.userLogout()
+                              }}>Logout</MenuItem>
+                          </Menu> 
+                          <LoginForm showModal={showModal} mode={"login"} onClose = {()=>{setShowModal(false)}} />
+                          <LogoutDialog showModalLogout={showModalLogout} onClose = {()=>{setShowModalLogout(false)}} />
+                        </div>
 
-                        {/* My post (10) */}
-
-                      <MenuItem 
-                        onClick={()=>{
-                          history.push({pathname: `/my-profile/my-post`, state: {} })
-                          setAnchorEl(null);
-                        }}>My post (10)</MenuItem>
-
-                      <MenuItem 
-                        onClick={()=>{
-                          history.push({pathname: `/my-profile/my-followup`, state: {} })
-                          setAnchorEl(null);
-                        }}>My follow up (50)</MenuItem>
-                      <MenuItem 
-                        onClick={()=>{
-                          // setLoadingOverlay(true)
-
-                          props.clearCached({})
-                          toast.info("Clear cached success.", 
-                          {
-                              position: "bottom-right", 
-                              hideProgressBar: true,
-                              autoClose: 1000,
-                          }) 
-
-                          setAnchorEl(null);
-                        }}>Clear cached</MenuItem>
-                      <MenuItem 
-                        onClick={()=>{
-                          setShowModalLogout(true); 
-                          setAnchorEl(null);
-
-                          props.userLogout()
-                        }}>Logout</MenuItem>
-                    </Menu> 
-                    <LoginForm showModal={showModal} mode={"login"} onClose = {()=>{setShowModal(false)}} />
-                    <LogoutDialog showModalLogout={showModalLogout} onClose = {()=>{setShowModalLogout(false)}} />
-                  </div>
+                   }
+                   
                 </Toolbar>
               </AppBar>
             </div>
@@ -153,6 +160,7 @@ const mapStateToProps = (state, ownProps) => {
 	return {
     user: state.user.data,
     data: state.app.data,
+    maintenance: state.setting.maintenance
   };
 }
 

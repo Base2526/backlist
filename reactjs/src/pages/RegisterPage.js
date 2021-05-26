@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Redirect, Link} from 'react-router-dom';
 
 import { connect } from 'react-redux'
-import { userLogin } from '../actions/auth'
 
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
@@ -251,12 +250,12 @@ const mapStateToProps = (state, ownProps) => {
 	แบบที่ 2
 	let {function1, function2} = this.props;
 */
-const mapDispatchToProps = (dispatch) => {
-	return {
-    userLogin: (data) =>{
-      dispatch(userLogin(data))
-    }
-	}
-}
+// const mapDispatchToProps = (dispatch) => {
+// 	return {
+//     userLogin: (data) =>{
+//       dispatch(userLogin(data))
+//     }
+// 	}
+// }
 
-export default connect(mapStateToProps, mapDispatchToProps)(RegisterPage)
+export default connect(mapStateToProps, null)(RegisterPage)

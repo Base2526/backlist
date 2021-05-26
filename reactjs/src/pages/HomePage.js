@@ -161,95 +161,104 @@ const HomePage = (props) => {
     }
   }
     
-  return (  <div className="container mb-5">
-             <AddBanlistDialog showModal={showModal} onClose = {()=>{ setShowModal(false) }} />
-             { showModalReport && <ReportDialog showModal={showModalReport} onClose = {()=>{  setShowModalReport(false) }}  /> }
-             <div>
-               <form /*onSubmit={handleFormSubmit}*/ >
-                 <div>
-                   <div>
-                     <input 
-                      type="text" 
-                      name="title" 
-                      value={searchWord} 
-                      onChange={(event)=>{ setSearchWord(event.target.value) }}
-                      // required
-                      />
-                    <button 
-                      type="submit" 
-                      disabled={isEmpty(searchWord) ? true : false}
-                      onClick={(e)=>{
-                        handleFormSearch(e)
-                      }}
-                      className={"div-button"}>
-                        ค้นหา { searchLoading && <CircularProgress size={10}/> }
-                    </button>
+  return (<div className="container mb-5">
+            {
+             props.maintenance 
+             ?  <div>We’ll be back soon! Sorry for the inconvenience but we’re performing some maintenance at the moment. We’ll be back online shortly!</div>
+             :  <div>
+                  <AddBanlistDialog showModal={showModal} onClose = {()=>{ setShowModal(false) }} />
+                  { showModalReport && <ReportDialog showModal={showModalReport} onClose = {()=>{  setShowModalReport(false) }}  /> }
+                  <div>
+                    <form /*onSubmit={handleFormSubmit}*/ >
+                      <div>
+                        <div>
+                          <input 
+                            type="text" 
+                            name="title" 
+                            value={searchWord} 
+                            onChange={(event)=>{ setSearchWord(event.target.value) }}
+                            // required
+                            />
+                          <button 
+                            type="submit" 
+                            disabled={isEmpty(searchWord) ? true : false}
+                            onClick={(e)=>{
+                              handleFormSearch(e)
+                            }}
+                            className={"div-button"}>
+                              ค้นหา { searchLoading && <CircularProgress size={10}/> }
+                          </button>
 
-                    {/* searchLoading */}
+                          {/* searchLoading */}
+                        </div>
+                        <div style={{paddingTop:10}}>
+                          <div style={{fontSize:"20px"}}>Search by category </div>
+                          <ul class="flex-container row">
+                            {
+                              // selectedCheckboxes
+                              itemsCategory.map((itm)=>{
+                                return  <li class="flex-item">
+                                          <Checkbox
+                                            label={itm.title}
+                                            handleCheckboxChange={toggleCheckbox}
+                                            value={itm.id}
+                                            key={itm.id}
+                                            checked={(selectedCheckboxes.find((item)=>item === itm.id) === undefined) ? false : true}/>
+                                        </li>
+                              })
+                            }
+                          </ul>
+                        </div>
+                      </div>
+                    </form>
                   </div>
-                  <div style={{paddingTop:10}}>
-                    <div style={{fontSize:"20px"}}>Search by category </div>
-                    <ul class="flex-container row">
-                      {
-                        // selectedCheckboxes
-                        itemsCategory.map((itm)=>{
-                          return  <li class="flex-item">
-                                    <Checkbox
-                                      label={itm.title}
-                                      handleCheckboxChange={toggleCheckbox}
-                                      value={itm.id}
-                                      key={itm.id}
-                                      checked={(selectedCheckboxes.find((item)=>item === itm.id) === undefined) ? false : true}/>
-                                  </li>
-                        })
+                  <div className="row d-flex flex-row py-5"> 
+                    { renderContent() }
+                    <div className="w-100 px-4 py-5 d-flex flex-row flex-wrap align-items-center justify-content-between">
+                      <div className="d-flex flex-row py-4 align-items-center">
+                        <Pagination
+                          totalRecords={allResultCount}
+                          pageLimit={pageLimit}
+                          pageNeighbours={1}
+                          onPageChanged={onPageChanged}
+                        />
+                      </div>
+                      <div className="d-flex flex-row align-items-center">
+                        {currentPage && (
+                          <span className="current-page d-inline-block h-100 pl-4 text-secondary">
+                            Page <span className="font-weight-bold">{currentPage}</span> /{" "}
+                            <span className="font-weight-bold">{totalPages}</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  {showModalLogin &&  <LoginForm showModal={showModalLogin} onClose = {()=>{  setShowModalLogin(false) }} />}
+                  <div 
+                    className="fab"
+                    onClick={()=>{
+                      if(isEmpty(props.user)){
+                        setShowModalLogin(true)
+                      }else{
+                        setShowModal(true)
                       }
-                    </ul>
-                  </div>
+                    }}>
+                    <AddCircleOutlinedIcon className="floating-icon"/>
+                  </div>  
+                
                 </div>
-              </form>
-            </div>
-            <div className="row d-flex flex-row py-5"> 
-              { renderContent() }
-              <div className="w-100 px-4 py-5 d-flex flex-row flex-wrap align-items-center justify-content-between">
-                <div className="d-flex flex-row py-4 align-items-center">
-                  <Pagination
-                    totalRecords={allResultCount}
-                    pageLimit={pageLimit}
-                    pageNeighbours={1}
-                    onPageChanged={onPageChanged}
-                  />
-                </div>
-                <div className="d-flex flex-row align-items-center">
-                  {currentPage && (
-                    <span className="current-page d-inline-block h-100 pl-4 text-secondary">
-                      Page <span className="font-weight-bold">{currentPage}</span> /{" "}
-                      <span className="font-weight-bold">{totalPages}</span>
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-            {showModalLogin &&  <LoginForm showModal={showModalLogin} onClose = {()=>{  setShowModalLogin(false) }} />}
-            <div 
-              className="fab"
-              onClick={()=>{
-                if(isEmpty(props.user)){
-                  setShowModalLogin(true)
-                }else{
-                  setShowModal(true)
-                }
-              }}>
-              <AddCircleOutlinedIcon className="floating-icon"/>
-            </div>  
+
+            }
+            
           </div>
   )
-
 }
 
 const mapStateToProps = (state, ownProps) => {
 	return {
     user: state.user.data,
     data: state.app.data,
+    maintenance: state.setting.maintenance
   };
 }
 

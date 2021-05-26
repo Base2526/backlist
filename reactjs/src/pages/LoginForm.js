@@ -64,8 +64,8 @@ const LoginForm = (props) => {
                       onChange={(e)=>{ setPassword(e.target.value) }}/>
                   </div>
                   <div className="col-sm-12">
-                    <a href="#" onClick={e => { e.preventDefault(); setMode("forgot");  }}> Forgot Password</a>|
-                    <a href="#" onClick={e => { e.preventDefault(); setMode("register");  }}> Create your account</a>
+                    <a href="#" onClick={e => { e.preventDefault(); setMode("forgot");  }}> Forgot password</a>|
+                    <a href="#" onClick={e => { e.preventDefault(); setMode("register");  }}> Create new account</a>
                   </div>
                 </fieldset>
                 <div className="form-action" class="col-sm-12">
@@ -107,7 +107,7 @@ const LoginForm = (props) => {
               <form className="form-horizontal form-loanable">
                 <fieldset>
                   <div className="form-group has-feedback required">
-                    <label htmlFor="login-email" className="col-sm-5">Name</label>
+                    <label htmlFor="login-email" className="col-sm-5">Display name</label>
                     <div className="col-sm-12">
                       <span className="form-control-feedback" aria-hidden="true"></span>
                       <input
@@ -124,7 +124,7 @@ const LoginForm = (props) => {
                     </div>
                   </div>
                   <div className="form-group has-feedback required">
-                    <label htmlFor="login-email" className="col-sm-5">Email</label>
+                    <label htmlFor="login-email" className="col-sm-5">Email address</label>
                     <div className="col-sm-12">
                       <span className="form-control-feedback" aria-hidden="true"></span>
                       <input
@@ -132,7 +132,7 @@ const LoginForm = (props) => {
                         name="email"
                         id="email"
                         className="form-control"
-                        placeholder="Enter email"
+                        placeholder="Enter email address"
                         value={email}
                         onChange={(e)=>{
                           setEmail(e.target.value)
@@ -189,13 +189,13 @@ const LoginForm = (props) => {
           <div>
             <form className="form-horizontal form-loanable">
               <div className="col-sm-12">
-                <span className="form-control-feedback" aria-hidden="true"></span>
+                <span className="form-control-feedback" aria-hidden="true">Email address</span>
                 <input
                   type="text"
                   name="email"
                   id="email"
                   className="form-control"
-                  placeholder="Enter email"
+                  placeholder="Enter email address"
                   value={email}
                   onChange={(e)=>{
                     setEmail(e.target.value)
@@ -387,7 +387,7 @@ const LoginForm = (props) => {
         //   bsSize="large"
         backdrop="static">
         <Modal.Header closeButton={true}>
-          <h2>{ mode === "login" ? "Login" : mode === "register" ? "Register" : "Forgot Password" }</h2>
+          <h2>{ mode === "login" ? "Login" : mode === "register" ? "Create new account" : "Forgot password" }</h2>
         </Modal.Header>
         <Modal.Body>
           {/* {mode === "login" ? (renderLogin()) : mode === "register" ? (renderRegister()) : (renderForgot())} */}

@@ -22,7 +22,7 @@ const initialState = {
   tests: []
 }
 
-export const app = (state = initialState, action) => {
+const app = (state = initialState, action) => {
   switch (action.type) {
     case FETCH_DATA:{
       return {
@@ -60,3 +60,5 @@ export const app = (state = initialState, action) => {
       return state;
   }
 }
+
+export default app
