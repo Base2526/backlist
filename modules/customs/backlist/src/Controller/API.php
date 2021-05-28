@@ -1295,7 +1295,7 @@ class API extends ControllerBase {
       
       
       \Drupal::logger('SearchApi, full_text_fields : ')->notice( serialize($full_text_fields) );
-/*
+      /*
       if(!empty($key_word)){
 
         // \Drupal::logger('SearchApi')->notice( 'offset = %offset, type = %type, key_word = %key_word', 
@@ -1513,7 +1513,7 @@ class API extends ControllerBase {
         $response_array['message']  = 'Empty key_word.';
         $response_array['content']  = $content;
       }
-*/
+      */
 
       if(empty($full_text_fields)){
         $response_array = Utils::search_api($key_word, $offset, $type);
@@ -1706,9 +1706,40 @@ class API extends ControllerBase {
 
           break;
         }
-      }
 
-      
+        case 3:{
+
+          $field_display_name            = trim( $_REQUEST['display_name'] );
+
+          $user = User::load(\Drupal::currentUser()->id());
+          if(!empty($user)){
+            $user->set('field_display_name', $field_display_name);
+            // $user->save();
+          }
+         
+
+          if(!empty($_FILES)){
+            $target = 'sites/default/files/'. $_FILES['file']['name'];
+            move_uploaded_file( $_FILES['file']['tmp_name'], $target);
+    
+            $file = file_save_data( file_get_contents( $target ), 'public://'. date('m-d-Y_hia') .'_'.mt_rand().'.png' , FileSystemInterface::EXISTS_REPLACE);
+    
+            // $user = User::load(\Drupal::currentUser()->id());
+            if(!empty($user)){
+              $user->set('user_picture', $file->id());
+              $user->save();
+            }
+    
+            $response_array['image_url']  =  file_create_url($file->getFileUri());
+          }
+
+          if(!empty($user)){
+            $user->save();
+          }
+
+          break;
+        }
+      }
 
       $response_array['result']           = TRUE;
       $response_array['execution_time']   = microtime(true) - $time1;
@@ -1728,29 +1759,69 @@ class API extends ControllerBase {
     try {
       $time1          = microtime(true);
 
-      $content = json_decode( $request->getContent(), TRUE );
-      $chioce  = json_decode($content['chioce']);
-      $message = trim( $content['message'] );
+      // $content = json_decode( $request->getContent(), TRUE );
 
-      // $offset= trim( $content['offset'] );
+      // \Drupal::currentUser()->id()
+      // $nid        = trim( $_REQUEST['nid'] );  
 
-      if( empty($chioce) || empty($message) ){
+      $display_name = '';
+      $email        = '';
+      if(\Drupal::currentUser()->isAnonymous()){
+        $display_name  = trim( $_REQUEST['name'] );
+        $email         = trim( $_REQUEST['email'] );
+      }else{
+        $user   = User::load( \Drupal::currentUser()->id() );
+        $display_name    = '';
+        $field_display_name = $user->get('field_display_name')->getValue();
+        if(!empty($field_display_name)){
+          $display_name    = $field_display_name[0]['value'];
+        }
+
+        $email  = $user->getEmail();
+      }
+
+      $nid      = trim( $_REQUEST['nid'] );
+      $category = trim( $_REQUEST['category'] );
+      $message  = trim( $_REQUEST['message'] );
+
+      if( empty($nid) || empty($category) || empty($message) ){
         $response_array['result']           = FALSE;
+        $response_array['message']          = "Params empty.";
         $response_array['execution_time']   = microtime(true) - $time1;
         return new JsonResponse( $response_array );
       }
 
-      \Drupal::logger('report')->notice('chioce : %chioce, message: %message',
+      if(!empty($_FILES)){
+        $images_fids = array();
+        $total = count($_FILES['files']['name']);
+        // Loop through each file
+        for( $i=0 ; $i < $total ; $i++ ) {
+
+          $target = 'sites/default/files/'. $_FILES['files']['name'][$i];
+          move_uploaded_file( $_FILES['files']['tmp_name'][$i], $target);
+
+          $file = file_save_data( file_get_contents( $target ), 'public://'. date('m-d-Y_hia') .'_'.mt_rand().'.png' , FileSystemInterface::EXISTS_REPLACE);
+          $images_fids[] = array(
+            'target_id' => $file->id(),
+            'alt' => '',
+            'title' => empty($_FILES['files']['name'][$i]) ? '' : $_FILES['files']['name'][$i]
+          );
+        }
+      }
+      
+      \Drupal::logger('report')->notice('nid : %nid, category : %category, message: %message',
       array(
-          '%chioce' => $content['chioce'],
-          '%message' => $message,
+          '%nid'      => $nid,
+          '%category' => $category,
+          '%message'  => $message,
       ));
+
+      // Utils::mail_report($type, $to, $nid, $message)
 
       $response_array['result']           = TRUE;
       $response_array['execution_time']   = microtime(true) - $time1;
       
       return new JsonResponse( $response_array );
-
     } catch (\Throwable $e) {
       \Drupal::logger('SearchApi')->notice($e->__toString());
 
@@ -1764,29 +1835,7 @@ class API extends ControllerBase {
     $response_array = array();
     try {
       $time1          = microtime(true);
-
       $content = json_decode( $request->getContent(), TRUE );
-      // $chioce  = json_decode($content['chioce']);
-      // $message = trim( $content['message'] );
-
-      // // $offset= trim( $content['offset'] );
-
-      // if( empty($chioce) || empty($message) ){
-      //   $response_array['result']           = FALSE;
-      //   $response_array['execution_time']   = microtime(true) - $time1;
-      //   return new JsonResponse( $response_array );
-      // }
-
-      // \Drupal::logger('report')->notice('chioce : %chioce, message: %message',
-      // array(
-      //     '%chioce' => $content['chioce'],
-      //     '%message' => $message,
-      // ));
-
-      // $node = Node::load($parent->id());
-      // $datas[] = API::GetFieldNode($node);
-
-      // $storage = \Drupal::entityTypeManager()->getStorage('node');
 
       $storage = $this->entityTypeManager->getStorage('node');
       $query   = $storage->getQuery();
@@ -1801,12 +1850,8 @@ class API extends ControllerBase {
         $datas[] = API::GetFieldNode($node);
       }
 
-      // dpm(count($nids));
-
       $response_array['result']           = TRUE;
       $response_array['execution_time']   = microtime(true) - $time1;
-      // $response_array['uid']              = \Drupal::currentUser()->id();
-      // $response_array['session']          = \Drupal::service('session')->getId();
       $response_array['datas']               = $datas;
       return new JsonResponse( $response_array );
 
@@ -1909,6 +1954,35 @@ class API extends ControllerBase {
       return new JsonResponse( $response_array );
     } catch (\Throwable $e) {
       \Drupal::logger('SearchApi')->notice($e->__toString());
+
+      $response_array['result']   = FALSE;
+      $response_array['message']  = $e->__toString();
+      return new JsonResponse( $response_array );
+    }
+  }
+
+  public function GetHTML(Request $request){
+    $response_array = array();
+
+    try{
+      $content = json_decode( $request->getContent(), TRUE );
+      $nid = trim( $content['nid'] );
+
+      if(!empty($nid)){
+        $node = Node::load($nid);
+        $body = $node->get('body')->getValue();
+        if(!empty($body)){
+          $response_array['data']  = $body[0]['value'];
+        }
+
+        $response_array['result']  = TRUE;
+        return new JsonResponse( $response_array );
+      }
+
+      $response_array['result']  = FALSE;
+      return new JsonResponse( $response_array );
+    } catch (\Throwable $e) {
+      \Drupal::logger('GetHTML')->notice($e->__toString());
 
       $response_array['result']   = FALSE;
       $response_array['message']  = $e->__toString();

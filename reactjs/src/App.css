@@ -1,0 +1,250 @@
+.current-page {
+    font-size: 1.5rem;
+    vertical-align: middle;
+  }
+  
+  .country-card-container {
+    height: 60px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .country-name {
+    font-size: 0.9rem;
+  }
+  
+  .country-region {
+    font-size: 0.7rem;
+  }
+  
+  .country-page,
+  .country-name,
+  .country-region {
+    line-height: 1;
+  }
+  
+  ul.pagination {
+    margin-top: 0;
+    margin-bottom: 0;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  }
+  ul.pagination li.page-item.active a.page-link {
+    color: #445565 !important;
+    background-color: #e3e7eb !important;
+    border-color: #ced4da !important;
+  }
+  ul.pagination a.page-link {
+    padding: 0.75rem 1rem;
+    min-width: 3.5rem;
+    text-align: center;
+    box-shadow: none !important;
+    border-color: #ced4da !important;
+    color: #6b88a4;
+    font-weight: 900;
+    font-size: 1rem;
+  }
+  ul.pagination a.page-link:hover {
+    background-color: #f4f4f4;
+  }
+
+  .images {  display: flex;  }
+
+
+  /* Home item */
+  .hi-container{
+    width : 300px;
+    height : 300px;
+    display: flex;
+  }
+  .hi-sub-container1{
+    flex : 1;
+    display:flex;
+    flex-direction : column;
+    background-color : #245878;
+  }
+  .hi-item1{
+    flex:1;
+    background-color : #c40707;
+    margin : 5%;
+    cursor: pointer;
+  }
+  .hi-item2{
+    flex:1;
+    background-color : #3ef112;
+    margin : 5%;
+    cursor: pointer;
+  }
+  .hi-sub-container2{
+    flex:1;
+    display:flex;
+    background-color : #451589;
+  }
+  .hi-item3{
+    flex:1;
+    background-color : #a10808;
+    margin : 5%;
+    cursor: pointer;
+  }
+
+  /* Home item */
+
+  input[type="file"] {
+    display: none;
+  }
+
+  .custom-file-upload {
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+  } 
+
+  .file-preview {
+    margin: 0 10px;
+  }
+
+  .lazy-load-image-border-radius{
+    border-radius: 50%;
+    /* margin: 10px;
+    padding: 5px; */
+    cursor: pointer;
+  }
+
+  .lazy-load-image{
+    object-fit: contain;
+  }
+
+  .notifications-item{
+    border-style: solid;
+    border-width: thin;
+    margin: 5px;
+    padding: 4px;
+  }
+
+  .notifications-icon{
+    /* margin: 10px; */
+    width: 22px !important;
+    height: 22px !important;
+    cursor: pointer;
+  }
+
+  .notifications-span{
+    font-size: 12px; 
+    position: absolute;
+  }
+
+
+  .flex-container {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    
+    -ms-box-orient: horizontal;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -moz-flex;
+    display: -webkit-flex;
+    display: flex;
+    align-items: center;
+  }
+
+  .flex-item{
+    padding-right: 10px;
+  }
+  
+  .row            { 
+    -webkit-flex-direction: row; 
+    flex-direction: row;
+  }
+
+  .lazy-load-image-background.blur {
+    filter: blur(0px) !important;
+    border-radius: 50%;
+  }
+
+  .bl-border-bottom{
+    border-bottom: 2px solid #212529;
+  }
+
+
+
+
+/* floating */
+.fab {
+  margin: 0px;
+  top: auto;
+  right: 50px;
+  bottom: 80px;
+  left: auto;
+  position: fixed;
+  cursor: pointer;
+}
+.floating-icon{
+  transform: scale(2.5);
+  color: red;
+}
+/* floating */
+
+/* scroll-to-top */
+.scroll-to-top {
+  position: fixed;
+  bottom: 0.5rem;
+  /* right: 0.5rem; */
+  left: 1rem;
+  animation: fadeIn 700ms ease-in-out 1s both;
+  cursor: pointer;
+  background-color: gray;
+  /* padding: 5px; */
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* scroll-to-top */
+
+.span-border-bottom{
+  border-bottom: 2px solid #212529;
+}
+
+/* footer */
+.footer{
+  padding-top: 20px;
+  padding-bottom: 20px;
+  padding-left: 100px;
+  background-color: gainsboro;
+}
+/* footer */
+
+.read-more-less--more,
+.read-more-less--less {
+  color: #999;
+}
+
+._loading_overlay_content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+.div-button{
+  border-radius: 25px;
+  background: #73AD21;
+  padding: 5px;
+  border-width: 1px;
+  border-style: solid;
+}
+
+.div-button-disabled{
+  pointer-events: none;
+  opacity: 0.4;
+}

@@ -51,13 +51,13 @@ class Google_Service_GoogleAnalyticsAdmin_Resource_Properties extends Google_Ser
    * @param string $name Required. The name of the Property to soft-delete.
    * Format: properties/{property_id} Example: "properties/1000"
    * @param array $optParams Optional parameters.
-   * @return Google_Service_GoogleAnalyticsAdmin_GoogleProtobufEmpty
+   * @return Google_Service_GoogleAnalyticsAdmin_GoogleAnalyticsAdminV1alphaProperty
    */
   public function delete($name, $optParams = array())
   {
     $params = array('name' => $name);
     $params = array_merge($params, $optParams);
-    return $this->call('delete', array($params), "Google_Service_GoogleAnalyticsAdmin_GoogleProtobufEmpty");
+    return $this->call('delete', array($params), "Google_Service_GoogleAnalyticsAdmin_GoogleAnalyticsAdminV1alphaProperty");
   }
   /**
    * Lookup for a single "GA4" Property. (properties.get)
@@ -118,8 +118,9 @@ class Google_Service_GoogleAnalyticsAdmin_Resource_Properties extends Google_Ser
    * @param array $optParams Optional parameters.
    *
    * @opt_param string updateMask Required. The list of fields to be updated.
-   * Omitted fields will not be updated. To replace the entire entity, use one
-   * path with the string "*" to match all fields.
+   * Field names must be in snake case (e.g., "field_to_update"). Omitted fields
+   * will not be updated. To replace the entire entity, use one path with the
+   * string "*" to match all fields.
    * @return Google_Service_GoogleAnalyticsAdmin_GoogleAnalyticsAdminV1alphaProperty
    */
   public function patch($name, Google_Service_GoogleAnalyticsAdmin_GoogleAnalyticsAdminV1alphaProperty $postBody, $optParams = array())
