@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useLayoutEffect, useRef } from "react";
 import { connect } from 'react-redux'
 import { useHistory } from "react-router-dom";
 import { toast } from 'react-toastify';
 import Lightbox from "react-image-lightbox";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
+import moment from "moment";
 import { CircularProgress } from '@material-ui/core';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import MoreVertOutlinedIcon from '@material-ui/icons/MoreVertOutlined';
@@ -12,9 +13,24 @@ import VerifiedUserOutlinedIcon from '@material-ui/icons/VerifiedUserOutlined';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import axios from 'axios';
 
-import LoginForm from './LoginForm'
-import { isEmpty } from "../utils";
+import LoginDialog from './LoginDialog'
+import { isEmpty, commaFormatted } from "../utils";
 import ReportDialog from './ReportDialog'
+
+// Hook
+function usePrevious(value) {
+    // The ref object is a generic container whose current property is mutable ...
+    // ... and can hold any value, similar to an instance property on a class
+    const ref = useRef();
+    
+    // Store current value in ref
+    useEffect(() => {
+      ref.current = value;
+    }, [value]); // Only re-run if value changes
+    
+    // Return previous value (happens before update in useEffect above)
+    return ref.current;
+}
 
 const DetailPage = (props) => {
     const history = useHistory();
@@ -27,7 +43,10 @@ const DetailPage = (props) => {
     const [photoIndex, setPhotoIndex]   = React.useState(0);
     const [anchorEl, setAnchorEl]       = React.useState(null);
 
+    const prevNid = usePrevious(props.match.params.nid);
+
     useEffect(() => {
+        console.log("ref.value > useEffect") 
         let {match, data}  = props
         setNid(match.params.nid)
         let _data = data.find((item)=> item.id == match.params.nid)
@@ -52,7 +71,15 @@ const DetailPage = (props) => {
                 console.log("error :", error)
             });
         }
+
+        resetScroll()
     });
+
+    const resetScroll = () =>{
+        if(nid !== prevNid){
+            window.scrollTo(0, 0)
+        } 
+    }
 
     const handleClose = () => {
         setAnchorEl(null);
@@ -75,7 +102,10 @@ const DetailPage = (props) => {
                         </div>
                         <div>
                             <div>ยอดเงิน :</div>
-                            <div>{item.transfer_amount}</div>
+                            <div>{!isEmpty(item.transfer_amount) ? commaFormatted(item.transfer_amount) : item.transfer_amount}</div>
+                        </div>
+                        <div>
+                          <div>วันโอนเงิน: {moment(item.transfer_date).format('MMM DD, YYYY')}</div>
                         </div>
 
                         <div>
@@ -177,7 +207,7 @@ const DetailPage = (props) => {
                             }}>Report</MenuItem>
                         </Menu> 
 
-                        { showModalLogin &&  <LoginForm showModal={showModalLogin} onClose = {()=>{ setShowModalLogin(false) }} />}
+                        { showModalLogin &&  <LoginDialog showModal={showModalLogin} onClose = {()=>{ setShowModalLogin(false) }} />}
 
                     </div> 
             }

@@ -318,7 +318,7 @@ const UseMyPostItem = (props) => {
                 }}> 
                     <div>
                         <div style={{cursor: 'pointer'}} onClick={()=>{
-                          props.history.push({pathname: `detail/${item.id}`, state: { item } })
+                          props.history.push({pathname: `/my-profile/my-post/${item.id}`, state: { item } })
                         }}> 
                       
                         <div>

@@ -250,7 +250,11 @@ api.report:
   defaults: 
     _controller: '\Drupal\backlist\Controller\API::Report'
   requirements: 
-    _role: 'authenticated+administrator'
+    _role: 'anonymous+authenticated+administrator'
+  # options:
+  #   _auth: ['basic_auth']
+  # requirements:
+  #   _permission: 'access content'
   options:
     _auth: ['basic_auth']
 
@@ -303,3 +307,4 @@ api.getHTML:
     _role: 'authenticated+administrator'
   options:
     _auth: ['basic_auth']
+

@@ -45,15 +45,24 @@ class Google_Service_Recommender_Resource_ProjectsLocationsRecommendersRecommend
    * (recommendations.listProjectsLocationsRecommendersRecommendations)
    *
    * @param string $parent Required. The container resource on which to execute
-   * the request. Acceptable formats: 1. "projects/[PROJECT_NUMBER]/locations/[LOC
-   * ATION]/recommenders/[RECOMMENDER_ID]", LOCATION here refers to GCP Locations:
+   * the request. Acceptable formats: 1. `projects/[PROJECT_NUMBER]/locations/[LOC
+   * ATION]/recommenders/[RECOMMENDER_ID]` 2. `billingAccounts/[BILLING_ACCOUNT_ID
+   * ]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]` 3.
+   * `folders/[FOLDER_ID]/locations/[LOCATION]/recommenders/[RECOMMENDER_ID]` 4. `
+   * organizations/[ORGANIZATION_ID]/locations/[LOCATION]/recommenders/[RECOMMENDE
+   * R_ID]` LOCATION here refers to GCP Locations:
    * https://cloud.google.com/about/locations/ RECOMMENDER_ID refers to supported
    * recommenders: https://cloud.google.com/recommender/docs/recommenders.
    * @param array $optParams Optional parameters.
    *
    * @opt_param string filter Filter expression to restrict the recommendations
-   * returned. Supported filter fields: state_info.state Eg:
-   * `state_info.state:"DISMISSED" or state_info.state:"FAILED"
+   * returned. Supported filter fields: * `state_info.state` *
+   * `recommenderSubtype` * `priority` Examples: * `stateInfo.state = ACTIVE OR
+   * stateInfo.state = DISMISSED` * `recommenderSubtype = REMOVE_ROLE OR
+   * recommenderSubtype = REPLACE_ROLE` * `priority = P1 OR priority = P2` *
+   * `stateInfo.state = ACTIVE AND (priority = P1 OR priority = P2)` (These
+   * expressions are based on the filter language described at
+   * https://google.aip.dev/160)
    * @opt_param int pageSize Optional. The maximum number of results to return
    * from this request. Non-positive values are ignored. If not specified, the
    * server will determine the number of results to return.

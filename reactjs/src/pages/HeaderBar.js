@@ -13,7 +13,7 @@ import { toast }    from "react-toastify";
 import {isEmpty} from '../utils'
 import { userLogout, loadingOverlay, clearCached } from '../actions/user';
 import LogoutDialog from './LogoutDialog'
-import LoginForm from './LoginForm'
+import LoginDialog from './LoginDialog'
 import previewIcon from '../images/preview-icon.png';
 
 const HeaderBar = (props) => {
@@ -23,21 +23,13 @@ const HeaderBar = (props) => {
   const [showModalLogout, setShowModalLogout] = React.useState(false);
   const [loadingOverlay, setLoadingOverlay]   = React.useState(false);
 
-  useEffect(() => {
-  });
+  const [countFollowUp, setCountFollowUp]     = React.useState(0);
 
   useEffect(() => {
-    // if(loadingOverlay){
-    //   props.loadingOverlay(true)
-    //   props.clearCached({})
-    //   const interval = setInterval(() => {
-    //     props.loadingOverlay(false)
-    //     setLoadingOverlay(false)
-    //   }, 3000);
-    //   return () => clearInterval(interval);
-    // }
-  }, [loadingOverlay]);
-  
+    let follow_ups = props.follow_ups.filter((el)=>el.status);
+    setCountFollowUp(follow_ups.length)
+  });
+
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -120,7 +112,7 @@ const HeaderBar = (props) => {
                               onClick={()=>{
                                 history.push({pathname: `/my-profile/my-followup`, state: {} })
                                 setAnchorEl(null);
-                              }}>My follow up (50)</MenuItem>
+                              }}>My follow up ({countFollowUp})</MenuItem>
                             <MenuItem 
                               onClick={()=>{
                                 // setLoadingOverlay(true)
@@ -140,10 +132,10 @@ const HeaderBar = (props) => {
                                 setShowModalLogout(true); 
                                 setAnchorEl(null);
       
-                                props.userLogout()
+                                
                               }}>Logout</MenuItem>
                           </Menu> 
-                          <LoginForm showModal={showModal} mode={"login"} onClose = {()=>{setShowModal(false)}} />
+                          <LoginDialog showModal={showModal} mode={"login"} onClose = {()=>{setShowModal(false)}} />
                           <LogoutDialog showModalLogout={showModalLogout} onClose = {()=>{setShowModalLogout(false)}} />
                         </div>
 
@@ -160,6 +152,9 @@ const mapStateToProps = (state, ownProps) => {
 	return {
     user: state.user.data,
     data: state.app.data,
+    follow_ups: state.user.follow_ups,
+
+
     maintenance: state.setting.maintenance
   };
 }

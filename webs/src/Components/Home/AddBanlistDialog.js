@@ -47,7 +47,6 @@ const AddBanlistDialog = (props) => {
   ]);
 
   useEffect(() => {
-    console.log('showModal >> ', props.showModal)
     setShowModal(props.showModal)
   });
 

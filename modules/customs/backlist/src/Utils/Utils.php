@@ -4571,4 +4571,53 @@ class Utils extends ControllerBase {
 
     return $response_array;
   }
+
+  /*
+  $type = 0 : reporter, 1 : owner post 
+  */
+  public static function mail_report($type, $to, $nid, $message){
+    switch($type){
+      case 0:{
+        // send mail to reporter
+        $mailManager = \Drupal::service('plugin.manager.mail');
+        $module = 'backlist';
+        $key = 'report_reporter';
+        $params['title']   = 'You have send report to owner post in banlist.info';
+        $params['message'] = 'You have send report to owner post in banlist.info';
+        $params['link']    = Utils::get_base_url() .'detail/'. $nid;
+        $langcode = \Drupal::currentUser()->getPreferredLangcode();
+        $send = true;
+        $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
+        if ($result['result'] !== true) {
+          \Drupal::logger('Banlist')->error('Expired_FBLongLivedAccessToken : There was a problem sending your message and it was not sent at %time time.', array( '%time' => (new DateTime())->format('Y-m-d H:i:s') ));
+        }
+        else {
+          \Drupal::logger('Banlist')->notice('Expired_FBLongLivedAccessToken : Your message has been sent at %time time.', array( '%time' => (new DateTime())->format('Y-m-d H:i:s') ));
+        }
+        break;
+      }
+
+      case 1:{
+        // send mail to owner port
+        $mailManager = \Drupal::service('plugin.manager.mail');
+        $module = 'backlist';
+        $key = 'report_owner_post';
+        $params['title']   = 'You have report to owner post in banlist.info';
+        $params['message'] = 'You have report to owner post in banlist.info';
+        $params['link']    = Utils::get_base_url() .'detail/'. $nid;
+        $langcode = \Drupal::currentUser()->getPreferredLangcode();
+        $send = true;
+        $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
+        if ($result['result'] !== true) {
+          \Drupal::logger('Banlist')->error('Expired_FBLongLivedAccessToken : There was a problem sending your message and it was not sent at %time time.', array( '%time' => (new DateTime())->format('Y-m-d H:i:s') ));
+        }
+        else {
+          \Drupal::logger('Banlist')->notice('Expired_FBLongLivedAccessToken : Your message has been sent at %time time.', array( '%time' => (new DateTime())->format('Y-m-d H:i:s') ));
+        }
+        break;
+      }
+    }
+
+    
+  }
 }

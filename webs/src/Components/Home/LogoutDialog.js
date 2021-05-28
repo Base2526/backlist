@@ -7,8 +7,6 @@ const LogoutDialog = (props) => {
     const history = useHistory();
     const [showModal, setShowModal] = React.useState(false);
     useEffect(() => {
-        console.log('LogoutForm >> ', props)
-
         setShowModal(props.showModalLogout)
     });
 

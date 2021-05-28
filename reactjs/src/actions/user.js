@@ -4,7 +4,9 @@ import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE,
         
         
          NET_INFO, NOTIFICATIONS,
-         LOADING_OVERLAY, CLEAR_CACHED} from '../constants';
+         LOADING_OVERLAY, CLEAR_CACHED,
+        
+         ADD_MY_APPS} from '../constants';
 
 
 const _dataUserLogin = data => ({
@@ -118,11 +120,15 @@ export const fetchProfile = (basic_auth) => dispatch =>{
 }
 
 export const followUp = (data) => dispatch => {
-  dispatch(_dataFollowup(data));
+  dispatch({ type: FOLLOW_UP, data });
 }
 
 export const ___followUp = (data, mode) => dispatch => {
   dispatch(___dataFollowup(data, mode));
+}
+
+export const addMyApps = (data) => dispatch => {
+  dispatch({ type: ADD_MY_APPS, data });
 }
 
 export const fetchMyApps = (basic_auth) => dispatch => {

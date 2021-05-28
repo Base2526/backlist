@@ -47,7 +47,9 @@ class Google_Service_CloudHealthcare_Resource_ProjectsLocationsDatasetsFhirStore
    * store. The metadata field type is OperationMetadata. If the request is
    * successful, the response field type is DeidentifyFhirStoreSummary. If errors
    * occur, error is set. Error details are also logged to Cloud Logging (see
-   * [Viewing logs](/healthcare/docs/how-tos/logging)). (fhirStores.deidentify)
+   * [Viewing error logs in Cloud
+   * Logging](https://cloud.google.com/healthcare/docs/how-tos/logging)).
+   * (fhirStores.deidentify)
    *
    * @param string $sourceStore Source FHIR store resource name. For example, `pro
    * jects/{project_id}/locations/{location_id}/datasets/{dataset_id}/fhirStores/{
@@ -80,11 +82,11 @@ class Google_Service_CloudHealthcare_Resource_ProjectsLocationsDatasetsFhirStore
    * Export resources from the FHIR store to the specified destination. This
    * method returns an Operation that can be used to track the status of the
    * export by calling GetOperation. Immediate fatal errors appear in the error
-   * field, errors are also logged to Cloud Logging (see [Viewing
-   * logs](/healthcare/docs/how-tos/logging)). Otherwise, when the operation
-   * finishes, a detailed response of type ExportResourcesResponse is returned in
-   * the response field. The metadata field type for this operation is
-   * OperationMetadata. (fhirStores.export)
+   * field, errors are also logged to Cloud Logging (see [Viewing error logs in
+   * Cloud Logging](https://cloud.google.com/healthcare/docs/how-tos/logging)).
+   * Otherwise, when the operation finishes, a detailed response of type
+   * ExportResourcesResponse is returned in the response field. The metadata field
+   * type for this operation is OperationMetadata. (fhirStores.export)
    *
    * @param string $name The name of the FHIR store to export resource from, in
    * the format of `projects/{project_id}/locations/{location_id}/datasets/{datase
@@ -148,7 +150,7 @@ class Google_Service_CloudHealthcare_Resource_ProjectsLocationsDatasetsFhirStore
    * stored using the supplied ID regardless of the enable_update_create setting
    * on the FHIR store. It is strongly advised not to include or encode any
    * sensitive data such as patient identifiers in client-specified resource IDs.
-   * Those IDs are part of the FHIR resource path recorded in Cloud audit logs and
+   * Those IDs are part of the FHIR resource path recorded in Cloud Audit Logs and
    * Cloud Pub/Sub notifications. Those IDs can also be contained in reference
    * fields within other resources. The import process does not enforce
    * referential integrity, regardless of the disable_referential_integrity
@@ -187,7 +189,8 @@ class Google_Service_CloudHealthcare_Resource_ProjectsLocationsDatasetsFhirStore
    * search or Patient-everything operation. This method returns an Operation that
    * can be used to track the status of the import by calling GetOperation.
    * Immediate fatal errors appear in the error field, errors are also logged to
-   * Cloud Logging (see [Viewing logs](/healthcare/docs/how-tos/logging)).
+   * Cloud Logging (see [Viewing error logs in Cloud
+   * Logging](https://cloud.google.com/healthcare/docs/how-tos/logging)).
    * Otherwise, when the operation finishes, a detailed response of type
    * ImportResourcesResponse is returned in the response field. The metadata field
    * type for this operation is OperationMetadata. (fhirStores.import)
@@ -213,9 +216,28 @@ class Google_Service_CloudHealthcare_Resource_ProjectsLocationsDatasetsFhirStore
    * @param array $optParams Optional parameters.
    *
    * @opt_param string filter Restricts stores returned to those matching a
-   * filter. Syntax:
-   * https://cloud.google.com/appengine/docs/standard/python/search/query_strings
-   * Only filtering on labels is supported, for example `labels.key=value`.
+   * filter. The following syntax is available: * A string field value can be
+   * written as text inside quotation marks, for example `"query text"`. The only
+   * valid relational operation for text fields is equality (`=`), where text is
+   * searched within the field, rather than having the field be equal to the text.
+   * For example, `"Comment = great"` returns messages with `great` in the comment
+   * field. * A number field value can be written as an integer, a decimal, or an
+   * exponential. The valid relational operators for number fields are the
+   * equality operator (`=`), along with the less than/greater than operators
+   * (`<`, `<=`, `>`, `>=`). Note that there is no inequality (`!=`) operator. You
+   * can prepend the `NOT` operator to an expression to negate it. * A date field
+   * value must be written in `yyyy-mm-dd` form. Fields with date and time use the
+   * RFC3339 time format. Leading zeros are required for one-digit months and
+   * days. The valid relational operators for date fields are the equality
+   * operator (`=`) , along with the less than/greater than operators (`<`, `<=`,
+   * `>`, `>=`). Note that there is no inequality (`!=`) operator. You can prepend
+   * the `NOT` operator to an expression to negate it. * Multiple field query
+   * expressions can be combined in one query by adding `AND` or `OR` operators
+   * between the expressions. If a boolean operator appears within a quoted
+   * string, it is not treated as special, it's just another part of the character
+   * string to be matched. You can prepend the `NOT` operator to an expression to
+   * negate it. Only filtering on labels is supported, for example
+   * `labels.key=value`.
    * @opt_param int pageSize Limit on the number of FHIR stores to return in a
    * single response. If not specified, 100 is used. May not be larger than 1000.
    * @opt_param string pageToken The next_page_token value returned from the

@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
-
+import { connect } from 'react-redux'
 import { useHistory } from "react-router-dom";
 import { Modal, Button } from "react-bootstrap";
+
+import { userLogout } from '../actions/user';
 
 const LogoutDialog = (props) => {
     const history = useHistory();
     const [showModal, setShowModal] = React.useState(false);
     useEffect(() => {
-        console.log('LogoutForm >> ', props)
-
         setShowModal(props.showModalLogout)
     });
 
     const handleLogout = (e) => {
         props.onClose()
+
+        props.userLogout()
         history.push({pathname: `/`, state: {} })
     }
 
@@ -48,4 +50,15 @@ const LogoutDialog = (props) => {
     );
 }
 
-export default LogoutDialog;
+const mapStateToProps = (state, ownProps) => {
+	return {
+        user: state.user.data,
+        maintenance: state.setting.maintenance
+    }
+}
+
+const mapDispatchToProps = {
+  userLogout
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(LogoutDialog)

@@ -55,7 +55,6 @@ const AddBanlistDialog = (props) => {
   ]);
 
   useEffect(() => {
-    console.log('showModal >> ', props.showModal)
     setShowModal(props.showModal)
   });
 
@@ -440,10 +439,7 @@ const AddBanlistDialog = (props) => {
                   </div>
                 </div>                
               </fieldset>
-              <div className="form-action">
-              {/* <button
-                  onClick={props.onClose}
-                  className="btn btn-lg btn-primary btn-left">ปิด<span className="icon-arrow-right2 outlined"></span></button> */}
+              {/* <div className="form-action">
                 <div class="col-sm-5">
                   <button
                     type="submit"
@@ -456,20 +452,7 @@ const AddBanlistDialog = (props) => {
                     {createLoading && <CircularProgress size={10}/>}
                   </button>
                 </div>
-
-                {/* 
-                
-                <button 
-                      type="submit" 
-                      disabled={isEmpty(searchWord) ? true : false}
-                      onClick={(e)=>{
-                        handleFormSearch(e)
-                      }}
-                      className={"div-button"}>
-                        ค้นหา { searchLoading && <CircularProgress size={10}/> }
-                    </button>
-                */}
-              </div>
+              </div> */}
             </form>
   }
 
@@ -501,25 +484,29 @@ const AddBanlistDialog = (props) => {
         onHide={props.onClose}
         onSubmit={handleFormSubmit}
         bsSize="large"
-        backdrop="static"
-      >
+        backdrop="static">
         <Modal.Header closeButton={true}>
-          {/* <h2>{ this.state.mode === "login" ? "Login" : this.state.mode === "register" ? "Register" : "Forgot Password" }</h2> */}
           <h2>สร้าง เนื้อหาใหม่</h2>
         </Modal.Header>
         <Modal.Body>
-          {/* {this.state.mode === "login" ? (this.renderLogin()) : this.state.mode === "register" ? (this.renderRegister()) : (this.renderForgot())} */}
           {bodyContent()}
         </Modal.Body>
-        {/* <Modal.Footer>
-          <Button onClick={props.onClose} >Close 1</Button>
-          <form className="form-horizontal form-loanable">
-            <button
-              type="submit"
-              className="btn btn-lg btn-primary btn-left">Close 2<span className="icon-arrow-right2 outlined"></span>
-            </button>
-          </form>
-        </Modal.Footer> */}
+        <Modal.Footer>
+          <div className="form-action">
+            <div class="col-sm-5">
+              <button
+                type="submit"
+                // disabled={isEmpty(searchWord) ? true : false}
+                onClick={(e)=>{
+                  handleFormSubmit(e)
+                }}
+                className={"div-button"}>
+                Create
+                {createLoading && <CircularProgress size={10}/>}
+              </button>
+            </div>
+          </div>
+        </Modal.Footer>
       </Modal>
     </div>
   );

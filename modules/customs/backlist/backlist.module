@@ -125,6 +125,74 @@ function backlist_mail($key, &$message, $params) {
                                     </html>');
       break;
     } 
+
+    case 'report_reporter':{
+      $message['format'] = 'text/html';
+      $message['headers']['Content-Type'] = SWIFTMAILER_FORMAT_HTML;
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('@title', array('@title' => $params['title']), $options);
+      $message['body'][]  = Markup::create('<html>
+                                              <head>
+                                                  <style>
+                                                      body{
+                                                          line-height: 1.5em;
+                                                      }
+                                                  </style>
+                                              </head>
+                                              <body>
+                                                  <div>
+                                                      <div>'. $params['title'] .'</div>
+                                                      <br>
+                                                      <div>
+                                                          <p>&emsp; ' . $params['message'] . '</p> Link<p>'. $params['link'] .'</p>
+                                                      </div>
+                                                      <br>
+                                                      <br>
+                                                      <div>
+                                                      </div>
+                                                      <div>
+                                                          Thank you so much from team.
+                                                      </div>
+                                                  </div>
+                                              </body>
+                                          </html>');
+                                          
+      break;
+    }
+
+    case 'report_owner_post':{
+      $message['format'] = 'text/html';
+      $message['headers']['Content-Type'] = SWIFTMAILER_FORMAT_HTML;
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('@title', array('@title' => $params['title']), $options);
+      $message['body'][]  = Markup::create('<html>
+                                              <head>
+                                                  <style>
+                                                      body{
+                                                          line-height: 1.5em;
+                                                      }
+                                                  </style>
+                                              </head>
+                                              <body>
+                                                  <div>
+                                                      <div>'. $params['title'] .'</div>
+                                                      <br>
+                                                      <div>
+                                                          <p>&emsp; ' . $params['message'] . '</p> Link<p>'. $params['link'] .'</p>
+                                                      </div>
+                                                      <br>
+                                                      <br>
+                                                      <div>
+                                                      </div>
+                                                      <div>
+                                                          Thank you so much from team.
+                                                      </div>
+                                                  </div>
+                                              </body>
+                                          </html>');
+                                          
+      break;
+    }
   }
 }
 

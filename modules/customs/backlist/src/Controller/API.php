@@ -1295,7 +1295,7 @@ class API extends ControllerBase {
       
       
       \Drupal::logger('SearchApi, full_text_fields : ')->notice( serialize($full_text_fields) );
-/*
+      /*
       if(!empty($key_word)){
 
         // \Drupal::logger('SearchApi')->notice( 'offset = %offset, type = %type, key_word = %key_word', 
@@ -1513,7 +1513,7 @@ class API extends ControllerBase {
         $response_array['message']  = 'Empty key_word.';
         $response_array['content']  = $content;
       }
-*/
+      */
 
       if(empty($full_text_fields)){
         $response_array = Utils::search_api($key_word, $offset, $type);
@@ -1741,8 +1741,6 @@ class API extends ControllerBase {
         }
       }
 
-      
-
       $response_array['result']           = TRUE;
       $response_array['execution_time']   = microtime(true) - $time1;
       
@@ -1761,29 +1759,69 @@ class API extends ControllerBase {
     try {
       $time1          = microtime(true);
 
-      $content = json_decode( $request->getContent(), TRUE );
-      $chioce  = json_decode($content['chioce']);
-      $message = trim( $content['message'] );
+      // $content = json_decode( $request->getContent(), TRUE );
 
-      // $offset= trim( $content['offset'] );
+      // \Drupal::currentUser()->id()
+      // $nid        = trim( $_REQUEST['nid'] );  
 
-      if( empty($chioce) || empty($message) ){
+      $display_name = '';
+      $email        = '';
+      if(\Drupal::currentUser()->isAnonymous()){
+        $display_name  = trim( $_REQUEST['name'] );
+        $email         = trim( $_REQUEST['email'] );
+      }else{
+        $user   = User::load( \Drupal::currentUser()->id() );
+        $display_name    = '';
+        $field_display_name = $user->get('field_display_name')->getValue();
+        if(!empty($field_display_name)){
+          $display_name    = $field_display_name[0]['value'];
+        }
+
+        $email  = $user->getEmail();
+      }
+
+      $nid      = trim( $_REQUEST['nid'] );
+      $category = trim( $_REQUEST['category'] );
+      $message  = trim( $_REQUEST['message'] );
+
+      if( empty($nid) || empty($category) || empty($message) ){
         $response_array['result']           = FALSE;
+        $response_array['message']          = "Params empty.";
         $response_array['execution_time']   = microtime(true) - $time1;
         return new JsonResponse( $response_array );
       }
 
-      \Drupal::logger('report')->notice('chioce : %chioce, message: %message',
+      if(!empty($_FILES)){
+        $images_fids = array();
+        $total = count($_FILES['files']['name']);
+        // Loop through each file
+        for( $i=0 ; $i < $total ; $i++ ) {
+
+          $target = 'sites/default/files/'. $_FILES['files']['name'][$i];
+          move_uploaded_file( $_FILES['files']['tmp_name'][$i], $target);
+
+          $file = file_save_data( file_get_contents( $target ), 'public://'. date('m-d-Y_hia') .'_'.mt_rand().'.png' , FileSystemInterface::EXISTS_REPLACE);
+          $images_fids[] = array(
+            'target_id' => $file->id(),
+            'alt' => '',
+            'title' => empty($_FILES['files']['name'][$i]) ? '' : $_FILES['files']['name'][$i]
+          );
+        }
+      }
+      
+      \Drupal::logger('report')->notice('nid : %nid, category : %category, message: %message',
       array(
-          '%chioce' => $content['chioce'],
-          '%message' => $message,
+          '%nid'      => $nid,
+          '%category' => $category,
+          '%message'  => $message,
       ));
+
+      // Utils::mail_report($type, $to, $nid, $message)
 
       $response_array['result']           = TRUE;
       $response_array['execution_time']   = microtime(true) - $time1;
       
       return new JsonResponse( $response_array );
-
     } catch (\Throwable $e) {
       \Drupal::logger('SearchApi')->notice($e->__toString());
 
@@ -1950,8 +1988,6 @@ class API extends ControllerBase {
       $response_array['message']  = $e->__toString();
       return new JsonResponse( $response_array );
     }
-
-    
   }
 
 }

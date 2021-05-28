@@ -19,6 +19,10 @@ export default [
     { path: "/my-profile", name: "My Profile", Component: ProfilePage },
     { path: "/my-profile/my-post", name: "My Post", Component: MyPostPage },
     { path: "/my-profile/my-followup", name: "My follow up", Component: MyFollowUpPage },
+    { path: "/my-profile/my-post/:nid", name: "รายละเอียด", Component: DetailPage },
+    { path: "/my-profile/my-followup/:nid", name: "รายละเอียด", Component: DetailPage },
+    // { path: "/my-profile/detail/:nid", name: "รายละเอียด", Component: DetailPage },
+    // /my-profile/detail/70287
     { path: "/settings", name: "Settings", Component: SettingsPage },
     { path: "/notifications", name: "Notifications", Component: NotificationsPage },
     { path: "/terms-of-service", name: "Terms of Service", Component: TermsofServicePage },

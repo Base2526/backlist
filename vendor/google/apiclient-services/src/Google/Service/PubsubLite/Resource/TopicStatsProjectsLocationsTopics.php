@@ -26,11 +26,11 @@
 class Google_Service_PubsubLite_Resource_TopicStatsProjectsLocationsTopics extends Google_Service_Resource
 {
   /**
-   * Compute the head cursor for the partition. The head cursor’s offset is
-   * guaranteed to be before or equal to all messages which have not yet been
-   * acknowledged to be published, and greater than the offset of any message
-   * whose publish has already been acknowledged. It is 0 if there have never been
-   * messages on the partition. (topics.computeHeadCursor)
+   * Compute the head cursor for the partition. The head cursor's offset is
+   * guaranteed to be less than or equal to all messages which have not yet been
+   * acknowledged as published, and greater than the offset of any message whose
+   * publish has already been acknowledged. It is zero if there have never been
+   * messages in the partition. (topics.computeHeadCursor)
    *
    * @param string $topic Required. The topic for which we should compute the head
    * cursor.
@@ -59,5 +59,21 @@ class Google_Service_PubsubLite_Resource_TopicStatsProjectsLocationsTopics exten
     $params = array('topic' => $topic, 'postBody' => $postBody);
     $params = array_merge($params, $optParams);
     return $this->call('computeMessageStats', array($params), "Google_Service_PubsubLite_ComputeMessageStatsResponse");
+  }
+  /**
+   * Compute the corresponding cursor for a publish or event time in a topic
+   * partition. (topics.computeTimeCursor)
+   *
+   * @param string $topic Required. The topic for which we should compute the
+   * cursor.
+   * @param Google_Service_PubsubLite_ComputeTimeCursorRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return Google_Service_PubsubLite_ComputeTimeCursorResponse
+   */
+  public function computeTimeCursor($topic, Google_Service_PubsubLite_ComputeTimeCursorRequest $postBody, $optParams = array())
+  {
+    $params = array('topic' => $topic, 'postBody' => $postBody);
+    $params = array_merge($params, $optParams);
+    return $this->call('computeTimeCursor', array($params), "Google_Service_PubsubLite_ComputeTimeCursorResponse");
   }
 }

@@ -49,16 +49,16 @@ class Google_Service_Gmail extends Google_Service
   /** Manage drafts and send emails. */
   const GMAIL_COMPOSE =
       "https://www.googleapis.com/auth/gmail.compose";
-  /** Insert mail into your mailbox. */
+  /** Add emails into your Gmail mailbox. */
   const GMAIL_INSERT =
       "https://www.googleapis.com/auth/gmail.insert";
-  /** Manage mailbox labels. */
+  /** See and edit your email labels. */
   const GMAIL_LABELS =
       "https://www.googleapis.com/auth/gmail.labels";
   /** View your email message metadata such as labels and headers, but not the email body. */
   const GMAIL_METADATA =
       "https://www.googleapis.com/auth/gmail.metadata";
-  /** View and modify but not delete your email. */
+  /** Read, compose, and send emails from your Gmail account. */
   const GMAIL_MODIFY =
       "https://www.googleapis.com/auth/gmail.modify";
   /** View your email messages and settings. */
@@ -67,7 +67,7 @@ class Google_Service_Gmail extends Google_Service
   /** Send email on your behalf. */
   const GMAIL_SEND =
       "https://www.googleapis.com/auth/gmail.send";
-  /** Manage your basic mail settings. */
+  /** See, edit, create, or change your email settings and filters in Gmail. */
   const GMAIL_SETTINGS_BASIC =
       "https://www.googleapis.com/auth/gmail.settings.basic";
   /** Manage your sensitive mail settings, including who can manage your mail. */

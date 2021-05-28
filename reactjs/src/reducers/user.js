@@ -2,7 +2,10 @@ import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE,
          FOLLOW_UP, ___FOLLOW_UP, FETCH_MY_APPS, ADD_HISTORY, 
          DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST, 
          NET_INFO, NOTIFICATIONS,
-         LOADING_OVERLAY, CLEAR_CACHED } from '../constants';
+         LOADING_OVERLAY, CLEAR_CACHED,
+        
+         ADD_MY_APPS} from '../constants';
+import { isEmpty } from '../utils';
 
 export const  mergeArrays = (...arrays) => {
   let jointArray = []
@@ -72,7 +75,27 @@ const user = (state = initialState, action) => {
     }
 
     case FOLLOW_UP: {
-      return {...state, follow_ups: action.data}
+      let follow_ups = state.follow_ups
+      let data = action.data
+      if(isEmpty(follow_ups.find((item)=>item.id === data.id))){
+        follow_ups = [...follow_ups, {"id": data.id, 
+                                      "local": true, 
+                                      "status": true,
+                                      "owner_id": data.owner_id, 
+                                      "date": Date.now()
+                                    }]
+      }else{
+        follow_ups = follow_ups.map(el => (el.id === data.id ? {...el, "status": !el.status} : el))
+      }
+      /*
+       ___followUp({"id": item.id, 
+                              "local": true, 
+                              "follow_up": follow_up, 
+                              "unique_id": getUniqueId(), 
+                              "owner_id": item.owner_id, 
+                              "date": Date.now()}, 0);
+      */
+      return {...state, follow_ups}
     }
 
     case ___FOLLOW_UP:{
@@ -95,6 +118,10 @@ const user = (state = initialState, action) => {
       return {
         ...state, notifications
       }
+    }
+
+    case ADD_MY_APPS:{
+      return { ...state, my_apps: action.data }
     }
 
     case FETCH_MY_APPS: {

@@ -8,12 +8,13 @@ import Pagination from "./Pagination";
 import UseHomeItem from "./UseHomeItem";
 import Checkbox from "../components/Checkbox";
 import AddBanlistDialog from './AddBanlistDialog'
-import ReportDialog from './ReportDialog'
+// import ReportDialog from './ReportDialog'
+import InputSearchField from '../components/InputSearchField'
 
-import LoginForm from './LoginForm'
+import LoginDialog from './LoginDialog'
 import {isEmpty, mergeArrays, onToast} from '../utils'
 import { fetchData } from '../actions/app';
-import { ___followUp } from '../actions/user';
+import { followUp } from '../actions/user';
 
 const HomePage = (props) => {
   const [allDatas, setAllDatas]           = React.useState([]);
@@ -39,35 +40,12 @@ const HomePage = (props) => {
                                                           ]);
 
   useEffect(() => {
-
-  })
+    console.log("useEffect", props.my_apps)
+  });
 
   useEffect(() => {
     if(currentPage !== undefined){
-      setLoading(true)
-      axios.post(`/api/search?_format=json`, {
-        type: 0,
-        key_word: '*',
-        offset: currentPage - 1
-      }, {
-          headers: {'Authorization': `Basic YWRtaW46U29ta2lkMDU4ODQ4Mzkx`}
-      })
-      .then((response) => {
-        let results = response.data
-        console.log('/api/search?_format=json : ', results)
-        if(results.result){
-          // true
-          let {execution_time, datas, count, all_result_count} = results;
-          props.fetchData(datas);
-          setAllDatas(mergeArrays(allDatas, datas))
-          setCurrentDatas(currentDatas)
-          setLoading(false)
-        }
-
-      })
-      .catch( (error) => {
-        console.log('getData : ', error)
-      });
+      fetch()
     }
   }, [currentPage])
 
@@ -96,8 +74,9 @@ const HomePage = (props) => {
           let {execution_time, datas, count, all_result_count} = results;
           props.fetchData(datas);
           setAllDatas(mergeArrays(allDatas, datas))
-          setCurrentDatas(currentDatas)
-          
+          setCurrentDatas(datas)
+          setAllResultCount(all_result_count)
+          setTotalPages(Math.ceil(all_result_count / pageLimit))
         }
   
         setSearchLoading(false)
@@ -111,6 +90,47 @@ const HomePage = (props) => {
     }
     
   }
+
+  const clearSearch = () =>{
+    fetch()
+  }
+
+  const fetch = () =>{
+    setLoading(true)
+    axios.post(`/api/search?_format=json`, {
+      type: 0,
+      key_word: '*',
+      offset: currentPage - 1
+    }, {
+        headers: {'Authorization': `Basic YWRtaW46U29ta2lkMDU4ODQ4Mzkx`}
+    })
+    .then((response) => {
+      let results = response.data
+      console.log('/api/search?_format=json : ', results)
+      if(results.result){
+        // true
+        let {execution_time, datas, count, all_result_count} = results;
+        props.fetchData(datas);
+        setAllDatas(mergeArrays(allDatas, datas))
+        setCurrentDatas(datas)
+        
+
+        setAllResultCount(all_result_count)
+        setTotalPages(Math.ceil(all_result_count / pageLimit))
+      }
+
+      setLoading(false)
+
+    })
+    .catch( (error) => {
+      console.log('getData : ', error)
+
+      onToast('error', error)
+
+      setLoading(false)
+    });
+  }
+
 
   const toggleCheckbox = (data) => {
     let temp = [...selectedCheckboxes]
@@ -132,7 +152,6 @@ const HomePage = (props) => {
     setCurrentPage(currentPage)
     // setCurrentDatas(currentDatas)
     setTotalPages(totalPages)
-    console.log("onPageChanged : ", currentPage)
   };
 
   const updateState = data => {
@@ -152,11 +171,15 @@ const HomePage = (props) => {
     if(loading){
       return <CircularProgress />
     }else {
-      return props.data.map(item => (
+      return currentDatas.map(item => (
               <UseHomeItem 
                 {...props} 
                 item={item}
-                updateState={updateState}/>
+                updateState={updateState}
+                followUp={(data)=>{
+                  props.followUp(data)
+                }}
+                />
             ))
     }
   }
@@ -167,18 +190,34 @@ const HomePage = (props) => {
              ?  <div>We’ll be back soon! Sorry for the inconvenience but we’re performing some maintenance at the moment. We’ll be back online shortly!</div>
              :  <div>
                   <AddBanlistDialog showModal={showModal} onClose = {()=>{ setShowModal(false) }} />
-                  { showModalReport && <ReportDialog showModal={showModalReport} onClose = {()=>{  setShowModalReport(false) }}  /> }
+                  {/* { showModalReport && <ReportDialog showModal={showModalReport} onClose = {()=>{  setShowModalReport(false) }}  /> } */}
                   <div>
                     <form /*onSubmit={handleFormSubmit}*/ >
                       <div>
                         <div>
-                          <input 
-                            type="text" 
+                          {/* <input 
+                            type="search" 
                             name="title" 
                             value={searchWord} 
-                            onChange={(event)=>{ setSearchWord(event.target.value) }}
-                            // required
-                            />
+                            onChange={(e)=>{ 
+                              console.log("search : ", e.target.value)
+                              setSearchWord(e.target.value) 
+                            }}
+                            /> */}
+
+                          <InputSearchField 
+                            label="Input keyword"
+                            placeholder="Input keyword"
+                            value={searchWord}  
+                            onChange={(e)=>{ 
+                              setSearchWord(e.target.value)
+                            }}
+                            onClear={(e)=>{
+                              setSearchWord('')
+                              setCurrentPage(1)
+
+                              clearSearch()
+                            }}/>
                           <button 
                             type="submit" 
                             disabled={isEmpty(searchWord) ? true : false}
@@ -233,7 +272,7 @@ const HomePage = (props) => {
                       </div>
                     </div>
                   </div>
-                  {showModalLogin &&  <LoginForm showModal={showModalLogin} onClose = {()=>{  setShowModalLogin(false) }} />}
+                  {showModalLogin &&  <LoginDialog showModal={showModalLogin} onClose = {()=>{  setShowModalLogin(false) }} />}
                   <div 
                     className="fab"
                     onClick={()=>{
@@ -258,13 +297,17 @@ const mapStateToProps = (state, ownProps) => {
 	return {
     user: state.user.data,
     data: state.app.data,
+    follow_ups: state.user.follow_ups,
+
+    my_apps: state.user.my_apps,
+
     maintenance: state.setting.maintenance
   };
 }
 
 const mapDispatchToProps = {
   fetchData,
-  ___followUp,
+  followUp,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomePage)

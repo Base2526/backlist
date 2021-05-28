@@ -31,7 +31,7 @@
  */
 class Google_Service_Dialogflow extends Google_Service
 {
-  /** View and manage your data across Google Cloud Platform services. */
+  /** See, edit, configure, and delete your Google Cloud Platform data. */
   const CLOUD_PLATFORM =
       "https://www.googleapis.com/auth/cloud-platform";
   /** View, manage and query your Dialogflow agents. */
@@ -609,6 +609,16 @@ class Google_Service_Dialogflow extends Google_Service
                   'type' => 'boolean',
                 ),
               ),
+            ),'export' => array(
+              'path' => 'v3/{+name}:export',
+              'httpMethod' => 'POST',
+              'parameters' => array(
+                'name' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
             ),'get' => array(
               'path' => 'v3/{+name}',
               'httpMethod' => 'GET',
@@ -635,6 +645,16 @@ class Google_Service_Dialogflow extends Google_Service
                 'languageCode' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+              ),
+            ),'import' => array(
+              'path' => 'v3/{+parent}/flows:import',
+              'httpMethod' => 'POST',
+              'parameters' => array(
+                'parent' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
                 ),
               ),
             ),'list' => array(
@@ -1288,20 +1308,10 @@ class Google_Service_Dialogflow extends Google_Service
                 ),
               ),
             ),'run' => array(
-              'path' => 'v3/projects/{projectsId}/locations/{locationsId}/agents/{agentsId}/testCases:run',
+              'path' => 'v3/{+name}:run',
               'httpMethod' => 'POST',
               'parameters' => array(
-                'projectsId' => array(
-                  'location' => 'path',
-                  'type' => 'string',
-                  'required' => true,
-                ),
-                'locationsId' => array(
-                  'location' => 'path',
-                  'type' => 'string',
-                  'required' => true,
-                ),
-                'agentsId' => array(
+                'name' => array(
                   'location' => 'path',
                   'type' => 'string',
                   'required' => true,
@@ -1317,7 +1327,17 @@ class Google_Service_Dialogflow extends Google_Service
         'results',
         array(
           'methods' => array(
-            'list' => array(
+            'get' => array(
+              'path' => 'v3/{+name}',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'name' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),'list' => array(
               'path' => 'v3/{+parent}/results',
               'httpMethod' => 'GET',
               'parameters' => array(

@@ -13,19 +13,24 @@ import Footer from './pages/Footer';
 import routes from "./routes";
 import ScrollToTopBtn from "./components/ScrollToTopBtn";
 
-import { uniqueId } from "./utils"
+import { isEmpty, uniqueId } from "./utils"
 
 const App = (props) => {
+  const [timeInterval, setTimeInterval] = React.useState(undefined);
+  
   useEffect(() => {
     socketid()
 
-    const interval = setInterval(() => {
-      syc()
-    }, 30000);
-  });
+    if(!isEmpty(timeInterval)){
+      clearInterval(timeInterval)
+    }
+    setTimeInterval(setInterval(syc, 30000, props))
+  }, [props.user]);
 
-  const syc =()=>{
-    console.log("interval syc :", Date().toLocaleString(), uniqueId())
+  const syc =(props)=>{
+    if(!isEmpty(props.user)){
+      console.log("interval syc :", Date().toLocaleString(), uniqueId())
+    }
   } 
 
   const socketid = () =>{
@@ -112,6 +117,7 @@ const App = (props) => {
 
 const mapStateToProps = (state, ownProps) => {
 	return {
+    user: state.user.data,
     is_loading_overlay: state.user.is_loading_overlay,
   };
 }

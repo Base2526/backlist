@@ -354,18 +354,6 @@ const MyPostPage = (props) => {
                 <div className="row d-flex flex-row py-5"> 
                 {
                 myApps.map(item => (
-                    // <div key={item} className="notifications-item">
-                    //     {itemView(item)}
-                    //     <div>{item.detail}</div>
-                    //     <div> 11 hours ago </div>
-
-                    //     <MoreVertOutlinedIcon 
-                    //         style={{ cursor: "pointer" }}
-                    //         onClick={(event)=>{
-                    //             setAnchorEl(event.currentTarget);  
-                    //         }} />
-                    //     {menu()}
-                    // </div>
                     <UseMyPostItem 
                         {...props} 
                         item={item}
@@ -381,8 +369,6 @@ const mapStateToProps = (state, ownProps) => {
 	return { user: state.user.data }
 }
 
-const mapDispatchToProps = {
-  // fetchData,
-}
+const mapDispatchToProps = {}
 
 export default connect(mapStateToProps, mapDispatchToProps)(MyPostPage)
