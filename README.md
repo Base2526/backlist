@@ -5,6 +5,7 @@ docker exec -t -u postgres your-db-container pg_dumpall -c > dump_`date +%d-%m-%
 
 docker exec -t -u postgres 49b9509f7e98 pg_dumpall -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
 
+
 Restore:
 cat backlist_21122020_2106.sql | docker exec -i 17f16008f1ac psql -Upostgres
 
