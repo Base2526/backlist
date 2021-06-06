@@ -1,5 +1,5 @@
-# FROM drupal:9.0-apache-buster
-FROM drupal:9.0
+FROM drupal:9.0-apache-buster
+# FROM drupal:9.0
 
 # WORKDIR /var/www/html
 
@@ -34,7 +34,6 @@ RUN apt-get update && \
     apt-get install certbot -y && \
     openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
 
-
 USER root
 
 RUN a2enmod ssl
@@ -49,6 +48,10 @@ RUN mkdir  -p web/.well-known/acme-challenge && \
     chmod 777 web/.well-known/acme-challenge
 
 COPY modules web/sites/default/modules
+
+# COPY composer.json composer.json
+# COPY composer.lock composer.lock
+# RUN composer install
 
 # prod
 # COPY 000-default.conf /etc/apache2/sites-available/000-default.conf

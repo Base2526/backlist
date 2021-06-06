@@ -17,8 +17,11 @@ const usersModel         = require('./models/users');
 const followerPostModel  = require('./models/follower_post');
 const notificationsModel = require('./models/notifications')
 
+
 const connection = require("./connection")
-const {empty} = require("./utils")
+const {empty, uid} = require("./utils")
+
+const {followUp} = require("./api")
 
 require('./log-interceptor')(server);
 
@@ -181,56 +184,31 @@ app.post('/api/update_profile', async(req, res) => {
   }
 });
 
-app.post('/api/follow_up', async (req, res) => {
+app.post('/node/follow_up', async (req, res) => {
   try {
-    console.log(req.body)
-    
-    let { uid, id_follow_up, unique_id, owner_id } = req.body
-    if( empty(uid) || empty(id_follow_up) || empty(unique_id) || empty(owner_id)){    
-      res.status(404).send({'message': 'ERROR'});
+    let {unique_id, datas} = req.body
+
+    console.log('uid :', uid(unique_id))
+
+    if( empty(unique_id) || empty(datas) ){    
+      res.status(200).send({result:false, message:"empty params {unique_id, datas}"})
     }else{
-      let user = await usersModel.findOne({ uid });
-      
-      if ( user === null ){
-        await new usersModel({ uid, followUps: [id_follow_up]}).save()
+      let socket = await socketsModel.findOne({ uniqueId: unique_id });
+      if( socket === undefined  ){   
+        res.status(200).send({result:false, message:"empty params {socket}"})
       }else{
-        var followUps = user.followUps.toObject();
-        
-        var message = 'Follow up'
-        if(followUps.includes(id_follow_up)){
-          followUps = followUps.filter((v) => {return v != id_follow_up})
-
-          var message = 'Upfollow up'
+        let results = await followUp(req, io)
+      
+        if(results.result){
+          res.status(200).send(results);
         }else{
-          followUps = [...followUps, id_follow_up]
+          res.status(200).send(results);
         }
-
-        let um = await  usersModel.findOneAndUpdate({ uid }, { uid, followUps }, {
-          new: true,
-          upsert: true 
-        });
-
-        if ( um !== null ){
-          let fss = await socketsModel.find({ uid });
-          if ( fss !== null ){
-            fss.map((obj, i) => {
-              if(obj.socketId){
-                io.to(obj.socketId).emit('follow_up', JSON.stringify(followUps));
-              }
-            })
-          }
-        }
-
-        // let fp = await onFollowerPost(uid, id_follow_up, unique_id, owner_id);
-        console.log('fp : ', fp);
-
-        res.status(200).send({'result': true, 'message': message});
       }
     }
-    
-    res.status(200).send({'result': true, 'message': 'OK'});
   } catch (err) {
-    res.status(500).send({'result': false, errors: err});
+    console.log(err)
+    res.status(200).send({'result': false, errors: err});
   }
 });
 
@@ -422,19 +400,8 @@ async function noti_follower_post(uid, post_id, follower ) {
   }
 }
 
-async function onFollowerPost(uid, item  /*, id_follow_up, unique_id, owner_id*/) {
+async function onFollowerPost(uid, item) {
   try {
-
-    /*
-    date: 1619190378575
-follow_up: false
-id: 69677
-local: false
-owner_id: 1
-uid: "59"
-unique_id: "BF540C0D-FCB3-4D44-B779-AEC52EF68F91"
-    */
-
     // console.log("onFollowerPost  >>>>", item)
 
     let { id, unique_id, owner_id, follow_up } = item
@@ -461,86 +428,27 @@ unique_id: "BF540C0D-FCB3-4D44-B779-AEC52EF68F91"
 
           await noti_follower_post(uid, id, [uid])
         }else{
-          /*
-            find_user = find_user.toObject();
-            // console.log("update : ", find_user.follow_ups)
+          followerPost = followerPost.toObject();
+          let fi = followerPost.follower.find(e => String(e) === String(uid) );
+          if(fi === undefined){
+            await followerPostModel.findOneAndUpdate(
+              { post_id: id },
+              { $push: { follower: uid } },
+              { new: true, upsert: true }
+            );
 
-            let fi = find_user.follow_ups.find(e => String(e.id) === String(item.id) );
-            if(fi !== undefined){
-          */
-
+            let followerPost = await followerPostModel.findOne({ post_id });
             followerPost = followerPost.toObject();
-            let fi = followerPost.follower.find(e => String(e) === String(uid) );
-            if(fi === undefined){
-              await followerPostModel.findOneAndUpdate(
-                { post_id: id },
-                { $push: { follower: uid } },
-                { new: true, upsert: true }
-              );
 
-              let followerPost = await followerPostModel.findOne({ post_id });
-              followerPost = followerPost.toObject();
-
-              await noti_follower_post(uid, id, followerPost.follower)
-            }
-        }
-      }
-      
-
-      /*
-      // followerPostModel
-      let followerPost = await followerPostModel.findOne({ post_id: id });
-
-      var follower =[]
-      if ( followerPost === null ){
-        await new followerPostModel({ post_id: id, follower: [uid]}).save()
-      
-        follower = [uid]
-      }else{
-        follower = followerPost.follower.toObject();
-        
-        if(follower.includes(uid)){
-          follower = follower.filter((v) => {return v != uid})
-
-        }else{
-          follower = [...follower, uid]
-        }
-
-        console.log('follower > ', follower)
-        let _followerPostModel = await  followerPostModel.findOneAndUpdate({ post_id: id }, { post_id: id, follower }, { new: true, upsert: true });
-        // if ( _followerPostModel !== null ){
-          // follower.map( async (_uid, i) => {
-          //    console.log('_uid, i :', _uid, i)
-            let fss = await socketsModel.find({ uid:owner_id });
-            if ( fss !== null ){
-              // case uid have muli devices
-              fss.map((obj, i) => {
-                if(obj.socketId){
-                  io.to(obj.socketId).emit('follower_post', JSON.stringify({'post_id': id, 'follower':follower}) );
-                }
-              })
-            }
-          // })
-        // }
-        
-      }  
-
-      let fss = await socketsModel.find({ uid });
-      if ( fss !== null ){
-        // case uid have muli devices
-        fss.map((obj, i) => {
-          if(obj.socketId){
-            io.to(obj.socketId).emit('follower_post', JSON.stringify({'post_id': id, 'follower':follower}) );
+            await noti_follower_post(uid, id, followerPost.follower)
           }
-        })
+        }
       }
-
-      */
+      
       return true;
     }
   } catch(err) {
     console.log(err);
-
     return false;
   }
 }
@@ -562,6 +470,7 @@ unique_id: "BF540C0D-FCB3-4D44-B779-AEC52EF68F91"
 
     การทำงาน เราจะต้อง ส่ง noti ไปที่ owner_id บอกว่า uid เป้นคนกด follow up
 */
+/*
 const notification_center = async(type, uid, item)=>{
   try{
 
@@ -619,7 +528,9 @@ const notification_center = async(type, uid, item)=>{
     return false
   }
 }
+*/
 
+/*
 const send_notification_center = async( uid, item)=>{
   try{
     console.log('send_notification_center  : ', uid, item);
@@ -637,6 +548,7 @@ const send_notification_center = async( uid, item)=>{
     console.log('send_notification_center, error : ', error);
   }
 }
+*/
 
 // Mapping objects to easily map sockets and users.
 var clients = {};
@@ -660,13 +572,16 @@ io.on('connection', async (socket) => {
   var platform = handshake.query.platform;
   // var first_install = handshake.query.first_install;
 
+  if(empty(unique_id)){
+    console.log(`#unique_id : ${socket} ,`, socket)
+    return;
+  }
+
   console.log(`Socket ${socket.id} connection`)
 
-  console.log(`uid :  ${uid}`)
-  // console.log('handshake.query >> ', handshake.query)
-  // users[unique_id] = socket;
+  console.log(`handshake.query : `, handshake.query)
 
-  socket.emit('message', { unique_id: unique_id });
+  socket.emit('uniqueID', { "unique_id": unique_id });
 
   clients[socket.id] = socket;
   
