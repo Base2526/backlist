@@ -26,54 +26,54 @@ services:
   #   #   - ./webs:/usr/src/app
   #   #   - /usr/src/app/node_modules # เพิ่มความเร็วในการ load page /usr/src/app < จากด้านบน แล้วตามด้วย node_modules 
   #   restart: always
-  banlist:
-    build: 
-      context: ./backend
-      dockerfile: Dockerfile
-    # env_file:
-    #   - .env
-    # container_name: ${PROJECT_NAME}
-    ports:
-      - 8019:80
-      # - 443:443
-    environment:
-      - DB_HOST=139.59.116.246
-      - DB_NAME=banlist
-      - DB_USER_NAME=postgres
-      - DB_PASSWORD=U29ta2lkMDU4ODQ4Mzkx
-      # - DB_HOST=postgres
-      # - DB_NAME=banlist
-      # - DB_USER_NAME=postgres
-      # - DB_PASSWORD=postgres
-    volumes:
-      - ./backend/modules:/opt/drupal/web/sites/default/modules
-      - ./backend/libraries:/opt/drupal/web/sites/default/libraries
-      - ./backend/themes:/opt/drupal/web/themes
-      - ./backend/settings.php:/opt/drupal/web/sites/default/settings.php
-      # - ./services.yml:/opt/drupal/web/sites/default/services.yml
-      # - ./settings.local.php:/opt/drupal/web/sites/settings.local.php
-      - ./backend/php.ini:/usr/local/etc/php/php.ini
-      - ./backend/info.php:/opt/drupal/web/info.php
-      - ./backend/vendor:/opt/drupal/vendor
-      - ./backend/composer.json:/opt/drupal/composer.json
-      # - ./backend/composer.lock:/opt/drupal/composer.lock
+  # banlist:
+  #   build: 
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   # env_file:
+  #   #   - .env
+  #   # container_name: ${PROJECT_NAME}
+  #   ports:
+  #     - 8019:80
+  #     # - 443:443
+  #   environment:
+  #     - DB_HOST=139.59.116.246
+  #     - DB_NAME=banlist
+  #     - DB_USER_NAME=postgres
+  #     - DB_PASSWORD=U29ta2lkMDU4ODQ4Mzkx
+  #     # - DB_HOST=postgres
+  #     # - DB_NAME=banlist
+  #     # - DB_USER_NAME=postgres
+  #     # - DB_PASSWORD=postgres
+  #   volumes:
+  #     - ./backend/modules:/opt/drupal/web/sites/default/modules
+  #     - ./backend/libraries:/opt/drupal/web/sites/default/libraries
+  #     - ./backend/themes:/opt/drupal/web/themes
+  #     - ./backend/settings.php:/opt/drupal/web/sites/default/settings.php
+  #     # - ./services.yml:/opt/drupal/web/sites/default/services.yml
+  #     # - ./settings.local.php:/opt/drupal/web/sites/settings.local.php
+  #     - ./backend/php.ini:/usr/local/etc/php/php.ini
+  #     - ./backend/info.php:/opt/drupal/web/info.php
+  #     - ./backend/vendor:/opt/drupal/vendor
+  #     - ./backend/composer.json:/opt/drupal/composer.json
+  #     # - ./backend/composer.lock:/opt/drupal/composer.lock
 
-      # Local
-      # - ./files:/opt/drupal/web/sites/default/files
-      - ./backend/files:/opt/drupal/web/sites/default/files
+  #     # Local
+  #     # - ./files:/opt/drupal/web/sites/default/files
+  #     - ./backend/files:/opt/drupal/web/sites/default/files
 
-      # Cloud
-      # - /mnt/volume_sgp1_09/banlist.info/files:/opt/drupal/web/sites/default/files
+  #     # Cloud
+  #     # - /mnt/volume_sgp1_09/banlist.info/files:/opt/drupal/web/sites/default/files
 
-      # SSL
-      # - ./000-default.conf:/etc/apache2/sites-available/000-default.conf
-      # - ./.well-known/acme-challenge:/opt/drupal/.well-known/acme-challenge
-      # - ./etc/letsencrypt/live/banlist.info:/etc/letsencrypt/live/banlist.info
-      # - ./letsencrypt.conf:/etc/apache2/conf-available/letsencrypt.conf
-      # - ./ssl-params.conf:/etc/apache2/conf-available/ssl-params.conf
-      # google
-      # - ./google4a78161938c3c95a.html:/opt/drupal/web/google4a78161938c3c95a.html
-    restart: always
+  #     # SSL
+  #     # - ./000-default.conf:/etc/apache2/sites-available/000-default.conf
+  #     # - ./.well-known/acme-challenge:/opt/drupal/.well-known/acme-challenge
+  #     # - ./etc/letsencrypt/live/banlist.info:/etc/letsencrypt/live/banlist.info
+  #     # - ./letsencrypt.conf:/etc/apache2/conf-available/letsencrypt.conf
+  #     # - ./ssl-params.conf:/etc/apache2/conf-available/ssl-params.conf
+  #     # google
+  #     # - ./google4a78161938c3c95a.html:/opt/drupal/web/google4a78161938c3c95a.html
+  #   restart: always
 
   # postgres:
   #   image: postgres:11
@@ -117,6 +117,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - 8011:6000
+      - 8012:80
     # https://stackoverflow.com/questions/52103155/reading-an-environment-variable-in-react-which-was-set-by-docker
     environment:
       - REACT_APP_DEBUG=TRUE
@@ -130,58 +131,58 @@ services:
     # environment:
     #   NODE_ENV: production
 
-  nodejs:
-    image: "nodejs"
-    build: 
-      context: ./nodejs
-      dockerfile: Dockerfile
-    # build: .
-    # command: "node server.js"
-    # ports:
-    #   - "5000:5000"
-    ports:
-      - "3000:3000"
-      - "3001:3001"
-      - "9229:9229"
-    command:
-      - node
-      - "--inspect-brk=0.0.0.0"
-      - "." 
-    depends_on:
-      - "mongo"
-  mongo:
-    image: "mongo"
-    command: mongod --port 27099
-    ports:
-      - "27099:27099"
-    volumes:
-      - "./nodejs/mongo/data:/data/db"
-    # environment:
-    #   - MONGO_INITDB_ROOT_USERNAME=root
-    #   - MONGO_INITDB_ROOT_PASSWORD=YWRtaW4=
-    #   - MONGO_INITDB_DATABASE=bl
-  mongo-express:
-    image: mongo-express
-    environment:
-      # - ME_CONFIG_MONGODB_SERVER=mongo
-      # - ME_CONFIG_MONGODB_PORT=27017
-      # - ME_CONFIG_MONGODB_ENABLE_ADMIN=false
-      # - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
-      # - ME_CONFIG_MONGODB_AUTH_USERNAME=${MONGO_ROOT_USER}
-      # - ME_CONFIG_MONGODB_AUTH_PASSWORD=${MONGO_ROOT_PASSWORD}
-      # - ME_CONFIG_BASICAUTH_USERNAME=${MONGOEXPRESS_LOGIN}
-      # - ME_CONFIG_BASICAUTH_PASSWORD=${MONGOEXPRESS_PASSWORD}
-      - ME_CONFIG_MONGODB_SERVER=mongo
-      - ME_CONFIG_MONGODB_PORT=27099
-      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=YWRtaW4=
-      - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
-      - ME_CONFIG_MONGODB_AUTH_USERNAME=root
-      - ME_CONFIG_MONGODB_AUTH_PASSWORD=YWRtaW4=
-      - ME_CONFIG_BASICAUTH_USERNAME=root
-      - ME_CONFIG_BASICAUTH_PASSWORD=YWRtaW4=
-    depends_on:
-      - mongo
-    ports:
-      - "8888:8081"
+  # nodejs:
+  #   image: "nodejs"
+  #   build: 
+  #     context: ./nodejs
+  #     dockerfile: Dockerfile
+  #   # build: .
+  #   # command: "node server.js"
+  #   # ports:
+  #   #   - "5000:5000"
+  #   ports:
+  #     - "3000:3000"
+  #     - "3001:3001"
+  #     - "9229:9229"
+  #   command:
+  #     - node
+  #     - "--inspect-brk=0.0.0.0"
+  #     - "." 
+  #   depends_on:
+  #     - "mongo"
+  # mongo:
+  #   image: "mongo"
+  #   command: mongod --port 27099
+  #   ports:
+  #     - "27099:27099"
+  #   volumes:
+  #     - "./nodejs/mongo/data:/data/db"
+  #   # environment:
+  #   #   - MONGO_INITDB_ROOT_USERNAME=root
+  #   #   - MONGO_INITDB_ROOT_PASSWORD=YWRtaW4=
+  #   #   - MONGO_INITDB_DATABASE=bl
+  # mongo-express:
+  #   image: mongo-express
+  #   environment:
+  #     # - ME_CONFIG_MONGODB_SERVER=mongo
+  #     # - ME_CONFIG_MONGODB_PORT=27017
+  #     # - ME_CONFIG_MONGODB_ENABLE_ADMIN=false
+  #     # - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
+  #     # - ME_CONFIG_MONGODB_AUTH_USERNAME=${MONGO_ROOT_USER}
+  #     # - ME_CONFIG_MONGODB_AUTH_PASSWORD=${MONGO_ROOT_PASSWORD}
+  #     # - ME_CONFIG_BASICAUTH_USERNAME=${MONGOEXPRESS_LOGIN}
+  #     # - ME_CONFIG_BASICAUTH_PASSWORD=${MONGOEXPRESS_PASSWORD}
+  #     - ME_CONFIG_MONGODB_SERVER=mongo
+  #     - ME_CONFIG_MONGODB_PORT=27099
+  #     - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+  #     - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+  #     - ME_CONFIG_MONGODB_ADMINPASSWORD=YWRtaW4=
+  #     - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
+  #     - ME_CONFIG_MONGODB_AUTH_USERNAME=root
+  #     - ME_CONFIG_MONGODB_AUTH_PASSWORD=YWRtaW4=
+  #     - ME_CONFIG_BASICAUTH_USERNAME=root
+  #     - ME_CONFIG_BASICAUTH_PASSWORD=YWRtaW4=
+  #   depends_on:
+  #     - mongo
+  #   ports:
+  #     - "8888:8081"
