@@ -66,7 +66,11 @@ const App = (props) => {
 
   const socketid = () =>{
     console.log('process.env :', process.env)
-    const socket = io("/",  
+
+    /*
+    
+    */
+    const socket = io("/mysocket", /*{path: '/mysocket'},*/
                       { query:{"platform"  : process.env.REACT_APP_PLATFORM, 
                                "unique_id" : _uniqueId(props),
                                "version"   : process.env.REACT_APP_VERSIONS }}, 
@@ -79,6 +83,8 @@ const App = (props) => {
       socket.off('connect', onConnect)
       socket.off("uniqueID", onUniqueID);
       socket.off('disconnect', onDisconnect);
+    }else{
+      console.log('socket :', socket)
     }
 
     socket.on('connect', onConnect)

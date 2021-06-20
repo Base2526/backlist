@@ -9,7 +9,7 @@ RUN yarn install
 # EXPOSE 3000 < Is defualt post not setup
 # CMD yarn run start
 
-# production
+# # production
 RUN yarn build
 
 # production environment

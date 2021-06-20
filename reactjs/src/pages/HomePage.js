@@ -131,7 +131,6 @@ const HomePage = (props) => {
     });
   }
 
-
   const toggleCheckbox = (data) => {
     let temp = [...selectedCheckboxes]
     let select =  temp.find((item)=>item === data)

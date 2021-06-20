@@ -131,58 +131,58 @@ services:
     # environment:
     #   NODE_ENV: production
 
-  # nodejs:
-  #   image: "nodejs"
-  #   build: 
-  #     context: ./nodejs
-  #     dockerfile: Dockerfile
-  #   # build: .
-  #   # command: "node server.js"
-  #   # ports:
-  #   #   - "5000:5000"
-  #   ports:
-  #     - "3000:3000"
-  #     - "3001:3001"
-  #     - "9229:9229"
-  #   command:
-  #     - node
-  #     - "--inspect-brk=0.0.0.0"
-  #     - "." 
-  #   depends_on:
-  #     - "mongo"
-  # mongo:
-  #   image: "mongo"
-  #   command: mongod --port 27099
-  #   ports:
-  #     - "27099:27099"
-  #   volumes:
-  #     - "./nodejs/mongo/data:/data/db"
-  #   # environment:
-  #   #   - MONGO_INITDB_ROOT_USERNAME=root
-  #   #   - MONGO_INITDB_ROOT_PASSWORD=YWRtaW4=
-  #   #   - MONGO_INITDB_DATABASE=bl
-  # mongo-express:
-  #   image: mongo-express
-  #   environment:
-  #     # - ME_CONFIG_MONGODB_SERVER=mongo
-  #     # - ME_CONFIG_MONGODB_PORT=27017
-  #     # - ME_CONFIG_MONGODB_ENABLE_ADMIN=false
-  #     # - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
-  #     # - ME_CONFIG_MONGODB_AUTH_USERNAME=${MONGO_ROOT_USER}
-  #     # - ME_CONFIG_MONGODB_AUTH_PASSWORD=${MONGO_ROOT_PASSWORD}
-  #     # - ME_CONFIG_BASICAUTH_USERNAME=${MONGOEXPRESS_LOGIN}
-  #     # - ME_CONFIG_BASICAUTH_PASSWORD=${MONGOEXPRESS_PASSWORD}
-  #     - ME_CONFIG_MONGODB_SERVER=mongo
-  #     - ME_CONFIG_MONGODB_PORT=27099
-  #     - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
-  #     - ME_CONFIG_MONGODB_ADMINUSERNAME=root
-  #     - ME_CONFIG_MONGODB_ADMINPASSWORD=YWRtaW4=
-  #     - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
-  #     - ME_CONFIG_MONGODB_AUTH_USERNAME=root
-  #     - ME_CONFIG_MONGODB_AUTH_PASSWORD=YWRtaW4=
-  #     - ME_CONFIG_BASICAUTH_USERNAME=root
-  #     - ME_CONFIG_BASICAUTH_PASSWORD=YWRtaW4=
-  #   depends_on:
-  #     - mongo
-  #   ports:
-  #     - "8888:8081"
+  nodejs:
+    image: "nodejs"
+    build: 
+      context: ./nodejs
+      dockerfile: Dockerfile
+    # build: .
+    # command: "node server.js"
+    # ports:
+    #   - "5000:5000"
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+      - "9229:9229"
+    command:
+      - node
+      - "--inspect-brk=0.0.0.0"
+      - "." 
+    depends_on:
+      - "mongo"
+  mongo:
+    image: "mongo"
+    command: mongod --port 27099
+    ports:
+      - "27099:27099"
+    volumes:
+      - "./nodejs/mongo/data:/data/db"
+    # environment:
+    #   - MONGO_INITDB_ROOT_USERNAME=root
+    #   - MONGO_INITDB_ROOT_PASSWORD=YWRtaW4=
+    #   - MONGO_INITDB_DATABASE=bl
+  mongo-express:
+    image: mongo-express
+    environment:
+      # - ME_CONFIG_MONGODB_SERVER=mongo
+      # - ME_CONFIG_MONGODB_PORT=27017
+      # - ME_CONFIG_MONGODB_ENABLE_ADMIN=false
+      # - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
+      # - ME_CONFIG_MONGODB_AUTH_USERNAME=${MONGO_ROOT_USER}
+      # - ME_CONFIG_MONGODB_AUTH_PASSWORD=${MONGO_ROOT_PASSWORD}
+      # - ME_CONFIG_BASICAUTH_USERNAME=${MONGOEXPRESS_LOGIN}
+      # - ME_CONFIG_BASICAUTH_PASSWORD=${MONGOEXPRESS_PASSWORD}
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_PORT=27099
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=YWRtaW4=
+      - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
+      - ME_CONFIG_MONGODB_AUTH_USERNAME=root
+      - ME_CONFIG_MONGODB_AUTH_PASSWORD=YWRtaW4=
+      - ME_CONFIG_BASICAUTH_USERNAME=root
+      - ME_CONFIG_BASICAUTH_PASSWORD=YWRtaW4=
+    depends_on:
+      - mongo
+    ports:
+      - "8888:8081"

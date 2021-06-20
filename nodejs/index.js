@@ -10,7 +10,7 @@ const config    = require('./config')
 // var db = mongojs("mongodb://mongo:27017/bl");
 var app = express();
 var server = http.Server(app);
-var io = socketio(server);
+var io = socketio(server, { path: '/mysocket' });
 
 const socketsModel       = require('./models/sockets');
 const usersModel         = require('./models/users');
