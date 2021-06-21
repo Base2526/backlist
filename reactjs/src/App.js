@@ -70,7 +70,8 @@ const App = (props) => {
     /*
     
     */
-    const socket = io("/mysocket", /*{path: '/mysocket'},*/
+    const socket = io( "/", 
+                      { path: '/mysocket' },
                       { query:{"platform"  : process.env.REACT_APP_PLATFORM, 
                                "unique_id" : _uniqueId(props),
                                "version"   : process.env.REACT_APP_VERSIONS }}, 

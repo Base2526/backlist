@@ -17,7 +17,6 @@ const usersModel         = require('./models/users');
 const followerPostModel  = require('./models/follower_post');
 const notificationsModel = require('./models/notifications')
 
-
 const connection = require("./connection")
 const {empty, uid} = require("./utils")
 
