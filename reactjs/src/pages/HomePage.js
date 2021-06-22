@@ -224,7 +224,7 @@ const HomePage = (props) => {
                               handleFormSearch(e)
                             }}
                             className={"div-button"}>
-                              ค้นหา { searchLoading && <CircularProgress size={10}/> }
+                            ค้นหา{ searchLoading && <CircularProgress size={10}/> }
                           </button>
 
                           {/* searchLoading */}
