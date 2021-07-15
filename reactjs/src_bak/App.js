@@ -82,7 +82,7 @@ const App = (props) => {
       key_word: '*',
       offset:0
     }, {
-        headers: {'Authorization': `Basic YWRtaW46U29ta2lkMDU4ODQ4Mzkx`}
+        headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`}
     })
     .then(function (response) {
       let results = response.data

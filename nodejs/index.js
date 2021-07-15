@@ -22,7 +22,7 @@ const {empty, uid} = require("./utils")
 
 const {followUp} = require("./api")
 
-require('./log-interceptor')(server);
+// require('./log-interceptor')(server);
 
 connection().then((db) => {
   console.log("MongoDb connected");

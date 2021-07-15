@@ -4313,7 +4313,7 @@ class Utils extends ControllerBase {
       // \Drupal::logger('SearchApi')->notice( 'offset = %offset, type = %type, key_word = %key_word', 
       //                                       array('%offset'=>$offset, '%type'=>$type, '%key_word'=>$key_word));
 
-      $index = Index::load('content_back_list');
+      $index = Index::load( getenv('__DEV__') ? 'content_back_list_local' : 'content_back_list');
       $query = $index->query();
 
       // Change the parse mode for the search.
@@ -4405,6 +4405,7 @@ class Utils extends ControllerBase {
         }
 
       }
+      
 
       // Set additional conditions.
       $query->addCondition('status', 1);
