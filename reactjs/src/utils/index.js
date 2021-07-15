@@ -103,6 +103,7 @@ export const isFile = (input) => {
 }
 
 export const onToast = (type, message) =>{
+    
     switch(type){
       case 'info':{
         toast.info(message, 
@@ -123,7 +124,8 @@ export const onToast = (type, message) =>{
         break;
       }
     }
-  }
+    
+}
 
 export const  commaFormatted = (amount) => {
 	return Number(parseFloat(amount).toFixed(2)).toLocaleString("en", {

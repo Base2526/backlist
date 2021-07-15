@@ -86,29 +86,77 @@ services:
   #   #  - ./private/var/lib/postgresql:/var/lib/postgresql
   #   restart: always
 
-  # postgres2:
+  #   pgadmin:
+  #     image: dpage/pgadmin4:4.18
+  #     container_name: bigcard_pgadmin4
+  # #     container_name: pgadmin4_bg
+  #     ports:
+  #       - 7778:80
+  #     # volumes:
+  #     #   - ./pgadmin:/var/lib/pgadmin/storage
+  #     environment:
+  #       PGADMIN_DEFAULT_EMAIL: postgres
+  #       PGADMIN_DEFAULT_PASSWORD: postgres
+  #     hostname: pgadmin4
+  #     restart: always
+
+  # backendnginx:
+  #   restart: always
+  #   image: backendnginx
+  #   build: ./backend-nginx
+  #   container_name: backendnginx
+  #   ports:
+  #     - 8099:80
+  #   volumes:
+  #     - "./backend-nginx/modules:/var/www/html/sites/default/modules"
+  #     - "./backend-nginx/default.conf:/etc/nginx/conf.d/default.conf"
+  #     # - "./volumes/nginx-sample-website/conf.d/:/etc/nginx/conf.d"
+  #     # - "./volumes/config/sample-website/config.js:/usr/share/nginx/html/config.js"
+  #     - "./backend-nginx/settings.php:/var/www/html/sites/default/settings.php"
+  #     - "./backend-nginx/composer.json:/var/www/html/composer.json"
+  #     - "./backend-nginx/composer.lock:/var/www/html/composer.lock"
+  #     - "./backend-nginx/vendor:/var/www/html/vendor"
+  #     - "./backend-nginx/php.ini:/etc/php/7.3/php.ini"
+  #     - "./backend-nginx/files:/var/www/html/sites/default/files"
+  #     - "./backend-nginx/www.conf:/etc/php/7.3/php-fpm.d/www.conf"
+  #   environment:
+  #     - DB_HOST=postgres
+  #     - DB_NAME=banlist
+  #     - DB_USER_NAME=postgres
+  #     - DB_PASSWORD=postgres
+  #     - __DEV__=true
+  #     # - VIRTUAL_HOST=nodejs.banlist.info
+  #     # - VIRTUAL_NETWORK=nginx-proxy
+  #     # - VIRTUAL_PORT=80
+  #     # - LETSENCRYPT_HOST=nodejs.banlist.info
+  #     # - LETSENCRYPT_EMAIL=banlistmrs@gmail.com
+  #   networks:
+  #     - default
+  #     - specific-network-name
+
+  # postgres:
   #   image: postgres:11
-  #   container_name: postgres2
+  #   container_name: postgres
   #   environment:
   #     POSTGRES_DB: banlist
   #     POSTGRES_USER: postgres
   #     POSTGRES_PASSWORD: postgres
-  #   # volumes:
-  #   #  - ./private/var/lib/postgresql:/var/lib/postgresql
+  #   volumes:
+  #    - ./backend-nginx/private/var/lib/postgresql:/var/lib/postgresql
   #   restart: always
-#   pgadmin:
-#     image: dpage/pgadmin4:4.18
-#     container_name: bigcard_pgadmin4
-# #     container_name: pgadmin4_bg
-#     ports:
-#       - 7778:80
-#     # volumes:
-#     #   - ./pgadmin:/var/lib/pgadmin/storage
-#     environment:
-#       PGADMIN_DEFAULT_EMAIL: postgres
-#       PGADMIN_DEFAULT_PASSWORD: postgres
-#     hostname: pgadmin4
-#     restart: always
+
+  # pgadmin:
+  #   image: dpage/pgadmin4:4.18
+  #   container_name: bigcard_pgadmin4
+  #   ports:
+  #     - 7778:80
+  #   volumes:
+  #     - ./backend-nginx/pgadmin:/var/lib/pgadmin/storage
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: postgres
+  #     PGADMIN_DEFAULT_PASSWORD: postgres
+  #   hostname: pgadmin4
+  #   restart: always
 
   reactjs:
     container_name: reactjs
@@ -118,14 +166,19 @@ services:
     ports:
       - 8011:3000
       - 8012:80
+      - 80:80
     # https://stackoverflow.com/questions/52103155/reading-an-environment-variable-in-react-which-was-set-by-docker
     # environment:
     #   - REACT_APP_DEBUG=TRUE
     #   - REACT_APP_VERSIONS=1.0
     environment:
       CHOKIDAR_USEPOLLING: "true"
+      
       REACT_APP_DEBUG: "TRUE"
-      REACT_APP_VERSIONS: "1.0"
+      REACT_APP_VERSIONS: "1.0"   
+      REACT_APP_API: "http://157.230.240.133:8055"
+      REACT_APP_MY_SOCKET: "http://nodejs:3000"
+      REACT_APP_AUTHORIZATION: "YWRtaW46MTIzNA==" 
     tty: true
     stdin_open: true
     volumes:
@@ -134,58 +187,101 @@ services:
     # environment:
     #   NODE_ENV: production
 
-  nodejs:
-    image: "nodejs"
-    build: 
-      context: ./nodejs
-      dockerfile: Dockerfile
-    # build: .
-    # command: "node server.js"
-    # ports:
-    #   - "5000:5000"
-    ports:
-      - "3000:3000"
-      - "3001:3001"
-      - "9229:9229"
-    command:
-      - node
-      - "--inspect-brk=0.0.0.0"
-      - "." 
-    depends_on:
-      - "mongo"
-  mongo:
-    image: "mongo"
-    command: mongod --port 27099
-    ports:
-      - "27099:27099"
-    volumes:
-      - "./nodejs/mongo/data:/data/db"
-    # environment:
-    #   - MONGO_INITDB_ROOT_USERNAME=root
-    #   - MONGO_INITDB_ROOT_PASSWORD=YWRtaW4=
-    #   - MONGO_INITDB_DATABASE=bl
-  mongo-express:
-    image: mongo-express
-    environment:
-      # - ME_CONFIG_MONGODB_SERVER=mongo
-      # - ME_CONFIG_MONGODB_PORT=27017
-      # - ME_CONFIG_MONGODB_ENABLE_ADMIN=false
-      # - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
-      # - ME_CONFIG_MONGODB_AUTH_USERNAME=${MONGO_ROOT_USER}
-      # - ME_CONFIG_MONGODB_AUTH_PASSWORD=${MONGO_ROOT_PASSWORD}
-      # - ME_CONFIG_BASICAUTH_USERNAME=${MONGOEXPRESS_LOGIN}
-      # - ME_CONFIG_BASICAUTH_PASSWORD=${MONGOEXPRESS_PASSWORD}
-      - ME_CONFIG_MONGODB_SERVER=mongo
-      - ME_CONFIG_MONGODB_PORT=27099
-      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=YWRtaW4=
-      - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
-      - ME_CONFIG_MONGODB_AUTH_USERNAME=root
-      - ME_CONFIG_MONGODB_AUTH_PASSWORD=YWRtaW4=
-      - ME_CONFIG_BASICAUTH_USERNAME=root
-      - ME_CONFIG_BASICAUTH_PASSWORD=YWRtaW4=
-    depends_on:
-      - mongo
-    ports:
-      - "8888:8081"
+    # networks:
+    #   - front-end-network
+    #   - default
+    #   - specific-network-name
+
+#   nodejs:
+#     image: "nodejs"
+#     build: 
+#       context: ./nodejs
+#       dockerfile: Dockerfile
+#     # build: .
+#     # command: "node server.js"
+#     # ports:
+#     #   - "5000:5000"
+#     ports:
+#       - "3000:3000"
+#       - "3001:3001"
+#       - "9229:9229"
+#     command:
+#       - node
+#       - "--inspect-brk=0.0.0.0"
+#       - "." 
+#     depends_on:
+#       - "mongo"
+#     # networks:
+#     #   - front-end-network
+
+#   # mongo:
+#   #   image: "mongo"
+#   #   command: mongod --port 27099
+#   #   ports:
+#   #     - "27099:27099"
+#   #   volumes:
+#   #     - "./nodejs/mongo/data:/data/db"
+#   #   environment:
+#   #     - MONGO_INITDB_ROOT_USERNAME=root
+#   #     - MONGO_INITDB_ROOT_PASSWORD=YWRtaW4=
+#   #     - MONGO_INITDB_DATABASE=bl
+#   #   # networks:
+#   #   #   - front-end-network
+    
+#   # mongo-express:
+#   #   image: mongo-express
+#   #   environment:
+#   #     # - ME_CONFIG_MONGODB_SERVER=mongo
+#   #     # - ME_CONFIG_MONGODB_PORT=27017
+#   #     # - ME_CONFIG_MONGODB_ENABLE_ADMIN=false
+#   #     # - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
+#   #     # - ME_CONFIG_MONGODB_AUTH_USERNAME=${MONGO_ROOT_USER}
+#   #     # - ME_CONFIG_MONGODB_AUTH_PASSWORD=${MONGO_ROOT_PASSWORD}
+#   #     # - ME_CONFIG_BASICAUTH_USERNAME=${MONGOEXPRESS_LOGIN}
+#   #     # - ME_CONFIG_BASICAUTH_PASSWORD=${MONGOEXPRESS_PASSWORD}
+#   #     - ME_CONFIG_MONGODB_SERVER=mongo
+#   #     - ME_CONFIG_MONGODB_PORT=27099
+#   #     - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+#   #     - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+#   #     - ME_CONFIG_MONGODB_ADMINPASSWORD=YWRtaW4=
+#   #     - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
+#   #     - ME_CONFIG_MONGODB_AUTH_USERNAME=root
+#   #     - ME_CONFIG_MONGODB_AUTH_PASSWORD=YWRtaW4=
+#   #     - ME_CONFIG_BASICAUTH_USERNAME=root
+#   #     - ME_CONFIG_BASICAUTH_PASSWORD=YWRtaW4=
+#   #   depends_on:
+#   #     - mongo
+#   #   ports:
+#   #     - "8888:8081"
+#   #   # networks:
+#   #   #   - front-end-network
+#   mongo:
+#     image: mongo
+#     environment:
+#       - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+#       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+#       - MONGO_INITDB_DATABASE=banlist
+#   mongo-express:
+#     image: mongo-express
+#     environment:
+#       - ME_CONFIG_MONGODB_SERVER=mongo
+#       - ME_CONFIG_MONGODB_PORT=27017
+#       - ME_CONFIG_MONGODB_ENABLE_ADMIN=false
+#       - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
+#       - ME_CONFIG_MONGODB_AUTH_USERNAME=${MONGO_ROOT_USER}
+#       - ME_CONFIG_MONGODB_AUTH_PASSWORD=${MONGO_ROOT_PASSWORD}
+#       - ME_CONFIG_BASICAUTH_USERNAME=${MONGOEXPRESS_LOGIN}
+#       - ME_CONFIG_BASICAUTH_PASSWORD=${MONGOEXPRESS_PASSWORD}
+#     depends_on:
+#       - mongo
+#     ports:
+#       - "8888:8081"
+
+# # networks:
+# #   specific-network-name:
+# #     external: true
+
+# # networks:
+# #   front-end-network:
+# #     external:
+# #       name: project-name-network

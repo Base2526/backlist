@@ -334,6 +334,7 @@ const LoginDialog = (props) => {
             console.log('/api/login > results : ', results)
           })
           .catch((error)=>{
+            console.log('/api/login > results : ', error)
             onToast("error", error)
             setLoginLoading(false)
           });

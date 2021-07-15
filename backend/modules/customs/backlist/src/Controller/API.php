@@ -1536,7 +1536,7 @@ class API extends ControllerBase {
       \Drupal::logger('SearchApi')->notice($e->__toString());
 
       $response_array['result']   = FALSE;
-      $response_array['message']  = $e->__toString();
+      $response_array['message x']  = $e->__toString();
       return new JsonResponse( $response_array );
     }
   }
@@ -1823,7 +1823,7 @@ class API extends ControllerBase {
       
       return new JsonResponse( $response_array );
     } catch (\Throwable $e) {
-      \Drupal::logger('SearchApi')->notice($e->__toString());
+      \Drupal::logger('Report')->notice($e->__toString());
 
       $response_array['result']   = FALSE;
       $response_array['message']  = $e->__toString();
@@ -1953,7 +1953,7 @@ class API extends ControllerBase {
 
       return new JsonResponse( $response_array );
     } catch (\Throwable $e) {
-      \Drupal::logger('SearchApi')->notice($e->__toString());
+      \Drupal::logger('DeleteMyApp')->notice($e->__toString());
 
       $response_array['result']   = FALSE;
       $response_array['message']  = $e->__toString();

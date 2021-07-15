@@ -2,12 +2,12 @@ FROM node
 
 WORKDIR /usr/src/app
 
-COPY package.json .
+# COPY package.json .
 
 RUN apt-get update && \
     apt-get install nano -y 
         
-RUN npm install
+# RUN npm install
 
 COPY . .
 
