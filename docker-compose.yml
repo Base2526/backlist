@@ -164,7 +164,7 @@ services:
       context: ./reactjs
       dockerfile: Dockerfile
     ports:
-      - 8011:3000
+      # - 8011:3000
       - 8012:80
       - 80:80
     # https://stackoverflow.com/questions/52103155/reading-an-environment-variable-in-react-which-was-set-by-docker
@@ -177,7 +177,7 @@ services:
       REACT_APP_DEBUG: "TRUE"
       REACT_APP_VERSIONS: "1.0"   
       REACT_APP_API: "http://157.230.240.133:8055"
-      REACT_APP_MY_SOCKET: "http://nodejs:3000"
+      REACT_APP_MY_SOCKET: "http://node:3000"
       REACT_APP_AUTHORIZATION: "YWRtaW46MTIzNA==" 
     tty: true
     stdin_open: true
@@ -187,32 +187,32 @@ services:
     # environment:
     #   NODE_ENV: production
 
-    # networks:
-    #   - front-end-network
+    networks:
+      - front-network
     #   - default
     #   - specific-network-name
 
-#   nodejs:
-#     image: "nodejs"
-#     build: 
-#       context: ./nodejs
-#       dockerfile: Dockerfile
-#     # build: .
-#     # command: "node server.js"
-#     # ports:
-#     #   - "5000:5000"
-#     ports:
-#       - "3000:3000"
-#       - "3001:3001"
-#       - "9229:9229"
-#     command:
-#       - node
-#       - "--inspect-brk=0.0.0.0"
-#       - "." 
-#     depends_on:
-#       - "mongo"
-#     # networks:
-#     #   - front-end-network
+  # nodejs:
+  #   image: "nodejs"
+  #   build: 
+  #     context: ./nodejs
+  #     dockerfile: Dockerfile
+  #   # build: .
+  #   # command: "node server.js"
+  #   # ports:
+  #   #   - "5000:5000"
+  #   ports:
+  #     - "3000:3000"
+  #     - "3001:3001"
+  #     - "9229:9229"
+  #   command:
+  #     - node
+  #     - "--inspect-brk=0.0.0.0"
+  #     - "." 
+  #   depends_on:
+  #     - "mongo"
+  #   # networks:
+  #   #   - front-end-network
 
 #   # mongo:
 #   #   image: "mongo"
@@ -255,27 +255,27 @@ services:
 #   #     - "8888:8081"
 #   #   # networks:
 #   #   #   - front-end-network
-#   mongo:
-#     image: mongo
-#     environment:
-#       - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
-#       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
-#       - MONGO_INITDB_DATABASE=banlist
-#   mongo-express:
-#     image: mongo-express
-#     environment:
-#       - ME_CONFIG_MONGODB_SERVER=mongo
-#       - ME_CONFIG_MONGODB_PORT=27017
-#       - ME_CONFIG_MONGODB_ENABLE_ADMIN=false
-#       - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
-#       - ME_CONFIG_MONGODB_AUTH_USERNAME=${MONGO_ROOT_USER}
-#       - ME_CONFIG_MONGODB_AUTH_PASSWORD=${MONGO_ROOT_PASSWORD}
-#       - ME_CONFIG_BASICAUTH_USERNAME=${MONGOEXPRESS_LOGIN}
-#       - ME_CONFIG_BASICAUTH_PASSWORD=${MONGOEXPRESS_PASSWORD}
-#     depends_on:
-#       - mongo
-#     ports:
-#       - "8888:8081"
+  # mongo:
+  #   image: mongo
+  #   environment:
+  #     - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+  #     - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+  #     - MONGO_INITDB_DATABASE=banlist
+  # mongo-express:
+  #   image: mongo-express
+  #   environment:
+  #     - ME_CONFIG_MONGODB_SERVER=mongo
+  #     - ME_CONFIG_MONGODB_PORT=27017
+  #     - ME_CONFIG_MONGODB_ENABLE_ADMIN=false
+  #     - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
+  #     - ME_CONFIG_MONGODB_AUTH_USERNAME=${MONGO_ROOT_USER}
+  #     - ME_CONFIG_MONGODB_AUTH_PASSWORD=${MONGO_ROOT_PASSWORD}
+  #     - ME_CONFIG_BASICAUTH_USERNAME=${MONGOEXPRESS_LOGIN}
+  #     - ME_CONFIG_BASICAUTH_PASSWORD=${MONGOEXPRESS_PASSWORD}
+  #   depends_on:
+  #     - mongo
+  #   ports:
+  #     - "8888:8081"
 
 # # networks:
 # #   specific-network-name:
@@ -285,3 +285,8 @@ services:
 # #   front-end-network:
 # #     external:
 # #       name: project-name-network
+
+networks:
+  front-network:
+    external:
+      name: banlist-network

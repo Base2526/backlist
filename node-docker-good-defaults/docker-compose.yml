@@ -4,18 +4,22 @@ version: '2.4'
 # v3.x doesn't have this feature yet, and is only needed if you want to use Swarm
 
 services:
-
   node:
     build:
       context: .
-      # args:
-      #   - NODE_ENV=development
+      args:
+        - NODE_ENV=development
     # you can use legacy debug config or new inspect
     # NOTE: if nodemon isn't restarting on changes, you might be on Windows
     # which has trouble seeing file changes, so add -L to use legacy polling
     # https://github.com/remy/nodemon#application-isnt-restarting
     #command: ../node_modules/.bin/nodemon --debug=0.0.0.0:5858
     command: ../node_modules/.bin/nodemon --inspect=0.0.0.0:9229 ./bin/www
+
+    # command:
+    #   - node
+    #   - "--inspect-brk=0.0.0.0"
+    #   - "." 
     ports:
       - "3000:3000"
       - "9229:9229"
@@ -41,21 +45,24 @@ services:
       - MONGO_PASSWORD=example
       - MONGO_HOSTNAME=mongo
       - MONGO_PORT=27017
-      - MONGO_DATABASE_NAME=example-database
+      - MONGO_DATABASE_NAME=bl
     depends_on:
       mongo:
         condition: service_healthy
     healthcheck:
       disable: true
+    networks:
+      - nodejs-network
 
   mongo:
-    image: mongo:4
+    # image: mongo:4
+    image: "mongo"
     ports:
       - "27017:27017"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=example
-      - MONGO_INITDB_DATABASE=example-database
+      - MONGO_INITDB_DATABASE=bl
     volumes:
       # this is an example of how to seed data in mongo containers. The Docker Hub mongo README
       # explains that any data dropped into the docker-entrypoint-initdb.d directory will be injected 
@@ -63,11 +70,36 @@ services:
       - ./database/seed.js:/docker-entrypoint-initdb.d/seed.js
     # we need to check health here, so that docker-compose will wait for a healthy mongo before it starts node
     healthcheck:
-      test: "[ `echo 'db.runCommand(\"ping\").ok' | mongo localhost/example-database --quiet` ] && echo 0 || echo 1"
+      test: "[ `echo 'db.runCommand(\"ping\").ok' | mongo localhost/bl --quiet` ] && echo 0 || echo 1"
       interval: 5s
       start_period: 10s
       timeout: 4s
       retries: 3
+    networks:
+      - nodejs-network
+  
+  mongo-express:
+    image: mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+      - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
+      - ME_CONFIG_MONGODB_AUTH_USERNAME=root
+      - ME_CONFIG_MONGODB_AUTH_PASSWORD=example
+      - ME_CONFIG_BASICAUTH_USERNAME=dev
+      - ME_CONFIG_BASICAUTH_PASSWORD=dev
+    depends_on:
+      - mongo
+    ports:
+      - "8888:8081"
+    networks:
+      - nodejs-network
 
 volumes:
   notused:
+
+networks:
+  nodejs-network:
+    external:
+      name: banlist-network
