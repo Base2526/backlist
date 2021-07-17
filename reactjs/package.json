@@ -1,8 +1,8 @@
 {
-  "name": "react-docker",
+  "name": "reactjs",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://143.198.223.146:3000",
+  "proxy": "http://nodejs:3000",
   "dependencies": {
     "@material-ui/core": "^4.9.5",
     "@material-ui/icons": "^4.9.1",
@@ -54,7 +54,7 @@
     "styled-components": "^5.1.0"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "./node_modules/.bin/react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

@@ -1,0 +1,17 @@
+type: module
+name: Back list
+description: 'Back list module.'
+package: Customs
+core_version_requirement: ^8.8 || ^9
+php: 7.2
+
+dependencies:
+  - paragraphs:paragraphs
+  - config_pages:config_pages
+  - field_group:field_group
+  - transliterate_filenames:transliterate_filenames
+
+# Information added by Drupal.org packaging script on 2020-09-16
+version: '4.0.1'
+project: 'backlist'
+datestamp: 1600300083

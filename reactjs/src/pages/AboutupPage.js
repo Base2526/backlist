@@ -11,7 +11,7 @@ const AboutupPage = (props) => {
 
     useEffect(() => {
         axios.post(`/api/getHTML?_format=json`, {'nid':150}, {
-            headers: {'Authorization': `Basic YWRtaW46U29ta2lkMDU4ODQ4Mzkx`}
+            headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`}
         })
         .then(function (response) {
             let data = response.data

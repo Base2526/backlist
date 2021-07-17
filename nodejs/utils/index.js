@@ -14,8 +14,23 @@ function isInt(value) {
            !isNaN(parseInt(value, 10));
 }
 
+const uid = (unique_id) =>{
+    if( empty(unique_id) ){
+        return 0
+    }
+
+    let base64_unique_id = Buffer.from(unique_id, 'base64').toString('ascii')
+    let split_unique_id = base64_unique_id.split("&")
+    if(split_unique_id.length == 2){
+      return Buffer.from(split_unique_id[1], 'base64').toString('ascii')
+    }
+
+    return 0
+}
+
 module.exports = {
     empty, 
+    uid,
     // otherMethod,
     // anotherMethod
 };
