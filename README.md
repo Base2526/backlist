@@ -5,6 +5,10 @@ docker exec -t -u postgres your-db-container pg_dumpall -c > dump_`date +%d-%m-%
 
 docker exec -t -u postgres 49b9509f7e98 pg_dumpall -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
 
+
+docker exec -t -u postgres 27869c9f338b pg_dumpall -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
+
+
 Restore:
 cat backlist_21122020_2106.sql | docker exec -i 17f16008f1ac psql -Upostgres
 
@@ -503,3 +507,16 @@ $image = file_get_contents($url);
 if ($image !== false){
    dpm('data:image/jpg;base64,'.base64_encode($image));
 }
+
+
+Postgres reset nid SEQUENCE
+ALTER SEQUENCE node_nid_seq RESTART WITH XXX;
+ALTER SEQUENCE node_field_data_nid_seq RESTART WITH XXX;
+ALTER SEQUENCE node_field_revision_nid_seq RESTART WITH XXX;
+ALTER SEQUENCE node_revision_nid_seq RESTART WITH XXX;
+
+Docker-compose share network
+https://stackoverflow.com/a/49055920/6373911
+
+https://stackoverflow.com/questions/52103155/reading-an-environment-variable-in-react-which-was-set-by-docker
+

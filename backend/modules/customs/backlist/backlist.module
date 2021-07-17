@@ -1,0 +1,760 @@
+<?php
+
+/**
+ * @file
+ * This module holds functions useful for Drupal development.
+ *
+ * Please contribute!
+ *
+ * Devel is allowed to use its own functions kpr(), dpm() and dpq() so disable
+ * the coding standard which gives warnings for using these.
+ * phpcs:disable Drupal.Functions.DiscouragedFunctions
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
+use Drupal\config_pages\Entity\ConfigPages;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Drupal\Core\Mail\MailManagerInterface;
+use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Utility\Html;
+use Drupal\node\Entity\Node;
+use Drupal\Core\Render\Markup;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\user\UserInterface;
+
+use Drupal\backlist\Utils\Utils;
+
+/**
+ * Implements hook_help().
+ */
+function backlist_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.backlist':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The Devel module provides a suite of modules containing fun for module developers and themers. For more information, see the <a href=":url">online documentation for the Devel module</a>.', [':url' => 'https://www.drupal.org/docs/8/modules/devel']) . '</p>';
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<dl>';
+      $output .= '<dt>' . t('Inspecting Service Container') . '</dt>';
+      $output .= '<dd>' . t('The module allows you to inspect Services and Parameters registered in the Service Container. You can see those informations on <a href=":url">Container info</a> page.', [':url' => Url::fromRoute('devel.container_info.service')->toString()]) . '</dd>';
+      $output .= '<dt>' . t('Inspecting Routes') . '</dt>';
+      $output .= '<dd>' . t('The module allows you to inspect routes information, gathering all routing data from <em>.routing.yml</em> files and from classes which subscribe to the route build/alter events. You can see those informations on <a href=":url">Routes info</a> page.', [':url' => Url::fromRoute('devel.route_info')->toString()]) . '</dd>';
+      $output .= '<dt>' . t('Inspecting Events') . '</dt>';
+      $output .= '<dd>' . t('The module allow you to inspect listeners registered in the event dispatcher. You can see those informations on <a href=":url">Events info</a> page.', [':url' => Url::fromRoute('devel.event_info')->toString()]) . '</dd>';
+      $output .= '</dl>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function backlist_mail($key, &$message, $params) {
+  $options = array(
+    'langcode' => $message['langcode'],
+  );
+  switch ($key) {
+    case 'create_article':{
+      $message['format'] = 'text/html';
+      $message['headers']['Content-Type'] = SWIFTMAILER_FORMAT_HTML;
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('Article created: @title', array('@title' => $params['node_title']), $options);
+      $message['body'][] = $params['message'];
+      break;
+    }
+
+    case 'expired_longlived_access_tokens':{
+      $message['format'] = 'text/html';
+      $message['headers']['Content-Type'] = SWIFTMAILER_FORMAT_HTML;
+      $message['from']    = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('Warning: @title', array('@title' => $params['title']), $options);
+      $message['body'][]  = Markup::create('<html>
+                                        <head>
+                                            <style>
+                                                body{
+                                                    line-height: 1.5em;
+                                                }
+                                            </style>
+                                        </head>
+                                        <body>
+                                            <div>
+                                                <div>Example add html mail</div>
+                                                <br>
+                                                <div>
+                                                    <p>&emsp; ' . $params['message'] . '</p>
+                                                </div>
+                                                <br>
+                                                <br>
+                                                <div>
+                                                </div>
+                                            </div>
+                                        </body>
+                                    </html>');
+      break;
+    } 
+
+    case 'twitter_post':{
+      $message['format'] = 'text/html';
+      $message['headers']['Content-Type'] = SWIFTMAILER_FORMAT_HTML;
+      $message['from']    = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('Warning: @title', array('@title' => $params['title']), $options);
+      $message['body'][]  = Markup::create('<html>
+                                        <head>
+                                            <style>
+                                                body{
+                                                    line-height: 1.5em;
+                                                }
+                                            </style>
+                                        </head>
+                                        <body>
+                                            <div>
+                                                <div>Example add html mail</div>
+                                                <br>
+                                                <div>
+                                                    <p>&emsp; ' . $params['message'] . '</p>
+                                                </div>
+                                                <br>
+                                                <br>
+                                                <div>
+                                                </div>
+                                            </div>
+                                        </body>
+                                    </html>');
+      break;
+    } 
+
+    case 'report_reporter':{
+      $message['format'] = 'text/html';
+      $message['headers']['Content-Type'] = SWIFTMAILER_FORMAT_HTML;
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('@title', array('@title' => $params['title']), $options);
+      $message['body'][]  = Markup::create('<html>
+                                              <head>
+                                                  <style>
+                                                      body{
+                                                          line-height: 1.5em;
+                                                      }
+                                                  </style>
+                                              </head>
+                                              <body>
+                                                  <div>
+                                                      <div>'. $params['title'] .'</div>
+                                                      <br>
+                                                      <div>
+                                                          <p>&emsp; ' . $params['message'] . '</p> Link<p>'. $params['link'] .'</p>
+                                                      </div>
+                                                      <br>
+                                                      <br>
+                                                      <div>
+                                                      </div>
+                                                      <div>
+                                                          Thank you so much from team.
+                                                      </div>
+                                                  </div>
+                                              </body>
+                                          </html>');
+                                          
+      break;
+    }
+
+    case 'report_owner_post':{
+      $message['format'] = 'text/html';
+      $message['headers']['Content-Type'] = SWIFTMAILER_FORMAT_HTML;
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('@title', array('@title' => $params['title']), $options);
+      $message['body'][]  = Markup::create('<html>
+                                              <head>
+                                                  <style>
+                                                      body{
+                                                          line-height: 1.5em;
+                                                      }
+                                                  </style>
+                                              </head>
+                                              <body>
+                                                  <div>
+                                                      <div>'. $params['title'] .'</div>
+                                                      <br>
+                                                      <div>
+                                                          <p>&emsp; ' . $params['message'] . '</p> Link<p>'. $params['link'] .'</p>
+                                                      </div>
+                                                      <br>
+                                                      <br>
+                                                      <div>
+                                                      </div>
+                                                      <div>
+                                                          Thank you so much from team.
+                                                      </div>
+                                                  </div>
+                                              </body>
+                                          </html>');
+                                          
+      break;
+    }
+  }
+}
+
+/*
+* hook_cron()
+*/
+function backlist_cron(){
+  switch(date('G', time())){
+    // รันทุกๆเที่ยวคืน
+    case 0:{
+      \Drupal::logger('backlist_cron')->notice("YES");
+
+      Utils::Expired_FBLongLivedAccessToken();
+
+      Utils::Cron_Twitter_Delete();
+
+      Utils::Syc_Blacklistseller();
+      break;
+    }
+    default:{
+      \Drupal::logger('backlist_cron')->notice("NO");
+      break;
+    }
+  }
+
+  // Utils::Cron_Twitter_Post();
+
+  // Utils::Syc_Blacklistseller();
+}
+
+/**
+ * Implements hook_user_login() 
+ */
+function backlist_user_login(UserInterface $account) {
+    $route_name = \Drupal::routeMatch()->getRouteName();
+    if ($route_name !== 'user.reset.login') {
+        $roles = $account->getRoles();
+        // Do not interfere if a destination was already set.
+        $current_request = \Drupal::service('request_stack')->getCurrentRequest();        
+        $url =  Url::fromRoute('<front>')->toString();
+        // if (in_array("media_admin", $roles)) {
+        //     $user_role = 'code_approver';
+        // }
+        // if (in_array("media_printting", $roles)) {
+        //     $user_role = 'admin_printing';
+        // }
+        // if (in_array("approval", $roles)) {
+        //     $url =  \Drupal\Core\Url::fromRoute('quotation_approve_view.form')->toString();
+        // }
+        // if (in_array("supplier", $roles)) {
+        //     $url =  \Drupal\Core\Url::fromRoute('production_list_view.form')->toString();
+        // }
+        $current_request->query->set(
+            'destination',
+            $url
+        );
+    }
+}
+
+function backlist_user_insert(EntityInterface $entity) {
+  switch($entity->bundle()){
+    case 'user':{
+      // \Drupal::logger('backlist_user_insert')->error( 'bundle    = %bundle,
+      //                                                 name    = %name,',
+      //                                               array(
+      //                                                 '%bundle' => $entity->bundle(),
+      //                                                 '%name' => $entity->getDisplayName()
+      //                                               ));
+
+      // $field_login_with_fb  = $entity->get('field_login_with_fb')->getValue();
+      // if(!empty($field_login_with_fb)){
+      //   $login_with_fb = $field_login_with_fb[0]['value'];
+
+      //   if($login_with_fb){
+      //     return;
+      //   }
+      // }
+
+      /*
+        website : 28
+        facebook : 29
+        google : 30
+      */
+      $type_login = $entity->get('field_type_login')->target_id;
+      if(!empty($type_login)){
+        if( $type_login == 29 || $type_login == 30 ){
+          return;
+        }
+      }
+
+      // $entity->setPassword( $entity->get('field_password')->getValue()[0]['value'] );
+      $entity->set('field_type_login', 28);
+      $entity->set('field_display_name', $entity->getDisplayName());
+
+      if($entity->isNew()) {
+        $entity->addRole(AccountInterface::AUTHENTICATED_ROLE);
+      }
+      $entity->save();
+      break;
+    }
+  }
+}
+
+function backlist_user_update(EntityInterface $entity){
+  \Drupal::logger('backlist_user_update')->notice($entity->bundle());
+
+  try {
+    switch($entity->bundle()){
+      case 'user':{
+        
+        // ------------
+        $data_obj = [
+          "uid" => $entity->id()
+        ];
+
+        $ch = curl_init();
+        curl_setopt_array($ch, array(
+          CURLOPT_URL => "http://143.198.223.146:3000/api/update_profile",
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_HEADER => true,
+          //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => "POST",
+          CURLOPT_POSTFIELDS => json_encode($data_obj),
+          CURLOPT_HTTPHEADER => array(
+            // "Authorization: Basic " . $basic_auth,
+            "Accept: application/json",
+            "Content-Type: application/json",
+          ),
+        ));
+
+        $response = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if($httpcode == 200){
+        }
+        curl_close($ch);
+
+        // ------------
+        break;
+      }
+    }
+  } catch (\Throwable $e) {
+    \Drupal::logger('backlist_user_update')->notice($e->__toString());
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function backlist_node_insert(Node $node) {
+  if ($node->bundle() == 'back_list') {
+    $field_channel = $node->get('field_channel')->getValue();
+    if(empty($field_channel) || $field_channel[0]['target_id'] == 31){
+      // add from web
+      $response = new RedirectResponse(Url::fromRoute('entity.node.canonical', ['node' => $node->id()], ['absolute' => TRUE])->toString());
+      $response->send();
+    }else{
+      // add from api
+    }
+  }
+}
+
+function backlist_comment_insert(EntityInterface $entity) {
+  \Drupal::logger('backlist_comment_insert')->error( "1" );
+
+  $bundle = $entity->bundle();
+
+  if(  $bundle  == 'comment'){
+    $commentId = $entity->id();
+    $nodeId    = $entity->get('entity_id')->target_id;
+
+    \Drupal::logger('backlist_comment_insert 1')->error( $entity->get('entity_id')->target_id );
+    \Drupal::logger('backlist_comment_insert 2')->error( serialize($bundle) );
+    \Drupal::logger('backlist_comment_insert 3')->error( $entity->id() );
+    \Drupal::logger('backlist_comment_insert 4')->error( serialize($entity->get('entity_id')->getValue()) );
+  }
+}
+
+/*
+* hook_ENTITY_TYPE_update()
+*/
+function backlist_config_pages_update(EntityInterface $entity) {
+  // $entity->getEntityTypeId() is value config_pages
+  // dpm( $entity->getEntityTypeId() );
+  // Clear && Rebuild cache from config_page update data.
+
+  // dpm( $entity->getEntityTypeId() );
+  // dpm( '$entity->bundle()' );
+  // dpm( $entity->bundle() );
+  // dpm( '$entity->label()' );
+  // dpm( $entity->label() );
+
+  switch($entity->bundle()){
+    case 'banlist':{
+      // $consumer_key     = $entity->get('field_twitter_consumer_key')->getValue();
+      // dpm( $consumer_key );
+      break;
+    }
+
+    default:{
+      break;
+    }
+
+  }
+
+  \Drupal::logger('backlist_config_pages_update')->error( "backlist_config_pages_update" );
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_delete().
+ */
+function backlist_node_delete(EntityInterface $entity) {
+  switch($entity->bundle()){
+    case 'back_list':{
+
+      Utils::node_my_apps($entity->getOwnerId());
+
+      \Drupal::logger('backlist_node_delete')->error( $entity->id() );
+
+      $twit_id = $entity->get('field_twit_id')->getValue();
+      if(!empty($twit_id)){
+        Utils::Twitter_Delete_By_TwitId($twit_id[0]['value']);
+      }
+      
+      break;
+    }
+  }
+}
+
+/*
+ * Implements hook_theme()
+*/
+function backlist_theme($existing, $type, $theme, $path) {  
+  return array(
+    'front-page' => array(
+      'variables' => array(
+        'backlists' => array(),
+        'current_user_id'=> 0
+      ),
+    ),   
+    'footer-backlist-block'=> array(
+      'variables' => array(
+        'params' => array(),
+      ),
+    ),   
+    'row-merchant-bank-account'=> array(
+      'variables' => array(
+        'items' => array(),
+      ),
+    ),   
+    'top-head-content-block'=> array(
+      'variables' => array(
+        'params' => array(),
+      ),
+    ), 
+  );
+}
+
+/**
+ * Implement hook_form_alter()
+ * add js to form
+ * 
+ * https://www.drupal.org/forum/support/module-development-and-code-questions/2019-03-26/hook_form_alter-custom-submit-handler
+ * 
+*/
+// array &$form, FormStateInterface $form_state
+function backlist_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['#attached']['library'][] = 'backlist/backlist_js';
+
+  /*
+  $form['revision_information']['#access'] = false;
+  if($form_id == 'user_login_form'){
+    // dpm($form);
+    $form['actions']['forgot_password'] = [
+      '#type' => 'link',
+      '#title' => t('Forgot password'),
+      // Example of a Url object from a route. See the documentation
+      // for more methods that may help generate a Url object.
+      '#url' => Url::fromRoute('user.pass'),
+      '#options'=>array(
+        'attributes'=>array(
+            'class'=>array('button')
+        ),
+      ),
+      '#weight' => 1000,
+    ];
+
+    $form['actions']['register'] = [
+      '#type' => 'link',
+      '#title' => t('Register'),
+      // Example of a Url object from a route. See the documentation
+      // for more methods that may help generate a Url object.
+      '#url' => Url::fromRoute('user.register'),
+      '#options'=>array(
+        'attributes'=>array(
+            'class'=>array('button')
+        ),
+      ),
+      '#weight' => 1000,
+    ];
+
+    $banlist = ConfigPages::config('banlist');
+    $allow_login_with_fb      = $banlist->get('field_allow_login_with_fb')->getValue();
+    if(!empty($allow_login_with_fb)){
+      if(!empty($allow_login_with_fb[0]['value'])){
+        // https://www.thaicreate.com/community/php-facebook-login-api-sdk-v5.html
+        $form['actions']['login_with_facebook'] = [
+          '#type' => 'link',
+          '#title' => t('Login with facebook'),
+          // Example of a Url object from a route. See the documentation
+          // for more methods that may help generate a Url object.
+          '#url' => Url::fromUri(Utils::FBLogin()),
+          '#options'=>array(
+            'attributes'=>array(
+                'class'=>array('button')
+            ),
+          ),
+          '#weight' => 1000,
+        ];
+      }
+    }
+
+    $field_allow_login_with_google      = $banlist->get('field_allow_login_with_google')->getValue();
+    if(!empty($field_allow_login_with_google)){
+      if(!empty($field_allow_login_with_google[0]['value'])){
+        $form['actions']['login_with_google'] = [
+          '#type' => 'link',
+          '#title' => t('Login with google'),
+          // Example of a Url object from a route. See the documentation
+          // for more methods that may help generate a Url object.
+          '#url' => Url::fromUri( Utils::GoogleLogin() ),
+          '#options'=>array(
+            'attributes'=>array(
+                'class'=>array('button')
+            ),
+          ),
+          '#weight' => 1000,
+        ];
+      }
+    }
+  }  
+
+  if (strpos($form_id, 'contact_message_') !== FALSE) {
+    $form['actions']['preview']['#access'] = FALSE;
+  }
+
+  // $form['link'] = [
+  //   '#markup' => \Drupal::l('Make mine a modal', Url::fromRoute('modal_form_controller.form', [], [
+  //     'attributes' => [
+  //       'class' => ['use-ajax'],
+  //       'data-dialog-type' => 'modal',
+  //       'data-dialog-options' => json_encode(['height' => 400, 'width' => 700]),
+  //     ],
+  //    ]))
+  // ];
+
+
+  // node_back_list_edit_form
+  if ( $form_id == 'node_back_list_edit_form' || $form_id == 'comment_comment_form') {
+    $node = $form_state->getFormObject()->getEntity();
+
+    if(!empty($node)){
+      $form['report_modal'] = [
+        '#type' => 'link',
+        '#title' => 'Report',
+        '#url' => Url::fromRoute('modal_form_controller.form', ['type' => $node->id()]),
+        '#attributes' => [
+          'class' => [
+            'use-ajax',
+            'button',
+          ],
+        ],
+      ];
+    }
+    
+  
+    // $form['actions']['submit']['save_data'] = array(
+    //   '#type' => 'submit',
+    //   '#name' => 'save_data',
+    //   '#value' => 'บันทึก',
+    //   '#prefix' => '',
+    //   '#suffix' => '',
+    //   // '#submit' => ['submitAjax'],
+    //   // '#ajax' => [
+    //   //   'callback' => 'callbackAjax',
+    //   //   // 'wrapper' => 'user-login-form',
+    //   //   'progress' => array(
+    //   //     // Graphic shown to indicate ajax. Options: 'throbber' (default), 'bar'.
+    //   //     'type' => 'fullscreen',
+    //   //     // Message to show along progress graphic. Default: 'Please wait...'.
+    //   //     'message' => NULL,
+    //   //   ),
+    //   // ],
+    //   // '#weight'=> 10000,
+    //   //'#limit_validation_errors' => array(),
+    // );
+  }
+  */
+}
+
+function backlist_node_view(array &$build, EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display, $view_mode) {
+  switch($entity->bundle()){
+    case 'back_list':{
+      // $build['body'][0]['#text'] = 'this is a new altered content body ';
+
+      // dpm($build['field_transfer_amount']);
+      // \Drupal::logger('backlist_node_view')->error( serialize($build['field_transfer_amount'][0]) );
+      // $build['field_transfer_amount']['#title'] = 'test - 999';
+      // $build['field_transfer_amount'][0]['#markup'] = 11111111;// = 100009;
+      // $build['field_transfer_amount'][0]['#prefix'] = '<div><b>'.t('สินค้า/ประเภท') . '</b>';
+      // $build['field_transfer_amount'][0]['#suffix'] = '</div>';
+
+      // $build['field_images']['#title'] = 'test - 999 - image';
+      // kint($build['field_images']); // 
+      // kint($build['field_images'][0]['#item']); // 
+
+      //   $form['images']= array(
+      //     '#type' => 'fieldset',
+      //     '#collapsible' => TRUE,
+      //     '#collapsed' => TRUE,
+      //     '#prefix' => '<div class="row" id="report-view-slick-lightbox"><div><b>'.$this->t('รูปภาพประกอบ').'</b></div>',
+      //     '#suffix' => '</div>',
+      // );
+
+      // 2. ชื่อบัญชี-นามสกุล ผู้รับเงินโอน
+      $sales_person_name = '';
+      $field_sales_person_name = $entity->get('field_sales_person_name')->getValue();
+      if(!empty($field_sales_person_name)){
+          $sales_person_name = $field_sales_person_name[0]['value'];
+      }
+
+      // 3. นามสกุลผู้รับเงินโอน
+      $sales_person_surname = '';
+      $field_sales_person_surname = $entity->get('field_sales_person_surname')->getValue();
+      if(!empty($field_sales_person_surname)){
+          $sales_person_surname = $field_sales_person_surname[0]['value'];
+      }
+
+      $build['field_sales_person_name']['#title'] = t('ชื่อ-นามสกุล บัญชีผู้รับเงินโอน');
+      $build['field_sales_person_name'][0]['#context']['value'] = $sales_person_name . ' ' . $sales_person_surname;
+      // kint( $build['field_sales_person_name'][0] );
+      // ชื่อบัญชี-นามสกุล ผู้รับเงินโอน
+      // field_sales_person_name
+
+      // นามสกุล ผู้รับเงินโอน
+      // $sales_person_surname = '';
+      // $field_sales_person_surname = $node->get('field_sales_person_surname')->getValue();
+      $build['field_sales_person_surname']['#access'] = FALSE;
+
+      $build['field_images']['#prefix'] = '<div class="row" id="report-view-slick-lightbox">';
+      $build['field_images']['#suffix'] = '</div>';
+
+
+      // ยอดเงิน
+      $transfer_amount = 0;
+      $field_transfer_amount = $entity->get('field_transfer_amount')->getValue();
+      if(!empty($field_transfer_amount)){
+        $transfer_amount = $field_transfer_amount[0]['value'];
+      }
+      // $build['field_transfer_amount'][0]['#markup'] = '3333';
+      // $build['field_transfer_amount']['#title'] = 'test - 999';
+      $build['field_transfer_amount'][0]['#markup'] = number_format($transfer_amount, 2, '.', ',');
+
+      // รูปภาพประกอบ
+      $images = array();
+      foreach ($entity->get('field_images')->getValue() as $imi=>$imv){
+        $build['field_images'][$imi]['#prefix'] = '<a href="'. Utils::get_file_url($imv['target_id']) .'" target="_blank" class="thumbnail">';
+        $build['field_images'][$imi]['#suffix'] = '</a>';
+      }
+
+
+      // $build['report_modal'] = [
+      //   '#type' => 'link',
+      //   '#title' => t('Report'),
+      //   '#url' => Url::fromRoute('modal_form_controller.form', ['type' => $entity->id()]),
+      //   '#attributes' => [
+      //     'class' => [
+      //       'use-ajax',
+      //       'button',
+      //     ],
+      //   ],
+      //   '#weight'=> -999,
+      // ];
+      break;
+    }
+  }
+}
+
+// &$form, FormStateInterface $form_state, $form_id
+function user_register_form_method(&$form, FormStateInterface $form_state) {
+  \Drupal::messenger()->addStatus(t('user_register_form_method'));
+}
+
+function backlist_page_attachments(array &$attachments) {
+  $attachments['#attached']['library'][] = 'backlist/backlist_js';
+}
+
+/*
+ * Preview image page CSAViewsForm   
+ */
+function backlist_preprocess_image_widget(&$variables) {
+  $element = $variables['element'];
+
+  $variables['attributes'] = array('class' => array('image-widget', 'js-form-managed-file', 'form-managed-file', 'clearfix'));
+
+  if (!empty($element['fids']['#value'])) {
+    $file = reset($element['#files']);
+    $element['file_' . $file->id()]['filename']['#suffix'] = ' <span class="file-size">(' . format_size($file->getSize()) . ')</span> ';
+    $file_variables = array(
+      'style_name' => $element['#preview_image_style'],
+      'uri' => $file->getFileUri(),
+    );
+
+    // Determine image dimensions.
+    if (isset($element['#value']['width']) && isset($element['#value']['height'])) {
+      $file_variables['width'] = $element['#value']['width'];
+      $file_variables['height'] = $element['#value']['height'];
+    } else {
+      $image = \Drupal::service('image.factory')->get($file->getFileUri());
+      if ($image->isValid()) {
+        $file_variables['width'] = $image->getWidth();
+        $file_variables['height'] = $image->getHeight();
+      }
+      else {
+        $file_variables['width'] = $file_variables['height'] = NULL;
+      }
+    }
+
+    $element['preview'] = array(
+      '#weight' => -10,
+      '#theme' => 'image_style',
+      '#width' => $file_variables['width'],
+      '#height' => $file_variables['height'],
+      '#style_name' => $file_variables['style_name'],
+      '#uri' => $file_variables['uri'],
+    );
+
+    // Store the dimensions in the form so the file doesn't have to be
+    // accessed again. This is important for remote files.
+    $element['width'] = array(
+      '#type' => 'hidden',
+      '#value' => $file_variables['width'],
+    );
+    $element['height'] = array(
+      '#type' => 'hidden',
+      '#value' => $file_variables['height'],
+    );
+  }
+
+  $variables['data'] = array();
+  foreach (\Drupal\Core\Render\Element::children($element) as $child) {
+    $variables['data'][$child] = $element[$child];
+  }
+}
+
+
+/**
+* Implements hook_form_FORM_ID_alter().
+*
+* Disable the required 'Alternative text' field in the CKEditor's image dialog.
+*/
+function backlist_form_editor_image_dialog_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['attributes']['alt']['#required'] = FALSE;
+}

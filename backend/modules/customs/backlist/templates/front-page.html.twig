@@ -1,0 +1,13 @@
+<div>
+  {% for backlist in backlists %}
+    <div>
+      <div>owner_id : {{backlist.owner_id}}</div>
+      <div>owner_name : {{backlist.owner_name}}</div>
+      <div>title : {{backlist.title}}</div>
+      <hr>
+    </div>
+  {% endfor %}
+  <div>
+    current_user_id: {{current_user_id}}
+  </div>
+</div>

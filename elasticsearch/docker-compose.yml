@@ -1,6 +1,5 @@
 version: '3'
 services:
-
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.1.1
     environment:
@@ -18,7 +17,9 @@ services:
         hard: -1
     ports:
       - 9200:9200
-    networks: ['stack']
+    # networks: ['stack']
+    # networks:
+    #   - elasticsearch-end-network
 
   kibana:
     image: docker.elastic.co/kibana/kibana:7.1.1
@@ -26,12 +27,14 @@ services:
       - ELASTICSEARCH_USERNAME=elastic
       - ELASTICSEARCH_PASSWORD=changeme
     ports: ['5601:5601']
-    networks: ['stack']
+    # networks: ['stack']
     links: ['elasticsearch']
     depends_on: ['elasticsearch']
+    # networks:
+    #   - elasticsearch-end-network
 
-networks:
-  stack: {}
-
-# volumes:
-#   elasticsearch-data:
+# networks:
+#   elasticsearch-end-network:
+#     external:
+#       name: project-name-network
+  

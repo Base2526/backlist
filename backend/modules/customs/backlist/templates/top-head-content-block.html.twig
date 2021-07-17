@@ -1,0 +1,14 @@
+<div class="top_head">
+  <div class="main-wrapper">
+    <div class="top-head-content">
+      <div id="navbar-top1" class="fs-mini">
+        {% if params["logged_in"] == true %}
+          <a class="top1-submenu" href="/{{ params['lang'] }}/profile">My account</a>
+          <a class="top1-submenu" href="/{{ params['lang'] }}/user/logout">Log out</a> 
+        {% else %}
+          <a class="top1-submenu" href="/{{ params['lang'] }}/user/login">{{ "Log in" | t }}</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>

@@ -64,7 +64,9 @@ const HomePage = (props) => {
         offset: 0,
         full_text_fields: JSON.stringify(selectedCheckboxes)
       }, {
-          headers: {'Authorization': `Basic YWRtaW46U29ta2lkMDU4ODQ4Mzkx`}
+          headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`}
+
+          // Basic YWRtaW46MTIzNA==
       })
       .then((response) => {
         let results = response.data
@@ -102,7 +104,7 @@ const HomePage = (props) => {
       key_word: '*',
       offset: currentPage - 1
     }, {
-        headers: {'Authorization': `Basic YWRtaW46U29ta2lkMDU4ODQ4Mzkx`}
+        headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`}
     })
     .then((response) => {
       let results = response.data
@@ -130,7 +132,6 @@ const HomePage = (props) => {
       setLoading(false)
     });
   }
-
 
   const toggleCheckbox = (data) => {
     let temp = [...selectedCheckboxes]
@@ -225,7 +226,7 @@ const HomePage = (props) => {
                               handleFormSearch(e)
                             }}
                             className={"div-button"}>
-                              ค้นหา { searchLoading && <CircularProgress size={10}/> }
+                            ค้นหา{ searchLoading && <CircularProgress size={10}/> }
                           </button>
 
                           {/* searchLoading */}
