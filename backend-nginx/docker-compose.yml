@@ -19,6 +19,7 @@ services:
       - "./php.ini:/etc/php/7.3/php.ini"
       - "./files:/var/www/html/sites/default/files"
 
+      # - "./AuthenticationManager.php:/var/www/html/core/lib/Drupal/Core/Authentication/AuthenticationManager.php"
       - "./www.conf:/etc/php/7.3/php-fpm.d/www.conf"
     environment:
       - DB_HOST=postgres
