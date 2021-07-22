@@ -10,7 +10,7 @@ docker exec -t -u postgres 27869c9f338b pg_dumpall -c > dump_`date +%d-%m-%Y"_"%
 
 
 Restore:
-cat backlist_21122020_2106.sql | docker exec -i 17f16008f1ac psql -Upostgres
+cat dump_14-07-2021_07_08_44.sql | docker exec -i 5196e7cbd06e psql -Upostgres
 
 Facebook Login
  - https://www.thaicreate.com/community/php-facebook-login-api-sdk-v5.html
@@ -519,4 +519,8 @@ Docker-compose share network
 https://stackoverflow.com/a/49055920/6373911
 
 https://stackoverflow.com/questions/52103155/reading-an-environment-variable-in-react-which-was-set-by-docker
+
+
+Drupal 8/9 Rest api
+https://niklan.net/blog/165
 
