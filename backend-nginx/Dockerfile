@@ -1,6 +1,7 @@
 FROM phpearth/php:7.3-nginx
 
 RUN apk update && apk upgrade
+RUN apk add curl-dev openssl-dev
 RUN apk add --no-cache  \
         git   \
         nano  \
@@ -39,5 +40,9 @@ RUN mkdir sites/default/files/sync && \
     
 # COPY modules sites/default/modules
 # RUN composer update
+
+# libmongoc SSL
+COPY php.ini /etc/php/7.3/php.ini
+RUN pecl config-set php_ini /etc/php.ini
 
 # CMD /etc/init.d/php7.3-fpm start && nginx -g 'daemon off;'
