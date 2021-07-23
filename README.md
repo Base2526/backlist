@@ -6,11 +6,11 @@ docker exec -t -u postgres your-db-container pg_dumpall -c > dump_`date +%d-%m-%
 docker exec -t -u postgres 49b9509f7e98 pg_dumpall -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
 
 
-docker exec -t -u postgres 5196e7cbd06e pg_dumpall -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
+docker exec -t -u postgres 63c4d0fde88f pg_dumpall -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
 
 
 Restore:
-cat dump_23-07-2021_02_40_46.sql | docker exec -i 63c4d0fde88f psql -Upostgres
+cat dump_23-07-2021_09_56_00.sql | docker exec -i 163ed811461a psql -Upostgres
 
 Facebook Login
  - https://www.thaicreate.com/community/php-facebook-login-api-sdk-v5.html
