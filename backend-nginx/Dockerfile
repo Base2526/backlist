@@ -39,7 +39,7 @@ RUN mkdir sites/default/files/sync && \
     chmod 777 sites/default/files/sync
     
 # COPY modules sites/default/modules
-# RUN composer update
+RUN composer install
 
 # libmongoc SSL
 COPY php.ini /etc/php/7.3/php.ini

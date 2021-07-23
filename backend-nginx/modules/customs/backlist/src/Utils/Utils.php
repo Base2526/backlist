@@ -3560,6 +3560,66 @@ class Utils extends ControllerBase {
     // (Utils::Twitter())->post("statuses/destroy/" . $twit_id ); 
   }
 
+  public static function MongoDB(){
+    $mongodb = ConfigPages::config('mongodb');
+
+    $mg_host     = $mongodb->get('field_mg_host')->getValue()[0]['value'];
+    $mg_port     = $mongodb->get('field_mg_port')->getValue()[0]['value'];
+    $mg_user     = $mongodb->get('field_mg_user')->getValue()[0]['value'];
+    $mg_pass     = $mongodb->get('field_mg_pass')->getValue()[0]['value'];
+    
+    // Initialize
+    return new \MongoDB\Client('mongodb://'. $mg_user .':'. $mg_pass .'@'. $mg_host .':'. $mg_port .'/?authSource=admin');
+
+  }
+
+  public static function SetupMongoDB(){
+    try{
+      $db = Utils::MongoDB()->bl;
+
+      $collections = $db->listCollections();
+      $collectionNames = [];
+      foreach ($collections as $collection) {
+        $collectionNames[] = $collection->getName();
+      }
+
+
+      /////////////////  bank_wallet /////////////////
+      $vid = 'bank_wallet';
+      $exists = in_array($vid, $collectionNames);
+      if(!$exists){
+        $collection = $db->createCollection($vid);
+        if($collection->ok){
+          dpm( "OK");
+        }
+      }
+      $bank_wallet = $db->bank_wallet;
+
+      $terms =\Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($vid);
+      foreach ($terms as $term) {
+        $filter = array('tid' => $term->tid );
+        if($bank_wallet->count($filter)){
+          $bank_wallet->updateOne(
+                          [ 'tid' => $term->tid ],
+                          [ '$set' => [ "name" => $term->name,  "weight" => $term->weight ]]
+                          );
+        }else{
+          $document = array( 
+            "tid" => $term->tid , 
+            "name" => $term->name,
+            "weight" => $term->weight
+          );
+          $bank_wallet->insertOne($document);
+        }
+      }
+      /////////////////  bank_wallet /////////////////
+
+
+    } catch (\Throwable $e) {
+      \Drupal::logger('SetupMongoDB')->notice($e->__toString());
+    }
+  }
+
   function test_send_email() {
     // $mailManager = \Drupal::service('plugin.manager.mail');
     // $module = 'backlist';
