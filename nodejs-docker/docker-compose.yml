@@ -58,8 +58,8 @@ services:
         condition: service_healthy
     healthcheck:
       disable: true
-    # networks:
-    #   - nodejs-network
+  #   networks:
+  #     - nodejs-network
 
   # mongo:
   #   # image: mongo:4
@@ -82,8 +82,8 @@ services:
   #     start_period: 10s
   #     timeout: 4s
   #     retries: 3
-  #   # networks:
-  #   #   - nodejs-network
+  #   networks:
+  #     - nodejs-network
   
   # mongo-express:
   #   image: mongo-express
@@ -100,8 +100,8 @@ services:
   #     - mongo
   #   ports:
   #     - "8888:8081"
-  #   # networks:
-  #     # - nodejs-network
+  #   networks:
+  #     - nodejs-network
 
 volumes:
   notused:
