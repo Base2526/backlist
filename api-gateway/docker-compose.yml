@@ -133,7 +133,7 @@ services:
     depends_on:
       - kong-database
     ports:
-      - "1337:1337"
+      - "80:1337"
 
   node_kong:
     image: node_kong

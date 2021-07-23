@@ -15,8 +15,9 @@ services:
       - "./settings.php:/var/www/html/sites/default/settings.php"
       - "./composer.json:/var/www/html/composer.json"
       - "./composer.lock:/var/www/html/composer.lock"
+      - "./info.php:/var/www/html/info.php"
       - "./vendor:/var/www/html/vendor"
-      - "./php.ini:/etc/php/7.3/php.ini"
+      # - "./php.ini:/etc/php/7.3/php.ini"
       - "./files:/var/www/html/sites/default/files"
 
       # - "./AuthenticationManager.php:/var/www/html/core/lib/Drupal/Core/Authentication/AuthenticationManager.php"
