@@ -58,4 +58,26 @@ var_dump($insertOneResult->getInsertedId());
  ex.
  $db = (new MongoDB\Client("mongodb://mongo1:27017,mongo2:27017,mongo3:27017", array("replicaSet" => "rs0")))->local; 
 */
+
+
+/*
+// Initialize
+$mongoClient = new MongoDB\Client('mongodb://root:example@143.198.223.146:27017/bl?authSource=admin');
+$dbs = $mongoClient->listDatabases();
+dpm($dbs);
+*/
+
+
+/*
+// Initialize
+$mongoClient = (new MongoDB\Client('mongodb://root:example@143.198.223.146:27017/?authSource=admin'))->local;;
+
+$collection = $mongoClient->startup_log;
+$cursor = $collection->find();
+   
+// iterate cursor to display title of documents	
+foreach ($cursor as $document) {
+  echo $document["startTimeLocal"] . "\n";
+}
+*/
 ?>
