@@ -5,6 +5,8 @@ const express = require('express');
 const sessions = require('express-session');
 const cookieParser = require("cookie-parser");
 
+const mongoStore = require('connect-mongo');
+
 const axios = require('axios')
 
 // this example uses express web framework so we know what longer build times
@@ -68,13 +70,30 @@ setTimeout(() => {
 // Api
 const app = express();
 
-const oneDay = 10000;// 1000 * 60 * 60 * 24;
+const connection = require("./connection")
+
+const {
+  MONGO_HOSTNAME_ENV,
+  MONGO_PORT_ENV,
+  MONGO_DATABASE_NAME_ENV,
+  MONGO_USERNAME_ENV,
+  MONGO_PASSWORD_ENV
+} = process.env;
+
+// mongoose.connect(`mongodb://${MONGO_USERNAME_ENV}:${MONGO_PASSWORD_ENV}@${MONGO_HOSTNAME_ENV}:${MONGO_PORT_ENV}/${MONGO_DATABASE_NAME_ENV}?authSource=admin`, {useNewUrlParser: true, useUnifiedTopology: true});
+
+
+const oneDay = 1000 * 60 * 60 * 24;
 //session middleware
 app.use(sessions({
     secret: "thisismysecrctekeyfhrgfgrfrty84fwir767",
     saveUninitialized:true,
     cookie: { maxAge: oneDay },
-    resave: false
+    resave: false,
+    // store: new mongoStore({ mongooseConnection: connection })
+    store: mongoStore.create({
+      mongoUrl: `mongodb://${MONGO_USERNAME_ENV}:${MONGO_PASSWORD_ENV}@${MONGO_HOSTNAME_ENV}:${MONGO_PORT_ENV}/${MONGO_DATABASE_NAME_ENV}?authSource=admin`
+  })
 }));
 
 // parsing the incoming data
@@ -276,7 +295,7 @@ app.get('/v1/healthz', function (req, res) {
 //   // await new kittySchema({ name: 'Silence' }).save()
 // });
 
-const connection = require("./connection")
+
 
 // app.post('/api/___follow_up', async(req, res) => {
 app.get('/documents', (req, res, next) =>{
