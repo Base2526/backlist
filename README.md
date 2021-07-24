@@ -524,3 +524,18 @@ https://stackoverflow.com/questions/52103155/reading-an-environment-variable-in-
 Drupal 8/9 Rest api
 https://niklan.net/blog/165
 
+
+
+MongoDB
+// dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
+Backup
+- mongodump --host 143.198.223.146 --port 27017 --db bl  --authenticationDatabase admin --username root --password example --out ./docker-entrypoint-initdb.d/backup/
+
+- docker exec 8c61e704cee2 sh -c 'mongodump --host 143.198.223.146 --port 27017 --db bl  --authenticationDatabase admin --username root --password example --out ./docker-entrypoint-initdb.d/backup/'
+
+- docker exec 8c61e704cee2 sh -c 'mongodump --host 143.198.223.146 --port 27017 --db bl  --authenticationDatabase admin --username root --password example --archive' > db.dump
+
+
+Restore
+- docker exec -i 8c61e704cee2 sh -c 'mongorestore --host localhost --port 27017 --db bl  --authenticationDatabase admin --username root --password example --archive' < db.dump
+

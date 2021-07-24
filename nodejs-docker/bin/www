@@ -57,6 +57,7 @@ io.on('connection', async (socket) => {
   console.log(handshake.query.unique_id)
 
   console.log(`Socket ${socket.id} connection`)
+  console.log(socket)
 
   socket.on('disconnect', () => {
   });
