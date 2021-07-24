@@ -44,10 +44,10 @@ services:
       - MONGO_DATABASE_NAME=bl
 
       # cloud mongodb
-      - MONGO_HOSTNAME_ENV=143.198.223.146
+      # - MONGO_HOSTNAME_ENV=143.198.223.146
 
       # cloud local กรณีเรารัน production เราจะรัน nodejs + mongo เครื่องเดียวกันดังนั้นเราจึง อ้าง mongo ใน docker-compose เดียวกันได้เลย
-      # - MONGO_HOSTNAME_ENV=mongo
+      - MONGO_HOSTNAME_ENV=mongo
       
       - MONGO_PORT_ENV=27017
       - MONGO_DATABASE_NAME_ENV=bl
@@ -56,55 +56,55 @@ services:
 
       - DRUPAL_API_ENV=http://api.banlist.info:8090
       - DRUPAL_AUTHORIZATION_ENV=YWRtaW46U29ta2lkMDU4ODQ4Mzkx # Authorization
-    # depends_on:
-    #   mongo:
-    #     condition: service_healthy
+    depends_on:
+      mongo:
+        condition: service_healthy
     healthcheck:
       disable: true
     networks:
       - nodejs-network
 
-  # mongo:
-  #   # image: mongo:4
-  #   image: "mongo"
-  #   ports:
-  #     - "27017:27017"
-  #   environment:
-  #     - MONGO_INITDB_ROOT_USERNAME=root
-  #     - MONGO_INITDB_ROOT_PASSWORD=example
-  #     - MONGO_INITDB_DATABASE=bl
-  #   volumes:
-  #     # this is an example of how to seed data in mongo containers. The Docker Hub mongo README
-  #     # explains that any data dropped into the docker-entrypoint-initdb.d directory will be injected 
-  #     # into mongo at startup. This is also a common pattern for other db solutions like mysql or psql
-  #     - ./database/seed.js:/docker-entrypoint-initdb.d/seed.js
-  #   # we need to check health here, so that docker-compose will wait for a healthy mongo before it starts node
-  #   healthcheck:
-  #     test: "[ `echo 'db.runCommand(\"ping\").ok' | mongo localhost/bl --quiet` ] && echo 0 || echo 1"
-  #     interval: 5s
-  #     start_period: 10s
-  #     timeout: 4s
-  #     retries: 3
-  #   networks:
-  #     - nodejs-network
+  mongo:
+    # image: mongo:4
+    image: "mongo"
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+      - MONGO_INITDB_DATABASE=bl
+    volumes:
+      # this is an example of how to seed data in mongo containers. The Docker Hub mongo README
+      # explains that any data dropped into the docker-entrypoint-initdb.d directory will be injected 
+      # into mongo at startup. This is also a common pattern for other db solutions like mysql or psql
+      - ./database:/docker-entrypoint-initdb.d
+    # we need to check health here, so that docker-compose will wait for a healthy mongo before it starts node
+    healthcheck:
+      test: "[ `echo 'db.runCommand(\"ping\").ok' | mongo localhost/bl --quiet` ] && echo 0 || echo 1"
+      interval: 5s
+      start_period: 10s
+      timeout: 4s
+      retries: 3
+    networks:
+      - nodejs-network
   
-  # mongo-express:
-  #   image: mongo-express
-  #   environment:
-  #     - ME_CONFIG_MONGODB_SERVER=mongo
-  #     - ME_CONFIG_MONGODB_PORT=27017
-  #     - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
-  #     - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
-  #     - ME_CONFIG_MONGODB_AUTH_USERNAME=root
-  #     - ME_CONFIG_MONGODB_AUTH_PASSWORD=example
-  #     - ME_CONFIG_BASICAUTH_USERNAME=dev
-  #     - ME_CONFIG_BASICAUTH_PASSWORD=dev
-  #   depends_on:
-  #     - mongo
-  #   ports:
-  #     - "8888:8081"
-  #   networks:
-  #     - nodejs-network
+  mongo-express:
+    image: mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+      - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
+      - ME_CONFIG_MONGODB_AUTH_USERNAME=root
+      - ME_CONFIG_MONGODB_AUTH_PASSWORD=example
+      - ME_CONFIG_BASICAUTH_USERNAME=dev
+      - ME_CONFIG_BASICAUTH_PASSWORD=dev
+    depends_on:
+      - mongo
+    ports:
+      - "8888:8081"
+    networks:
+      - nodejs-network
 
 volumes:
   notused:
