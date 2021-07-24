@@ -3614,6 +3614,36 @@ class Utils extends ControllerBase {
       }
       /////////////////  bank_wallet /////////////////
 
+      /////////////////  gender /////////////////
+      $vid = 'gender';
+      $exists = in_array($vid, $collectionNames);
+      if(!$exists){
+        $collection = $db->createCollection($vid);
+        if($collection->ok){
+          dpm( "OK");
+        }
+      }
+      $gender = $db->gender;
+
+      $terms =\Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($vid);
+      foreach ($terms as $term) {
+        $filter = array('tid' => $term->tid );
+        if($gender->count($filter)){
+          $gender->updateOne(
+                          [ 'tid' => $term->tid ],
+                          [ '$set' => [ "name" => $term->name,  "weight" => $term->weight ]]
+                          );
+        }else{
+          $document = array( 
+            "tid" => $term->tid , 
+            "name" => $term->name,
+            "weight" => $term->weight
+          );
+          $gender->insertOne($document);
+        }
+      }
+      /////////////////  gender /////////////////
+
 
     } catch (\Throwable $e) {
       \Drupal::logger('SetupMongoDB')->notice($e->__toString());

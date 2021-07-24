@@ -16,8 +16,11 @@
     "test-wait-debuger": "cross-env NODE_ENV=test PORT=8081 mocha --no-timeouts --exit --inspect-brk=0.0.0.0:9230"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
     "express": "^4.17.1",
+    "express-session": "^1.17.2",
     "http": "^0.0.1-security",
     "mongodb": "^3.6.3",
     "mongojs": "^3.1.0",

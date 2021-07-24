@@ -2,6 +2,11 @@
 // optimized for Docker image
 
 const express = require('express');
+const sessions = require('express-session');
+const cookieParser = require("cookie-parser");
+
+const axios = require('axios')
+
 // this example uses express web framework so we know what longer build times
 // do and how Dockerfile layer ordering matters. If you mess up Dockerfile ordering
 // you'll see long build times on every code change + build. If done correctly,
@@ -62,21 +67,160 @@ setTimeout(() => {
 
 // Api
 const app = express();
+
+const oneDay = 10000;// 1000 * 60 * 60 * 24;
+//session middleware
+app.use(sessions({
+    secret: "thisismysecrctekeyfhrgfgrfrty84fwir767",
+    saveUninitialized:true,
+    cookie: { maxAge: oneDay },
+    resave: false
+}));
+
+// parsing the incoming data
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+//serving public file
+app.use(express.static(__dirname));
+
+// cookie parser middleware
+app.use(cookieParser());
+
 app.use(morgan('common'));
 app.get('/', function (req, res) {
-  console.log(`process.env = ${process.env}`)
-  res.send('Hello Docker World\n');
+  // console.log(`process.env = ${process.env}`)
+  // console.log(process.env)
+  // console.log(req)
+
+  res.send(`Hello Docker World\n`);
 });
 
-app.get('/healthz', function (req, res) {
+app.post('/v1/login',  async(req, res, next)=> {
+
+  let user = req.body.user;
+  let pass = req.body.pass;
+
+  if(user === undefined && pass === undefined){
+    return res.send({ status: false, message:"User & Pass is empty" });
+  }else if(user === undefined){
+    return res.send({ status: false, message:"User is empty" });
+  }else if(pass === undefined){
+    return res.send({ status: false, message:"Pass is empty" });
+  }
+
+  // http://api.banlist.info:8090/api/v1/login?_format=json
+  const response = await axios.post(`${process.env.DRUPAL_API_ENV}/api/v1/login?_format=json`, {
+                                "name":user, 
+                                "password": pass, 
+                                "unique_id":"aaa"
+                              },{
+                                headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
+                              });
+
+  let data = response.data
+  
+  if(data.result){
+    req.session.userId    = data.user.uid;
+    req.session.basicAuth = data.user.basic_auth;
+    req.session.session   = data.user.session;
+  }
+  
+  console.log(data.result)
+  return res.send(data);
+});
+
+app.post('/v1/reset_password',  async(req, res, next)=> {
+
+  let user = req.body.user;
+  let pass = req.body.pass;
+
+  if(user === undefined && pass === undefined){
+    return res.send({ status: false, message:"User & Pass is empty" });
+  }else if(user === undefined){
+    return res.send({ status: false, message:"User is empty" });
+  }else if(pass === undefined){
+    return res.send({ status: false, message:"Pass is empty" });
+  }
+
+  // http://api.banlist.info:8090/api/v1/login?_format=json
+  const response = await axios.post(`${process.env.DRUPAL_API_ENV}/api/v1/reset_password?_format=json`, {
+                                "name":user, 
+                                "password": pass, 
+                                "unique_id":"aaa"
+                              },{
+                                headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
+                              });
+
+  let data = response.data
+  
+  // if(data.result){
+  //   req.session.userId    = data.user.uid;
+  //   req.session.basicAuth = data.user.basic_auth;
+  //   req.session.session   = data.user.session;
+  // }
+  
+  console.log(data.result)
+  return res.send(data);
+});
+
+app.post('/v1/logout', (req, res, next) =>{
+  req.session.destroy();
+
+  res.send({"result": true});
+});
+
+app.post('/v1/get_html',  async(req, res, next)=> {
+
+  let nid = req.body.nid;
+
+  if(nid === undefined){
+    return res.send({ status: false, message:"NID is empty" });
+  }
+
+  // http://api.banlist.info:8090/api/v1/login?_format=json
+  const response = await axios.post(`${process.env.DRUPAL_API_ENV}/api/v1/get_html?_format=json`, {
+                                "nid":nid
+                              },{
+                                headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
+                              });
+  let data = response.data
+  
+  return res.send(data);
+});
+
+app.post('/v1/search',  async(req, res, next)=> {
+
+  let key_word = req.body.key_word;
+
+  if(key_word === undefined){
+    return res.send({ status: false, message:"Keyword is empty" });
+  }
+
+  // http://api.banlist.info:8090/api/v1/login?_format=json
+  const response = await axios.post(`${process.env.DRUPAL_API_ENV}/api/v1/search?_format=json`, {
+                                "key_word":key_word
+                              },{
+                                headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
+                              });
+  let data = response.data
+  
+  return res.send(data);
+});
+
+app.get('/v1/healthz', function (req, res) {
 	// do app logic here to determine if app is truly healthy
 	// you should return 200 if healthy, and anything else will fail
 	// if you want, you should be able to restrict this to localhost (include ipv4 and ipv6)
+
 
   let html = `<div> \
                 <h1>Nodejs banlist status</h1> \ 
                 <ul> \
                   <li>Mongoose connection readyState : ${mongoose.STATES[mongoose.connection.readyState]}</li> \
+                </ul> \
+                <ul> \
+                  <li>User login, userId: ${req.session.userId} basicAuth: ${req.session.basicAuth} session: ${req.session.session}  --- ${req.session.cookie.expires}</li> \
                 </ul> \
               </div>`;
 
@@ -116,7 +260,7 @@ app.get('/healthz', function (req, res) {
 
 
 // getting-started.js
-const kittySchema       = require('./models/kittySchema');
+// const kittySchema       = require('./models/kittySchema');
 // const mongoose = require('mongoose');
 // mongoose.connect('mongodb://root:example@mongo:27017/bl?authSource=admin', {useNewUrlParser: true, useUnifiedTopology: true});
 

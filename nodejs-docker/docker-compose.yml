@@ -53,13 +53,16 @@ services:
       - MONGO_DATABASE_NAME_ENV=bl
       - MONGO_USERNAME_ENV=root
       - MONGO_PASSWORD_ENV=example
-    depends_on:
-      mongo:
-        condition: service_healthy
+
+      - DRUPAL_API_ENV=http://api.banlist.info:8090
+      - DRUPAL_AUTHORIZATION_ENV=YWRtaW46U29ta2lkMDU4ODQ4Mzkx # Authorization
+    # depends_on:
+    #   mongo:
+    #     condition: service_healthy
     healthcheck:
       disable: true
-  #   networks:
-  #     - nodejs-network
+    networks:
+      - nodejs-network
 
   # mongo:
   #   # image: mongo:4
@@ -105,8 +108,8 @@ services:
 
 volumes:
   notused:
-
-# networks:
-#   nodejs-network:
-#     external:
-#       name: banlist-network
+    
+networks:
+  nodejs-network:
+    external:
+      name: banlist-network

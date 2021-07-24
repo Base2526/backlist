@@ -274,67 +274,7 @@ function backlist_user_insert(EntityInterface $entity) {
 
         // $collection->deleteOne(['topic_name' => 'AbiInc']);
 
-        // -------------
-
-        $db = Utils::MongoDB()->bl;
-
-        $collections = $db->listCollections();
-        $collectionNames = [];
-        foreach ($collections as $collection) {
-          $collectionNames[] = $collection->getName();
-        }
-
-        $exists = in_array($entity->bundle(), $collectionNames);
-
-        if(!$exists){
-          $collection = $db->createCollection($entity->bundle());
-          if($collection->ok){
-            dpm( "OK");
-          }
-        }
-
-        $user = $db->user;
-        $filter = array('uid' => $entity->id() );
-
-        $email   = $entity->getEmail();
         
-        $name = "";
-        $field_display_name = $entity->get('field_display_name')->getValue();
-        if(!empty($field_display_name)){
-          $name = $field_display_name[0]['value'];
-        }
-        $image_url = '';  
-        if (!$entity->get('user_picture')->isEmpty()) {
-          $image_url = file_create_url($entity->get('user_picture')->entity->getFileUri());
-        }
-
-        $gender  = 0;
-        $field_gender = $entity->get('field_gender')->getValue();
-        if(!empty($field_gender)){
-          $gender  = $field_gender[0]['target_id'];
-        }
-
-        $type_login = 0;
-        $field_type_login = $entity->get('field_type_login')->getValue();
-        if(!empty($field_type_login)){
-          $type_login  = $field_type_login[0]['target_id'];
-        }
-
-        if($user->count($filter)){
-          $collection->deleteOne(['uid' => $entity->id()]);
-        }
-
-        $document = array( 
-          "uid" => $entity->id(), 
-          'email'=>$email,
-          "name" => $name,
-          "image_url"=>$image_url,
-          "gender"=>$gender,
-          "type_login"=>$type_login
-        );
-        $user->insertOne($document);
-        
-        // ------------
 
         /*
           website : 28
@@ -356,11 +296,14 @@ function backlist_user_insert(EntityInterface $entity) {
           $entity->addRole(AccountInterface::AUTHENTICATED_ROLE);
         }
         $entity->save();
+
+
+        user_iu($entity);
         break;
       }
     }
   } catch (\Throwable $e) {
-    \Drupal::logger('backlist_user_update')->notice($e->__toString());
+    \Drupal::logger('backlist_user_insert')->notice($e->__toString());
   }
 }
 
@@ -401,66 +344,8 @@ function backlist_user_update(EntityInterface $entity){
         curl_close($ch);
         */
 
-        $db = Utils::MongoDB()->bl;
 
-        $collections = $db->listCollections();
-        $collectionNames = [];
-        foreach ($collections as $collection) {
-          $collectionNames[] = $collection->getName();
-        }
-
-        $exists = in_array($entity->bundle(), $collectionNames);
-
-        if(!$exists){
-          $collection = $db->createCollection($entity->bundle());
-          if($collection->ok){
-            dpm( "OK");
-          }
-        }
-
-        $user = $db->user;
-        $filter = array('uid' => $entity->id() );
-
-        $email   = $entity->getEmail();
-        
-        $name = "";
-        $field_display_name = $entity->get('field_display_name')->getValue();
-        if(!empty($field_display_name)){
-          $name = $field_display_name[0]['value'];
-        }
-        $image_url = '';  
-        if (!$entity->get('user_picture')->isEmpty()) {
-          $image_url = file_create_url($entity->get('user_picture')->entity->getFileUri());
-        }
-
-        $gender  = 0;
-        $field_gender = $entity->get('field_gender')->getValue();
-        if(!empty($field_gender)){
-          $gender  = $field_gender[0]['target_id'];
-        }
-
-        $type_login = 0;
-        $field_type_login = $entity->get('field_type_login')->getValue();
-        if(!empty($field_type_login)){
-          $type_login  = $field_type_login[0]['target_id'];
-        }
-
-        if($user->count($filter)){
-          $user->updateOne(
-                          [ 'uid' => $entity->id() ],
-                          [ '$set' => ['email'=>$email, "name" => $name, "image_url"=>$image_url, "gender"=>$gender, "type_login"=>$type_login ]]
-                          );
-        }else{
-          $document = array( 
-            "uid" => $entity->id(), 
-            'email'=>$email,
-            "name" => $name,
-            "image_url"=>$image_url,
-            "gender"=>$gender,
-            "type_login"=>$type_login
-          );
-          $user->insertOne($document);
-        }
+        user_iu($entity);
 
         // ------------
         break;
@@ -468,6 +353,69 @@ function backlist_user_update(EntityInterface $entity){
     }
   } catch (\Throwable $e) {
     \Drupal::logger('backlist_user_update')->notice($e->__toString());
+  }
+}
+
+function user_iu(EntityInterface $entity){
+  $db = Utils::MongoDB()->bl;
+
+  $collections = $db->listCollections();
+  $collectionNames = [];
+  foreach ($collections as $collection) {
+    $collectionNames[] = $collection->getName();
+  }
+
+  $exists = in_array($entity->bundle(), $collectionNames);
+
+  if(!$exists){
+    $collection = $db->createCollection($entity->bundle());
+    if($collection->ok){
+      dpm( "OK");
+    }
+  }
+
+  $user = $db->user;
+  $filter = array('uid' => $entity->id() );
+
+  $email   = $entity->getEmail();
+  
+  $name = "";
+  $field_display_name = $entity->get('field_display_name')->getValue();
+  if(!empty($field_display_name)){
+    $name = $field_display_name[0]['value'];
+  }
+  $image_url = "";  
+  if (!$entity->get('user_picture')->isEmpty()) {
+    $image_url = file_create_url($entity->get('user_picture')->entity->getFileUri());
+  }
+
+  $gender  = 0;
+  $field_gender = $entity->get('field_gender')->getValue();
+  if(!empty($field_gender)){
+    $gender  = $field_gender[0]['target_id'];
+  }
+
+  $type_login = 0;
+  $field_type_login = $entity->get('field_type_login')->getValue();
+  if(!empty($field_type_login)){
+    $type_login  = $field_type_login[0]['target_id'];
+  }
+
+  if($user->count($filter)){
+    $user->updateOne(
+                    [ 'uid' => $entity->id() ],
+                    [ '$set' => ['email'=>$email, "name" => $name, "image_url"=>$image_url, "gender"=>$gender, "type_login"=>$type_login ]]
+                    );
+  }else{
+    $document = array( 
+      "uid" => $entity->id(), 
+      'email'=>$email,
+      "name" => $name,
+      "image_url"=>$image_url,
+      "gender"=>$gender,
+      "type_login"=>$type_login
+    );
+    $user->insertOne($document);
   }
 }
 
@@ -940,6 +888,48 @@ function backlist_taxonomy_term_update(EntityInterface $entity) {
         }
       } catch (\Throwable $e) {
         \Drupal::logger('backlist_taxonomy_term_update: bank_wallet')->notice($e->__toString());
+      }
+
+      break;
+    }
+
+    case 'gender':{
+      try{
+        $db = Utils::MongoDB()->bl;
+
+        $collections = $db->listCollections();
+        $collectionNames = [];
+        foreach ($collections as $collection) {
+          $collectionNames[] = $collection->getName();
+        }
+
+        $exists = in_array($entity->bundle(), $collectionNames);
+
+        if(!$exists){
+          $collection = $db->createCollection($entity->bundle());
+          if($collection->ok){
+            dpm( "OK");
+          }
+        }
+
+        $gender = $db->gender;
+        $filter = array('tid' => $entity->id() );
+
+        if($gender->count($filter)){
+          $gender->updateOne(
+                          [ 'tid' => $entity->id() ],
+                          [ '$set' => [ "name" => $entity->label(),  "weight" => $entity->getWeight() ]]
+                          );
+        }else{
+          $document = array( 
+            "tid" => $entity->id(), 
+            "name" => $entity->label(),
+            "weight" => $entity->getWeight()
+          );
+          $gender->insertOne($document);
+        }
+      } catch (\Throwable $e) {
+        \Drupal::logger('backlist_taxonomy_term_update: gender')->notice($e->__toString());
       }
 
       break;
