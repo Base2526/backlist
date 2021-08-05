@@ -1,0 +1,28 @@
+langcode: th
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_bank_wallet
+    - paragraphs.paragraphs_type.item_merchant_bank_account
+    - taxonomy.vocabulary.bank_wallet
+id: paragraph.item_merchant_bank_account.field_bank_wallet
+field_name: field_bank_wallet
+entity_type: paragraph
+bundle: item_merchant_bank_account
+label: 'ธนาคาร/ระบบ Wallet'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      bank_wallet: bank_wallet
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

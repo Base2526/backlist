@@ -1,0 +1,9 @@
+langcode: th
+status: true
+dependencies: {  }
+id: item_merchant_bank_account
+label: บัญชีธนาคารคนขาย
+icon_uuid: null
+icon_default: null
+description: บัญชีธนาคารคนขาย
+behavior_plugins: {  }

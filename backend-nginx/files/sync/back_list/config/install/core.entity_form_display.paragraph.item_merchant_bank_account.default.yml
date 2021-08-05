@@ -1,0 +1,29 @@
+langcode: th
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.item_merchant_bank_account.field_bank_account
+    - field.field.paragraph.item_merchant_bank_account.field_bank_wallet
+    - paragraphs.paragraphs_type.item_merchant_bank_account
+id: paragraph.item_merchant_bank_account.default
+targetEntityType: paragraph
+bundle: item_merchant_bank_account
+mode: default
+content:
+  field_bank_account:
+    weight: 0
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+    region: content
+  field_bank_wallet:
+    weight: 1
+    settings: {  }
+    third_party_settings: {  }
+    type: options_select
+    region: content
+hidden:
+  created: true
+  status: true

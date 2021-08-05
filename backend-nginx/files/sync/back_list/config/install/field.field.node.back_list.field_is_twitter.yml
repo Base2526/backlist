@@ -1,0 +1,22 @@
+langcode: th
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_is_twitter
+    - node.type.back_list
+id: node.back_list.field_is_twitter
+field_name: field_is_twitter
+entity_type: node
+bundle: back_list
+label: 'Is twitter'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

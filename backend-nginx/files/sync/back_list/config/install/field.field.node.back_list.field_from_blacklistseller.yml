@@ -1,0 +1,22 @@
+langcode: th
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_from_blacklistseller
+    - node.type.back_list
+id: node.back_list.field_from_blacklistseller
+field_name: field_from_blacklistseller
+entity_type: node
+bundle: back_list
+label: 'From Blacklistseller'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

@@ -1,0 +1,7 @@
+langcode: th
+status: true
+dependencies: {  }
+name: 'เป็นตัวบอกว่า content banlist ถูกสร้างจากไหน'
+vid: ban_list_channel
+description: 'เป็นตัวบอกว่า content banlist ถูกสร้างจากไหน เช่น หน้าเว็บ, api'
+weight: 0

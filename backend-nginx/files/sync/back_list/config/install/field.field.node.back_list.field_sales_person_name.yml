@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_sales_person_name
+    - node.type.back_list
+id: node.back_list.field_sales_person_name
+field_name: field_sales_person_name
+entity_type: node
+bundle: back_list
+label: 'ชื่อบัญชี ผู้รับเงินโอน'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

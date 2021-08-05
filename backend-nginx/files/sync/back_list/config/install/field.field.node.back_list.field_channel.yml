@@ -1,0 +1,32 @@
+langcode: th
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_channel
+    - node.type.back_list
+    - taxonomy.vocabulary.ban_list_channel
+  content:
+    - 'taxonomy_term:ban_list_channel:230a4695-89c6-46df-8c59-045a20d2592d'
+id: node.back_list.field_channel
+field_name: field_channel
+entity_type: node
+bundle: back_list
+label: ถูกสร้างผ่านช่องทาง
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    target_uuid: 230a4695-89c6-46df-8c59-045a20d2592d
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      ban_list_channel: ban_list_channel
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

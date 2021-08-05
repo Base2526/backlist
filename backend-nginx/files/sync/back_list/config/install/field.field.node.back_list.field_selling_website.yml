@@ -1,0 +1,18 @@
+langcode: th
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_selling_website
+    - node.type.back_list
+id: node.back_list.field_selling_website
+field_name: field_selling_website
+entity_type: node
+bundle: back_list
+label: เว็บไซด์ประกาศขายของ
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
