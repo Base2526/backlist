@@ -356,28 +356,69 @@ function backlist_user_update(EntityInterface $entity){
   }
 }
 
+function backlist_user_delete(EntityInterface $entity) {
+  \Drupal::logger('backlist_user_delete')->notice($entity->bundle());
+
+  try {
+    switch($entity->bundle()){
+      case 'user':{
+      
+        $db = Utils::MongoDB()->bl;
+
+        $bundle = 'users';
+        $collections = $db->listCollections();
+        $collectionNames = [];
+        foreach ($collections as $collection) {
+          $collectionNames[] = $collection->getName();
+        }
+      
+        $exists = in_array($bundle, $collectionNames);
+      
+        if(!$exists){
+          $collection = $db->createCollection($bundle);
+          if($collection->ok){
+            dpm( "OK");
+          }
+        }
+
+        $users = $db->users;
+        $filter = array('uid' => $entity->id() );
+        if($users->count($filter)){
+          $users->deleteOne( $filter );
+        }
+        
+        break;
+      }
+    }
+  } catch (\Throwable $e) {
+    \Drupal::logger('backlist_user_delete')->notice($e->__toString());
+  }
+}
+
 function user_iu(EntityInterface $entity){
   $db = Utils::MongoDB()->bl;
 
+  $bundle = 'users';
   $collections = $db->listCollections();
   $collectionNames = [];
   foreach ($collections as $collection) {
     $collectionNames[] = $collection->getName();
   }
 
-  $exists = in_array($entity->bundle(), $collectionNames);
+  $exists = in_array($bundle, $collectionNames);
 
   if(!$exists){
-    $collection = $db->createCollection($entity->bundle());
+    $collection = $db->createCollection($bundle);
     if($collection->ok){
       dpm( "OK");
     }
   }
 
-  $user = $db->user;
+  $users = $db->users;
   $filter = array('uid' => $entity->id() );
 
   $email   = $entity->getEmail();
+  $pass    = $entity->getPassword();
   
   $name = "";
   $field_display_name = $entity->get('field_display_name')->getValue();
@@ -401,21 +442,22 @@ function user_iu(EntityInterface $entity){
     $type_login  = $field_type_login[0]['target_id'];
   }
 
-  if($user->count($filter)){
-    $user->updateOne(
+  if($users->count($filter)){
+    $users->updateOne(
                     [ 'uid' => $entity->id() ],
-                    [ '$set' => ['email'=>$email, "name" => $name, "image_url"=>$image_url, "gender"=>$gender, "type_login"=>$type_login ]]
+                    [ '$set' => ['email'=>$email, "name" => $name, "pass"=>$pass, "image_url"=>$image_url, "gender"=>$gender, "type_login"=>$type_login ]]
                     );
   }else{
     $document = array( 
-      "uid" => $entity->id(), 
-      'email'=>$email,
-      "name" => $name,
+      "uid"     => $entity->id(), 
+      'email'   => $email,
+      "name"    => $name,
+      "pass"    => $pass,
       "image_url"=>$image_url,
-      "gender"=>$gender,
+      "gender"  =>$gender,
       "type_login"=>$type_login
     );
-    $user->insertOne($document);
+    $users->insertOne($document);
   }
 }
 
