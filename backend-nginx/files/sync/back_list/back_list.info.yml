@@ -1,0 +1,21 @@
+name: รายงานใหม่
+description: 'Provides รายงานใหม่ content type and related configuration. รายชื่อ ban list ทั้งหมด'
+type: module
+core_version_requirement: '^8.9 || ^9'
+dependencies:
+  - comment
+  - datetime
+  - elasticsearch_connector
+  - entity_reference_revisions
+  - field
+  - file
+  - image
+  - language
+  - menu_ui
+  - node
+  - paragraphs
+  - path
+  - search_api
+  - taxonomy
+  - text
+  - user

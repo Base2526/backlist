@@ -1,0 +1,58 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.back_list.body
+    - field.field.node.back_list.comment
+    - field.field.node.back_list.field_channel
+    - field.field.node.back_list.field_from_blacklistseller
+    - field.field.node.back_list.field_id_blacklistseller
+    - field.field.node.back_list.field_id_card_number
+    - field.field.node.back_list.field_images
+    - field.field.node.back_list.field_is_twitter
+    - field.field.node.back_list.field_merchant_bank_account
+    - field.field.node.back_list.field_sales_person_name
+    - field.field.node.back_list.field_sales_person_surname
+    - field.field.node.back_list.field_selling_website
+    - field.field.node.back_list.field_transfer_amount
+    - field.field.node.back_list.field_transfer_date
+    - field.field.node.back_list.field_twit_id
+    - node.type.back_list
+  module:
+    - text
+    - user
+id: node.back_list.teaser
+targetEntityType: node
+bundle: back_list
+mode: teaser
+content:
+  body:
+    label: hidden
+    type: text_summary_or_trimmed
+    weight: 101
+    settings:
+      trim_length: 600
+    third_party_settings: {  }
+    region: content
+  links:
+    weight: 100
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+hidden:
+  comment: true
+  field_channel: true
+  field_from_blacklistseller: true
+  field_id_blacklistseller: true
+  field_id_card_number: true
+  field_images: true
+  field_is_twitter: true
+  field_merchant_bank_account: true
+  field_sales_person_name: true
+  field_sales_person_surname: true
+  field_selling_website: true
+  field_transfer_amount: true
+  field_transfer_date: true
+  field_twit_id: true
+  langcode: true

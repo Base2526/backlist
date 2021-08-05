@@ -1,0 +1,20 @@
+langcode: th
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_transfer_date
+    - node.type.back_list
+  module:
+    - datetime
+id: node.back_list.field_transfer_date
+field_name: field_transfer_date
+entity_type: node
+bundle: back_list
+label: วันโอนเงิน
+description: วันโอนเงิน
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

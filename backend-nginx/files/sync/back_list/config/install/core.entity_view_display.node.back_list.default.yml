@@ -1,0 +1,128 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_display.comment.comment.default
+    - field.field.node.back_list.body
+    - field.field.node.back_list.comment
+    - field.field.node.back_list.field_channel
+    - field.field.node.back_list.field_from_blacklistseller
+    - field.field.node.back_list.field_id_blacklistseller
+    - field.field.node.back_list.field_id_card_number
+    - field.field.node.back_list.field_images
+    - field.field.node.back_list.field_is_twitter
+    - field.field.node.back_list.field_merchant_bank_account
+    - field.field.node.back_list.field_sales_person_name
+    - field.field.node.back_list.field_sales_person_surname
+    - field.field.node.back_list.field_selling_website
+    - field.field.node.back_list.field_transfer_amount
+    - field.field.node.back_list.field_transfer_date
+    - field.field.node.back_list.field_twit_id
+    - image.style.large
+    - node.type.back_list
+  module:
+    - comment
+    - datetime
+    - entity_reference_revisions
+    - image
+    - text
+    - user
+id: node.back_list.default
+targetEntityType: node
+bundle: back_list
+mode: default
+content:
+  body:
+    label: above
+    type: text_default
+    weight: 5
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+  comment:
+    weight: 9
+    label: above
+    settings:
+      view_mode: default
+      pager_id: 0
+    third_party_settings: {  }
+    type: comment_default
+    region: content
+  field_id_card_number:
+    weight: 2
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+    region: content
+  field_images:
+    weight: 8
+    label: above
+    settings:
+      image_style: large
+      image_link: ''
+    third_party_settings: {  }
+    type: image
+    region: content
+  field_merchant_bank_account:
+    type: entity_reference_revisions_entity_view
+    weight: 6
+    label: above
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    region: content
+  field_sales_person_name:
+    weight: 0
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+    region: content
+  field_sales_person_surname:
+    weight: 1
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+    region: content
+  field_selling_website:
+    weight: 7
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+    region: content
+  field_transfer_amount:
+    weight: 3
+    label: above
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 2
+      prefix_suffix: true
+    third_party_settings: {  }
+    type: number_decimal
+    region: content
+  field_transfer_date:
+    weight: 4
+    label: above
+    settings:
+      format_type: medium
+      timezone_override: ''
+    third_party_settings: {  }
+    type: datetime_default
+    region: content
+hidden:
+  field_channel: true
+  field_from_blacklistseller: true
+  field_id_blacklistseller: true
+  field_is_twitter: true
+  field_twit_id: true
+  langcode: true
+  links: true

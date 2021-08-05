@@ -1,0 +1,10 @@
+langcode: th
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.ban_list_channel
+id: taxonomy_term.ban_list_channel
+target_entity_type_id: taxonomy_term
+target_bundle: ban_list_channel
+default_langcode: site_default
+language_alterable: false
