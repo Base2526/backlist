@@ -4712,4 +4712,141 @@ class Utils extends ControllerBase {
 
     
   }
+
+  public static function setup_mongodb(){
+    try{
+      $db = Utils::MongoDB()->bl;
+
+      //--------------  user  ------------------
+      $bundle = 'users';
+      $collections = $db->listCollections();
+      $collectionNames = [];
+      foreach ($collections as $collection) {
+        $collectionNames[] = $collection->getName();
+      }
+    
+      $exists = in_array($bundle, $collectionNames);
+    
+      if(!$exists){
+        $collection = $db->createCollection($bundle);
+        if($collection->ok){
+          dpm( "OK");
+        }
+      }
+    
+      $mg_user = $db->users;
+      
+      $userStorage = \Drupal::entityTypeManager()->getStorage('user');
+      $query = $userStorage->getQuery();
+      $uids = $query
+        ->condition('status', '1')
+        //->condition('roles', 'moderator')
+        ->execute();
+
+      $users = $userStorage->loadMultiple($uids);
+
+      foreach($users as $user){
+        $filter = array('uid' => $user->id() );
+        if(!$mg_user->count($filter)){
+          $email   = $user->getEmail();
+          $pass    = $user->getPassword();
+  
+          $name = "";
+          $field_display_name = $user->get('field_display_name')->getValue();
+          if(!empty($field_display_name)){
+            $name = $field_display_name[0]['value'];
+          }
+          $image_url = "";  
+          if (!$user->get('user_picture')->isEmpty()) {
+            $image_url = file_create_url($user->get('user_picture')->user->getFileUri());
+          }
+  
+          $gender  = 0;
+          $field_gender = $user->get('field_gender')->getValue();
+          if(!empty($field_gender)){
+            $gender  = $field_gender[0]['target_id'];
+          }
+  
+          $type_login = 0;
+          $field_type_login = $user->get('field_type_login')->getValue();
+          if(!empty($field_type_login)){
+            $type_login  = $field_type_login[0]['target_id'];
+          }
+
+          $document = array( 
+            "uid"     => $user->id(), 
+            'email'   => $email,
+            "name"    => $name,
+            "pass"    => $pass,
+            "image_url"=>$image_url,
+            "gender"  =>$gender,
+            "type_login"=>$type_login
+          );
+          $mg_user->insertOne($document);
+        }
+      }
+
+      //--------------  user  ------------------
+
+      //--------------  bank_wallet  ------------------
+      
+      $bundle = 'bank_wallet';
+      $exists = in_array($bundle, $collectionNames);
+
+      if(!$exists){
+        $collection = $db->createCollection($bundle);
+        if($collection->ok){
+          dpm( "OK");
+        }
+      }
+
+      $bank_wallet = $db->bank_wallet;
+      // $filter = array('tid' => $entity->id() );
+
+      $terms =\Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($bundle);
+      foreach ($terms as $term) {
+        $filter = array( 'tid' => $term->tid );
+
+        if(!$bank_wallet->count($filter)){
+          $document = array( 
+            'tid' => $term->tid,
+            'name' => $term->name,
+            'weight' => $term->weight
+          );
+          $bank_wallet->insertOne($document);
+        }
+      }
+      //--------------  bank_wallet  ------------------
+
+      //--------------  gender  -------------------
+      $bundle = 'gender';
+      $exists = in_array($bundle, $collectionNames);
+
+      if(!$exists){
+        $collection = $db->createCollection($bundle);
+        if($collection->ok){
+          dpm( "OK");
+        }
+      }
+
+      $gender = $db->gender;
+
+      $terms =\Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($bundle);
+      foreach ($terms as $term) {
+        $filter = array( 'tid' => $term->tid );
+
+        if(!$gender->count($filter)){
+          $document = array( 
+            'tid' => $term->tid,
+            'name' => $term->name,
+            'weight' => $term->weight
+          );
+          $gender->insertOne($document);
+        }
+      }
+      //--------------  gender  -------------------
+    } catch (\Throwable $e) {
+      \Drupal::logger('setup_mongodb')->notice($e->__toString());
+    }
+  }
 }

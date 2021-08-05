@@ -16,9 +16,12 @@ services:
       - "./composer.json:/var/www/html/composer.json"
       - "./composer.lock:/var/www/html/composer.lock"
       - "./info.php:/var/www/html/info.php"
-      # - "./vendor:/var/www/html/vendor"
+      - "./vendor:/var/www/html/vendor"
       # - "./php.ini:/etc/php/7.3/php.ini"
       - "./files:/var/www/html/sites/default/files"
+
+
+      - ./PhpassHashedPassword.php:/var/www/html/core/lib/Drupal/Core/Password/PhpassHashedPassword.php
 
       # - "./AuthenticationManager.php:/var/www/html/core/lib/Drupal/Core/Authentication/AuthenticationManager.php"
       - "./www.conf:/etc/php/7.3/php-fpm.d/www.conf"
@@ -70,6 +73,11 @@ services:
     networks:
       - api-network
 
+# networks:
+#   api-network:
+#     name: banlist-network
+
 networks:
   api-network:
-    name: project-name-network
+    external:
+      name: banlist-network

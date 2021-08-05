@@ -305,7 +305,7 @@ $settings['hash_salt'] = '5fc-ULwhJe-zF9MYnaWC55PMn3O3TXc4O-dDBlTlr3g051hsemdybL
  * After finishing the upgrade, be sure to open this file again and change the
  * TRUE back to a FALSE!
  */
-$settings['update_free_access'] = FALSE;
+$settings['update_free_access'] = TRUE;
 
 /**
  * Fallback to HTTP for Update Manager.

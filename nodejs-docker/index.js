@@ -71,6 +71,9 @@ setTimeout(() => {
 const app = express();
 
 const connection = require("./connection")
+const UserSchema = require('./models/UserSchema');
+
+const utils = require('./utils.js');
 
 const {
   MONGO_HOSTNAME_ENV,
@@ -117,17 +120,50 @@ app.get('/', function (req, res) {
 
 app.post('/v1/login',  async(req, res, next)=> {
 
-  let user = req.body.user;
-  let pass = req.body.pass;
+  let email = req.body.email.trim();
+  let pass = req.body.pass.trim();
 
-  if(user === undefined && pass === undefined){
-    return res.send({ status: false, message:"User & Pass is empty" });
-  }else if(user === undefined){
-    return res.send({ status: false, message:"User is empty" });
+  // console.log(user)
+  // console.log(pass)
+
+
+  // let encrypt = utils.encrypt("ABC");
+  // let decrypt = utils.decrypt(encrypt);
+  // console.log(encrypt);
+  // console.log(decrypt);
+  // await new UserSchema({ name: 'Silence' }).save()
+
+  // const user_schema = await UserSchema.findOne({'uid':1});
+
+  // console.log( user_schema );
+
+  
+  if(email === undefined && pass === undefined){
+    return res.send({ status: false, message:"Email & Pass is empty" });
+  }else if(email === undefined){
+    return res.send({ status: false, message:"Email is empty" });
   }else if(pass === undefined){
     return res.send({ status: false, message:"Pass is empty" });
   }
 
+  const user_schema = await UserSchema.findOne({'email':email});
+
+  if(!utils.isEmpty(user_schema)){
+    // console.log( user_schema._id );
+    // console.log( user_schema.name );
+    // console.log( user_schema.pass );
+
+    let pass_decrypt =utils.decrypt(user_schema.pass)
+    if(pass_decrypt === pass){
+      console.log( "pass correct" );
+    }else{
+      console.log( "pass wrong" );
+    }
+  }
+
+
+
+  /*
   // http://api.banlist.info:8090/api/v1/login?_format=json
   const response = await axios.post(`${process.env.DRUPAL_API_ENV}/api/v1/login?_format=json`, {
                                 "name":user, 
@@ -144,9 +180,12 @@ app.post('/v1/login',  async(req, res, next)=> {
     req.session.basicAuth = data.user.basic_auth;
     req.session.session   = data.user.session;
   }
+  */
   
-  console.log(data.result)
-  return res.send(data);
+  // console.log(data.result)
+  // return res.send(data);
+
+  return res.send('/v1/login');
 });
 
 app.post('/v1/reset_password',  async(req, res, next)=> {
