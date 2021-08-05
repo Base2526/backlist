@@ -539,3 +539,41 @@ Backup
 Restore
 - docker exec -i 8c61e704cee2 sh -c 'mongorestore --host localhost --port 27017 --db bl  --authenticationDatabase admin --username root --password example --archive' < db.dump
 
+
+////////////// Jenkins ///////////////
+Jenkins deploy
+- https://www.youtube.com/watch?v=fO1JNGcX0so
+- https://www.youtube.com/watch?v=gdbA3vR2eDs
+
+octopus
+https://octopus.com/docs/guides/deploy-php-docker-app/to-k8s/using-octopus-cloud-jenkins-dockerhub
+
+- Jenkins Pipeline
+https://www.youtube.com/watch?v=naUhXrV_rRA
+
+- Tutorial Good
+https://www.youtube.com/watch?v=gdbA3vR2eDs
+
+-  Jenkins Pipeline - Build and Deploy a war file on Tomcat Server
+https://www.youtube.com/watch?v=G_UCeeb5EPc
+
+Easily Automate Your CI/CD Pipeline With Jenkins, Helm, and Kubernetes
+https://dzone.com/articles/easily-automate-your-cicd-pipeline-with-jenkins-he
+https://github.com/eldada/jenkins-pipeline-kubernetes
+https://github.com/eldada/jenkins-in-kubernetes
+
+
+อ่านง่าย สร้าง CI/CD ด้วย Jenkins บน Kubernetes แบบง่ายๆ
+https://phayao.medium.com/%E0%B8%AA%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%87-ci-cd-%E0%B8%94%E0%B9%89%E0%B8%A7%E0%B8%A2-jenkins-%E0%B8%9A%E0%B8%99-kubernetes-%E0%B9%81%E0%B8%9A%E0%B8%9A%E0%B8%87%E0%B9%88%E0%B8%B2%E0%B8%A2%E0%B9%86-fd4a1a496c46
+
+Automating Deployment with CI/CD pipeline using Jenkins with using the power of Kubernetes
+https://medium.com/@p.rajeshbabu6666/automating-deployment-with-ci-cd-pipeline-using-jenkins-with-using-the-power-of-kubernetes-a50ba85b484f
+
+
+Kubernetes drupal Installation (helm)
+https://8gwifi.org/docs/kube-drupal.jsp
+https://www.youtube.com/watch?v=LUcarJZcdIc&t=8s
+
+้Deploy ระบบงานบน Kubernetes cluster ด้วย Helm V3
+https://www.somkiat.cc/hello-helm-3-kubernetes/
+////////////// Jenkins ///////////////
