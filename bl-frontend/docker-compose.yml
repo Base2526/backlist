@@ -1,0 +1,36 @@
+version: "3.3"
+services:
+  frontend:
+    container_name: frontend
+    build: .
+    ports:
+      # - 8011:3000
+      - 8012:80
+      - 80:80
+    # https://stackoverflow.com/questions/52103155/reading-an-environment-variable-in-react-which-was-set-by-docker
+    # environment:
+    #   - REACT_APP_DEBUG=TRUE
+    #   - REACT_APP_VERSIONS=1.0
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      
+      REACT_APP_DEBUG: "TRUE"
+      REACT_APP_VERSIONS: "1.0"   
+      # REACT_APP_API: "http://157.230.240.133:8055"
+      # REACT_APP_MY_SOCKET: "http://nodejs_bl:3000"
+      # REACT_APP_AUTHORIZATION: "YWRtaW46MTIzNA==" 
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./src:/app/src
+      # - ./reactjs/node_modules:/app/node_modules # increment performance load page /usr/src/app < จากด้านบน แล้วตามด้วย node_modules 
+    # environment:
+    #   NODE_ENV: production
+
+    networks:
+      - front-network
+
+networks:
+  front-network:
+    external:
+      name: banlist-network

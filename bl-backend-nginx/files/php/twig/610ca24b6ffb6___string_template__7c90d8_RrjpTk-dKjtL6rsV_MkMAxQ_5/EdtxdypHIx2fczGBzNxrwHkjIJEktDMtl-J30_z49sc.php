@@ -1,0 +1,84 @@
+<?php
+
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Extension\SandboxExtension;
+use Twig\Markup;
+use Twig\Sandbox\SecurityError;
+use Twig\Sandbox\SecurityNotAllowedTagError;
+use Twig\Sandbox\SecurityNotAllowedFilterError;
+use Twig\Sandbox\SecurityNotAllowedFunctionError;
+use Twig\Source;
+use Twig\Template;
+
+/* __string_template__7c90d831bf4430a1fb76f62e8e4398acc2e03240427520f5fe35b463ca8eb3b1 */
+class __TwigTemplate_5ed862fbf02274c9614405d65a50fb5da441d09220b3fac8ec413f7955baa5ee extends \Twig\Template
+{
+    private $source;
+    private $macros = [];
+
+    public function __construct(Environment $env)
+    {
+        parent::__construct($env);
+
+        $this->source = $this->getSourceContext();
+
+        $this->parent = false;
+
+        $this->blocks = [
+        ];
+        $this->sandbox = $this->env->getExtension('\Twig\Extension\SandboxExtension');
+        $this->checkSecurity();
+    }
+
+    protected function doDisplay(array $context, array $blocks = [])
+    {
+        $macros = $this->macros;
+        // line 1
+        echo "<code>/v1/add_banlist</code>: POST";
+    }
+
+    public function getTemplateName()
+    {
+        return "__string_template__7c90d831bf4430a1fb76f62e8e4398acc2e03240427520f5fe35b463ca8eb3b1";
+    }
+
+    public function getDebugInfo()
+    {
+        return array (  39 => 1,);
+    }
+
+    public function getSourceContext()
+    {
+        return new Source("", "__string_template__7c90d831bf4430a1fb76f62e8e4398acc2e03240427520f5fe35b463ca8eb3b1", "");
+    }
+    
+    public function checkSecurity()
+    {
+        static $tags = array();
+        static $filters = array();
+        static $functions = array();
+
+        try {
+            $this->sandbox->checkSecurity(
+                [],
+                [],
+                []
+            );
+        } catch (SecurityError $e) {
+            $e->setSourceContext($this->source);
+
+            if ($e instanceof SecurityNotAllowedTagError && isset($tags[$e->getTagName()])) {
+                $e->setTemplateLine($tags[$e->getTagName()]);
+            } elseif ($e instanceof SecurityNotAllowedFilterError && isset($filters[$e->getFilterName()])) {
+                $e->setTemplateLine($filters[$e->getFilterName()]);
+            } elseif ($e instanceof SecurityNotAllowedFunctionError && isset($functions[$e->getFunctionName()])) {
+                $e->setTemplateLine($functions[$e->getFunctionName()]);
+            }
+
+            throw $e;
+        }
+
+    }
+}

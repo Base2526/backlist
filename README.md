@@ -3,14 +3,17 @@ https://gist.github.com/gilyes/525cc0f471aafae18c3857c27519fc4b
 Backup:
 docker exec -t -u postgres your-db-container pg_dumpall -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
 
-docker exec -t -u postgres 49b9509f7e98 pg_dumpall -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
+docker exec  -t -u postgres 49b9509f7e98 pg_dumpall -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
 
 
-docker exec -t -u postgres 63c4d0fde88f pg_dumpall -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
+docker exec  -t -u kong 8e98189b5fdb /usr/local/pgsql-12/pg_dump -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
 
 
 Restore:
-cat dump_23-07-2021_09_56_00.sql | docker exec -i 163ed811461a psql -Upostgres
+cat dump_06-08-2021_02_57_05.sql | docker exec -i acbb167067ac psql -Upostgres
+
+
+
 
 Facebook Login
  - https://www.thaicreate.com/community/php-facebook-login-api-sdk-v5.html
