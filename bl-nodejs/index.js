@@ -9,12 +9,41 @@ const mongoStore = require('connect-mongo');
 
 const axios = require('axios')
 
+// Api
+const app = express();
+
 // this example uses express web framework so we know what longer build times
 // do and how Dockerfile layer ordering matters. If you mess up Dockerfile ordering
 // you'll see long build times on every code change + build. If done correctly,
 // code changes should be only a few seconds to build locally due to build cache.
 
 const morgan = require('morgan');
+const path = require('path');
+const rfs = require('rotating-file-stream');
+// const logger = require('./util/loggerEasy');
+const logger = require('./util/logger');
+const { stream } = logger;
+
+const accessLogStream = rfs.createStream('access.log', {
+  interval: '1d',
+  path: path.join(__dirname, 'logs'),
+});
+
+// Morgan
+morgan.token('th-date', function (req, res) {
+  const date = new Date();
+  return date;
+});
+app.use(morgan('common', { stream: accessLogStream }));
+app.use(
+  morgan(
+    ':th-date :method[pretty] :url :status :res[content-length] - :response-time ms',
+    {
+      stream: stream,
+    }
+  )
+);
+
 // morgan provides easy logging for express, and by default it logs to stdout
 // which is a best practice in Docker. Friends don't let friends code their apps to
 // do app logging to files in containers.
@@ -67,8 +96,6 @@ setTimeout(() => {
   // mongoose.STATES[mongoose.connection.readyState] 
 }, 2000);
 
-// Api
-const app = express();
 
 const connection = require("./connection")
 const UserSchema = require('./models/UserSchema');
@@ -270,6 +297,9 @@ app.post('/v1/get_html',  async(req, res, next)=> {
 });
 
 app.post('/v1/search',  async(req, res, next)=> {
+
+  logger.info(`Ready Listening on port 1`);
+  logger.error(`Ready Listening on port 2`);
 
   const start = Date.now()
   try {
