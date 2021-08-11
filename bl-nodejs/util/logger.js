@@ -73,7 +73,7 @@ const logger = winston.createLogger({
         useNewUrlParser: true,
       },
       // A collection to save json formatted logs
-      collection: 'server_logs',
+      collection: 'logs',
       format: winston.format.combine(
         winston.format.timestamp(),
         // Convert logs to a json format

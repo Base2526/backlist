@@ -58,7 +58,7 @@ const HomePage = (props) => {
       onToast('error', "Please select category")
     }else{
       setSearchLoading(true)
-      axios.post(`/v1/search?_format=json`, {
+      axios.post(`/api/v1/search`, {
         type: 99,
         key_word: searchWord,
         offset: 0,
@@ -70,7 +70,7 @@ const HomePage = (props) => {
       })
       .then((response) => {
         let results = response.data
-        console.log('/v1/search?_format=json : ', results)
+        console.log('/api/v1/search : ', results)
         if(results.result){
           // true
           let {execution_time, datas, count, all_result_count} = results;
@@ -99,7 +99,7 @@ const HomePage = (props) => {
 
   const fetch = () =>{
     setLoading(true)
-    axios.post(`/v1/search?_format=json`, {
+    axios.post(`/api/v1/search`, {
       type: 0,
       key_word: '*',
       offset: currentPage - 1
@@ -108,7 +108,7 @@ const HomePage = (props) => {
     })
     .then((response) => {
       let results = response.data
-      console.log('/v1/search?_format=json : ', results)
+      console.log('/api/v1/search : ', results)
       if(results.result){
         // true
         let {execution_time, datas, count, all_result_count} = results;

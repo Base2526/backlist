@@ -4,25 +4,48 @@
 const express = require('express');
 const sessions = require('express-session');
 const cookieParser = require("cookie-parser");
-
 const mongoStore = require('connect-mongo');
-
 const axios = require('axios')
 
 // Api
 const app = express();
 
+// https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/client-connecting.html#authentication
+const { Client } = require('@elastic/elasticsearch')
+const client = new Client({
+  // cloud: {
+  //   id: 'name:bG9jYWxob3N0JGFiY2QkZWZnaA==',
+  // },
+  node: process.env.ELASTIC_URL,
+  auth: {
+    username: process.env.ELASTIC_USERNAME,
+    password: process.env.ELASTIC_PASSWORD
+  }
+})
+
 // this example uses express web framework so we know what longer build times
 // do and how Dockerfile layer ordering matters. If you mess up Dockerfile ordering
 // you'll see long build times on every code change + build. If done correctly,
 // code changes should be only a few seconds to build locally due to build cache.
-
+var mongoose = require('mongoose');
 const morgan = require('morgan');
 const path = require('path');
 const rfs = require('rotating-file-stream');
 // const logger = require('./util/loggerEasy');
 const logger = require('./util/logger');
 const { stream } = logger;
+const connection = require("./connection")
+const UserSchema = require('./models/UserSchema');
+
+const utils = require('./util/utils');
+
+const {
+  MONGO_HOSTNAME_ENV,
+  MONGO_PORT_ENV,
+  MONGO_DATABASE_NAME_ENV,
+  MONGO_USERNAME_ENV,
+  MONGO_PASSWORD_ENV
+} = process.env;
 
 const accessLogStream = rfs.createStream('access.log', {
   interval: '1d',
@@ -34,6 +57,7 @@ morgan.token('th-date', function (req, res) {
   const date = new Date();
   return date;
 });
+
 app.use(morgan('common', { stream: accessLogStream }));
 app.use(
   morgan(
@@ -81,7 +105,7 @@ app.use(
 
 // let db;
 // // Use connect method to connect to the Server
-var mongoose = require('mongoose');
+
 setTimeout(() => {
   // client.connect(function(err) {
   //   if (err) {
@@ -97,28 +121,12 @@ setTimeout(() => {
 }, 2000);
 
 
-const connection = require("./connection")
-const UserSchema = require('./models/UserSchema');
-
-const utils = require('./utils.js');
-
-const {
-  MONGO_HOSTNAME_ENV,
-  MONGO_PORT_ENV,
-  MONGO_DATABASE_NAME_ENV,
-  MONGO_USERNAME_ENV,
-  MONGO_PASSWORD_ENV
-} = process.env;
-
-// mongoose.connect(`mongodb://${MONGO_USERNAME_ENV}:${MONGO_PASSWORD_ENV}@${MONGO_HOSTNAME_ENV}:${MONGO_PORT_ENV}/${MONGO_DATABASE_NAME_ENV}?authSource=admin`, {useNewUrlParser: true, useUnifiedTopology: true});
-
-
-const oneDay = 1000 * 60 * 60 * 24;
+const oneYear = 1000 * 60 * 60 * 24 * 365;
 //session middleware
 app.use(sessions({
     secret: "thisismysecrctekeyfhrgfgrfrty84fwir767",
     saveUninitialized:true,
-    cookie: { maxAge: oneDay },
+    cookie: { maxAge: oneYear },
     resave: false,
     // store: new mongoStore({ mongooseConnection: connection })
     store: mongoStore.create({
@@ -137,12 +145,99 @@ app.use(express.static(__dirname));
 app.use(cookieParser());
 
 app.use(morgan('common'));
-app.get('/', function (req, res) {
+app.get('/', async (req, res) =>{
   // console.log(`process.env = ${process.env}`)
   // console.log(process.env)
   // console.log(req)
 
-  res.send(`Hello Docker World\n`);
+  // let result =  await client.search({
+  //                       index: 'elasticsearch_index_banlist_content_back_list',
+  //                       body: {
+  //                         query: {
+  //                           match: { hello: 'a' }
+  //                         }
+  //                       }
+  //                     })
+
+  // await client.index({
+  //   index: 'elasticsearch_index_banlist_content_back_list',
+  //   refresh: true,
+  //   body: {
+  //     character: 'Tyrion Lannister',
+  //     quote: 'A Lannister always pays his debts.',
+  //     house: 'lannister'
+  //   }
+  // })
+
+  // const { body } = await client.get({
+  //   index: 'elasticsearch_index_banlist_content_back_list',
+  //   id: 'entity:node/9:en'
+  // })
+
+  // const { body } = await client.sql.query({
+  //   body: {
+  //     query: "SELECT * FROM \"elasticsearch_index_banlist_content_back_list\" WHERE body LIKE '%Commodo%'"
+  //   }
+  // })
+
+  // const data = body.rows.map(row => {
+  //   const obj = {}
+  //   for (let i = 0; i < row.length; i++) {
+  //     obj[body.columns[i].name] = row[i]
+  //   }
+  //   return obj
+  // })
+
+  const query = {
+    query: {
+      // match: {
+      //   field_sales_person_name: {
+      //     query: "สมคิด",
+      //     operator: "and",
+      //     fuzziness: "auto"
+      //   }
+      // }
+
+      "query_string": {
+        "fields": [ "field_sales_person_name", "body", "nid" ],
+        "query": "56",
+        // "minimum_should_match": 2
+      },
+
+      // "match":{
+      //   "title":"*bene*"
+      // }
+      /*    
+        query: { match_all: {}},
+        sort: [{ "nid": { "order": "asc" } }],
+        from: 0,
+        size: 5,
+      */
+    }
+  }
+
+  const { body } = await client.search({
+    index: 'elasticsearch_index_banlist_content_back_list',
+    // body: {
+    //   query: {
+    //     // match: {
+    //     //   // field_transfer_amount: 8449660000
+    //     //   banlist_name_surname_field: '*sisebruwristup*'
+    //     // }
+    //     match: {
+    //       title: {
+    //         query: 'Cogo',
+    //         operator: "and",
+    //         fuzziness: "auto"
+    //       }
+    //     }
+    //   }
+    // }
+    body:  query
+  })
+
+  res.send(body);
+  // res.send(`Hello Docker World\n`);
 });
 
 app.post('/v1/login',  async(req, res, next)=> {
@@ -298,8 +393,7 @@ app.post('/v1/get_html',  async(req, res, next)=> {
 
 app.post('/v1/search',  async(req, res, next)=> {
 
-  logger.info(`Ready Listening on port 1`);
-  logger.error(`Ready Listening on port 2`);
+  // logger.error(`Ready Listening on port 2`);
 
   const start = Date.now()
   try {
@@ -309,6 +403,7 @@ app.post('/v1/search',  async(req, res, next)=> {
       return res.send({ status: false, message:"Keyword is empty" });
     }
 
+    /*
     // http://api.banlist.info:8090/api/v1/login?_format=json
     const response = await axios.post(`${process.env.DRUPAL_API_ENV}/api/search?_format=json`, {
                                   "key_word":key_word
@@ -318,22 +413,56 @@ app.post('/v1/search',  async(req, res, next)=> {
 
     // "execution_time": `Time Taken to execute = ${(Date.now() - start)/1000} seconds`,
 
+    logger.error("xx");
+
     let result = {};
     if(response.data.result){
       return res.send({...response.data, ...{"execution_time2": `Time Taken to execute = ${(Date.now() - start)/1000} seconds`}});
     }else{
       return res.send(response.data);
     }
+    */
+
+    const query = {
+      query: {
+        "query_string": {
+          "fields": [ "field_sales_person_name", "body" ],
+          "query": `*${key_word}*`,
+        },
+        /*    
+          query: { match_all: {}},
+          sort: [{ "nid": { "order": "asc" } }],
+          from: 0,
+          size: 5,
+        */
+      }
+    }
+  
+    const { body } = await client.search({
+      index: 'elasticsearch_index_banlist_content_back_list',
+      body:  query
+    })
+
+    
+    return res.send({"result"        : true,
+                     "execution_time": `Time Taken to execute = ${(Date.now() - start)/1000} seconds`,
+                     "count"         : body.hits.total.value,
+                     "datas"         : body.hits.hits,
+                     });
+  
   } catch (err) {
+    logger.error(err);
+
     return res.send(err);
   }
 });
 
-app.get('/v1/healthz', function (req, res) {
+app.get('/v1/healthz', async (req, res) =>{
 	// do app logic here to determine if app is truly healthy
 	// you should return 200 if healthy, and anything else will fail
 	// if you want, you should be able to restrict this to localhost (include ipv4 and ipv6)
 
+  let health = await client.cluster.health({});
 
   let html = `<div> \
                 <h1>Nodejs banlist status</h1> \ 
@@ -342,6 +471,9 @@ app.get('/v1/healthz', function (req, res) {
                 </ul> \
                 <ul> \
                   <li>User login, userId: ${req.session.userId} basicAuth: ${req.session.basicAuth} session: ${req.session.session}  --- ${req.session.cookie.expires}</li> \
+                </ul> \
+                <ul> \
+                  <li>Elasticsearch : statusCode= ${health.statusCode}, body status: ${health.body.status}</li> \
                 </ul> \
               </div>`;
 
