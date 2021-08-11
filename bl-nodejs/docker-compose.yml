@@ -54,8 +54,12 @@ services:
       - MONGO_USERNAME_ENV=root
       - MONGO_PASSWORD_ENV=example
 
-      - DRUPAL_API_ENV=http://128.199.217.244:8055
+      - DRUPAL_API_ENV=http://backend.banlist.info:8055
       - DRUPAL_AUTHORIZATION_ENV=c3dpZGVzd29kOjEyMzQ= # Authorization
+
+      - ELASTIC_URL=http://backend.banlist.info:9200
+      - ELASTIC_USERNAME=elastic
+      - ELASTIC_PASSWORD=changeme
     depends_on:
       mongo:
         condition: service_healthy

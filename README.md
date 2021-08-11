@@ -501,6 +501,8 @@ https://dev.to/techtalks/deep-linking-in-react-native-app-with-react-navigation-
 // Check elasticsearch
 http://68.183.183.121:9200/elasticsearch_index_banlist_content_back_list/_search
 
+
+
 Php pagging
 https://www.web-max.ca/PHP/misc_1.php
 
@@ -580,3 +582,10 @@ https://www.youtube.com/watch?v=LUcarJZcdIc&t=8s
 ้Deploy ระบบงานบน Kubernetes cluster ด้วย Helm V3
 https://www.somkiat.cc/hello-helm-3-kubernetes/
 ////////////// Jenkins ///////////////
+
+
+
+Node js + Elastic query
+https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-multi-field
+
+https://github.com/micheleriva/the-quotes-database/blob/master/src/server/models/index.js

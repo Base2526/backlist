@@ -24,9 +24,7 @@ var io = socketio(server, { path: '/mysocket' });
 // connection().then((db) => {
 //   console.log("MongoDb connected");
 // });
-
-require('../log-interceptor')(server); 
-
+// require('../log-interceptor')(server); 
 // //Import the mongoose module
 // var mongoose = require('mongoose');
 // //Set up default mongoose connection

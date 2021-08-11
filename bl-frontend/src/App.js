@@ -69,8 +69,14 @@ const App = (props) => {
 
     /*
     
+    {
+  extraHeaders: {
+    Authorization: "Bearer authorization_token_here"
+  }
+}
     */
     const socket = io( "/", 
+                      // { headers:  {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} },
                       { path: '/mysocket' },
                       { query:{"platform"  : process.env.REACT_APP_PLATFORM, 
                                "unique_id" : _uniqueId(props),
