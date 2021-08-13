@@ -19,7 +19,7 @@ import { followUp } from '../actions/user';
 const HomePage = (props) => {
   const [allDatas, setAllDatas]           = React.useState([]);
   const [currentDatas, setCurrentDatas]   = React.useState([]);
-  const [currentPage, setCurrentPage]     = React.useState(undefined);
+  const [currentPage, setCurrentPage]     = React.useState(0);
   const [totalPages, setTotalPages]       = React.useState(0);
   const [pageLimit, setPageLimit]         = React.useState(30);
   const [allResultCount, setAllResultCount] = React.useState(10000);
@@ -40,10 +40,11 @@ const HomePage = (props) => {
                                                           ]);
 
   useEffect(() => {
-    console.log("useEffect", props.my_apps)
+    console.log("useEffect #0", props.my_apps)
   });
 
   useEffect(() => {
+    console.log("useEffect #1 ", currentPage)
     if(currentPage !== undefined){
       fetch()
     }
@@ -99,7 +100,7 @@ const HomePage = (props) => {
 
   const fetch = () =>{
     setLoading(true)
-    axios.post(`/api/v1/search`, {
+    axios.post(`/v1/search`, {
       type: 0,
       key_word: '*',
       offset: currentPage - 1
@@ -108,24 +109,24 @@ const HomePage = (props) => {
     })
     .then((response) => {
       let results = response.data
-      console.log('/api/v1/search : ', results)
+      console.log('/v1/search : ', results)
       if(results.result){
         // true
-        let {execution_time, datas, count, all_result_count} = results;
-        props.fetchData(datas);
-        setAllDatas(mergeArrays(allDatas, datas))
-        setCurrentDatas(datas)
+        // let {execution_time, datas, count, all_result_count} = results;
+        // props.fetchData(datas);
+        // setAllDatas(mergeArrays(allDatas, datas))
+        // setCurrentDatas(datas)
         
 
-        setAllResultCount(all_result_count)
-        setTotalPages(Math.ceil(all_result_count / pageLimit))
+        // setAllResultCount(all_result_count)
+        // setTotalPages(Math.ceil(all_result_count / pageLimit))
       }
 
       setLoading(false)
 
     })
     .catch( (error) => {
-      console.log('getData : ', error)
+      console.log('/api/v1/search : ', error)
 
       onToast('error', error)
 
@@ -254,15 +255,16 @@ const HomePage = (props) => {
                   </div>
                   <div className="row d-flex flex-row py-5"> 
                     { renderContent() }
+
                     <div className="w-100 px-4 py-5 d-flex flex-row flex-wrap align-items-center justify-content-between">
-                      <div className="d-flex flex-row py-4 align-items-center">
+                      {/* <div className="d-flex flex-row py-4 align-items-center">
                         <Pagination
                           totalRecords={allResultCount}
                           pageLimit={pageLimit}
                           pageNeighbours={1}
                           onPageChanged={onPageChanged}
                         />
-                      </div>
+                      </div> */}
                       <div className="d-flex flex-row align-items-center">
                         {currentPage && (
                           <span className="current-page d-inline-block h-100 pl-4 text-secondary">
@@ -272,6 +274,7 @@ const HomePage = (props) => {
                         )}
                       </div>
                     </div>
+
                   </div>
                   {showModalLogin &&  <LoginDialog showModal={showModalLogin} onClose = {()=>{  setShowModalLogin(false) }} />}
                   <div 
