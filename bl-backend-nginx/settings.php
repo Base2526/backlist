@@ -800,3 +800,5 @@ $databases['default']['default'] = array (
 $settings['config_sync_directory'] = 'sites/default/files/sync';
 
 $config['system.logging']['error_level'] = 'verbose';
+
+$config['file.settings']['make_unused_managed_files_temporary'] = TRUE; 

@@ -4845,8 +4845,80 @@ class Utils extends ControllerBase {
         }
       }
       //--------------  gender  -------------------
+
+      //--------------  file  -------------------
+      // Utils::setup_file_mongodb();
+      //--------------  file  -------------------
+
     } catch (\Throwable $e) {
       \Drupal::logger('setup_mongodb')->notice($e->__toString());
+    }
+  }
+
+  public static function setup_file_mongodb(){
+    try{
+      $query = \Drupal::entityQuery('file');
+      // $query->condition('uri', $file_uri);
+      $entity_ids = $query->execute();
+      // dpm( $entity_ids );
+
+      $useds = array();
+      $unuseds = array();
+      foreach ($entity_ids as $value){
+        $file = File::load($value);
+        if($file->isTemporary()){
+          // unused
+          $unuseds[] = $file->id();
+        }else{
+          // used
+          $useds[] = $file->id();
+        }
+      }
+
+      $db = Utils::MongoDB()->bl;
+  
+      $bundle = 'files';
+      $collections = $db->listCollections();
+      $collectionNames = [];
+      foreach ($collections as $collection) {
+        $collectionNames[] = $collection->getName();
+      }
+  
+      $exists = in_array($bundle, $collectionNames);
+  
+      if(!$exists){
+        $collection = $db->createCollection($bundle);
+        if($collection->ok){
+          dpm( "OK");
+        }
+      }
+  
+      $files = $db->files;
+
+      // add new to mongodb
+      foreach ($useds as $fid){
+        $filter = array( 'fid' => $fid );
+
+        if(!$files->count($filter)){
+          $document = array( 
+            "fid" => $fid, 
+            "bn_medium" => Utils::ImageStyle_BN($fid, 'bn_medium'),
+            "bn_thumbnail" => Utils::ImageStyle_BN($fid, 'bn_thumbnail')
+          );
+          $files->insertOne($document);
+        }
+      }
+
+      // delete for mongodb
+      foreach ($unuseds as $fid){
+        // delete file
+        $filter = array( 'fid' => $fid );
+        if($files->count($filter)){
+          $files->deleteOne( $filter );
+        }
+      } 
+    } catch (\Throwable $e) {
+      \Drupal::logger('setup_file_mongodb')->error($e->__toString());
     }
   }
 }

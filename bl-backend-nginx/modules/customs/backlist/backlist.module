@@ -971,10 +971,66 @@ function backlist_taxonomy_term_update(EntityInterface $entity) {
           $gender->insertOne($document);
         }
       } catch (\Throwable $e) {
-        \Drupal::logger('backlist_taxonomy_term_update: gender')->notice($e->__toString());
+        \Drupal::logger('backlist_taxonomy_term_update: gender')->error($e->__toString());
       }
 
       break;
     }
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ * 
+ * Manage file on mongodb
+ */
+function backlist_file_update(EntityInterface $entity) {
+  try{
+    
+    $db = Utils::MongoDB()->bl;
+
+    $bundle = 'files';
+    $collections = $db->listCollections();
+    $collectionNames = [];
+    foreach ($collections as $collection) {
+      $collectionNames[] = $collection->getName();
+    }
+
+    $exists = in_array($bundle, $collectionNames);
+
+    if(!$exists){
+      $collection = $db->createCollection($bundle);
+      if($collection->ok){
+        dpm( "OK");
+      }
+    }
+
+    $files = $db->files;
+    $filter = array('fid' => $entity->id() );
+
+    if($entity->isTemporary()){
+      // delete file
+      if($files->count($filter)){
+        $files->deleteOne( $filter );
+      }
+    }else{
+      // add new file
+      if($files->count($filter)){
+        $files->updateOne(
+                        [ 'fid' => $entity->id() ],
+                        [ '$set' => [ "bn_medium" => Utils::ImageStyle_BN($entity->id(), 'bn_medium'),  "bn_thumbnail" => Utils::ImageStyle_BN($entity->id(), 'bn_thumbnail') ]]
+                        );
+      }else{
+        $document = array( 
+          "fid" => $entity->id(), 
+          "bn_medium" => Utils::ImageStyle_BN($entity->id(), 'bn_medium'),
+          "bn_thumbnail" => Utils::ImageStyle_BN($entity->id(), 'bn_thumbnail')
+        );
+        $files->insertOne($document);
+      }
+    }
+    
+  } catch (\Throwable $e) {
+    \Drupal::logger('backlist_file_update')->error($e->__toString());
   }
 }

@@ -188,56 +188,56 @@ app.get('/', async (req, res) =>{
   //   return obj
   // })
 
-  const query = {
-    query: {
-      // match: {
-      //   field_sales_person_name: {
-      //     query: "สมคิด",
-      //     operator: "and",
-      //     fuzziness: "auto"
-      //   }
-      // }
+  // const query = {
+  //   query: {
+  //     // match: {
+  //     //   field_sales_person_name: {
+  //     //     query: "สมคิด",
+  //     //     operator: "and",
+  //     //     fuzziness: "auto"
+  //     //   }
+  //     // }
 
-      "query_string": {
-        "fields": [ "field_sales_person_name", "body", "nid" ],
-        "query": "56",
-        // "minimum_should_match": 2
-      },
+  //     "query_string": {
+  //       "fields": [ "field_sales_person_name", "body", "nid" ],
+  //       "query": "56",
+  //       // "minimum_should_match": 2
+  //     },
 
-      // "match":{
-      //   "title":"*bene*"
-      // }
-      /*    
-        query: { match_all: {}},
-        sort: [{ "nid": { "order": "asc" } }],
-        from: 0,
-        size: 5,
-      */
-    }
-  }
+  //     // "match":{
+  //     //   "title":"*bene*"
+  //     // }
+  //     /*    
+  //       query: { match_all: {}},
+  //       sort: [{ "nid": { "order": "asc" } }],
+  //       from: 0,
+  //       size: 5,
+  //     */
+  //   }
+  // }
 
-  const { body } = await client.search({
-    index: 'elasticsearch_index_banlist_content_back_list',
-    // body: {
-    //   query: {
-    //     // match: {
-    //     //   // field_transfer_amount: 8449660000
-    //     //   banlist_name_surname_field: '*sisebruwristup*'
-    //     // }
-    //     match: {
-    //       title: {
-    //         query: 'Cogo',
-    //         operator: "and",
-    //         fuzziness: "auto"
-    //       }
-    //     }
-    //   }
-    // }
-    body:  query
-  })
+  // const { body } = await client.search({
+  //   index: 'elasticsearch_index_banlist_content_back_list',
+  //   // body: {
+  //   //   query: {
+  //   //     // match: {
+  //   //     //   // field_transfer_amount: 8449660000
+  //   //     //   banlist_name_surname_field: '*sisebruwristup*'
+  //   //     // }
+  //   //     match: {
+  //   //       title: {
+  //   //         query: 'Cogo',
+  //   //         operator: "and",
+  //   //         fuzziness: "auto"
+  //   //       }
+  //   //     }
+  //   //   }
+  //   // }
+  //   body:  query
+  // })
 
-  res.send(body);
-  // res.send(`Hello Docker World\n`);
+  // res.send(body);
+  res.send(`Hello Docker World\n`);
 });
 
 app.post('/v1/login',  async(req, res, next)=> {

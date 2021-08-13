@@ -77,11 +77,18 @@ const App = (props) => {
     */
     const socket = io( "/", 
                       // { headers:  {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} },
+                      
+                      // {
+                      //   auth: {
+                      //     token: "abcd"
+                      //   }
+                      // },
                       { path: '/mysocket' },
                       { query:{"platform"  : process.env.REACT_APP_PLATFORM, 
                                "unique_id" : _uniqueId(props),
                                "version"   : process.env.REACT_APP_VERSIONS }}, 
                       { transports: ["websocket"] });
+
     if (socket.connected === false && socket.connecting === false) {
       // use a connect() or reconnect() here if you want
       socket.connect()
