@@ -100,6 +100,7 @@ class RegisterResource extends ResourceBase {
           $email    = trim( $content['email'] );
           $name     = trim( $content['name'] );
           $password = trim( $content['password'] );
+          
 
           if(empty($email) || empty($name) || empty($password)){
             $response_array['result']   = FALSE;

@@ -94,15 +94,13 @@ class LoginResource extends ResourceBase {
     $response_array = array();
     try {
       $time1    = microtime(true);
-
-
   
       $content      = $data; // json_decode( $request->getContent(), TRUE );
       $name         = strtolower( trim( $content['name'] ) );
       $password     = trim( $content['password'] );
-      $unique_id    = trim( $content['unique_id'] );
+      // $unique_id    = trim( $content['unique_id'] );
   
-      if(empty($name) || empty($password) || empty($unique_id) ){
+      if( empty($name) || empty($password) ){
         $response_array['result']   = FALSE;
         $response_array['code']     = '102';
         $response_array['message']  = 'Empty name or password.';
@@ -156,7 +154,7 @@ class LoginResource extends ResourceBase {
           $response_array['execution_time']   = microtime(true) - $time1;
           $response_array['user']             = $user;
 
-          $response_array['follow_ups']       = array();
+          // $response_array['follow_ups']       = array();
 
         //   // /api/login , unique_id
 
@@ -169,7 +167,7 @@ class LoginResource extends ResourceBase {
 
         //   // ---------------- follower_post -----------------
 
-          $response_array['follower_post'] =array();
+          // $response_array['follower_post'] =array();
 
         //   // $storage = \Drupal::entityTypeManager()->getStorage('node');
         //   $storage = $this->entityTypeManager->getStorage('node');

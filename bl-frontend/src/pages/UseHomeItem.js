@@ -7,11 +7,13 @@ import VerifiedUserOutlinedIcon from '@material-ui/icons/VerifiedUserOutlined';
 import { toast } from 'react-toastify';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import ReactReadMoreReadLess from "react-read-more-read-less";
+// import ReactReadMoreReadLess from "react-read-more-read-less";
 import moment from "moment";
 
+import parse from 'html-react-parser';
+
 import ReportDialog from './ReportDialog'
-import { isEmpty, commaFormatted } from "../utils";
+import { isEmpty, commaFormatted, ReadMore } from "../utils";
 
 const UseHomeItem = (props) => {
   const [item, setItem] = useState({});
@@ -374,7 +376,7 @@ const UseHomeItem = (props) => {
             <div>
               <div>รายละเอียด</div>
               <div style={{maxWidth:"300px"}}>
-                {
+                {/* {
                   !isEmpty(item.detail) && 
                   <ReactReadMoreReadLess
                     charLimit={50}
@@ -386,6 +388,10 @@ const UseHomeItem = (props) => {
                   >
                     {item.detail}
                   </ReactReadMoreReadLess>
+                } */}
+
+                {
+                  !isEmpty(item.detail) && <ReadMore>{parse(item.detail)}</ReadMore>
                 }
                 
               </div>

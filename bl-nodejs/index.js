@@ -242,11 +242,11 @@ app.get('/', async (req, res) =>{
   res.send(`Hello Docker World\n`);
 });
 
-app.post('/v1/login',  async(req, res, next)=> {
+app.post('/v1/login',  async(req, res)=> {
   const start = Date.now()
 
-  let email = req.body.email.trim();
-  let pass = req.body.pass.trim();
+  let email = req.body.email;
+  let password = req.body.password;
 
   // console.log(user)
   // console.log(pass)
@@ -261,16 +261,16 @@ app.post('/v1/login',  async(req, res, next)=> {
   // const user_schema = await UserSchema.findOne({'uid':1});
 
   // console.log( user_schema );
-
   
-  if(email === undefined && pass === undefined){
+  if(email === undefined && password === undefined){
     return res.send({ status: false, message:"Email & Pass is empty" });
   }else if(email === undefined){
     return res.send({ status: false, message:"Email is empty" });
-  }else if(pass === undefined){
+  }else if(password === undefined){
     return res.send({ status: false, message:"Pass is empty" });
   }
 
+  /*
   const user_schema = await UserSchema.findOne({'email':email});
 
   let result = {};
@@ -309,49 +309,106 @@ app.post('/v1/login',  async(req, res, next)=> {
     } 
   }
 
-  /*
-  // http://api.banlist.info:8090/api/v1/login?_format=json
-  const response = await axios.post(`${process.env.DRUPAL_API_ENV}/api/v1/login?_format=json`, {
-                                "name":user, 
-                                "password": pass, 
-                                "unique_id":"aaa"
+  return res.send(result);
+  */
+
+  
+  // http://api.banlist.info:8090/api/v1/login?_format=json 
+  const response = await axios.post(`${process.env.DRUPAL_API_ENV}/v1/login?_format=json`, {
+                                "name":email, 
+                                "password": password, 
+                                // "unique_id":"aaa"
                               },{
-                                headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
+                                // headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
                               });
 
   let data = response.data
+
+  const end = Date.now()
   
   if(data.result){
     req.session.userId    = data.user.uid;
     req.session.basicAuth = data.user.basic_auth;
     req.session.session   = data.user.session;
   }
-  */
+  
   
   // console.log(data.result)
-  // return res.send(data);
+  return res.send({...data, execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`});
 
-  return res.send(result);
+  // 
+});
+
+app.post('/v1/register',  async(req, res)=> {
+  const start = Date.now()
+
+  let email = req.body.email;
+  let name = req.body.name;
+  let password = req.body.password;
+
+  // console.log(user)
+  // console.log(pass)
+
+
+  // let encrypt = utils.encrypt("ABC");
+  // let decrypt = utils.decrypt(encrypt);
+  // console.log(encrypt);
+  // console.log(decrypt);
+  // await new UserSchema({ name: 'Silence' }).save()
+
+  // const user_schema = await UserSchema.findOne({'uid':1});
+
+  // console.log( user_schema );
+  
+  if(email === undefined &&  name === undefined && password === undefined){
+    return res.send({ status: false, message:"Email & Name & Pass is empty" });
+  }else if(email === undefined){
+    return res.send({ status: false, message:"Email is empty" });
+  }else if(name === undefined){
+    return res.send({ status: false, message:"Name is empty" });
+  }else if(password === undefined){
+    return res.send({ status: false, message:"Pass is empty" });
+  }
+
+
+  // http://api.banlist.info:8090/api/v1/login?_format=json 
+  const response = await axios.post(`${process.env.DRUPAL_API_ENV}/v1/register?_format=json`, 
+                              {
+                                "email":  email,
+                                "name":  name, 
+                                "password": password, 
+                              },{
+                                // headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
+                              });
+
+  let data = response.data
+
+  const end = Date.now()
+  
+  // if(data.result){
+  //   req.session.userId    = data.user.uid;
+  //   req.session.basicAuth = data.user.basic_auth;
+  //   req.session.session   = data.user.session;
+  // }
+  
+  
+  // console.log(data.result)
+  return res.send({...data, execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`});
+
+  // 
 });
 
 app.post('/v1/reset_password',  async(req, res, next)=> {
 
-  let user = req.body.user;
-  let pass = req.body.pass;
+  let email = req.body.email;
 
-  if(user === undefined && pass === undefined){
-    return res.send({ status: false, message:"User & Pass is empty" });
-  }else if(user === undefined){
-    return res.send({ status: false, message:"User is empty" });
-  }else if(pass === undefined){
-    return res.send({ status: false, message:"Pass is empty" });
+  if(email === undefined ){
+    return res.send({ status: false, message:"Email is empty" });
   }
 
   // http://api.banlist.info:8090/api/v1/login?_format=json
-  const response = await axios.post(`${process.env.DRUPAL_API_ENV}/api/v1/reset_password?_format=json`, {
-                                "name":user, 
-                                "password": pass, 
-                                "unique_id":"aaa"
+  const response = await axios.post(`${process.env.DRUPAL_API_ENV}/v1/reset_password?_format=json`, {
+                                "email":email, 
                               },{
                                 headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
                               });
@@ -511,18 +568,15 @@ app.post('/v1/search',  async(req, res, next)=> {
     var results = [];
     results = body.hits.hits.map((hit)=>{ 
                                         let title   = hit._source.title[0];
-                                        let name    = hit._source.field_sales_person_name[0];
-                                        let surname = hit._source.field_sales_person_surname[0];
-                                        let name_surname    = hit._source.banlist_name_surname_field[0];
+                                        let name    = utils.isEmpty(hit._source.field_sales_person_name) ? "" : hit._source.field_sales_person_name[0];  
+                                        let surname = utils.isEmpty(hit._source.field_sales_person_surname) ? "" : hit._source.field_sales_person_surname[0];  
+                                        let name_surname    = utils.isEmpty(hit._source.banlist_name_surname_field) ? "" : hit._source.banlist_name_surname_field[0]; 
                                         let owner_id        = hit._source.uid[0];
-                                        let transfer_amount = hit._source.field_transfer_amount[0];
-                                        let detail          = hit._source.body[0];
+                                        let transfer_amount = utils.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount[0]; 
+                                        let detail          = utils.isEmpty(hit._source.body) ? "" : hit._source.body[0] ;
                                         let id              = hit._source.nid[0];
-                                        let id_card_number  = hit._source.field_id_card_number[0];
-
-                                        // let images          = hit._source.field_images;
-
-                                        let images = hit._source.banlist_images_field;
+                                        let id_card_number  = utils.isEmpty(hit._source.field_id_card_number) ? [] : hit._source.field_id_card_number[0] ;
+                                        let images          = hit._source.banlist_images_field;
 
                                         return {id, owner_id, name, surname, name_surname, title, transfer_amount, detail, id_card_number, images}
                                       });

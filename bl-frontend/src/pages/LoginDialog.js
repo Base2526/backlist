@@ -1,5 +1,6 @@
 import React, { Component, isValidElement, useEffect, useRef } from "react";
-import { Modal } from "react-bootstrap";
+
+import { Modal, Button } from "react-bootstrap";
 import { connect } from 'react-redux'
 import GoogleLogin from 'react-google-login';
 import FacebookLogin from 'react-facebook-login';
@@ -116,7 +117,7 @@ const LoginDialog = (props) => {
                         id="name"
                         className="form-control"
                         placeholder="Enter display name"
-                        value={email}
+                        value={displayName}
                         onChange={(e)=>{
                           setDisplayName(e.target.value)
                         }}
@@ -230,7 +231,14 @@ const LoginDialog = (props) => {
   const contentFooter = () =>{
     switch(mode){
       case 'login':{
-        return  <div className="form-action" class="col-sm-12">
+
+        return  <Modal.Footer>
+                  <Button variant="secondary" onClick={()=>props.onClose()}>Close</Button>
+                  <Button variant="primary" onClick={handleFormSubmit} >Login</Button>
+                </Modal.Footer> 
+
+                /*
+        return  <div>
                   <button
                     type="submit"
                     onClick={handleFormSubmit}
@@ -257,33 +265,45 @@ const LoginDialog = (props) => {
                       this.responseFacebook(response)
                     }} />
                 </div>
+                */
       }
 
       case 'register':{
-        return  <div className="form-action" className="col-sm-12">
-                  <button
-                    type="submit"
-                    disabled={ (isEmpty(displayName) && isEmpty(email) && isEmpty(password)) ? true: false }
-                    className={"div-button"} >Register 
-                    { registerLoading && <CircularProgress size={15}/> }
-                    </button>
-                </div>
+
+        return  <Modal.Footer>
+                  <Button variant="secondary" onClick={()=>props.onClose()}>Close</Button>
+                  <Button variant="primary" onClick={handleFormSubmit} >Register</Button>
+                </Modal.Footer> 
+
+        // return  <div className="form-action" className="col-sm-12">
+        //           <button
+        //             type="submit"
+        //             disabled={ (isEmpty(displayName) && isEmpty(email) && isEmpty(password)) ? true: false }
+        //             className={"div-button"} >Register 
+        //             { registerLoading && <CircularProgress size={15}/> }
+        //             </button>
+        //         </div>
       }
 
       case 'forgot':{
-        return<div className="form-action" className="col-sm-12">
-                <button
-                  type="submit"
-                  disabled={ isEmpty(email) ? true: false }
-                  className={"div-button"} >Send 
-                  { forgotLoading && <CircularProgress size={15}/> }
-                </button>
-              </div>
+        return  <Modal.Footer>
+                  <Button variant="secondary" onClick={()=>props.onClose()}>Close</Button>
+                  <Button variant="primary" onClick={handleFormSubmit} >Send</Button>
+                </Modal.Footer> 
+
+        // return<div className="form-action" className="col-sm-12">
+        //         <button
+        //           type="submit"
+        //           disabled={ isEmpty(email) ? true: false }
+        //           className={"div-button"} >Send 
+        //           { forgotLoading && <CircularProgress size={15}/> }
+        //         </button>
+        //       </div>
       }
     }
   }
 
-  const handleFormSubmit = (formSubmitEvent) => {
+  const handleFormSubmit = async (formSubmitEvent) => {
     console.log("handleFormSubmit mode : ", mode);
     formSubmitEvent.preventDefault();
 
@@ -298,37 +318,68 @@ const LoginDialog = (props) => {
           onToast("error", "Email is empty.")
         }else if(isEmpty(_password)){
           onToast("error", "Password is empty.")
-        }else if(!isEmailValid(_email)){
+        } /*else if(!isEmailValid(_email)){
           onToast("error", "Email is Invalid.")
-        }else {
+        }*/ else {
+
+          // setLoginLoading(true)
+          let response =  await axios.post(`/api/v1/login`, { email: _email,  password: _password,  }, { headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} });
+
+          response = response.data
+
+          // setLoginLoading(false)
+          if(response.result){
+            let user = response.user
+               // let { userLogin,
+            //       ___followUp,
+            //       fetchMyApps,
+            //       addfollowerPost,
+            //       addMyApps } = props
+
+            props.userLogin(user)
+
+            console.log('/api/login > user : ', user)
+
+            props.onClose()
+
+            onToast("info", `Welcome to banlist.info`)
+          }else{
+            onToast("error", response.message)
+          }
+
+          /*
           setLoginLoading(true)
-          axios.post(`/api/login?_format=json`, {
+          axios.post(`/api/v1/login`, {
             name: _email, 
             password: _password, 
-            unique_id: uniqueId()
+            // unique_id: uniqueId()
           })
           .then((response) => {
             let results = response.data
     
-            let { userLogin,
-                  ___followUp,
-                  fetchMyApps,
-                  addfollowerPost,
-                  addMyApps } = props
+            
+            // let { userLogin,
+            //       ___followUp,
+            //       fetchMyApps,
+            //       addfollowerPost,
+            //       addMyApps } = props
     
-            if(results.result === true){ 
+            // if(results.result === true){ 
 
-              let {user, my_apps} = results
+            //   let {user, my_apps} = results
 
-              userLogin(user)
-              addMyApps(my_apps);
+            //   userLogin(user)
+            //   addMyApps(my_apps);
     
-              props.onClose()
-              onToast("info", `Welcome to banlist.info`)
-            }else{
-              onToast("error", results.message)
-            }
+            //   props.onClose()
+            //   onToast("info", `Welcome to banlist.info`)
+            // }else{
+            //   onToast("error", results.message)
+            // }
     
+            // setLoginLoading(false)
+            
+
             setLoginLoading(false)
     
             console.log('/api/login > results : ', results)
@@ -338,6 +389,7 @@ const LoginDialog = (props) => {
             onToast("error", error)
             setLoginLoading(false)
           });
+          */
         }
 
         break;
@@ -359,10 +411,11 @@ const LoginDialog = (props) => {
         }else if(!isEmailValid(_email)){
           onToast("error", "Email is Invalid.")
         }else {
-          props.onClose()
+          // props.onClose()
         
+          /*
           setRegisterLoading(true)
-          axios.post(`/api/register?_format=json`, {
+          axios.post(`/api/v1/login`, {
             type: 0,
             name: _displayName,
             email: _email, 
@@ -386,6 +439,24 @@ const LoginDialog = (props) => {
             onToast("error", error)
             setRegisterLoading(false)
           });
+
+          */
+
+          console.log('/api/v1/register > start')
+          let response =  await axios.post(`/api/v1/register`, { email: _email, name: _displayName, password: _password,  }, { headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} });
+
+          console.log('/api/v1/register > response : ', response)
+          response = response.data
+
+          // setLoginLoading(false)
+          if(response.result){
+           
+            setMode('login');
+            
+            onToast("info", `Register success`)
+          }else{
+            onToast("error", response.message)
+          }
         
         }
         break;
@@ -399,8 +470,9 @@ const LoginDialog = (props) => {
           onToast("error", "Email is Invalid.")
         }else {
 
+          /*
           setForgotLoading(true)
-          axios.post(`/api/reset_password?_format=json`, {
+          axios.post(`/api/v1/reset_password`, {
             email: _email
           })
           .then((response) => {
@@ -419,6 +491,13 @@ const LoginDialog = (props) => {
             onToast("error", error)
             setForgotLoading(false)
           });
+          */
+
+          console.log('/api/v1/reset_password > start')
+          let response =  await axios.post(`/api/v1/reset_password`, { email: _email }, { headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} });
+
+          console.log('/api/v1/reset_password > response : ', response)
+          response = response.data
         }
         break;
       }
@@ -453,9 +532,9 @@ const LoginDialog = (props) => {
         <Modal.Body>
           {contentBody()}
         </Modal.Body>
-        <Modal.Footer>
-          {contentFooter()}
-        </Modal.Footer> 
+
+        {contentFooter()}
+      
       </Modal>
     </div>
   )

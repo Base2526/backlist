@@ -41,6 +41,7 @@ const HomePage = (props) => {
 
   useEffect(() => {
     console.log("useEffect #0", props.my_apps)
+
   });
 
   useEffect(() => {

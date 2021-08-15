@@ -118,12 +118,12 @@ class ResetPasswordResource extends ResourceBase {
           return new JsonResponse( $response_array );
         }
       }else{
-        // $user = user_load_by_name($email);
-        // if(empty( $user )){
+        $user = user_load_by_name($email);
+        if(empty( $user )){
           $response_array['result']   = FALSE;
           $response_array['message']  = t('@email is not recognized as a username.', array('@email' => $email))->__toString();
           return new JsonResponse( $response_array );
-        // }
+        }
       }
 
       // $name = $this->requestStack->getCurrentRequest()->query->get('name');
@@ -150,7 +150,7 @@ class ResetPasswordResource extends ResourceBase {
 
       $response_array['result']   = TRUE;
       $response_array['execution_time']   = microtime(true) - $time1;
-      $response_array['$account'] = $user;
+      $response_array['account'] = $user;
       
       // $response['message']  = t('@id | @name |  @email', array('@id'=>$user->id(), '@name' => $user->getUsername(), '@email' => $user->getEmail()))->__toString();
       return new JsonResponse( $response_array );

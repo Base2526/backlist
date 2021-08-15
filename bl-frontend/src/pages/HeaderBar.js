@@ -61,7 +61,7 @@ const HeaderBar = (props) => {
                                                       onClick={()=>{
                                                         setShowModal(true)
                                                       }}>
-                                                      เข้าสู่ระบบ/สมัครสมาชิก
+                                                      เข้าสู่ระบบ
                                                     </div>
                                                   </li> 
                                                   </ul>
@@ -149,6 +149,7 @@ const HeaderBar = (props) => {
   
 const mapStateToProps = (state, ownProps) => {
 
+  console.log("HeaderBar: ", state)
 	return {
     user: state.user.data,
     data: state.app.data,
