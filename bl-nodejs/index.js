@@ -33,9 +33,11 @@ const path = require('path');
 const rfs = require('rotating-file-stream');
 // const logger = require('./util/loggerEasy');
 const logger = require('./util/logger');
-const { stream } = logger;
-const connection = require("./connection")
-const UserSchema = require('./models/UserSchema');
+const { stream }    = logger;
+const connection    = require("./connection")
+const UserSchema    = require('./models/UserSchema');
+const FilesSchema   = require('./models/FilesSchema');
+const ArticlesSchema = require('./models/ArticlesSchema');
 
 const utils = require('./util/utils');
 
@@ -372,23 +374,65 @@ app.post('/v1/logout', (req, res, next) =>{
   res.send({"result": true});
 });
 
-app.post('/v1/get_html',  async(req, res, next)=> {
+app.post('/v1/profile',  async(req, res, next)=> {
+  try {
+    const start = Date.now()
 
-  let nid = req.body.nid;
+    let uid = req.body.uid;
 
-  if(nid === undefined){
-    return res.send({ status: false, message:"NID is empty" });
+    if(uid === undefined){
+      return res.send({ result: false, message:"UID is empty" });
+    }
+
+    const user_schema = await UserSchema.findOne({'uid':uid});
+    const end = Date.now()
+
+    let data = {
+                result : true,
+                execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+                data   : user_schema
+                }
+    return res.send(data);
+  } catch (err) {
+    logger.error(err);
+    return res.send({result : false, message: err});
   }
+});
 
-  // http://api.banlist.info:8090/api/v1/login?_format=json
-  const response = await axios.post(`${process.env.DRUPAL_API_ENV}/api/v1/get_html?_format=json`, {
-                                "nid":nid
-                              },{
-                                headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
-                              });
-  let data = response.data
-  
-  return res.send(data);
+app.post('/v1/get_html',  async(req, res, next)=> {
+  try {
+    const start = Date.now()
+
+    let nid = req.body.nid;
+
+    if(nid === undefined){
+      return res.send({ result: false, message:"NID is empty" });
+    }
+
+    /*
+    // http://api.banlist.info:8090/api/v1/login?_format=json
+    const response = await axios.post(`${process.env.DRUPAL_API_ENV}/v1/get_html?_format=json`, {
+                                  "nid":nid
+                                },{
+                                  headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
+                                });
+    let data = response.data
+    */
+
+    const articles_schema = await ArticlesSchema.findOne({'nid':nid});
+    const end = Date.now()
+
+    let data = {
+                result : true,
+                execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+                data   : articles_schema.body
+                }
+
+    return res.send(data);
+  } catch (err) {
+    logger.error(err);
+    return res.send({result : false, message: err});
+  }
 });
 
 app.post('/v1/search',  async(req, res, next)=> {
@@ -398,43 +442,121 @@ app.post('/v1/search',  async(req, res, next)=> {
   const start = Date.now()
   try {
     let key_word = req.body.key_word;
+    let full_text_fields = req.body.full_text_fields;
+
+    console.log("full_text_fieldsfull_text_fieldsfull_text_fieldsfull_text_fieldsfull_text_fields")
+    console.log(full_text_fields)
 
     if(key_word === undefined){
       return res.send({ status: false, message:"Keyword is empty" });
     }
 
-    /*
-    // http://api.banlist.info:8090/api/v1/login?_format=json
-    const response = await axios.post(`${process.env.DRUPAL_API_ENV}/api/search?_format=json`, {
-                                  "key_word":key_word
-                                },{
-                                  headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
-                                });    
 
-    // "execution_time": `Time Taken to execute = ${(Date.now() - start)/1000} seconds`,
-
-    logger.error("xx");
-
-    let result = {};
-    if(response.data.result){
-      return res.send({...response.data, ...{"execution_time2": `Time Taken to execute = ${(Date.now() - start)/1000} seconds`}});
-    }else{
-      return res.send(response.data);
+    let query = {
+      query: {
+        "query_string": {
+          "fields": [ "field_sales_person_name", "body" ],
+          "query": `*${key_word}*`,
+        },
+        
+        
+        //   query: { match_all: {}},
+        //  sort: [{ "nid": { "order": "asc" } }],
+        //  from: 0,
+        //  size: 5,
+        
+      },
+      size: 5,
     }
-    */
 
+    if(!utils.isEmpty(full_text_fields)){
+      full_text_fields = JSON.parse(full_text_fields);
+
+      query = {
+        query: {
+          "query_string": {
+            "fields": full_text_fields,
+            "query": `*${key_word}*`,
+          },
+          
+          
+          //   query: { match_all: {}},
+          //  sort: [{ "nid": { "order": "asc" } }],
+          //  from: 0,
+          //  size: 5,
+          
+        },
+        size: 5,
+      }
+    }
+    
+    // http://api.banlist.info:8090/api/v1/login?_format=json
+    // const response = await axios.post(`${process.env.DRUPAL_API_ENV}/v1/search?_format=json`, {
+    //                               "key_word":key_word
+    //                             },{
+    //                               headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
+    //                             });   
+                                
+    // const end = Date.now()
+    
+
+    ///------------------
+   
+  
+    const { body } = await client.search({
+      index: 'elasticsearch_index_banlist_content_back_list',
+      body:  query
+    })
+
+    var results = [];
+    results = body.hits.hits.map((hit)=>{ 
+                                        let title   = hit._source.title[0];
+                                        let name    = hit._source.field_sales_person_name[0];
+                                        let surname = hit._source.field_sales_person_surname[0];
+                                        let name_surname    = hit._source.banlist_name_surname_field[0];
+                                        let owner_id        = hit._source.uid[0];
+                                        let transfer_amount = hit._source.field_transfer_amount[0];
+                                        let detail          = hit._source.body[0];
+                                        let id              = hit._source.nid[0];
+                                        let id_card_number  = hit._source.field_id_card_number[0];
+
+                                        // let images          = hit._source.field_images;
+
+                                        let images = hit._source.banlist_images_field;
+
+                                        return {id, owner_id, name, surname, name_surname, title, transfer_amount, detail, id_card_number, images}
+                                      });
+    const end = Date.now()
+
+    /*
+    all_result_count: 10
+    count: 10
+    */
+    ///------------------
+    // if(response.data.result){
+    return res.send({ result        : true,
+                      execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`, 
+                      body          : body,
+                      datas         : results ,
+                      all_result_count: body.hits.total.value,
+                      count         : results.length });
+    // }else{
+    //   return res.send(response.data);
+    // }
+    
+    /*
     const query = {
       query: {
         "query_string": {
           "fields": [ "field_sales_person_name", "body" ],
           "query": `*${key_word}*`,
         },
-        /*    
-          query: { match_all: {}},
-          sort: [{ "nid": { "order": "asc" } }],
-          from: 0,
-          size: 5,
-        */
+        
+        //   query: { match_all: {}},
+        //  sort: [{ "nid": { "order": "asc" } }],
+        //  from: 0,
+        //  size: 5,
+        
       }
     }
   
@@ -443,17 +565,16 @@ app.post('/v1/search',  async(req, res, next)=> {
       body:  query
     })
 
-    
     return res.send({"result"        : true,
                      "execution_time": `Time Taken to execute = ${(Date.now() - start)/1000} seconds`,
                      "count"         : body.hits.total.value,
                      "datas"         : body.hits.hits,
                      });
+                     */
   
   } catch (err) {
     logger.error(err);
-
-    return res.send(err);
+    return res.send({"result" : false, "message": err});
   }
 });
 

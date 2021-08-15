@@ -2,8 +2,11 @@
 FROM node:alpine as build
 WORKDIR /app
 COPY . .
+
+# yarn cache clean
+RUN yarn cache clean
 # RUN yarn
-RUN yarn install
+RUN yarn install 
 
 # dev
 # EXPOSE 3000 < Is defualt post not setup

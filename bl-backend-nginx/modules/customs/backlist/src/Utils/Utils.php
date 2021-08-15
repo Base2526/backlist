@@ -4758,7 +4758,8 @@ class Utils extends ControllerBase {
           }
           $image_url = "";  
           if (!$user->get('user_picture')->isEmpty()) {
-            $image_url = file_create_url($user->get('user_picture')->user->getFileUri());
+            // $displayImg = file_create_url($user->user_picture->entity->getFileUri());
+            $image_url = file_create_url($user->user_picture->entity->getFileUri());
           }
   
           $gender  = 0;
@@ -4850,8 +4851,44 @@ class Utils extends ControllerBase {
       // Utils::setup_file_mongodb();
       //--------------  file  -------------------
 
+
+      //-------------- สำหรับนักพัฒนา, About us, Terms of service ----------------------
+      $articles = array(1, 2, 3);
+      foreach($articles as $nid){
+        $node = Node::load($nid);
+
+        $bundle = 'articles';
+        $exists = in_array($bundle, $collectionNames);
+    
+        if(!$exists){
+          $collection = $db->createCollection($bundle);
+          if($collection->ok){
+            dpm( "OK");
+          }
+        }
+    
+        $articles = $db->articles;
+        $filter = array('nid' => $node->id() );
+
+        if($articles->count($filter)){
+          // $articles->updateOne(
+          //                 [ 'nid' => $node->id() ],
+          //                 [ '$set' => [ "title" => $node->label(), "body" => empty($node->get('body')->getValue()) ? "" : $node->get('body')->getValue()[0]['value'] ]]
+          //                 );
+        }else{
+          $document = array( 
+            "nid"   => $node->id(), 
+            "title" => $node->label(),
+            "body" => empty($node->get('body')->getValue()) ? "" : $node->get('body')->getValue()[0]['value']
+          );
+          $articles->insertOne($document);
+        }
+        
+      }
+      //-------------- สำหรับนักพัฒนา, About us, Terms of service ----------------------
+
     } catch (\Throwable $e) {
-      \Drupal::logger('setup_mongodb')->notice($e->__toString());
+      \Drupal::logger('setup_mongodb')->error($e->__toString());
     }
   }
 

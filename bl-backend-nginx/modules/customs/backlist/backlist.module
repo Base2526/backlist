@@ -464,18 +464,88 @@ function user_iu(EntityInterface $entity){
 /**
  * Implements hook_ENTITY_TYPE_insert().
  */
-function backlist_node_insert(Node $node) {
-  if ($node->bundle() == 'back_list') {
-    $field_channel = $node->get('field_channel')->getValue();
+function backlist_node_insert(EntityInterface $entity) {
+  if ($entity->bundle() == 'back_list') {
+    $field_channel = $entity->get('field_channel')->getValue();
     if(empty($field_channel) || $field_channel[0]['target_id'] == 31){
       // add from web
-      $response = new RedirectResponse(Url::fromRoute('entity.node.canonical', ['node' => $node->id()], ['absolute' => TRUE])->toString());
+      $response = new RedirectResponse(Url::fromRoute('entity.node.canonical', ['node' => $entity->id()], ['absolute' => TRUE])->toString());
       $response->send();
     }else{
       // add from api
     }
   }
 }
+
+function backlist_node_update(EntityInterface $entity) {
+  try{
+    if ($entity->bundle() == 'article') {
+      $articles = array(1, 2, 3); // สำหรับนักพัฒนา, About us, Terms of service
+
+      if (in_array($entity->id(), $articles)) {
+        $db = Utils::MongoDB()->bl;
+
+        $bundle = 'articles';
+        $collections = $db->listCollections();
+        $collectionNames = [];
+        foreach ($collections as $collection) {
+          $collectionNames[] = $collection->getName();
+        }
+    
+        $exists = in_array($bundle, $collectionNames);
+    
+        if(!$exists){
+          $collection = $db->createCollection($bundle);
+          if($collection->ok){
+            dpm( "OK");
+          }
+        }
+    
+        $articles = $db->articles;
+        $filter = array('nid' => $entity->id() );
+
+        if($articles->count($filter)){
+          $articles->updateOne(
+                          [ 'nid' => $entity->id() ],
+                          [ '$set' => [ "title" => $entity->label(), "body" => empty($entity->get('body')->getValue()) ? "" : $entity->get('body')->getValue()[0]['value'] ]]
+                          );
+        }else{
+          $document = array( 
+            "nid"   => $entity->id(), 
+            "title" => $entity->label(),
+            "body" => empty($entity->get('body')->getValue()) ? "" : $entity->get('body')->getValue()[0]['value']
+          );
+          $articles->insertOne($document);
+        }
+      }
+    }
+
+  } catch (\Throwable $e) {
+    \Drupal::logger('backlist_node_update')->error($e->__toString());
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_delete().
+ */
+function backlist_node_delete(EntityInterface $entity) {
+  switch($entity->bundle()){
+    case 'back_list':{
+
+      Utils::node_my_apps($entity->getOwnerId());
+
+      \Drupal::logger('backlist_node_delete')->error( $entity->id() );
+
+      $twit_id = $entity->get('field_twit_id')->getValue();
+      if(!empty($twit_id)){
+        Utils::Twitter_Delete_By_TwitId($twit_id[0]['value']);
+      }
+      
+      break;
+    }
+  }
+}
+
 
 function backlist_comment_insert(EntityInterface $entity) {
   \Drupal::logger('backlist_comment_insert')->error( "1" );
@@ -523,26 +593,6 @@ function backlist_config_pages_update(EntityInterface $entity) {
   \Drupal::logger('backlist_config_pages_update')->error( "backlist_config_pages_update" );
 }
 
-/**
- * Implements hook_ENTITY_TYPE_delete().
- */
-function backlist_node_delete(EntityInterface $entity) {
-  switch($entity->bundle()){
-    case 'back_list':{
-
-      Utils::node_my_apps($entity->getOwnerId());
-
-      \Drupal::logger('backlist_node_delete')->error( $entity->id() );
-
-      $twit_id = $entity->get('field_twit_id')->getValue();
-      if(!empty($twit_id)){
-        Utils::Twitter_Delete_By_TwitId($twit_id[0]['value']);
-      }
-      
-      break;
-    }
-  }
-}
 
 /*
  * Implements hook_theme()

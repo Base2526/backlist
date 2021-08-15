@@ -2,6 +2,10 @@
 
 var http = require('http')
 var socketio = require('socket.io');
+// var mongoStore = require('socket.io-mongo');
+
+const utils = require('../util/utils');
+var SocketsSchema = require('../models/SocketsSchema');
 
 const app = require("../index");
 
@@ -50,14 +54,45 @@ server.listen(PORT, function () {
   console.log(`Webserver is ready and listening on port ${PORT}`);
 });
 
+// const {
+//   MONGO_HOSTNAME_ENV,
+//   MONGO_PORT_ENV,
+//   MONGO_DATABASE_NAME_ENV,
+//   MONGO_USERNAME_ENV,
+//   MONGO_PASSWORD_ENV
+// } = process.env;
+
+
+// mongoUrl: `mongodb://${MONGO_USERNAME_ENV}:${MONGO_PASSWORD_ENV}@${MONGO_HOSTNAME_ENV}:${MONGO_PORT_ENV}/${MONGO_DATABASE_NAME_ENV}?authSource=admin`
+// io.configure(function() {
+//   var store = new mongoStore({url: `mongodb://${MONGO_USERNAME_ENV}:${MONGO_PASSWORD_ENV}@${MONGO_HOSTNAME_ENV}:${MONGO_PORT_ENV}/${MONGO_DATABASE_NAME_ENV}?authSource=admin` });
+//   store.on('error', console.error);
+//   io.set('store', store);
+// });
+
 io.on('connection', async (socket) => {
   let handshake = socket.handshake;
-  console.log(handshake.query.unique_id)
 
-  console.log(`Socket ${socket.id} connection`)
+  var t = handshake.query.t;
+  var uid = handshake.query.uid;
+  var unique_id = handshake.query.unique_id;
+  var platform = handshake.query.platform;
+
+  // console.log(handshake.query.unique_id)
+
+  console.log(`Socket ${socket.id} - ${unique_id} - ${t} connection`)
   console.log(socket)
 
-  socket.on('disconnect', () => {
+  socket.emit('uniqueID', { ...handshake.query, "socketID": socket.id });
+
+
+  await new SocketsSchema({ t, socketId: socket.id, platform,  auth: (utils.isEmpty(handshake.auth) ? "" : handshake.auth.token) }).save()
+
+  socket.on('disconnect', async() => {
+
+    console.log(`Socket ${socket.id} - ${unique_id} - ${t} disconnect`)
+
+    await SocketsSchema.deleteMany({t})
   });
 });
   

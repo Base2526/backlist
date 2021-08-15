@@ -44,3 +44,4 @@ exports.decrypt = (text) => {
 exports.isEmpty = (value) => {
     return (value == null || value.length === 0);
 }
+

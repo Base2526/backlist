@@ -9,6 +9,8 @@ import { CacheSwitch, CacheRoute, } from "react-router-cache-route";
 import axios from 'axios';
 import { Base64 } from 'js-base64';
 
+import ls from 'local-storage';
+
 import Breadcrumbs from './pages/Breadcrumbs'
 import HeaderBar from './pages/HeaderBar';
 import Footer from './pages/Footer';
@@ -65,7 +67,7 @@ const App = (props) => {
   } 
 
   const socketid = () =>{
-    console.log('process.env :', process.env)
+    console.log('process.env :', process.env, ', props : ', props)
 
     /*
     
@@ -83,10 +85,27 @@ const App = (props) => {
                       //     token: "abcd"
                       //   }
                       // },
-                      { path: '/mysocket' },
-                      { query:{"platform"  : process.env.REACT_APP_PLATFORM, 
-                               "unique_id" : _uniqueId(props),
-                               "version"   : process.env.REACT_APP_VERSIONS }}, 
+                      { 
+                        path: '/api/mysocket',
+                        query: {
+                          "platform" : process.env.REACT_APP_PLATFORM, 
+                          // "unique_id": _uniqueId(props),
+                          "version"  : process.env.REACT_APP_VERSIONS
+                        },
+                        auth: {
+                          token: "abcd"
+                        }
+                      },
+                      // {
+                      //   auth: {
+                      //     token: "123"
+                      //   },
+                      //   query: {
+                      //     "unique_id": "my-value"
+                      //   }
+                      // },
+                      // { query:{ `platform=${process.env.REACT_APP_PLATFORM}&unique_id=3434&version=${process.env.REACT_APP_VERSIONS}` }}, 
+                      
                       { transports: ["websocket"] });
 
     if (socket.connected === false && socket.connecting === false) {
@@ -112,6 +131,12 @@ const App = (props) => {
 
   const onUniqueID = (data) =>{
     console.log("unique_id :", data)
+
+    ls.set('socketIO', JSON.stringify(data))
+
+    var socketIO = ls.get('socketIO')
+
+    console.log("socketIO :", socketIO)
   }
 
   const onDisconnect = () =>{

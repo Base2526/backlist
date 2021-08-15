@@ -8,5 +8,8 @@ const UserSchema = new mongoose.Schema({
     image_url: String,
     gender: String,
     type_login: String,
+},
+{
+    timestamps: true
 });
 module.exports = mongoose.model("user", UserSchema); 
