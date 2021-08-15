@@ -6,12 +6,13 @@ import { Markup } from 'interweave';
 import { CircularProgress } from '@material-ui/core';
 import {isEmpty} from '../utils'
 
+
 const ForDeveloperPage = (props) => {
     const history = useHistory();
     const [data, setData]  = React.useState("");
 
     useEffect(() => {
-        axios.post(`/api/getHTML?_format=json`, {'nid':151}, {
+        axios.post(`/api/v1/get_html`, {'nid':1}, {
             headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`}
         })
         .then(function (response) {
@@ -21,7 +22,6 @@ const ForDeveloperPage = (props) => {
             }
         })
         .catch(function (error) {
-            console.log("TermsofServicePage > error :", error)
         });
     });
 

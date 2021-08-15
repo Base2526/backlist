@@ -57,8 +57,8 @@ const UseHomeItem = (props) => {
     }
   
     
-    let thumbnail = item.images.thumbnail
-    let medium    = item.images.medium
+    let thumbnail = item.images[0]
+    let medium    = item.images[1]
 
     // thumbnail = [{url:'https://scontent.fbkk5-1.fna.fbcdn.net/v/t1.6435-9/215541769_468809007538018_7514224006994884957_n.jpg?_nc_cat=109&ccb=1-3&_nc_sid=730e14&_nc_eui2=AeFpOyNqlQtdgtwQ8dNA_0sYjbI7gtXtJNaNsjuC1e0k1pVNF88_vEsFfEh6D5g2kkzCX0OZ2RUBIRsOcnB8BWWs&_nc_ohc=IAIr6v2N5woAX91kaO2&_nc_ht=scontent.fbkk5-1.fna&oh=f74a0901be43ddb1f0f66c6ab5307722&oe=60EDC748'}]
     // medium = [{url:'https://scontent.fbkk5-1.fna.fbcdn.net/v/t1.6435-9/215541769_468809007538018_7514224006994884957_n.jpg?_nc_cat=109&ccb=1-3&_nc_sid=730e14&_nc_eui2=AeFpOyNqlQtdgtwQ8dNA_0sYjbI7gtXtJNaNsjuC1e0k1pVNF88_vEsFfEh6D5g2kkzCX0OZ2RUBIRsOcnB8BWWs&_nc_ohc=IAIr6v2N5woAX91kaO2&_nc_ht=scontent.fbkk5-1.fna&oh=f74a0901be43ddb1f0f66c6ab5307722&oe=60EDC748'}]

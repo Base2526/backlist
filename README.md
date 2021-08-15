@@ -8,11 +8,8 @@ docker exec  -t -u postgres 49b9509f7e98 pg_dumpall -c > dump_`date +%d-%m-%Y"_"
 
 docker exec  -t -u kong 8e98189b5fdb /usr/local/pgsql-12/pg_dump -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
 
-
 Restore:
 cat dump_06-08-2021_02_57_05.sql | docker exec -i acbb167067ac psql -Upostgres
-
-
 
 
 Facebook Login

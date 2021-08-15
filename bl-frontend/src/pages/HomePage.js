@@ -100,7 +100,7 @@ const HomePage = (props) => {
 
   const fetch = () =>{
     setLoading(true)
-    axios.post(`/v1/search`, {
+    axios.post(`/api/v1/search`, {
       type: 0,
       key_word: '*',
       offset: currentPage - 1
@@ -109,17 +109,18 @@ const HomePage = (props) => {
     })
     .then((response) => {
       let results = response.data
-      console.log('/v1/search : ', results)
+      console.log('/api/v1/search : ', results)
       if(results.result){
         // true
-        // let {execution_time, datas, count, all_result_count} = results;
-        // props.fetchData(datas);
-        // setAllDatas(mergeArrays(allDatas, datas))
-        // setCurrentDatas(datas)
+        let {execution_time, datas, count, all_result_count} = results;
+        props.fetchData(datas);
+        setAllDatas(mergeArrays(allDatas, datas))
+        setCurrentDatas(datas)
         
 
-        // setAllResultCount(all_result_count)
-        // setTotalPages(Math.ceil(all_result_count / pageLimit))
+        setAllResultCount(all_result_count)
+        setTotalPages(Math.ceil(all_result_count / pageLimit))
+
       }
 
       setLoading(false)
@@ -257,14 +258,14 @@ const HomePage = (props) => {
                     { renderContent() }
 
                     <div className="w-100 px-4 py-5 d-flex flex-row flex-wrap align-items-center justify-content-between">
-                      {/* <div className="d-flex flex-row py-4 align-items-center">
+                      <div className="d-flex flex-row py-4 align-items-center">
                         <Pagination
                           totalRecords={allResultCount}
                           pageLimit={pageLimit}
                           pageNeighbours={1}
                           onPageChanged={onPageChanged}
                         />
-                      </div> */}
+                      </div>
                       <div className="d-flex flex-row align-items-center">
                         {currentPage && (
                           <span className="current-page d-inline-block h-100 pl-4 text-secondary">

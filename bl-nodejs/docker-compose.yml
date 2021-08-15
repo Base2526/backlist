@@ -106,7 +106,7 @@ services:
     depends_on:
       - mongo
     ports:
-      - "8888:8081"
+      - "8081:8081"
     networks:
       - nodejs-network
 
