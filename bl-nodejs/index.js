@@ -7,8 +7,22 @@ const cookieParser = require("cookie-parser");
 const mongoStore = require('connect-mongo');
 const axios = require('axios')
 
+const upload = require("express-fileupload");
+const FormData = require('form-data'); 
+const _ = require('lodash');
+const fs = require('fs');
+
+var bodyParser = require('body-parser')
+
 // Api
+var cors = require("cors");
 const app = express();
+
+//MIDDLEWARES
+app.use(upload({
+  createParentPath: true,
+}));
+app.use(cors());
 
 // https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/client-connecting.html#authentication
 const { Client } = require('@elastic/elasticsearch')
@@ -136,9 +150,27 @@ app.use(sessions({
   })
 }));
 
+
+// app.use(bodyParser.json({limit: '10mb'}));
+// app.use(bodyParser.urlencoded({
+//   parameterLimit: 100000,
+//   limit: '50mb',
+//   extended: true
+// }));
+
+// app.use(bodyParser.urlencoded({
+//   limit: "500mb",
+//   extended: false
+// }));
+// app.use(bodyParser.json({limit: "500mb"}));
+
+app.use(express.json({limit: '500mb'}));
+app.use(express.urlencoded({limit: '500mb'}));
+
+
 // parsing the incoming data
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
 
 //serving public file
 app.use(express.static(__dirname));
@@ -492,6 +524,150 @@ app.post('/v1/get_html',  async(req, res, next)=> {
   }
 });
 
+/*
+upload image 
+https://attacomsian.com/blog/uploading-files-nodejs-express
+*/
+app.post('/v1/add_banlist',  async(req, res, next)=> {
+
+  // logger.error(`Ready Listening on port 2`);
+
+  const start = Date.now()
+  try {
+    // let key_word = req.body.key_word;
+    // let type     = req.body.type;
+    // let offset   = req.body.offset;
+    // let full_text_fields = req.body.full_text_fields;
+
+    // const file = req.files;
+    // const bodyData = req.body;
+
+    const file = req.files;
+    const bodyData = req.body;
+
+    console.log('file > [files[]] = ', file['files[]'])
+    
+    console.log('file >  ', file)
+    console.log('bodyData > ', bodyData)
+
+    //-------------------
+
+    let photos = []; 
+    
+    //loop all files
+    // _.forEach(_.keysIn(file), (key) => {
+    //     let photo = file[key];
+        
+    //     console.log('photo : ', photo, key)
+    //     //move photo to uploads directory
+    //     // photo.mv('./uploads/' + photo.name);
+
+    //     //push file details
+    //     // data.push({
+    //     //     name: photo.name,
+    //     //     mimetype: photo.mimetype,
+    //     //     size: photo.size
+    //     // });
+    // });
+
+    if(typeof file['files[]'] !== 'undefined') {
+      file['files[]'].map(async(photo) => { 
+        // form.append('files[]', file) 
+
+        let path = './uploads/' + photo.name
+        if (!fs.existsSync(path)) {
+          photo.mv(path);
+        }
+
+        photos.push({  
+            name: photo.name,
+            mimetype: photo.mimetype,
+            size: photo.size
+        });
+      })
+    }
+
+   
+    console.log('photos > ', photos)
+    //-------------------
+
+    const form = new FormData();
+    // form.append('file', req.files);
+    form.append('a', 'aaaa');
+
+    // form.append('files[]', fs.createReadStream(__dirname + '/README.md'), {
+    //   filename: '111.md'
+    //   });
+
+    photos.map((photo) => { 
+      // form.append('files[]', file) 
+      form.append('files[]', fs.createReadStream('./uploads/' + photo.name), {
+        filename: photo.name
+      });
+    })
+
+    const request_config = {
+      // headers: {
+      //   'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}`,
+      //   ...form.getHeaders()
+      // }
+      headers: { 
+        'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` , 
+        // 'Content-Type': 'multipart/form-data',
+        'Content-Type':   form.getHeaders()['content-type'],
+      },
+    
+      maxContentLength: 10000000000,
+      maxBodyLength: 10000000000
+    };
+
+    console.log('data > ', form)
+
+    // {headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` , 'content-type': 'multipart/form-data' }
+    // headers: form.getHeaders(),
+
+    /*
+    formData.getBuffer(),
+            formData.getHeaders()
+    */
+
+    // console.log("form.getBuffer() : ", form.getBuffer());
+    const response = await axios.post(`${process.env.DRUPAL_API_ENV}/api/added_banlist?_format=json`, form , request_config);
+    console.log('response > ', response);
+
+
+    // const response = await axios.post(`${process.env.DRUPAL_API_ENV}/v1/search?_format=json`, {
+    //                               "key_word":key_word
+    //                             },{
+    //                               headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
+    //                             });   
+
+    const end = Date.now()
+    if(response.status === 200){
+
+      photos.map((photo) => { 
+        let path = './uploads/' + photo.name
+        if (fs.existsSync(path)) {
+          fs.unlinkSync(path);
+        }
+      })
+
+      let data = response.data
+
+      return res.send({ result : true, 
+                        ...data, 
+                        photos,
+                        execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`, });
+    }else{
+      return res.send({result : false, "message": err});
+    }
+    
+  } catch (err) {
+    logger.error(err);
+    return res.send({result: false, "message": err});
+  }
+});
+
 app.post('/v1/search',  async(req, res, next)=> {
 
   // logger.error(`Ready Listening on port 2`);
@@ -499,15 +675,15 @@ app.post('/v1/search',  async(req, res, next)=> {
   const start = Date.now()
   try {
     let key_word = req.body.key_word;
+    let type     = req.body.type;
+    let offset   = req.body.offset;
     let full_text_fields = req.body.full_text_fields;
 
-    console.log("full_text_fieldsfull_text_fieldsfull_text_fieldsfull_text_fieldsfull_text_fields")
-    console.log(full_text_fields)
+    console.log('/v1/search >', key_word, type, offset, full_text_fields)
 
     if(key_word === undefined){
       return res.send({ status: false, message:"Keyword is empty" });
     }
-
 
     let query = {
       query: {

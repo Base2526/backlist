@@ -97,6 +97,10 @@ class AddedBanlistResource extends ResourceBase {
       
       $time1    = microtime(true);
 
+      $response_array['result']   = TRUE;
+      $response_array['execution_time']   = microtime(true) - $time1;
+      return new JsonResponse( $response_array );  
+
       /*
       $response['target'] = $request->query->get('attached_file');//isset(\Drupal::request()->request->get('attached_file')) ? \Drupal::request()->request->get('attached_file') : FALSE;
 
@@ -414,7 +418,7 @@ class AddedBanlistResource extends ResourceBase {
       }
       
       // ------------ noti to user and fetch all my_apps new
-      Utils::node_my_apps(\Drupal::currentUser()->id());
+      // Utils::node_my_apps(\Drupal::currentUser()->id());
       // ------------
       
       $response_array['result']   = TRUE;

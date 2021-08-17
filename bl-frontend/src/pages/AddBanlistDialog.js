@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux'
-import { Modal } from "react-bootstrap";
+import { Modal, Button } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import axios from 'axios';
 import { CircularProgress } from '@material-ui/core';
@@ -58,7 +58,7 @@ const AddBanlistDialog = (props) => {
     setShowModal(props.showModal)
   });
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async(e) => {
     console.log("handleFormSubmit : ");
     e.preventDefault();
 
@@ -72,8 +72,6 @@ const AddBanlistDialog = (props) => {
     console.log('ibody : ', ibody)
     console.log('itemsMBA : ', itemsMBA)
     console.log('files : ', files)
-
-    
 
     if( isEmpty(title) || 
         isEmpty(transferAmount) ||
@@ -100,6 +98,17 @@ const AddBanlistDialog = (props) => {
   
       files.map((file) => { data.append('files[]', file) })
 
+
+      console.log("/api/v1/add_banlist start ")
+
+      // setLoginLoading(true)
+      let response =  await axios.post(`/api/v1/add_banlist`, data, { headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`, 'content-type': 'multipart/form-data'} });
+
+      response = response.data
+
+      console.log("/api/v1/add_banlist > ", response)
+
+      /*
       setCreateLoading(true)
 
       axios.post(`/api/added_banlist?_format=json`, data, {
@@ -148,6 +157,7 @@ const AddBanlistDialog = (props) => {
         onToast('error', error)
         setCreateLoading(false)
       });
+      */
     }
 
     /*
@@ -492,7 +502,7 @@ const AddBanlistDialog = (props) => {
           {bodyContent()}
         </Modal.Body>
         <Modal.Footer>
-          <div className="form-action">
+          {/* <div className="form-action">
             <div class="col-sm-5">
               <button
                 type="submit"
@@ -505,7 +515,11 @@ const AddBanlistDialog = (props) => {
                 {createLoading && <CircularProgress size={10}/>}
               </button>
             </div>
-          </div>
+          </div> */}
+
+
+          <Button variant="secondary" onClick={()=>props.onClose()}>Close</Button>
+          <Button variant="primary" onClick={handleFormSubmit} >Create</Button>
         </Modal.Footer>
       </Modal>
     </div>

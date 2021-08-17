@@ -13,6 +13,7 @@ services:
       # - "./volumes/nginx-sample-website/conf.d/:/etc/nginx/conf.d"
       # - "./volumes/config/sample-website/config.js:/usr/share/nginx/html/config.js"
       - "./settings.php:/var/www/html/sites/default/settings.php"
+      # - "./settings.local.php:/var/www/html/sites/settings.local.php"
       - "./composer.json:/var/www/html/composer.json"
       - "./composer.lock:/var/www/html/composer.lock"
       - "./info.php:/var/www/html/info.php"
@@ -25,6 +26,8 @@ services:
 
       # - "./AuthenticationManager.php:/var/www/html/core/lib/Drupal/Core/Authentication/AuthenticationManager.php"
       - "./www.conf:/etc/php/7.3/php-fpm.d/www.conf"
+
+      - "./nginx.conf:/etc/nginx/nginx.conf"
     environment:
       - DB_HOST=postgres
       - DB_NAME=banlist

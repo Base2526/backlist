@@ -25,6 +25,7 @@ services:
     stdin_open: true
     volumes:
       - ./src:/app/src
+      - "./nginx.conf:/etc/nginx/nginx.conf"
       # - ./reactjs/node_modules:/app/node_modules # increment performance load page /usr/src/app < จากด้านบน แล้วตามด้วย node_modules 
     # environment:
     #   NODE_ENV: production
