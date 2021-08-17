@@ -21,7 +21,7 @@ const HomePage = (props) => {
   const [currentDatas, setCurrentDatas]   = React.useState([]);
   const [currentPage, setCurrentPage]     = React.useState(0);
   const [totalPages, setTotalPages]       = React.useState(0);
-  const [pageLimit, setPageLimit]         = React.useState(30);
+  const [pageLimit, setPageLimit]         = React.useState(5);
   const [allResultCount, setAllResultCount] = React.useState(10000);
 
   const [searchWord, setSearchWord]               = React.useState("");

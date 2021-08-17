@@ -242,3 +242,4 @@ $settings['skip_permissions_hardening'] = TRUE;
 // }
   
 
+$settings['file_temp_path'] = '/var/www/html/tmp';

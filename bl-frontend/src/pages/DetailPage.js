@@ -51,23 +51,27 @@ const DetailPage = (props) => {
         setNid(match.params.nid)
         let _data = data.find((item)=> item.id == match.params.nid)
 
+        console.log("ref.value > _data", _data) 
+
         if(!isEmpty(_data)){
             setItem(_data)
         }else{
-            axios.post(`/api/search?_format=json`, {
+            axios.post(`/api/v1/search`, {
                 type: 8,
                 key_word: JSON.stringify([nid]),
                 offset: 0
             }, {
                 headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`}
             })
-            .then(function (response) {
+            .then((response) =>  {
                 let results = response.data
+
+                console.log("then > response", response) 
                 if(results.result && results.count){
                     setItem(results.datas[0])
                 }
             })
-            .catch(function (error) {
+            .catch((error) => {
                 console.log("error :", error)
             });
         }
@@ -135,7 +139,7 @@ const DetailPage = (props) => {
                         </div>
                         <div className="row d-flex flex-row py-5"> 
                             {
-                                !isEmpty(item.images) &&  item.images.medium.map((item, index)=>{
+                                !isEmpty(item.images) &&  item.images[0].map((item, index)=>{
                                                                                     return <div style={{margin: 10, cursor:'pointer'}} onClick={()=>{ setIsOpen(true); setPhotoIndex(index); }}>  
                                                                                                 <LazyLoadImage
                                                                                                     className="lazy-load-image"
@@ -153,11 +157,11 @@ const DetailPage = (props) => {
                         </div>
                         {
                             isOpen &&  !isEmpty(item.images) &&   <Lightbox
-                                        mainSrc={item.images.medium[photoIndex].url}
-                                        nextSrc={item.images.medium[(photoIndex + 1) % item.images.medium.length].url}
-                                        prevSrc={item.images.medium[(photoIndex + item.images.medium.length - 1) % item.images.medium.length].url}
+                                        mainSrc={item.images[0][photoIndex].url}
+                                        nextSrc={item.images[0][(photoIndex + 1) % item.images[0].length].url}
+                                        prevSrc={item.images[0][(photoIndex + item.images[0].length - 1) % item.images[0].length].url}
 
-                                        imageTitle= { (photoIndex + 1) + "/" + item.images.medium.length }
+                                        imageTitle= { (photoIndex + 1) + "/" + item.images[0].length }
                                         // mainSrcThumbnail={images[photoIndex]}
                                         // nextSrcThumbnail={images[(photoIndex + 1) % images.length]}
                                         // prevSrcThumbnail={images[(photoIndex + images.length - 1) % images.length]}
@@ -168,13 +172,13 @@ const DetailPage = (props) => {
                                         // this.setState({
                                         //     photoIndex: (photoIndex + images.length - 1) % images.length
                                         // })
-                                            setPhotoIndex((photoIndex + item.images.medium.length - 1) % item.images.medium.length)
+                                            setPhotoIndex((photoIndex + item.images[0].length - 1) % item.images[0].length)
                                         }
                                         onMoveNextRequest={() =>
                                         // this.setState({
                                         //     photoIndex: (photoIndex + 1) % images.length
                                         // })
-                                            setPhotoIndex((photoIndex + 1) % item.images.medium.length)
+                                            setPhotoIndex((photoIndex + 1) % item.images[0].length)
                                         }
                                     />
                         }

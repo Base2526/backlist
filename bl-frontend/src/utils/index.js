@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import ls from 'local-storage';
 import { toast } from 'react-toastify';
 import {Base64} from 'js-base64';

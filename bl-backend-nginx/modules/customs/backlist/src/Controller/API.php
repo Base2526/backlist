@@ -933,6 +933,12 @@ class API extends ControllerBase {
       
       $time1    = microtime(true);
 
+      $response_array['result']   = TRUE;
+      $response_array['_REQUEST']   = $_REQUEST;
+      $response_array['total'] =  count($_FILES['files']['name']);;
+      $response_array['execution_time']   = microtime(true) - $time1;
+      return new JsonResponse( $response_array );  
+
       // $response_array['result']   = TRUE;
       // $response_array['_REQUEST'] = $_REQUEST;
       // $response_array['_FILES']   = $_FILES;
@@ -1062,7 +1068,7 @@ class API extends ControllerBase {
 
       // $basic_auth     = trim( $_REQUEST['basic_auth'] );
 
-      $nid        = trim( $_REQUEST['nid'] );            // new/edit
+      $nid            = trim( $_REQUEST['nid'] );            // new/edit
       $product_type   = trim( $_REQUEST['product_type'] );       // สินค้า/ประเภท
       $transfer_amount= trim( $_REQUEST['transfer_amount'] );    // ยอดเงิน
       $person_name    = trim( $_REQUEST['person_name'] );        // ชื่อบัญชี ผู้รับเงินโอน
@@ -1265,7 +1271,7 @@ class API extends ControllerBase {
       }
       
       // ------------ noti to user and fetch all my_apps new
-      Utils::node_my_apps(\Drupal::currentUser()->id());
+      // Utils::node_my_apps(\Drupal::currentUser()->id());
       // ------------
       
       $response_array['result']   = TRUE;

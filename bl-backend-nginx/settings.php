@@ -483,15 +483,15 @@ $settings['update_free_access'] = TRUE;
  *
  * Remove the leading hash signs to disable.
  */
-# $settings['allow_authorize_operations'] = FALSE;
+$settings['allow_authorize_operations'] = FALSE;
 
 /**
  * Default mode for directories and files written by Drupal.
  *
  * Value should be in PHP Octal Notation, with leading zero.
  */
-# $settings['file_chmod_directory'] = 0775;
-# $settings['file_chmod_file'] = 0664;
+$settings['file_chmod_directory'] = 0775;
+$settings['file_chmod_file'] = 0664;
 
 /**
  * Public file base URL:
@@ -513,7 +513,7 @@ $settings['update_free_access'] = TRUE;
  * must exist and be writable by Drupal. This directory must be relative to
  * the Drupal installation directory and be accessible over the web.
  */
-# $settings['file_public_path'] = 'sites/default/files';
+$settings['file_public_path'] = 'sites/default/files';
 
 /**
  * Private file path:
@@ -528,7 +528,8 @@ $settings['update_free_access'] = TRUE;
  * See https://www.drupal.org/documentation/modules/file for more information
  * about securing private files.
  */
-# $settings['file_private_path'] = '';
+// $settings['file_private_path'] = '/file_private_path';
+$settings['file_private_path'] = $app_root . '/sites/default/files/private';
 
 /**
  * Temporary file path:
@@ -541,7 +542,7 @@ $settings['update_free_access'] = TRUE;
  *
  * @see \Drupal\Component\FileSystem\FileSystem::getOsTemporaryDirectory()
  */
-# $settings['file_temp_path'] = '/tmp';
+$settings['file_temp_path'] = 'tmp';
 
 /**
  * Session write interval:

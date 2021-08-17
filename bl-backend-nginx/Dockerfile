@@ -45,4 +45,7 @@ RUN composer install
 COPY php.ini /etc/php/7.3/php.ini
 RUN pecl config-set php_ini /etc/php.ini
 
+
+# RUN chown -R root:root /var/www/html
+
 # CMD /etc/init.d/php7.3-fpm start && nginx -g 'daemon off;'
