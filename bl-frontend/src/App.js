@@ -19,13 +19,22 @@ import ScrollToTopBtn from "./components/ScrollToTopBtn";
 
 import { isEmpty, uniqueId } from "./utils"
 
+import { userLogin } from './actions/user';
+
+let socket = undefined;
+
 const App = (props) => {
   const [timeInterval, setTimeInterval] = React.useState(undefined);
 
+  // useEffect(() => {
+  //   socketid()
+  //   console.log('socketid()')
+  // }, []);
+
   useEffect(() => {
     socketid()
-    console.log('socketid()')
-  }, []);
+    console.log(' socketid() > [props.user] ')
+  }, [props.user]);
 
   useEffect(() => {
     if(!isEmpty(timeInterval)){
@@ -47,22 +56,20 @@ const App = (props) => {
       console.log("interval syc :", Date().toLocaleString(), _uniqueId(props), props, filter_follow_ups)
 
       if(!isEmpty(filter_follow_ups)){
-        axios.post(`/node/follow_up`, {
-          unique_id: _uniqueId(props),
-          datas: JSON.stringify(follow_ups)
-        }, {
-            // headers: {'Authorization': `Basic YWRtaW46U29ta2lkMDU4ODQ4Mzkx`}
-        })
-        .then((response) => {
-          let results = response.data
-          console.log('/node/follow_up : ', results)
-        })
-        .catch( (error) => {
-          console.log('/node/follow_up : ', error)
-        });
+        // axios.post(`/node/follow_up`, {
+        //   unique_id: _uniqueId(props),
+        //   datas: JSON.stringify(follow_ups)
+        // }, {
+        //     // headers: {'Authorization': `Basic YWRtaW46U29ta2lkMDU4ODQ4Mzkx`}
+        // })
+        // .then((response) => {
+        //   let results = response.data
+        //   console.log('/node/follow_up : ', results)
+        // })
+        // .catch( (error) => {
+        //   console.log('/node/follow_up : ', error)
+        // });
       }
-
-      
     }
   } 
 
@@ -72,42 +79,48 @@ const App = (props) => {
     /*
     
     {
-  extraHeaders: {
-    Authorization: "Bearer authorization_token_here"
-  }
-}
+      extraHeaders: {
+        Authorization: "Bearer authorization_token_here"
+      }
+    }
     */
-    const socket = io( "/", 
-                      // { headers:  {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} },
-                      
-                      // {
-                      //   auth: {
-                      //     token: "abcd"
-                      //   }
-                      // },
-                      { 
-                        path: '/api/mysocket',
-                        query: {
-                          "platform" : process.env.REACT_APP_PLATFORM, 
-                          // "unique_id": _uniqueId(props),
-                          "version"  : process.env.REACT_APP_VERSIONS
-                        },
-                        auth: {
-                          token: "abcd"
-                        }
-                      },
-                      // {
-                      //   auth: {
-                      //     token: "123"
-                      //   },
-                      //   query: {
-                      //     "unique_id": "my-value"
-                      //   }
-                      // },
-                      // { query:{ `platform=${process.env.REACT_APP_PLATFORM}&unique_id=3434&version=${process.env.REACT_APP_VERSIONS}` }}, 
-                      
-                      { transports: ["websocket"] });
 
+    if(isEmpty(socket)){
+      socket = io( "/", 
+        // { headers:  {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} },
+        
+        // {
+        //   auth: {
+        //     token: "abcd"
+        //   }
+        // },
+        { 
+          path: '/api/mysocket',
+          query: {
+            "platform" : process.env.REACT_APP_PLATFORM, 
+            // "unique_id": _uniqueId(props),
+            "version"  : process.env.REACT_APP_VERSIONS
+          },
+          auth: {
+            token: isEmpty(props.user) ? 0 : props.user.uid
+          }
+        },
+        // {
+        //   auth: {
+        //     token: "123"
+        //   },
+        //   query: {
+        //     "unique_id": "my-value"
+        //   }
+        // },
+        // { query:{ `platform=${process.env.REACT_APP_PLATFORM}&unique_id=3434&version=${process.env.REACT_APP_VERSIONS}` }}, 
+        
+        { transports: ["websocket"] });
+    }else{
+      socket.auth.token = isEmpty(props.user) ? 0 : props.user.uid;
+      socket.disconnect().connect();
+    }                 
+    
     if (socket.connected === false && socket.connecting === false) {
       // use a connect() or reconnect() here if you want
       socket.connect()
@@ -116,6 +129,8 @@ const App = (props) => {
       socket.off('connect', onConnect)
       socket.off("uniqueID", onUniqueID);
       socket.off('disconnect', onDisconnect);
+
+      socket.off('onUser', onUser);
     }else{
       console.log('socket :', socket)
     }
@@ -123,6 +138,9 @@ const App = (props) => {
     socket.on('connect', onConnect)
     socket.on("uniqueID", onUniqueID);
     socket.on('disconnect', onDisconnect);
+
+    socket.on('onUser', onUser);
+    
   }
 
   const onConnect = () =>{
@@ -137,6 +155,14 @@ const App = (props) => {
     var socketIO = ls.get('socketIO')
 
     console.log("socketIO :", socketIO)
+  }
+
+  const onUser = (data) =>{
+    console.log("onUser :", data)
+
+    props.userLogin(data)
+
+    console.log("onUser : >> ", data)
   }
 
   const onDisconnect = () =>{
@@ -204,7 +230,7 @@ const App = (props) => {
 
 const mapStateToProps = (state, ownProps) => {
 
-  console.log('state.user.follow_ups :', state.user.follow_ups)
+  console.log('state.user :', state.user.data)
 	return {
     user: state.user.data,
     follow_ups: state.user.follow_ups,
@@ -214,8 +240,8 @@ const mapStateToProps = (state, ownProps) => {
   };
 }
 
-const mapDispatchToProps = (dispatch) => {
-	return { }
+const mapDispatchToProps = {
+  userLogin
 }
 
-export default connect(mapStateToProps, null)(App)
+export default connect(mapStateToProps, mapDispatchToProps)(App)
