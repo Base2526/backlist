@@ -7,6 +7,8 @@ import FacebookLogin from 'react-facebook-login';
 import { CircularProgress } from '@material-ui/core';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import ls from 'local-storage';
+
 import { isEmailValid, uniqueId, onToast, isEmpty } from "../utils"
 import PasswordField from "../components/PasswordField";
 import { userLogin, ___followUp, fetchMyApps, addfollowerPost, addMyApps } from '../actions/user';
@@ -327,18 +329,28 @@ const LoginDialog = (props) => {
 
           response = response.data
 
+          console.log("/api/v1/login : response =", response)
+
           // setLoginLoading(false)
           if(response.result){
-            let user = response.user
+            let data = response.data
                // let { userLogin,
             //       ___followUp,
             //       fetchMyApps,
             //       addfollowerPost,
             //       addMyApps } = props
 
-            props.userLogin(user)
+            ls.set('basic_auth', data.basic_auth)
+            ls.set('session', data.session)
 
-            console.log('/api/login > user : ', user)
+            // let basic_auth = ls.get('basic_auth')
+            // let session = ls.get('session')
+        
+            // console.log("basic_auth,  session = ", basic_auth, session)
+
+            props.userLogin(data)
+
+            console.log('/api/login > user : ', response, data)
 
             props.onClose()
 

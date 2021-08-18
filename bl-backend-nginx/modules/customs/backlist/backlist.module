@@ -459,6 +459,11 @@ function user_iu(EntityInterface $entity){
     );
     $users->insertOne($document);
   }
+
+
+  // ------- Clear cache for nodejs--------
+  Utils::nodejs_clear_cache_with_keys(array( 'user-'.$entity->id() ));
+  // ------- Clear cache for nodejs--------
 }
 
 /**
@@ -517,6 +522,10 @@ function backlist_node_update(EntityInterface $entity) {
           );
           $articles->insertOne($document);
         }
+
+        // ------- Clear cache for nodejs--------
+        Utils::nodejs_clear_cache_with_keys(array( 'node-'.$entity->id() ));
+        // ------- Clear cache for nodejs--------
       }
     }
 

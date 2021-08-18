@@ -10,34 +10,16 @@ const TermsofServicePage = (props) => {
     const [data, setData]  = React.useState("");
 
     // YWRtaW46U29ta2lkMDU4ODQ4Mzkx  , bXI6MTIzNA==
-    useEffect(() => {
+    useEffect(async() => {
         try {
-            console.log('TermsofServicePage > ')
-            axios.post("/api/v1/get_html", {"nid": 3}, {
-                headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`}
-            })
-            .then(function (response) {
+            let response =  await axios.post(`/api/v1/get_html`,  {'nid':3}, { headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} });
+            if(response.status === 200){
                 let data = response.data
-                console.log('TermsofServicePage > then', data)
+                console.log("/api/v1/get_html", data)
                 if(data.result){
                     setData(data.data)
                 }
-            })
-            .catch(function (error) {
-
-                if (error.response) {
-                    // Request made and server responded
-                    console.log(error.response.data);
-                    console.log(error.response.status);
-                    console.log(error.response.headers);
-                } else if (error.request) {
-                    // The request was made but no response was received
-                    console.log(error.request);
-                } else {
-                    // Something happened in setting up the request that triggered an Error
-                    console.log('Error', error.message);
-                }
-            });
+            }
         } catch (error) {
         }
     });

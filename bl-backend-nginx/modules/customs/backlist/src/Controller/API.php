@@ -933,12 +933,7 @@ class API extends ControllerBase {
       
       $time1    = microtime(true);
 
-      $response_array['result']   = TRUE;
-      $response_array['_REQUEST']   = $_REQUEST;
-      $response_array['total'] =  count($_FILES['files']['name']);;
-      $response_array['execution_time']   = microtime(true) - $time1;
-      return new JsonResponse( $response_array );  
-
+      
       // $response_array['result']   = TRUE;
       // $response_array['_REQUEST'] = $_REQUEST;
       // $response_array['_FILES']   = $_FILES;
@@ -1067,6 +1062,29 @@ class API extends ControllerBase {
       // $content        = json_decode( $request->getContent(), TRUE );
 
       // $basic_auth     = trim( $_REQUEST['basic_auth'] );
+
+      /*
+      
+      data: {
+nodejs_bl        |     result: true,
+nodejs_bl        |     _REQUEST: {
+nodejs_bl        |       _format: 'json',
+nodejs_bl        |       nid: '0',
+nodejs_bl        |       product_type: 'สินค้า/ประเภท',
+nodejs_bl        |       transfer_amount: '1222',
+nodejs_bl        |       person_name: 'ชื่อบัญชี ผู้รับเงินโอน',
+nodejs_bl        |       person_surname: 'นามสกุล ผู้รับเงินโอน',
+nodejs_bl        |       id_card_number: '12345',
+nodejs_bl        |       selling_website: 'www.banlist.info',
+nodejs_bl        |       transfer_date: 'Wed Aug 18 2021 22:37:54 GMT+0700 (Indochina Time)',
+nodejs_bl        |       detail: 'เพิ่ม',
+nodejs_bl        |       merchant_bank_account: '[{"key":0,"bank_account":"1234","bank_wallet":"1"}]'
+nodejs_bl        |     },
+nodejs_bl        |     total: 12,
+nodejs_bl        |     execution_time: 0.000003814697265625
+nodejs_bl        |   }
+
+      */
 
       $nid            = trim( $_REQUEST['nid'] );            // new/edit
       $product_type   = trim( $_REQUEST['product_type'] );       // สินค้า/ประเภท

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux'
 import { useHistory } from "react-router-dom";
 import { Modal, Button } from "react-bootstrap";
+import ls from 'local-storage';
 
 import { userLogout } from '../actions/user';
 
@@ -14,6 +15,9 @@ const LogoutDialog = (props) => {
 
     const handleLogout = (e) => {
         props.onClose()
+
+        ls.remove('basic_auth')
+        ls.remove('session')
 
         props.userLogout()
         history.push({pathname: `/`, state: {} })

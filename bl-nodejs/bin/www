@@ -70,7 +70,9 @@ server.listen(PORT, function () {
 //   io.set('store', store);
 // });
 
+global.io=io
 io.on('connection', async (socket) => {
+  global.socket = socket
   let handshake = socket.handshake;
 
   var t = handshake.query.t;
@@ -84,7 +86,6 @@ io.on('connection', async (socket) => {
   console.log(socket)
 
   socket.emit('uniqueID', { ...handshake.query, "socketID": socket.id });
-
 
   await new SocketsSchema({ t, socketId: socket.id, platform,  auth: (utils.isEmpty(handshake.auth) ? "" : handshake.auth.token) }).save()
 

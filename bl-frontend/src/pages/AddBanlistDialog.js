@@ -5,6 +5,8 @@ import DatePicker from "react-datepicker";
 import axios from 'axios';
 import { CircularProgress } from '@material-ui/core';
 
+import ls from 'local-storage';
+
 import {isEmpty, onToast} from '../utils'
 
 const AddBanlistDialog = (props) => {
@@ -102,7 +104,7 @@ const AddBanlistDialog = (props) => {
       console.log("/api/v1/add_banlist start ")
 
       // setLoginLoading(true)
-      let response =  await axios.post(`/api/v1/add_banlist`, data, { headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`, 'content-type': 'multipart/form-data'} });
+      let response =  await axios.post(`/api/v1/add_banlist`, data, { headers: {'Authorization': `Basic ${ls.get('basic_auth')}`, 'content-type': 'multipart/form-data'} });
 
       response = response.data
 

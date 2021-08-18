@@ -7,6 +7,8 @@ import Lightbox from "react-image-lightbox";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
 
+import ls from 'local-storage';
+
 import AddCircleOutlineOutlinedIcon from '@material-ui/icons/AddCircleOutlineOutlined';
 import VerifiedUserOutlinedIcon from '@material-ui/icons/VerifiedUserOutlined';
 import CameraAltOutlinedIcon from '@material-ui/icons/CameraAltOutlined';
@@ -16,6 +18,8 @@ import { toast }    from "react-toastify";
 import { isEmpty }  from "../utils";
 import previewIcon  from "../images/preview-icon.png";
 
+import { userLogin } from '../actions/user';
+
 const ProfilePage = (props) => {
     const history = useHistory();
     const [name, setName] = React.useState(props.user.name);
@@ -23,9 +27,22 @@ const ProfilePage = (props) => {
     const [updateLoading, setUpdateLoading] = React.useState(false);
     const [files, setFiles] = React.useState([]);
 
-    useEffect(() => {
-        console.log('ProfilePage')
-    })
+    // useEffect(() => {
+    //     fetchProfile()
+    // }, [props.user])
+
+    // const fetchProfile = async () =>{
+    //     let { uid } = props.user
+    //     let response =  await axios.post(`/api/v1/profile`,  {uid}, { headers: {'Authorization': `Basic ${ls.get('basic_auth')}`} });
+        
+    //     console.log('/api/v1/profile :', response)
+    //     if(response.status === 200){
+    //         let data = response.data
+    //         if(data.result){
+    //             // props.userLogin(data.data)
+    //         }
+    //     }
+    // }
 
     const changeFiles = (e) => {
         var fileArr = Array.prototype.slice.call(e.target.files);
@@ -203,7 +220,7 @@ const mapStateToProps = (state, ownProps) => {
 }
 
 const mapDispatchToProps = {
-  // fetchData,
+    userLogin
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProfilePage)

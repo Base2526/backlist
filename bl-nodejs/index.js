@@ -12,6 +12,9 @@ const FormData = require('form-data');
 const _ = require('lodash');
 const fs = require('fs');
 
+const NodeCache = require( "node-cache" );
+const nc = new NodeCache({ checkperiod: 60 * 60 * 15 /* 15Hour */ });
+
 var bodyParser = require('body-parser')
 
 // Api
@@ -52,6 +55,7 @@ const connection    = require("./connection")
 const UserSchema    = require('./models/UserSchema');
 const FilesSchema   = require('./models/FilesSchema');
 const ArticlesSchema = require('./models/ArticlesSchema');
+const SocketsSchema  = require('./models/SocketsSchema');
 
 const utils = require('./util/utils');
 
@@ -276,24 +280,9 @@ app.get('/', async (req, res) =>{
 
 app.post('/v1/login',  async(req, res)=> {
   const start = Date.now()
-
   let email = req.body.email;
   let password = req.body.password;
 
-  // console.log(user)
-  // console.log(pass)
-
-
-  // let encrypt = utils.encrypt("ABC");
-  // let decrypt = utils.decrypt(encrypt);
-  // console.log(encrypt);
-  // console.log(decrypt);
-  // await new UserSchema({ name: 'Silence' }).save()
-
-  // const user_schema = await UserSchema.findOne({'uid':1});
-
-  // console.log( user_schema );
-  
   if(email === undefined && password === undefined){
     return res.send({ status: false, message:"Email & Pass is empty" });
   }else if(email === undefined){
@@ -302,73 +291,26 @@ app.post('/v1/login',  async(req, res)=> {
     return res.send({ status: false, message:"Pass is empty" });
   }
 
-  /*
-  const user_schema = await UserSchema.findOne({'email':email});
-
-  let result = {};
-  if(!utils.isEmpty(user_schema)){
-    // console.log( user_schema._id );
-    // console.log( user_schema.name );
-    // console.log( user_schema.pass );
-
-    let pass_decrypt =utils.decrypt(user_schema.pass)
-    if(pass_decrypt === pass){
-      req.session.userId    = user_schema.uid;
-
-      result =  {
-                  "result": true,
-                  "execution_time": `Time Taken to execute = ${(Date.now() - start)/1000} seconds`,
-                  "data":{
-                    "uid": user_schema.uid,
-                    "name": user_schema.name,
-                    "email": user_schema.email,
-                    "image_url": user_schema.image_url,
-                    "gender": user_schema.gender,
-                  }
-                }
-    }else{
-      result =  {
-        "result": false,
-        "execution_time": `Time Taken to execute = ${(Date.now() - start)/1000} seconds`,
-        "message": "pass wrong"
-      } 
-    }
-  }else{
-    result =  {
-      "result": false,
-      "execution_time": `Time Taken to execute = ${(Date.now() - start)/1000} seconds`,
-      "message": "not email"
-    } 
-  }
-
-  return res.send(result);
-  */
-
-  
   // http://api.banlist.info:8090/api/v1/login?_format=json 
-  const response = await axios.post(`${process.env.DRUPAL_API_ENV}/v1/login?_format=json`, {
+  let response = await axios.post(`${process.env.DRUPAL_API_ENV}/v1/login?_format=json`, {
                                 "name":email, 
                                 "password": password, 
-                                // "unique_id":"aaa"
-                              },{
-                                // headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
-                              });
-
-  let data = response.data
-
+                              },{});
+  response = response.data
   const end = Date.now()
   
-  if(data.result){
-    req.session.userId    = data.user.uid;
-    req.session.basicAuth = data.user.basic_auth;
-    req.session.session   = data.user.session;
-  }
-  
-  
-  // console.log(data.result)
-  return res.send({...data, execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`});
+  if(response.result){
+    req.session.userId    = response.user.uid;
+    req.session.basicAuth = response.user.basic_auth;
+    req.session.session   = response.user.session;
 
-  // 
+    return res.send({result: true, 
+                     execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`,
+                     data: response.user}); 
+  }else{
+    return res.send({ result: false, 
+                      execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`});
+  }
 });
 
 app.post('/v1/register',  async(req, res)=> {
@@ -473,15 +415,24 @@ app.post('/v1/profile',  async(req, res, next)=> {
       return res.send({ result: false, message:"UID is empty" });
     }
 
-    const user_schema = await UserSchema.findOne({'uid':uid});
+    let data = nc.get( `user-${uid}` );
+
+    let cache = true;
+    if(utils.isEmpty(data)){
+      cache = false;
+      data = await UserSchema.findOne({'uid':uid});;
+
+      nc.set( `user-${uid}` , data );
+    }
+
     const end = Date.now()
 
-    let data = {
-                result : true,
-                execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
-                data   : user_schema
-                }
-    return res.send(data);
+    return res.send({
+                      result : true,
+                      cache,
+                      execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+                      data  
+                    });
   } catch (err) {
     logger.error(err);
     return res.send({result : false, message: err});
@@ -498,26 +449,26 @@ app.post('/v1/get_html',  async(req, res, next)=> {
       return res.send({ result: false, message:"NID is empty" });
     }
 
-    /*
-    // http://api.banlist.info:8090/api/v1/login?_format=json
-    const response = await axios.post(`${process.env.DRUPAL_API_ENV}/v1/get_html?_format=json`, {
-                                  "nid":nid
-                                },{
-                                  headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
-                                });
-    let data = response.data
-    */
+    let data = nc.get( `node-${nid}` );
 
-    const articles_schema = await ArticlesSchema.findOne({'nid':nid});
+    let cache = true;
+    if(utils.isEmpty(data)){
+      cache = false;
+      data = (await ArticlesSchema.findOne({'nid':nid})).body;
+
+      nc.set( `node-${nid}` , data );
+
+      console.log("without cache");
+    }
+
     const end = Date.now()
 
-    let data = {
-                result : true,
-                execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
-                data   : articles_schema.body
-                }
-
-    return res.send(data);
+    return res.send({
+                      result : true,
+                      cache,
+                      execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+                      data 
+                    });
   } catch (err) {
     logger.error(err);
     return res.send({result : false, message: err});
@@ -529,11 +480,24 @@ upload image
 https://attacomsian.com/blog/uploading-files-nodejs-express
 */
 app.post('/v1/add_banlist',  async(req, res, next)=> {
-
-  // logger.error(`Ready Listening on port 2`);
-
   const start = Date.now()
   try {
+
+    console.log('req >', req.headers.authorization)
+    // console.log('res >', res)
+
+  /*
+  nid: '0',
+  product_type: '2',
+  transfer_amount: '-2',
+  person_name: '4',
+  person_surname: '5',
+  id_card_number: '-135',
+  selling_website: '5',
+  transfer_date: 'Wed Aug 18 2021 20:23:57 GMT+0700 (Indochina Time)',
+  detail: '5',
+  merchant_bank_account: '[]'
+    */
     // let key_word = req.body.key_word;
     // let type     = req.body.type;
     // let offset   = req.body.offset;
@@ -542,38 +506,24 @@ app.post('/v1/add_banlist',  async(req, res, next)=> {
     // const file = req.files;
     // const bodyData = req.body;
 
-    const file = req.files;
-    const bodyData = req.body;
-
-    console.log('file > [files[]] = ', file['files[]'])
     
-    console.log('file >  ', file)
-    console.log('bodyData > ', bodyData)
+    const nid             = req.body.nid;
+    const product_type    = req.body.product_type;
+    const transfer_amount = req.body.transfer_amount;
+    const person_name     = req.body.person_name;
+    const person_surname  = req.body.person_surname;
+    const id_card_number  = req.body.id_card_number;
+    const selling_website = req.body.selling_website;
+    const transfer_date   = req.body.transfer_date;
+    const detail          = req.body.detail;
+    const merchant_bank_account = req.body.merchant_bank_account;
+
+    const files           = req.files;
 
     //-------------------
-
     let photos = []; 
-    
-    //loop all files
-    // _.forEach(_.keysIn(file), (key) => {
-    //     let photo = file[key];
-        
-    //     console.log('photo : ', photo, key)
-    //     //move photo to uploads directory
-    //     // photo.mv('./uploads/' + photo.name);
-
-    //     //push file details
-    //     // data.push({
-    //     //     name: photo.name,
-    //     //     mimetype: photo.mimetype,
-    //     //     size: photo.size
-    //     // });
-    // });
-
-    if(typeof file['files[]'] !== 'undefined') {
-      file['files[]'].map(async(photo) => { 
-        // form.append('files[]', file) 
-
+    if(!utils.isEmpty(files)) {
+      files['files[]'].map(async(photo) => { 
         let path = './uploads/' + photo.name
         if (!fs.existsSync(path)) {
           photo.mv(path);
@@ -587,17 +537,20 @@ app.post('/v1/add_banlist',  async(req, res, next)=> {
       })
     }
 
-   
-    console.log('photos > ', photos)
+    // console.log('photos > ', photos)
     //-------------------
 
     const form = new FormData();
-    // form.append('file', req.files);
-    form.append('a', 'aaaa');
-
-    // form.append('files[]', fs.createReadStream(__dirname + '/README.md'), {
-    //   filename: '111.md'
-    //   });
+    form.append('nid', nid);
+    form.append('product_type', product_type);
+    form.append('transfer_amount', transfer_amount);
+    form.append('person_name', person_name);
+    form.append('person_surname', person_surname);
+    form.append('id_card_number', id_card_number);
+    form.append('selling_website', selling_website);
+    form.append('transfer_date', transfer_date);
+    form.append('detail', detail);
+    form.append('merchant_bank_account', merchant_bank_account);
 
     photos.map((photo) => { 
       // form.append('files[]', file) 
@@ -607,44 +560,24 @@ app.post('/v1/add_banlist',  async(req, res, next)=> {
     })
 
     const request_config = {
-      // headers: {
-      //   'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}`,
-      //   ...form.getHeaders()
-      // }
       headers: { 
-        'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` , 
+        'Authorization': req.headers.authorization , 
         // 'Content-Type': 'multipart/form-data',
         'Content-Type':   form.getHeaders()['content-type'],
       },
-    
       maxContentLength: 10000000000,
       maxBodyLength: 10000000000
     };
+    // console.log('data > ', form)
 
-    console.log('data > ', form)
-
-    // {headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` , 'content-type': 'multipart/form-data' }
-    // headers: form.getHeaders(),
-
-    /*
-    formData.getBuffer(),
-            formData.getHeaders()
-    */
-
-    // console.log("form.getBuffer() : ", form.getBuffer());
     const response = await axios.post(`${process.env.DRUPAL_API_ENV}/api/added_banlist?_format=json`, form , request_config);
-    console.log('response > ', response);
-
-
-    // const response = await axios.post(`${process.env.DRUPAL_API_ENV}/v1/search?_format=json`, {
-    //                               "key_word":key_word
-    //                             },{
-    //                               headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
-    //                             });   
+    // console.log('response > ', response);
 
     const end = Date.now()
+
     if(response.status === 200){
 
+      // delete file all on local
       photos.map((photo) => { 
         let path = './uploads/' + photo.name
         if (fs.existsSync(path)) {
@@ -656,7 +589,7 @@ app.post('/v1/add_banlist',  async(req, res, next)=> {
 
       return res.send({ result : true, 
                         ...data, 
-                        photos,
+                        // photos,
                         execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`, });
     }else{
       return res.send({result : false, "message": err});
@@ -880,6 +813,81 @@ app.get('/v1/healthz', async (req, res) =>{
 //   // await new kittySchema({ name: 'Silence' }).save()
 // });
 
+// Clear cache by keys
+app.post('/v1/cache_del',  async(req, res, next)=> {
+  try {
+    const start = Date.now()
+    let keys = req.body.keys;
+  
+    if(keys === undefined){
+      return res.send({ status: false, message:"Without keys" });
+    }
+
+    console.log("keys >> ", keys)
+
+    keys.map( async(key) => {
+      let key1 = key.split("-");
+      console.log("key1 >> ", key1, global)
+
+      switch(key1[0]){
+        case 'user':{
+          
+          let sockets = await SocketsSchema.find({auth: key1[1]});
+          // console.log(sockets)
+
+          sockets.map(async(socket) => {
+            console.log('socket.socketId = ', socket.socketId)
+            let user = nc.get( `user-${socket.auth}` );
+            if(utils.isEmpty(user)){
+              user = await UserSchema.findOne({'uid':socket.auth});;
+        
+              nc.set( `user-${socket.auth}` , user );
+            }
+
+            if(!utils.isEmpty(user)){
+              global.io.to(socket.socketId).emit('onUser', user);
+            }
+            
+          })
+          break;
+        }
+
+        // case 'node':{
+        //   break;
+        // }
+      }
+    })
+
+    nc.del( keys );
+
+    const end = Date.now()
+    return res.send({
+                      result : true,
+                      execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+                    });
+  } catch (err) {
+    logger.error(err);
+    return res.send({result : false, message: err});
+  }
+});
+
+// Clear cache flush all
+app.post('/v1/cache_flush_all',  async(req, res, next)=> {
+  try {
+    const start = Date.now()
+
+    nc.flushAll();
+
+    const end = Date.now()
+    return res.send({
+                      result : true,
+                      execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+                    });
+  } catch (err) {
+    logger.error(err);
+    return res.send({result : false, message: err});
+  }
+});
 
 
 // app.post('/api/___follow_up', async(req, res) => {

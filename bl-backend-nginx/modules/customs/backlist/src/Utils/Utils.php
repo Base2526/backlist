@@ -4958,4 +4958,86 @@ class Utils extends ControllerBase {
       \Drupal::logger('setup_file_mongodb')->error($e->__toString());
     }
   }
+
+  public static function nodejs_clear_cache_with_keys($keys = array()){
+    try{
+      
+      if(empty($keys)){
+        return;
+      }
+
+      $data_obj = [ 'keys' => $keys ];
+
+      $ch = curl_init();
+      curl_setopt_array($ch, array(
+        CURLOPT_URL =>  "http://kong.banlist.info:8888/api/v1/cache_del",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HEADER => true,
+        //   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => json_encode($data_obj),
+        CURLOPT_HTTPHEADER => array(
+          "Accept: application/json",
+          "Content-Type: application/json",
+        ),
+      ));
+
+      $curl_result = curl_exec($ch);
+
+      // get httpcode 
+      $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+      if($httpcode == 200){ // if response ok
+        // separate header and body
+        $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+        $header = substr($curl_result, 0, $header_size);
+        $body = substr($curl_result, $header_size);
+        
+        // convert json to array or object
+        $body_content = json_decode($body);
+
+        \Drupal::logger('nodejs_clear_cache_with_keys')->notice( serialize($body_content) );
+      }
+    } catch (\Throwable $e) {
+      \Drupal::logger('nodejs_clear_cache_with_keys')->error($e->__toString());
+    }
+  }
+
+  public static function nodejs_cache_flush_all(){
+    try{
+      $ch = curl_init();
+      curl_setopt_array($ch, array(
+        CURLOPT_URL =>  "http://kong.banlist.info:8888/api/v1/cache_flush_all",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HEADER => true,
+        //   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => json_encode(array()),
+        CURLOPT_HTTPHEADER => array(
+          "Accept: application/json",
+          "Content-Type: application/json",
+        ),
+      ));
+
+      $curl_result = curl_exec($ch);
+
+      // get httpcode 
+      $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+      if($httpcode == 200){ // if response ok
+        // separate header and body
+        $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+        $header = substr($curl_result, 0, $header_size);
+        $body = substr($curl_result, $header_size);
+        
+        // convert json to array or object
+        $body_content = json_decode($body);
+
+        \Drupal::logger('nodejs_cache_flush_all')->notice( serialize($body_content) );
+      }
+    } catch (\Throwable $e) {
+      \Drupal::logger('nodejs_cache_flush_all')->error($e->__toString());
+    }
+  }
+
 }
