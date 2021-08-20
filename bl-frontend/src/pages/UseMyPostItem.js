@@ -301,7 +301,7 @@ const UseMyPostItem = (props) => {
   }
   
   return (
-    <div key={item.id} style={{margin: 10}}>  
+    <div key={item.id} className="mypost-item">  
       {/* <Button
         aria-controls="simple-menu"
         aria-haspopup="true"
@@ -310,7 +310,7 @@ const UseMyPostItem = (props) => {
         Open Menu List
       </Button> */}
       
-                {itemView()}
+                {/* {itemView()} */}
    
                 <div style={{cursor: 'pointer'}} onClick={()=>{
                   // console.log('/detail/:id : ', props)
@@ -323,21 +323,25 @@ const UseMyPostItem = (props) => {
                         }}> 
                       
                         <div>
-                          <div>ชื่อ-นามสกุล: {item.name_surname}</div>
+                          <div><h5>ชื่อ-นามสกุล:</h5> {item.name_surname}</div>
                         </div>
 
                         <div>
-                          <div>สินค้า/ประเภท: {item.title}</div>
+                          <div><h5>สินค้า/ประเภท:</h5> {item.title}</div>
                         </div>
                         <div>
-                          <div>ยอดเงิน: {!isEmpty(item.transfer_amount) ? commaFormatted(item.transfer_amount) : item.transfer_amount}</div>
+                          <div><h5>ยอดเงิน:</h5> {!isEmpty(item.transfer_amount) ? commaFormatted(item.transfer_amount) : item.transfer_amount}</div>
                         </div>
                         <div>
-                          <div>วันโอนเงิน: {moment(item.transfer_date).format('MMM DD, YYYY')}</div>
+                          <div><h5>วันโอนเงิน:</h5> {moment(item.transfer_date).format('MMM DD, YYYY')}</div>
+                        </div>
+
+                        <div>
+                          <div><h5>Status:</h5> {item.status ? 'Published' : 'Unpublished'}</div>
                         </div>
                       </div>
                       <div>
-                        <div>รายละเอียด</div>
+                        <div><h5>รายละเอียด: </h5></div>
                         <div style={{maxWidth:"300px"}}>
                           {/* {
                             !isEmpty(item.detail) && 
@@ -361,50 +365,15 @@ const UseMyPostItem = (props) => {
                       </div> 
                     </div>
                     <div>
-                      <VerifiedUserOutlinedIcon 
+                      {/* <VerifiedUserOutlinedIcon 
                         onClick={()=>{ 
-                          // toast.info("Wow so easy!", 
-                          //           {
-                          //             position: "bottom-right", 
-                          //             hideProgressBar: true,
-                          //             autoClose: 1000,
-                          //           }) 
 
                           if(isEmpty(props.user)){
                             props.updateState({showModalLogin: true})
                           }
 
-                          /*
-                          let cL = this.props.user
-                          if(isEmpty(cL)){
-                            _this.props.onUpdateState({showModalLogin: true})
-                          }else{
-                        
-                            let follow_up = true;
-                            if(!isEmpty(___follow_ups)){
-                              let find_fup = ___follow_ups.find(value => String(value.id) === String(item.id) )
-                              // console.log('fup : ', find_fup, item.id)
-        
-                              if(!isEmpty(find_fup)){
-                                follow_up = !find_fup.follow_up
-                              }
-                            }
-
-                            if(follow_up){
-                              _this.props.toast.show("Follow up");
-                            }else{
-                              _this.props.toast.show("Unfollow up");
-                            }
-
-                            ___followUp({"id": item.id, 
-                                        "local": true, 
-                                        "follow_up": follow_up, 
-                                        "unique_id": getUniqueId(), 
-                                        "owner_id": item.owner_id, 
-                                        "date": Date.now()}, 0);
-                          }
-                          */
-                        }} />
+                         
+                        }} /> */}
                       <MoreVertOutlinedIcon 
                         onClick={handleClick} />
                     </div>
@@ -414,7 +383,7 @@ const UseMyPostItem = (props) => {
                 anchorEl={anchorEl}
                 onClose={handleClose}
                 open={Boolean(anchorEl)}>
-                <CopyToClipboard text={"http://localhost:8099/detail/" + item.id}>
+                {/* <CopyToClipboard text={"http://localhost:8099/detail/" + item.id}>
                   <MenuItem onClick={()=>{
 
                     toast.info("Link to post copied to clipboard.", 
@@ -434,7 +403,10 @@ const UseMyPostItem = (props) => {
                   }
 
                   handleClose()
-                }}>Report</MenuItem>
+                }}>Report</MenuItem> */}
+                <MenuItem onClick={()=>{}}>{item.status ? 'Unpublished' : 'Published'}</MenuItem>
+                <MenuItem onClick={()=>{}}>Edit</MenuItem>
+                <MenuItem onClick={()=>{}} >Delete</MenuItem>
             </Menu> 
             
     </div>

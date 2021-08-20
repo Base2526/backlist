@@ -118,6 +118,7 @@ class LoginResource extends ResourceBase {
             $response_array['message']    = 'Unrecognized ' . $name . '. please sign up';
             return new JsonResponse( $response_array );
           }
+
           $name = user_load_by_mail($name)->getDisplayName();
         }
   
@@ -156,44 +157,51 @@ class LoginResource extends ResourceBase {
 
           // $response_array['follow_ups']       = array();
 
-        //   // /api/login , unique_id
+          //   // /api/login , unique_id
 
-        //   // ---------------- follow_ups -----------------
-        //   Utils::node_login($unique_id);
+          //   // ---------------- follow_ups -----------------
+          //   Utils::node_login($unique_id);
 
-        //   $response_array['follow_ups'] = Utils::node_fetch____follow_up();
-        //   // ---------------- follow_ups -----------------
+          //   $response_array['follow_ups'] = Utils::node_fetch____follow_up();
+          //   // ---------------- follow_ups -----------------
 
 
-        //   // ---------------- follower_post -----------------
+          //   // ---------------- follower_post -----------------
 
-          // $response_array['follower_post'] =array();
+            // $response_array['follower_post'] =array();
 
-        //   // $storage = \Drupal::entityTypeManager()->getStorage('node');
-        //   $storage = $this->entityTypeManager->getStorage('node');
-        //   $query   = $storage->getQuery();
-        //   // $query->condition('status', \Drupal\node\NodeInterface::PUBLISHED);
-        //   $query->condition('type', 'back_list');
+          //   // $storage = \Drupal::entityTypeManager()->getStorage('node');
+          //   $storage = $this->entityTypeManager->getStorage('node');
+          //   $query   = $storage->getQuery();
+          //   // $query->condition('status', \Drupal\node\NodeInterface::PUBLISHED);
+          //   $query->condition('type', 'back_list');
 
-        //   $query->condition('uid', $uid);
-        //   $posts = array_values($query->execute());
+          //   $query->condition('uid', $uid);
+          //   $posts = array_values($query->execute());
 
-        //   if(!empty($posts)){
-        //     $response_array['follower_post'] = Utils::node_follower_post(  $posts );
-        //   }
+          //   if(!empty($posts)){
+          //     $response_array['follower_post'] = Utils::node_follower_post(  $posts );
+          //   }
 
-        //   // ---------------- follower_post -----------------
+          //   // ---------------- follower_post -----------------
 
-          
-        //   // -----  my_apps  -------
-        //   $storage = $this->entityTypeManager->getStorage('node');
-        //   $query   = $storage->getQuery();
-        //   $query->condition('type', 'back_list');
-        //   $query->condition('uid', $uid);
+            
+          //   // -----  my_apps  -------
+          //   $storage = $this->entityTypeManager->getStorage('node');
+          //   $query   = $storage->getQuery();
+          //   $query->condition('type', 'back_list');
+          //   $query->condition('uid', $uid);
 
-        //   $response_array['my_apps'] = json_encode(array_values($query->execute()));
-        //   // -----  my_apps  -------
+          //   $response_array['my_apps'] = json_encode(array_values($query->execute()));
+          //   // -----  my_apps  -------
         }else{
+
+          if(empty(user_load_by_name($name))){
+            $response_array['result']     = FALSE;
+            $response_array['code']       = '105';
+            $response_array['message']    = 'Unrecognized ' . $name . '. please sign up';
+            return new JsonResponse( $response_array );
+          }
 
           $response_array['result']           = FALSE;
           $response_array['code']             = '104';

@@ -4,8 +4,11 @@ import user from './user'
 import app from './app';
 import setting from './setting'
 
+import my_apps from './my_apps'
+
 export default combineReducers({
   user,
   app,
-  setting
+  setting,
+  my_apps
 })

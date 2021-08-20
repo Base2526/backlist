@@ -236,7 +236,7 @@ const LoginDialog = (props) => {
 
         return  <Modal.Footer>
                   <Button variant="secondary" onClick={()=>props.onClose()}>Close</Button>
-                  <Button variant="primary" onClick={handleFormSubmit} >Login</Button>
+                  <Button variant="primary" onClick={handleFormSubmit} >Login  { loginLoading && <CircularProgress size={15}/> }</Button>
                 </Modal.Footer> 
 
                 /*
@@ -274,7 +274,7 @@ const LoginDialog = (props) => {
 
         return  <Modal.Footer>
                   <Button variant="secondary" onClick={()=>props.onClose()}>Close</Button>
-                  <Button variant="primary" onClick={handleFormSubmit} >Register</Button>
+                  <Button variant="primary" onClick={handleFormSubmit} >Register { registerLoading && <CircularProgress size={15}/> }</Button>
                 </Modal.Footer> 
 
         // return  <div className="form-action" className="col-sm-12">
@@ -290,7 +290,7 @@ const LoginDialog = (props) => {
       case 'forgot':{
         return  <Modal.Footer>
                   <Button variant="secondary" onClick={()=>props.onClose()}>Close</Button>
-                  <Button variant="primary" onClick={handleFormSubmit} >Send</Button>
+                  <Button variant="primary" onClick={handleFormSubmit} >Send { forgotLoading && <CircularProgress size={15}/> }</Button>
                 </Modal.Footer> 
 
         // return<div className="form-action" className="col-sm-12">
@@ -320,18 +320,16 @@ const LoginDialog = (props) => {
           onToast("error", "Email is empty.")
         }else if(isEmpty(_password)){
           onToast("error", "Password is empty.")
-        } /*else if(!isEmailValid(_email)){
-          onToast("error", "Email is Invalid.")
-        }*/ else {
+        } else {
 
-          // setLoginLoading(true)
+          setLoginLoading(true)
           let response =  await axios.post(`/api/v1/login`, { email: _email,  password: _password,  }, { headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} });
 
           response = response.data
 
           console.log("/api/v1/login : response =", response)
 
-          // setLoginLoading(false)
+          
           if(response.result){
             let data = response.data
                // let { userLogin,
@@ -358,6 +356,8 @@ const LoginDialog = (props) => {
           }else{
             onToast("error", response.message)
           }
+
+          setLoginLoading(false)
 
           /*
           setLoginLoading(true)
@@ -454,6 +454,8 @@ const LoginDialog = (props) => {
 
           */
 
+          setRegisterLoading(true)
+
           console.log('/api/v1/register > start')
           let response =  await axios.post(`/api/v1/register`, { email: _email, name: _displayName, password: _password,  }, { headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} });
 
@@ -469,6 +471,8 @@ const LoginDialog = (props) => {
           }else{
             onToast("error", response.message)
           }
+
+          setRegisterLoading(false)
         
         }
         break;
@@ -505,11 +509,14 @@ const LoginDialog = (props) => {
           });
           */
 
+          setForgotLoading(true)
           console.log('/api/v1/reset_password > start')
           let response =  await axios.post(`/api/v1/reset_password`, { email: _email }, { headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} });
 
           console.log('/api/v1/reset_password > response : ', response)
           response = response.data
+
+          setForgotLoading(false)
         }
         break;
       }

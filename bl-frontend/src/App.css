@@ -253,3 +253,8 @@
   color: rgb(192,192,192);
   cursor: pointer;
 }
+
+.mypost-item{
+  margin: 10;
+  border-style: solid;
+}

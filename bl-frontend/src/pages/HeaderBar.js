@@ -106,9 +106,9 @@ const HeaderBar = (props) => {
                               onClick={()=>{
                                 history.push({pathname: `/my-profile/my-post`, state: {} })
                                 setAnchorEl(null);
-                              }}>My post (10)</MenuItem>
+                              }}>My post</MenuItem>
       
-                            <MenuItem 
+                            {/* <MenuItem 
                               onClick={()=>{
                                 history.push({pathname: `/my-profile/my-followup`, state: {} })
                                 setAnchorEl(null);
@@ -126,7 +126,7 @@ const HeaderBar = (props) => {
                                 }) 
       
                                 setAnchorEl(null);
-                              }}>Clear cached</MenuItem>
+                              }}>Clear cached</MenuItem> */}
                             <MenuItem 
                               onClick={()=>{
                                 setShowModalLogout(true); 

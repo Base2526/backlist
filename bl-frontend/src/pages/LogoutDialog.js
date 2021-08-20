@@ -3,23 +3,31 @@ import { connect } from 'react-redux'
 import { useHistory } from "react-router-dom";
 import { Modal, Button } from "react-bootstrap";
 import ls from 'local-storage';
+import { CircularProgress } from '@material-ui/core';
 
 import { userLogout } from '../actions/user';
 
 const LogoutDialog = (props) => {
     const history = useHistory();
     const [showModal, setShowModal] = React.useState(false);
+
+    const [logoutLoading, setLogoutLoading] = React.useState(false);
+
     useEffect(() => {
         setShowModal(props.showModalLogout)
     });
 
     const handleLogout = (e) => {
+        setLogoutLoading(true)
         props.onClose()
 
         ls.remove('basic_auth')
         ls.remove('session')
 
         props.userLogout()
+
+        setLogoutLoading(false)
+
         history.push({pathname: `/`, state: {} })
     }
 
@@ -47,7 +55,7 @@ const LogoutDialog = (props) => {
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={handleClose}>Close</Button>
-                <Button variant="primary" onClick={handleLogout}>Logout</Button>
+                <Button variant="primary" onClick={handleLogout}>Logout {logoutLoading && <CircularProgress size={15}/> }</Button>
             </Modal.Footer>
         </Modal>
         </div>

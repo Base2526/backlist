@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { connect } from 'react-redux'
 import axios from 'axios';
-
+import ls from 'local-storage';
 import Lightbox from "react-image-lightbox";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
@@ -14,6 +14,9 @@ import MoreVertOutlinedIcon from '@material-ui/icons/MoreVertOutlined';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 
 import {isEmpty, onToast} from '../utils'
+
+import { addMyApps } from '../actions/user';
+import { attributesToProps } from "html-react-parser";
 
 const MyPostPage = (props) => {
     const history = useHistory();
@@ -26,30 +29,37 @@ const MyPostPage = (props) => {
     const [photoIndex, setPhotoIndex] = React.useState(0);
 
     useEffect(() => {
-        if(!isFetch){
-            fetchData()
+        console.log('MyPostPage > useEffect [] : ', props.my_apps)
+        fetchData()
+    }, []);
+
+    useEffect(() => {
+        console.log('MyPostPage > useEffect : ', props.my_apps)
+        // fetchData()
+
+        setMyApps(props.my_apps)
+    }, [props.my_apps]);
+
+    const fetchData = async() =>{
+
+        // setLoginLoading(true)
+        let response =  await axios.post(`/api/v1/search`, 
+                                        {
+                                            type: 1,
+                                            key_word: props.user.uid,
+                                            offset: 0 
+                                        }, 
+                                        { headers: {'Authorization': `Basic ${ls.get('basic_auth')}` } });
+
+        response = response.data
+        console.log("response", response)
+
+        if(response.result){
+            console.log("response.datas", response.datas)
+
+            props.addMyApps(response.datas)
         }
-    });
 
-    const fetchData = () =>{
-        axios.post(`/api/fetch_mypost?_format=json`, 
-            {}, 
-            {
-                headers: { 'Authorization': `Basic ${props.user.basic_auth}` }
-            })
-        .then(function (response) {
-            let results = response.data
-            if(results.result){
-                setMyApps(results.datas)
-
-                console.log("results.datas", results.datas)
-            }
-
-            setIsFetch(true)
-        })
-        .catch(function (error) {
-            onToast('error', error)
-        });
     }
 
     const handleClose = () => {
@@ -351,7 +361,7 @@ const MyPostPage = (props) => {
   
     return (
             <div className="container mb-5">
-                <div className="row d-flex flex-row py-5"> 
+                <div > 
                 {
                 myApps.map(item => (
                     <UseMyPostItem 
@@ -366,9 +376,12 @@ const MyPostPage = (props) => {
 }
   
 const mapStateToProps = (state, ownProps) => {
-	return { user: state.user.data }
+    console.log('MyPostPage> mapStateToProps : ', state)
+	return { user: state.user.data, my_apps: state.my_apps.data }
 }
 
-const mapDispatchToProps = {}
+const mapDispatchToProps = {
+    addMyApps
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(MyPostPage)

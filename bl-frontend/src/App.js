@@ -19,7 +19,7 @@ import ScrollToTopBtn from "./components/ScrollToTopBtn";
 
 import { isEmpty, uniqueId } from "./utils"
 
-import { userLogin } from './actions/user';
+import { userLogin, userLogout } from './actions/user';
 
 let socket = undefined;
 
@@ -131,6 +131,8 @@ const App = (props) => {
       socket.off('disconnect', onDisconnect);
 
       socket.off('onUser', onUser);
+      socket.off('onProfile', onProfile);
+      socket.off('onContent', onContent);
     }else{
       console.log('socket :', socket)
     }
@@ -140,7 +142,8 @@ const App = (props) => {
     socket.on('disconnect', onDisconnect);
 
     socket.on('onUser', onUser);
-    
+    socket.on('onProfile', onProfile);
+    socket.on('onContent', onContent);
   }
 
   const onConnect = () =>{
@@ -160,9 +163,94 @@ const App = (props) => {
   const onUser = (data) =>{
     console.log("onUser :", data)
 
+    try {
+      let mode = data.mode
+      console.log("onUser mode", mode)
+      switch(mode){
+        case 'delete':{
+          socket.disconnect();
+
+          ls.remove('basic_auth')
+          ls.remove('session')
+          props.userLogout()
+
+          console.log("onUser ok",)
+          break;
+        }
+      }
+    } catch (error) {
+      // Catch internal functions, variables and return (jsx) errors.
+      // You can also create a lib to log the error to an error reporting service
+      // and use it here.
+      console.log("onUser error :", error)
+    }
+
+    // mode: "delete"
+  }
+
+  const onProfile = (data) =>{
+    console.log("onProfile :", data)
+
     props.userLogin(data)
 
-    console.log("onUser : >> ", data)
+    console.log("onProfile : >> ", data)
+  }
+
+  const onContent = (data) =>{
+    console.log("onContent :", data)
+
+    // mode: "edit", nid: "104"}
+
+    try {
+      let mode = data.mode
+      console.log("onContent mode", mode)
+      switch(mode){
+        case 'add':
+        case 'edit':{
+          console.log("onContent add, edit")
+
+          console.log("onContent props.my_apps ", props.my_apps)
+          /*
+          let myArray = [
+            {id: 0, name: "Jhon"},
+            {id: 1, name: "Sara"},
+            {id: 2, name: "Domnic"},
+            {id: 3, name: "Bravo"}
+          ]
+          
+          let objIndex = myArray.findIndex((obj => obj.id == 1));
+          
+          myArray[objIndex] = {id: 1000, name: "444"}
+          console.log( myArray );
+          */
+
+          let my_apps = props.my_apps
+          let index = my_apps.findIndex((obj => obj.id == data.nid));
+
+          my_apps[index] = data.data
+
+          console.log("onContent {add, edit} ", my_apps)
+
+          break;
+        }
+        case 'delete':{
+          console.log("onContent delete")
+
+          let index = my_apps.findIndex((obj => obj.id == data.nid));
+
+          let my_apps = props.my_apps
+          my_apps.splice(index, 1);
+
+          console.log("onContent {delete} ", my_apps)
+          break;
+        }
+      }
+    } catch (error) {
+      // Catch internal functions, variables and return (jsx) errors.
+      // You can also create a lib to log the error to an error reporting service
+      // and use it here.
+      console.log("onContent error :", error)
+    }
   }
 
   const onDisconnect = () =>{
@@ -230,9 +318,10 @@ const App = (props) => {
 
 const mapStateToProps = (state, ownProps) => {
 
-  console.log('state.user :', state.user.data)
+  console.log('state :', state)
 	return {
     user: state.user.data,
+    my_apps: state.my_apps.data,
     follow_ups: state.user.follow_ups,
 
 
@@ -241,7 +330,8 @@ const mapStateToProps = (state, ownProps) => {
 }
 
 const mapDispatchToProps = {
-  userLogin
+  userLogin,
+  userLogout
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)
