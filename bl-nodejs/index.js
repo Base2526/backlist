@@ -298,6 +298,8 @@ app.post('/v1/login',  async(req, res)=> {
                               },{});
   response = response.data
   const end = Date.now()
+
+  console.log('/v1/login : ', response)
   
   if(response.result){
     req.session.userId    = response.user.uid;
@@ -309,7 +311,9 @@ app.post('/v1/login',  async(req, res)=> {
                      data: response.user}); 
   }else{
     return res.send({ result: false, 
-                      execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`});
+                      code: response.code,
+                      execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`,
+                      message: response.message});
   }
 });
 
@@ -420,7 +424,7 @@ app.post('/v1/profile',  async(req, res, next)=> {
     let cache = true;
     if(utils.isEmpty(data)){
       cache = false;
-      data = await UserSchema.findOne({'uid':uid});;
+      data = await UserSchema.findOne({'uid':uid});
 
       nc.set( `user-${uid}` , data );
     }
@@ -506,7 +510,7 @@ app.post('/v1/add_banlist',  async(req, res, next)=> {
     // const file = req.files;
     // const bodyData = req.body;
 
-    
+    const draft           = req.body.draft;
     const nid             = req.body.nid;
     const product_type    = req.body.product_type;
     const transfer_amount = req.body.transfer_amount;
@@ -541,6 +545,8 @@ app.post('/v1/add_banlist',  async(req, res, next)=> {
     //-------------------
 
     const form = new FormData();
+    // draft
+    form.append('draft', draft);
     form.append('nid', nid);
     form.append('product_type', product_type);
     form.append('transfer_amount', transfer_amount);
@@ -601,6 +607,10 @@ app.post('/v1/add_banlist',  async(req, res, next)=> {
   }
 });
 
+
+/*
+  Study : https://logz.io/blog/elasticsearch-queries/
+*/
 app.post('/v1/search',  async(req, res, next)=> {
 
   // logger.error(`Ready Listening on port 2`);
@@ -618,57 +628,120 @@ app.post('/v1/search',  async(req, res, next)=> {
       return res.send({ status: false, message:"Keyword is empty" });
     }
 
-    let query = {
-      query: {
-        "query_string": {
-          "fields": [ "field_sales_person_name", "body" ],
-          "query": `*${key_word}*`,
-        },
-        
-        
-        //   query: { match_all: {}},
-        //  sort: [{ "nid": { "order": "asc" } }],
-        //  from: 0,
-        //  size: 5,
-        
-      },
-      size: 5,
-    }
+    let query = {}
+    switch(type){
+      case 0: {
+        query = {
+                  "query": {
+                    "bool": {
+                        "filter": [
+                            { "term": { "status": true }}
+                        ]
+                    }
+                  }
+                }
+          
+        console.log( 'query >', query );
+        break;
+      }
 
-    if(!utils.isEmpty(full_text_fields)){
-      full_text_fields = JSON.parse(full_text_fields);
+      /*
+      uid AND status= {true or false}
+      */
+      case 1: {
+        query = {
+                  "query": {
+                      "bool": {
+                          "must": [
+                              {"match" : { "uid": key_word }},
+                              // {"match" : { "status": true}},
+                          ],
+                      }
+                  },
+                }
 
-      query = {
-        query: {
-          "query_string": {
-            "fields": full_text_fields,
-            "query": `*${key_word}*`,
-          },
-          
-          
-          //   query: { match_all: {}},
-          //  sort: [{ "nid": { "order": "asc" } }],
-          //  from: 0,
-          //  size: 5,
-          
-        },
-        size: 5,
+        console.log( 'query >', query );
+        break;
+      }
+
+      /*
+        search by key_word and select field dynamic
+      */
+      case 99:{
+        const fields = JSON.parse(full_text_fields);
+        const should = fields.map((field) => { return {'wildcard': {[field]: `*${key_word}*`}}});
+        query = {
+                  "query": {
+                    "bool": {
+                        "must_not": [
+                          {"match": { "status": false}}
+                        ],
+                        should
+                    }
+                  },
+                }
+
+        console.log( 'query >', query );
+        break;
+      }
+
+      // test 
+      case 9999: {
+
+        const fields = [ {name: "title"}, {name: "body"} ]
+        const should = fields.map((val) => { return {'wildcard': {[val.name]: `*${key_word}*`}}});
+
+        const { body } = await client.search({
+                                                index: 'elasticsearch_index_banlist_content_back_list',
+                                                body:  {
+                                                "query": {
+                                                    "bool": {
+                                                        "must_not": [
+                                                          {"match": { "status": false}}
+                                                        ],
+                                                        should
+                                                    }
+                                                },
+                                                size: 5,
+                                                }
+                                            })
+
+        var results = [];
+        results = body.hits.hits.map((hit)=>{ 
+                                            let title   = hit._source.title[0];
+                                            let name    = utils.isEmpty(hit._source.field_sales_person_name) ? "" : hit._source.field_sales_person_name[0];  
+                                            let surname = utils.isEmpty(hit._source.field_sales_person_surname) ? "" : hit._source.field_sales_person_surname[0];  
+                                            let name_surname    = utils.isEmpty(hit._source.banlist_name_surname_field) ? "" : hit._source.banlist_name_surname_field[0]; 
+                                            let owner_id        = hit._source.uid[0];
+                                            let transfer_amount = utils.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount[0]; 
+                                            let detail          = utils.isEmpty(hit._source.body) ? "" : hit._source.body[0] ;
+                                            let id              = hit._source.nid[0];
+                                            let id_card_number  = utils.isEmpty(hit._source.field_id_card_number) ? [] : hit._source.field_id_card_number[0] ;
+                                            let images          = hit._source.banlist_images_field;
+                                            let status          = hit._source.status[0];
+    
+                                            return {id, owner_id, name, surname, name_surname, title, transfer_amount, detail, id_card_number, images, status}
+                                          });
+        const end = Date.now()
+    
+        /*
+        all_result_count: 10
+        count: 10
+        */
+        ///------------------
+        // if(response.data.result){
+        return res.send({ result        : true,
+                          execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`, 
+                          body          : body,
+                          datas         : results ,
+                          all_result_count: body.hits.total.value,
+    
+                          hits: body.hits.hits,
+                          count         : results.length });
+        break;
       }
     }
-    
-    // http://api.banlist.info:8090/api/v1/login?_format=json
-    // const response = await axios.post(`${process.env.DRUPAL_API_ENV}/v1/search?_format=json`, {
-    //                               "key_word":key_word
-    //                             },{
-    //                               headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
-    //                             });   
-                                
-    // const end = Date.now()
-    
-
-    ///------------------
-   
-  
+     
     const { body } = await client.search({
       index: 'elasticsearch_index_banlist_content_back_list',
       body:  query
@@ -676,9 +749,9 @@ app.post('/v1/search',  async(req, res, next)=> {
 
     var results = [];
     results = body.hits.hits.map((hit)=>{ 
-                                        let title   = hit._source.title[0];
-                                        let name    = utils.isEmpty(hit._source.field_sales_person_name) ? "" : hit._source.field_sales_person_name[0];  
-                                        let surname = utils.isEmpty(hit._source.field_sales_person_surname) ? "" : hit._source.field_sales_person_surname[0];  
+                                        let title           = hit._source.title[0];
+                                        let name            = utils.isEmpty(hit._source.field_sales_person_name) ? "" : hit._source.field_sales_person_name[0];  
+                                        let surname         = utils.isEmpty(hit._source.field_sales_person_surname) ? "" : hit._source.field_sales_person_surname[0];  
                                         let name_surname    = utils.isEmpty(hit._source.banlist_name_surname_field) ? "" : hit._source.banlist_name_surname_field[0]; 
                                         let owner_id        = hit._source.uid[0];
                                         let transfer_amount = utils.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount[0]; 
@@ -686,8 +759,9 @@ app.post('/v1/search',  async(req, res, next)=> {
                                         let id              = hit._source.nid[0];
                                         let id_card_number  = utils.isEmpty(hit._source.field_id_card_number) ? [] : hit._source.field_id_card_number[0] ;
                                         let images          = hit._source.banlist_images_field;
+                                        let status          = hit._source.status[0];
 
-                                        return {id, owner_id, name, surname, name_surname, title, transfer_amount, detail, id_card_number, images}
+                                        return {id, owner_id, name, surname, name_surname, title, transfer_amount, detail, id_card_number, images, status}
                                       });
     const end = Date.now()
 
@@ -702,6 +776,8 @@ app.post('/v1/search',  async(req, res, next)=> {
                       body          : body,
                       datas         : results ,
                       all_result_count: body.hits.total.value,
+
+                      hits: body.hits.hits,
                       count         : results.length });
     // }else{
     //   return res.send(response.data);
@@ -845,7 +921,7 @@ app.post('/v1/cache_del',  async(req, res, next)=> {
             }
 
             if(!utils.isEmpty(user)){
-              global.io.to(socket.socketId).emit('onUser', user);
+              global.io.to(socket.socketId).emit('onProfile', user);
             }
             
           })
@@ -877,6 +953,174 @@ app.post('/v1/cache_flush_all',  async(req, res, next)=> {
     const start = Date.now()
 
     nc.flushAll();
+
+    const end = Date.now()
+    return res.send({
+                      result : true,
+                      execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+                    });
+  } catch (err) {
+    logger.error(err);
+    return res.send({result : false, message: err});
+  }
+});
+
+
+// notify_owner_content
+app.post('/v1/notify_owner_content',  async(req, res, next)=> {
+  try {
+    const start = Date.now()
+    let uid = req.body.uid;
+    let mode = req.body.mode;
+    let nid = req.body.nid;
+    let data = req.body.data;
+
+    // $data_obj = [ 'uid'=>$uid, 'mode'=>$mode, 'nid'=>$nid ];
+  
+    if(uid === undefined || mode === undefined || nid === undefined){
+      return res.send({ status: false, message:"Without uid, mode, nid" });
+    }
+
+    console.log("/v1/notify_owner_content  uid :", uid, " mode : ", mode, " nid : ", nid , " data : ", data, data.images)
+
+    let sockets = await SocketsSchema.find({ auth: uid });
+
+    /*
+    let datas = [];
+    switch(mode){
+      case 'add':
+      case 'edit':{
+        let   query = {
+                        "query": {
+                            "bool": {
+                                "must": [
+                                    {"match" : { "nid": nid }},
+                                ],
+                            }
+                        },
+                      }
+
+        const { body } = await client.search({
+          index: 'elasticsearch_index_banlist_content_back_list',
+          body:  query
+        })
+    
+        datas = body.hits.hits.map((hit)=>{ 
+                                            let title           = hit._source.title[0];
+                                            let name            = utils.isEmpty(hit._source.field_sales_person_name) ? "" : hit._source.field_sales_person_name[0];  
+                                            let surname         = utils.isEmpty(hit._source.field_sales_person_surname) ? "" : hit._source.field_sales_person_surname[0];  
+                                            let name_surname    = utils.isEmpty(hit._source.banlist_name_surname_field) ? "" : hit._source.banlist_name_surname_field[0]; 
+                                            let owner_id        = hit._source.uid[0];
+                                            let transfer_amount = utils.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount[0]; 
+                                            let detail          = utils.isEmpty(hit._source.body) ? "" : hit._source.body[0] ;
+                                            let id              = hit._source.nid[0];
+                                            let id_card_number  = utils.isEmpty(hit._source.field_id_card_number) ? [] : hit._source.field_id_card_number[0] ;
+                                            let images          = hit._source.banlist_images_field;
+                                            let status          = hit._source.status[0];
+    
+                                            return {id, owner_id, name, surname, name_surname, title, transfer_amount, detail, id_card_number, images, status}
+                                          });
+        // const end = Date.now()
+
+        
+        break;
+      }
+    }
+
+    console.log('/v1/notify_owner_content  datas = ', datas, ' >> ', datas[0].images)
+    */
+
+    sockets.map(async(socket) => {
+      console.log('/v1/notify_owner_content  socket.socketId = ', socket.socketId)
+      // let user = nc.get( `user-${socket.auth}` );
+      // if(utils.isEmpty(user)){
+      //   user = await UserSchema.findOne({'uid':socket.auth});;
+  
+      //   // nc.set( `user-${socket.auth}` , user );
+      // }
+
+      if(!utils.isEmpty(socket.socketId)){
+        global.io.to(socket.socketId).emit('onContent', {mode, nid, data});
+      }
+    })
+
+    // keys.map( async(key) => {
+    //   let key1 = key.split("-");
+    //   console.log("key1 >> ", key1, global)
+
+    //   switch(key1[0]){
+    //     case 'user':{
+          
+    //       let sockets = await SocketsSchema.find({auth: key1[1]});
+    //       // console.log(sockets)
+
+    //       sockets.map(async(socket) => {
+    //         console.log('socket.socketId = ', socket.socketId)
+    //         let user = nc.get( `user-${socket.auth}` );
+    //         if(utils.isEmpty(user)){
+    //           user = await UserSchema.findOne({'uid':socket.auth});;
+        
+    //           nc.set( `user-${socket.auth}` , user );
+    //         }
+
+    //         if(!utils.isEmpty(user)){
+    //           global.io.to(socket.socketId).emit('onProfile', user);
+    //         }
+            
+    //       })
+    //       break;
+    //     }
+
+    //     // case 'node':{
+    //     //   break;
+    //     // }
+    //   }
+    // })
+
+    // nc.del( keys );
+
+    const end = Date.now()
+    return res.send({
+                      result : true,
+                      execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+                    });
+  } catch (err) {
+    logger.error(err);
+    return res.send({result : false, message: err});
+  }
+});
+
+// nodejs_notify_user
+app.post('/v1/nodejs_notify_user',  async(req, res, next)=> {
+  try {
+    const start = Date.now()
+    let uid = req.body.uid;
+    let mode = req.body.mode;
+  
+    if(uid === undefined || mode === undefined){
+      return res.send({ status: false, message:"Without uid, mode" });
+    }
+
+    console.log("/v1/nodejs_notify_user  uid :", uid, " mode : ", mode)
+
+    let sockets = await SocketsSchema.find({ auth: uid });
+
+    sockets.map(async(socket) => {
+      console.log('/v1/nodejs_notify_user  socket.socketId = ', socket.socketId)
+      if(!utils.isEmpty(socket.socketId)){
+        global.io.to(socket.socketId).emit('onUser', {'mode': mode});
+      }
+    })
+
+    switch(mode){
+      case 'delete':{
+
+        await SocketsSchema.deleteMany({ auth: uid });
+        await UserSchema.deleteMany({ uid: uid });
+
+        break;
+      }
+    }
 
     const end = Date.now()
     return res.send({

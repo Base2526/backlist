@@ -363,6 +363,7 @@ function backlist_user_delete(EntityInterface $entity) {
     switch($entity->bundle()){
       case 'user':{
       
+        /*
         $db = Utils::MongoDB()->bl;
 
         $bundle = 'users';
@@ -386,6 +387,11 @@ function backlist_user_delete(EntityInterface $entity) {
         if($users->count($filter)){
           $users->deleteOne( $filter );
         }
+        */
+
+        // ------- nodejs_notify_user --------
+        Utils::nodejs_notify_user( $entity->id(), 'delete' );
+        // ------- nodejs_notify_user --------
         
         break;
       }
@@ -470,19 +476,25 @@ function user_iu(EntityInterface $entity){
  * Implements hook_ENTITY_TYPE_insert().
  */
 function backlist_node_insert(EntityInterface $entity) {
+  \Drupal::logger('backlist_node_insert')->error('#1');
   if ($entity->bundle() == 'back_list') {
-    $field_channel = $entity->get('field_channel')->getValue();
-    if(empty($field_channel) || $field_channel[0]['target_id'] == 31){
-      // add from web
-      $response = new RedirectResponse(Url::fromRoute('entity.node.canonical', ['node' => $entity->id()], ['absolute' => TRUE])->toString());
-      $response->send();
-    }else{
-      // add from api
-    }
+    // $field_channel = $entity->get('field_channel')->getValue();
+    // if(empty($field_channel) || $field_channel[0]['target_id'] == 31){
+    //   // add from web
+    //   $response = new RedirectResponse(Url::fromRoute('entity.node.canonical', ['node' => $entity->id()], ['absolute' => TRUE])->toString());
+    //   $response->send();
+    // }else{
+    //   // add from api
+    // }
+
+    // ------- notify_owner_content --------
+    Utils::nodejs_notify_owner_content( $entity->getOwnerId(), 'add', $entity->id(), Utils::GetFieldNode($entity) );
+    // ------- notify_owner_content --------
   }
 }
 
 function backlist_node_update(EntityInterface $entity) {
+  \Drupal::logger('backlist_node_update')->error('#1');
   try{
     if ($entity->bundle() == 'article') {
       $articles = array(1, 2, 3); // สำหรับนักพัฒนา, About us, Terms of service
@@ -529,6 +541,12 @@ function backlist_node_update(EntityInterface $entity) {
       }
     }
 
+    if ($entity->bundle() == 'back_list') {
+      // ------- notify_owner_content --------
+      Utils::nodejs_notify_owner_content( $entity->getOwnerId(), 'edit', $entity->id(), Utils::GetFieldNode($entity) );
+      // ------- notify_owner_content --------
+    }
+
   } catch (\Throwable $e) {
     \Drupal::logger('backlist_node_update')->error($e->__toString());
   }
@@ -541,13 +559,21 @@ function backlist_node_delete(EntityInterface $entity) {
   switch($entity->bundle()){
     case 'back_list':{
 
-      Utils::node_my_apps($entity->getOwnerId());
+      // Utils::node_my_apps($entity->getOwnerId());
 
-      \Drupal::logger('backlist_node_delete')->error( $entity->id() );
+      // \Drupal::logger('backlist_node_delete')->error( $entity->id() );
 
-      $twit_id = $entity->get('field_twit_id')->getValue();
-      if(!empty($twit_id)){
-        Utils::Twitter_Delete_By_TwitId($twit_id[0]['value']);
+      // $twit_id = $entity->get('field_twit_id')->getValue();
+      // if(!empty($twit_id)){
+      //   Utils::Twitter_Delete_By_TwitId($twit_id[0]['value']);
+      // }
+
+      try{
+         // ------- notify_owner_content --------
+         Utils::nodejs_notify_owner_content( $entity->getOwnerId(), 'delete', $entity->id(), array() );
+         // ------- notify_owner_content --------
+      } catch (\Throwable $e) {
+        \Drupal::logger('backlist_node_update')->error($e->__toString());
       }
       
       break;

@@ -4,8 +4,9 @@ var http = require('http')
 var socketio = require('socket.io');
 // var mongoStore = require('socket.io-mongo');
 
-const utils = require('../util/utils');
-var SocketsSchema = require('../models/SocketsSchema');
+const utils         = require('../util/utils');
+const SocketsSchema = require('../models/SocketsSchema');
+const UserSchema    = require('../models/UserSchema');
 
 const app = require("../index");
 
@@ -83,11 +84,24 @@ io.on('connection', async (socket) => {
   // console.log(handshake.query.unique_id)
 
   console.log(`Socket ${socket.id} - ${unique_id} - ${t} connection`)
-  console.log(socket)
+  // console.log(socket)
 
   socket.emit('uniqueID', { ...handshake.query, "socketID": socket.id });
 
-  await new SocketsSchema({ t, socketId: socket.id, platform,  auth: (utils.isEmpty(handshake.auth) ? "" : handshake.auth.token) }).save()
+  let auth = ""
+  if(!utils.isEmpty(handshake.auth)){
+    auth = handshake.auth.token;
+
+    let  user_schema =await UserSchema.findOne({'uid':auth});
+    // console.log(`Socket UserSchema >  ${user_schema} `)
+    if(utils.isEmpty(user_schema)){
+
+      // กรณี เช็ดแล้วไม่มี user ในระบบเราจะสั่งให้ client ที่ connect เข้ามาทำการ logout ออกจากระบบ
+      socket.emit('onUser', {'mode': 'delete'});
+    }
+  }
+
+  await new SocketsSchema({ t, socketId: socket.id, platform,  auth }).save()
 
   socket.on('disconnect', async() => {
 

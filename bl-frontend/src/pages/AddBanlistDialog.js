@@ -11,6 +11,9 @@ import {isEmpty, onToast} from '../utils'
 
 const AddBanlistDialog = (props) => {
   const [showModal, setShowModal] = React.useState(false);
+
+  // 
+  const [draft, setDraft]     = useState(false);
   
   const [nid, setNid]     = useState(0);
   const [title, setTitle] = useState();
@@ -60,6 +63,13 @@ const AddBanlistDialog = (props) => {
     setShowModal(props.showModal)
   });
 
+  const handleFormDraft = async(e) => {
+
+    setDraft(true)
+
+    handleFormSubmit(e)
+  }
+
   const handleFormSubmit = async(e) => {
     console.log("handleFormSubmit : ");
     e.preventDefault();
@@ -87,6 +97,7 @@ const AddBanlistDialog = (props) => {
     }else{
 
       const data = new FormData();
+      data.append('draft', draft );
       data.append('nid', nid );
       data.append('product_type', title);
       data.append('transfer_amount', transferAmount);
@@ -109,6 +120,13 @@ const AddBanlistDialog = (props) => {
       response = response.data
 
       console.log("/api/v1/add_banlist > ", response)
+
+      if(response.result){
+        props.onClose()
+        onToast('info', "Add content success")
+      }else{
+        onToast('error', response.message)
+      }
 
       /*
       setCreateLoading(true)
@@ -521,6 +539,7 @@ const AddBanlistDialog = (props) => {
 
 
           <Button variant="secondary" onClick={()=>props.onClose()}>Close</Button>
+          <Button variant="primary" onClick={handleFormDraft} >Draft</Button>
           <Button variant="primary" onClick={handleFormSubmit} >Create</Button>
         </Modal.Footer>
       </Modal>

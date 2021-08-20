@@ -54,7 +54,8 @@ const UseHomeItem = (props) => {
         return <div />
     }
 
-    if(item.images.length === 0 ){
+    
+    if(isEmpty(item.images)){
         return <div />
     }
   

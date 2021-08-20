@@ -1086,6 +1086,7 @@ nodejs_bl        |   }
 
       */
 
+      $draft            = trim( $_REQUEST['draft'] );            // is draft
       $nid            = trim( $_REQUEST['nid'] );            // new/edit
       $product_type   = trim( $_REQUEST['product_type'] );       // สินค้า/ประเภท
       $transfer_amount= trim( $_REQUEST['transfer_amount'] );    // ยอดเงิน
@@ -1271,7 +1272,7 @@ nodejs_bl        |   }
         $node = Node::create([
           'type'                   => 'back_list',
           'uid'                    => \Drupal::currentUser()->id(),
-          'status'                 => 1,
+          'status'                 => empty($draft) ? 1 : 0,
           'field_channel'          => 32,                // ถูกสร้างผ่านช่องทาง 31: Web, 32: Api
   
           'title'                  => $product_type,     // สินค้า/ประเภท

@@ -3,6 +3,8 @@ import { connect } from 'react-redux'
 import axios from 'axios';
 import { CircularProgress } from '@material-ui/core';
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
+import { Button } from "react-bootstrap";
+import ls from 'local-storage';
 
 import Pagination from "./Pagination";
 import UseHomeItem from "./UseHomeItem";
@@ -66,9 +68,7 @@ const HomePage = (props) => {
         offset: 0,
         full_text_fields: JSON.stringify(selectedCheckboxes)
       }, {
-          headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`}
-
-          // Basic YWRtaW46MTIzNA==
+        headers: {'Authorization': isEmpty(ls.get('basic_auth')) ? `Basic ${process.env.REACT_APP_AUTHORIZATION}` : ls.get('basic_auth')}
       })
       .then((response) => {
         let results = response.data
@@ -106,7 +106,7 @@ const HomePage = (props) => {
       key_word: '*',
       offset: currentPage - 1
     }, {
-        headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`}
+        headers: {'Authorization': isEmpty(ls.get('basic_auth')) ? `Basic ${process.env.REACT_APP_AUTHORIZATION}` : ls.get('basic_auth')}
     })
     .then((response) => {
       let results = response.data
@@ -222,7 +222,7 @@ const HomePage = (props) => {
 
                               clearSearch()
                             }}/>
-                          <button 
+                          {/* <button 
                             type="submit" 
                             disabled={isEmpty(searchWord) ? true : false}
                             onClick={(e)=>{
@@ -230,7 +230,12 @@ const HomePage = (props) => {
                             }}
                             className={"div-button"}>
                             ค้นหา{ searchLoading && <CircularProgress size={10}/> }
-                          </button>
+                          </button> */}
+
+                          <Button 
+                            variant="primary" 
+                            disabled={isEmpty(searchWord) ? true : false}
+                            onClick={(e)=>{ handleFormSearch(e)}}>Search { searchLoading && <CircularProgress size={15}/> }</Button>
 
                           {/* searchLoading */}
                         </div>

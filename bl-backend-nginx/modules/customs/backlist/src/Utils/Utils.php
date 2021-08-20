@@ -4664,6 +4664,98 @@ class Utils extends ControllerBase {
     return $response_array;
   }
 
+    /*
+  owner_id: 61
+  id: 104
+  title: "เงินกู้"
+  name: "กรวรรณ 32"
+  surname: "ประสงค์สุข 666"
+  name_surname: "กรวรรณ 32 ประสงค์สุข 666"
+  detail: "<p>dpm(empty(1));</p>\r\n"
+  
+  id_card_number: "1234"
+  
+  status: false
+  
+  images: [ [Array], [Array] ],
+  transfer_amount: 100
+
+nodejs_bl        |     id: 102,
+nodejs_bl        |     owner_id: 61,
+nodejs_bl        |     name: 'กรวรรณ',
+nodejs_bl        |     surname: 'ประสงค์สุข',
+nodejs_bl        |     name_surname: 'กรวรรณ ประสงค์สุข',
+nodejs_bl        |     title: 'เงินกู้ บาคาร่าสล๊อต',
+nodejs_bl        |     transfer_amount: 1234,
+nodejs_bl        |     detail: '<p>shochespole&nbsp;veroประ</p>\r\n',
+nodejs_bl        |     id_card_number: '123456',
+nodejs_bl        |     images: [ [Array], [Array] ],
+nodejs_bl        |     status: true
+  */
+
+  public static function GetFieldNode($node){
+    $data = array();
+    $data['owner_id'] = (int)$node->getOwnerId();
+    $data['id']       = (int)$node->id();
+    $data['title']    = $node->label();
+
+    // 2. ชื่อบัญชี-นามสกุล ผู้รับเงินโอน
+    $sales_person_name = '';
+    $field_sales_person_name = $node->get('field_sales_person_name')->getValue();
+    if(!empty($field_sales_person_name)){
+        $sales_person_name = $field_sales_person_name[0]['value'];
+    }
+
+    $data['name']  = $sales_person_name;
+
+    // 3. นามสกุลผู้รับเงินโอน
+    $sales_person_surname = '';
+    $field_sales_person_surname = $node->get('field_sales_person_surname')->getValue();
+    if(!empty($field_sales_person_surname)){
+        $sales_person_surname = $field_sales_person_surname[0]['value'];
+    }
+
+    $data['surname']  = $sales_person_surname;
+
+    $data['name_surname'] = $sales_person_name . ' ' . $sales_person_surname;
+
+    // รายละเอียด
+    $detail = '';
+    $body = $node->get('body')->getValue();
+    if(!empty($body)){
+      $detail = $body[0]['value'];
+    }
+    $data['detail']  = $detail;
+
+
+    // รูปภาพประกอบ
+    $images = array();
+    foreach ($node->get('field_images')->getValue() as $imi=>$imv){
+      $images[0][]    = array('fid'=>$imv['target_id'], 'url'=> Utils::ImageStyle_BN($imv['target_id'], 'bn_medium')) ;
+      $images[1][]    = array('fid'=>$imv['target_id'], 'url'=> Utils::ImageStyle_BN($imv['target_id'], 'bn_thumbnail')) ;
+    }
+    $data['images']  = $images;
+
+    // id card or pass port
+    $id_card_number = '';
+    $field_id_card_number = $node->get('field_id_card_number')->getValue();
+    if(!empty($field_id_card_number)){
+      $id_card_number = $field_id_card_number[0]['value'];
+    } 
+    $data['id_card_number'] = $id_card_number;
+
+
+    $data['status'] = $node->isPublished();
+
+    // ยอดเงิน
+    $transfer_amount = '';
+    if(!empty($node->get('field_transfer_amount')->getValue())){
+      $transfer_amount = $node->get('field_transfer_amount')->getValue()[0]['value'];
+    } 
+    $data['transfer_amount']  = (int)$transfer_amount;
+    return $data;
+  }
+
   /*
   $type = 0 : reporter, 1 : owner post 
   */
@@ -4959,6 +5051,13 @@ class Utils extends ControllerBase {
     }
   }
 
+  private static function api_gateway(){
+    $api_gateway           = ConfigPages::config('api_gateway');
+    $host_api_gate_way     = $api_gateway->get('field_host_api_gate_way')->getValue()[0]['value'];
+
+    return array('host_api_gate_way'=>$host_api_gate_way);
+  }
+
   public static function nodejs_clear_cache_with_keys($keys = array()){
     try{
       
@@ -4970,7 +5069,7 @@ class Utils extends ControllerBase {
 
       $ch = curl_init();
       curl_setopt_array($ch, array(
-        CURLOPT_URL =>  "http://kong.banlist.info:8888/api/v1/cache_del",
+        CURLOPT_URL => (Utils::api_gateway())['host_api_gate_way'] . "/api/v1/cache_del",
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HEADER => true,
         //   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
@@ -5007,7 +5106,7 @@ class Utils extends ControllerBase {
     try{
       $ch = curl_init();
       curl_setopt_array($ch, array(
-        CURLOPT_URL =>  "http://kong.banlist.info:8888/api/v1/cache_flush_all",
+        CURLOPT_URL =>  (Utils::api_gateway())['host_api_gate_way'] . "/api/v1/cache_flush_all",
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HEADER => true,
         //   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
@@ -5040,4 +5139,109 @@ class Utils extends ControllerBase {
     }
   }
 
+  /*
+  กรณีมีการลบ content จะต้องมีการแจ้งไป owner content กรณีมีการเปิดไว้หลาย browser
+  $uid
+    - owner content
+  $mode
+    - add
+    - edit 
+    - delete
+  $nid
+    - node id
+  */
+  public static function nodejs_notify_owner_content($uid, $mode, $nid, $data){
+    try{
+      
+      if(empty($uid) || empty($mode) || empty($nid)){
+        return;
+      }
+
+      $data_obj = [ 'uid'=>$uid, 'mode'=>$mode, 'nid'=>$nid, 'data'=>$data ];
+
+      $ch = curl_init();
+      curl_setopt_array($ch, array(
+        CURLOPT_URL =>  (Utils::api_gateway())['host_api_gate_way'] . "/api/v1/notify_owner_content",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HEADER => true,
+        //   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => json_encode($data_obj),
+        CURLOPT_HTTPHEADER => array(
+          "Accept: application/json",
+          "Content-Type: application/json",
+        ),
+      ));
+
+      $curl_result = curl_exec($ch);
+
+      // get httpcode 
+      $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+      if($httpcode == 200){ // if response ok
+        // separate header and body
+        $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+        $header = substr($curl_result, 0, $header_size);
+        $body = substr($curl_result, $header_size);
+        
+        // convert json to array or object
+        $body_content = json_decode($body);
+
+        \Drupal::logger('nodejs_clear_cache_with_keys')->notice( serialize($body_content) );
+      }
+    } catch (\Throwable $e) {
+      \Drupal::logger('nodejs_clear_cache_with_keys')->error($e->__toString());
+    }
+  }
+
+  /*
+  กรณีมีการลบ user 
+  $uid
+    - user id
+  $mode
+    - delete
+  */
+  public static function nodejs_notify_user($uid, $mode ){
+    try{
+      
+      if(empty($uid) || empty($mode)){
+        return;
+      }
+
+      $data_obj = [ 'uid'=>$uid, 'mode'=>$mode ];
+
+      $ch = curl_init();
+      curl_setopt_array($ch, array(
+        CURLOPT_URL =>  (Utils::api_gateway())['host_api_gate_way'] . "/api/v1/nodejs_notify_user",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HEADER => true,
+        //   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => json_encode($data_obj),
+        CURLOPT_HTTPHEADER => array(
+          "Accept: application/json",
+          "Content-Type: application/json",
+        ),
+      ));
+
+      $curl_result = curl_exec($ch);
+
+      // get httpcode 
+      $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+      if($httpcode == 200){ // if response ok
+        // separate header and body
+        $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+        $header = substr($curl_result, 0, $header_size);
+        $body = substr($curl_result, $header_size);
+        
+        // convert json to array or object
+        $body_content = json_decode($body);
+
+        \Drupal::logger('nodejs_clear_cache_with_keys')->notice( serialize($body_content) );
+      }
+    } catch (\Throwable $e) {
+      \Drupal::logger('nodejs_clear_cache_with_keys')->error($e->__toString());
+    }
+  }
 }
