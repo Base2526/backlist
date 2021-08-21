@@ -11,7 +11,9 @@ import ls from 'local-storage';
 
 import { isEmailValid, uniqueId, onToast, isEmpty } from "../utils"
 import PasswordField from "../components/PasswordField";
-import { userLogin, ___followUp, fetchMyApps, addfollowerPost, addMyApps } from '../actions/user';
+import { userLogin, ___followUp, fetchMyApps, addfollowerPost } from '../actions/user';
+
+// import { addMyApp } from '../actions/my_apps';
 
 const LoginDialog = (props) => {
   const [displayName, setDisplayName] = React.useState("");
@@ -573,7 +575,7 @@ const mapDispatchToProps = {
   addfollowerPost,
 
 
-  addMyApps
+  // addMyApps
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginDialog)

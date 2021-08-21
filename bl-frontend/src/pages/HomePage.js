@@ -23,7 +23,7 @@ const HomePage = (props) => {
   const [currentDatas, setCurrentDatas]   = React.useState([]);
   const [currentPage, setCurrentPage]     = React.useState(0);
   const [totalPages, setTotalPages]       = React.useState(0);
-  const [pageLimit, setPageLimit]         = React.useState(5);
+  const [pageLimit, setPageLimit]         = React.useState(20);
   const [allResultCount, setAllResultCount] = React.useState(10000);
 
   const [searchWord, setSearchWord]               = React.useState("");
@@ -110,11 +110,12 @@ const HomePage = (props) => {
     })
     .then((response) => {
       let results = response.data
-      console.log('/api/v1/search : ', results)
+      console.log('/api/v1/search : ', response)
       if(results.result){
         // true
         let {execution_time, datas, count, all_result_count} = results;
         props.fetchData(datas);
+
         setAllDatas(mergeArrays(allDatas, datas))
         setCurrentDatas(datas)
         
@@ -273,6 +274,9 @@ const HomePage = (props) => {
                         />
                       </div>
                       <div className="d-flex flex-row align-items-center">
+                      <h2>
+                        <strong className="text-secondary">{allResultCount}</strong>  Item
+                      </h2>
                         {currentPage && (
                           <span className="current-page d-inline-block h-100 pl-4 text-secondary">
                             Page <span className="font-weight-bold">{currentPage}</span> /{" "}

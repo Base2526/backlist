@@ -16,6 +16,9 @@ import LogoutDialog from './LogoutDialog'
 import LoginDialog from './LoginDialog'
 import previewIcon from '../images/preview-icon.png';
 
+
+var _ = require('lodash');
+
 const HeaderBar = (props) => {
   const history = useHistory();
   const [anchorEl, setAnchorEl]               = React.useState(null);
@@ -54,7 +57,7 @@ const HeaderBar = (props) => {
                      :  <div>
                           <div>
       
-                          { isEmpty(props.user) ? <ul class="flex-container row">
+                          {  _.isEmpty(props.user) ? <ul class="flex-container row">
                                                     <li class="flex-item">
                                                     <div 
                                                       style={{cursor:'pointer'}}
@@ -106,7 +109,7 @@ const HeaderBar = (props) => {
                               onClick={()=>{
                                 history.push({pathname: `/my-profile/my-post`, state: {} })
                                 setAnchorEl(null);
-                              }}>My post</MenuItem>
+                              }}>My post {props.my_apps.length}</MenuItem>
       
                             {/* <MenuItem 
                               onClick={()=>{
@@ -148,14 +151,13 @@ const HeaderBar = (props) => {
 };
   
 const mapStateToProps = (state, ownProps) => {
-
-  console.log("HeaderBar: ", state)
 	return {
     user: state.user.data,
     data: state.app.data,
     follow_ups: state.user.follow_ups,
 
 
+    my_apps: state.my_apps.data,
     maintenance: state.setting.maintenance
   };
 }

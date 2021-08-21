@@ -20,6 +20,7 @@ import ScrollToTopBtn from "./components/ScrollToTopBtn";
 import { isEmpty, uniqueId } from "./utils"
 
 import { userLogin, userLogout } from './actions/user';
+import { addMyApp, updateMyApp, deleteMyApp } from './actions/my_apps';
 
 let socket = undefined;
 
@@ -32,8 +33,31 @@ const App = (props) => {
   // }, []);
 
   useEffect(() => {
-    socketid()
-    console.log(' socketid() > [props.user] ')
+    
+    console.log('socketid() > [props.user] #0')
+
+    if( isEmpty(socket) ){
+      console.log('socketid() > socket.auth.token : #1')
+      socketid()
+    }else{
+      console.log('socketid() > socket.auth.token : #2')
+
+      if(isEmpty(props.user)){
+        if(!isEmpty(socket.auth.token)){
+          if(socket.auth.token !== 0){
+            console.log('socketid() > socket.auth.token : #3')
+            socket.auth.token = 0;
+            socket.disconnect().connect()
+          }
+        }
+      }else{
+        if(socket.auth.token !== props.user.uid){
+          console.log('socketid() > socket.auth.token : #4')
+          socket.auth.token = props.user.uid;
+          socket.disconnect().connect()
+        }
+      }
+    }
   }, [props.user]);
 
   useEffect(() => {
@@ -53,7 +77,7 @@ const App = (props) => {
     if(!isEmpty(props.user)){
       let filter_follow_ups = follow_ups.filter((im)=>im.local)
 
-      console.log("interval syc :", Date().toLocaleString(), _uniqueId(props), props, filter_follow_ups)
+      // console.log("interval syc :", Date().toLocaleString(), _uniqueId(props), props, filter_follow_ups)
 
       if(!isEmpty(filter_follow_ups)){
         // axios.post(`/node/follow_up`, {
@@ -73,8 +97,18 @@ const App = (props) => {
     }
   } 
 
-  const socketid = () =>{
-    console.log('process.env :', process.env, ', props : ', props)
+  const geolocation = async () => {
+    const res = await axios.get('https://geolocation-db.com/json/')
+    let data = {}
+    if(res.status === 200){
+      data = res.data
+    }
+
+    return data;
+  }
+
+  const socketid = async() =>{
+    console.log('process.env :', process.env, ', props : ', props, ', geolocation : ', await geolocation())
 
     /*
     
@@ -99,7 +133,8 @@ const App = (props) => {
           query: {
             "platform" : process.env.REACT_APP_PLATFORM, 
             // "unique_id": _uniqueId(props),
-            "version"  : process.env.REACT_APP_VERSIONS
+            "version"  : process.env.REACT_APP_VERSIONS,
+            "geolocation" : JSON.stringify( await geolocation() )
           },
           auth: {
             token: isEmpty(props.user) ? 0 : props.user.uid
@@ -118,7 +153,7 @@ const App = (props) => {
         { transports: ["websocket"] });
     }else{
       socket.auth.token = isEmpty(props.user) ? 0 : props.user.uid;
-      socket.disconnect().connect();
+      socket.disconnect().connect()
     }                 
     
     if (socket.connected === false && socket.connecting === false) {
@@ -153,11 +188,11 @@ const App = (props) => {
   const onUniqueID = (data) =>{
     console.log("unique_id :", data)
 
-    ls.set('socketIO', JSON.stringify(data))
+    // ls.set('socketIO', JSON.stringify(data))
 
-    var socketIO = ls.get('socketIO')
+    // var socketIO = ls.get('socketIO')
 
-    console.log("socketIO :", socketIO)
+    // console.log("socketIO :", socketIO)
   }
 
   const onUser = (data) =>{
@@ -205,11 +240,16 @@ const App = (props) => {
       let mode = data.mode
       console.log("onContent mode", mode)
       switch(mode){
-        case 'add':
+        case 'add':{
+          console.log("onContent add")
+          props.addMyApp(data)
+          break;
+        }
         case 'edit':{
-          console.log("onContent add, edit")
+          console.log("onContent edit")
+          props.updateMyApp(data)
 
-          console.log("onContent props.my_apps ", props.my_apps)
+          // console.log("onContent props.my_apps ", props.my_apps)
           /*
           let myArray = [
             {id: 0, name: "Jhon"},
@@ -224,24 +264,43 @@ const App = (props) => {
           console.log( myArray );
           */
 
+          /*
+          // const copy = [...arr];
           let my_apps = props.my_apps
           let index = my_apps.findIndex((obj => obj.id == data.nid));
 
-          my_apps[index] = data.data
+          if(index === -1){
+            // my_apps[] = data.data
+
+            my_apps = [...my_apps, data.data]
+          }else{
+            my_apps[index] = data.data
+          }
 
           console.log("onContent {add, edit} ", my_apps)
 
+          // props.addMyApp(my_apps)
+          */
           break;
         }
         case 'delete':{
+          // console.log("onContent delete > ", props.my_apps)
+
+          // let my_apps = props.my_apps
+          // let index = my_apps.findIndex((obj => obj.id == data.nid));
+
+          // if(index !== -1){
+            
+          //   my_apps.splice(index, 1);
+  
+          //   console.log("onContent {delete} ", my_apps)
+  
+          //   // props.addMyApp(my_apps)
+          // }
+
           console.log("onContent delete")
-
-          let index = my_apps.findIndex((obj => obj.id == data.nid));
-
-          let my_apps = props.my_apps
-          my_apps.splice(index, 1);
-
-          console.log("onContent {delete} ", my_apps)
+          props.deleteMyApp(data)
+          
           break;
         }
       }
@@ -331,7 +390,12 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = {
   userLogin,
-  userLogout
+  userLogout,
+
+
+  addMyApp, 
+  updateMyApp, 
+  deleteMyApp
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

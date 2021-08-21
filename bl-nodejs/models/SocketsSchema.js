@@ -5,6 +5,7 @@ const SocketsSchema = new mongoose.Schema({
     socketId: String,
     platform: String,
     auth: String,
+    geolocation:  String,
 },
 {
     timestamps: true
