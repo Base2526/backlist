@@ -638,7 +638,9 @@ app.post('/v1/search',  async(req, res, next)=> {
                             { "term": { "status": true }}
                         ]
                     }
-                  }
+                  },
+                  "from": offset * 20 + 1, 
+                  "size": 20
                 }
           
         console.log( 'query >', query );
@@ -661,6 +663,51 @@ app.post('/v1/search',  async(req, res, next)=> {
                 }
 
         console.log( 'query >', query );
+
+        const { body } = await client.search({
+          index: 'elasticsearch_index_banlist_content_back_list',
+          body:  query
+        })
+    
+        var results = body.hits.hits.map((hit)=>{ 
+                                            let title           = hit._source.title[0];
+                                            let name            = utils.isEmpty(hit._source.field_sales_person_name) ? "" : hit._source.field_sales_person_name[0];  
+                                            let surname         = utils.isEmpty(hit._source.field_sales_person_surname) ? "" : hit._source.field_sales_person_surname[0];  
+                                            let name_surname    = utils.isEmpty(hit._source.banlist_name_surname_field) ? "" : hit._source.banlist_name_surname_field[0]; 
+                                            let owner_id        = hit._source.uid[0];
+                                            let transfer_amount = utils.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount[0]; 
+                                            let detail          = utils.isEmpty(hit._source.body) ? "" : hit._source.body[0] ;
+                                            let id              = hit._source.nid[0];
+                                            let id_card_number  = utils.isEmpty(hit._source.field_id_card_number) ? [] : hit._source.field_id_card_number[0] ;
+                                            let images          = hit._source.banlist_images_field;
+                                            let status          = hit._source.status[0];
+
+
+                                            let created          = hit._source.created[0];
+                                            let changed          = hit._source.changed[0];
+
+    
+                                            return {id, owner_id, name, surname, name_surname, title, transfer_amount, detail, id_card_number, images, status, created, changed}
+                                          });
+        const end = Date.now()
+
+        // console.log( 'results >', { ...['a', 'b', 'c'] } );
+    
+        /*
+        all_result_count: 10
+        count: 10
+        */
+        ///------------------
+        // if(response.data.result){
+        return res.send({ result        : true,
+                          execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`, 
+                          body          : body,
+                          datas         : results ,
+                          all_result_count: body.hits.total.value,
+    
+                          hits: body.hits.hits,
+                          count         : results.length });
+    
         break;
       }
 
@@ -761,7 +808,10 @@ app.post('/v1/search',  async(req, res, next)=> {
                                         let images          = hit._source.banlist_images_field;
                                         let status          = hit._source.status[0];
 
-                                        return {id, owner_id, name, surname, name_surname, title, transfer_amount, detail, id_card_number, images, status}
+                                        let created          = hit._source.created[0];
+                                        let changed          = hit._source.changed[0];
+
+                                        return {id, owner_id, name, surname, name_surname, title, transfer_amount, detail, id_card_number, images, status, created, changed}
                                       });
     const end = Date.now()
 
@@ -903,7 +953,7 @@ app.post('/v1/cache_del',  async(req, res, next)=> {
 
     keys.map( async(key) => {
       let key1 = key.split("-");
-      console.log("key1 >> ", key1, global)
+      // console.log("key1 >> ", key1)
 
       switch(key1[0]){
         case 'user':{

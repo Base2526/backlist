@@ -2,11 +2,8 @@ import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE,
          FOLLOW_UP, ___FOLLOW_UP, FETCH_MY_APPS, ADD_HISTORY, 
          DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST ,
         
-        
          NET_INFO, NOTIFICATIONS,
-         LOADING_OVERLAY, CLEAR_CACHED,
-        
-         ADD_MY_APPS} from '../constants';
+         LOADING_OVERLAY, CLEAR_CACHED} from '../constants';
 
 
 const _dataUserLogin = data => ({
@@ -127,9 +124,9 @@ export const ___followUp = (data, mode) => dispatch => {
   dispatch(___dataFollowup(data, mode));
 }
 
-export const addMyApps = (data) => dispatch => {
-  dispatch({ type: ADD_MY_APPS, data });
-}
+// export const addMyApps = (data) => dispatch => {
+//   dispatch({ type: ADD_MY_APPS, data });
+// }
 
 export const fetchMyApps = (basic_auth) => dispatch => {
   // axios.post(`${API_URL}/api/fetch_mypost?_format=json`, {}, {

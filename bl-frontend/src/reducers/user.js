@@ -41,11 +41,11 @@ export const  mergeArraysId = (...arrays) => {
 }
 
 const initialState = {
-  data: [],
+  data: {},
   profile: [],
   follow_ups: [],
   ___follow_ups: [],
-  my_apps: [],
+  // my_apps: [],
   historys: [],
   follower_post: [],
 
@@ -57,6 +57,8 @@ const initialState = {
 }
 
 const user = (state = initialState, action) => {
+
+  console.log('user >>>>> ' , action.type, action.data);
   switch (action.type) {
     case USER_LOGIN:{
       return {...state, data: action.data}
@@ -120,15 +122,15 @@ const user = (state = initialState, action) => {
       }
     }
 
-    case ADD_MY_APPS:{
-      return { ...state, my_apps: action.data }
-    }
+    // case ADD_MY_APPS:{
+    //   return { ...state, my_apps: action.data }
+    // }
 
-    case FETCH_MY_APPS: {
-      return {
-        ...state, my_apps: action.data
-      }
-    }
+    // case FETCH_MY_APPS: {
+    //   return {
+    //     ...state, my_apps: action.data
+    //   }
+    // }
 
     case ADD_HISTORY: {
 

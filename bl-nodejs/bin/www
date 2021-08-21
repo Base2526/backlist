@@ -77,13 +77,12 @@ io.on('connection', async (socket) => {
   let handshake = socket.handshake;
 
   var t = handshake.query.t;
-  var uid = handshake.query.uid;
-  var unique_id = handshake.query.unique_id;
   var platform = handshake.query.platform;
+  var geolocation = handshake.query.geolocation
 
   // console.log(handshake.query.unique_id)
 
-  console.log(`Socket ${socket.id} - ${unique_id} - ${t} connection`)
+  console.log(`Socket ${socket.id} - ${t} - ${geolocation} connection`)
   // console.log(socket)
 
   socket.emit('uniqueID', { ...handshake.query, "socketID": socket.id });
@@ -101,11 +100,11 @@ io.on('connection', async (socket) => {
     }
   }
 
-  await new SocketsSchema({ t, socketId: socket.id, platform,  auth }).save()
+  await new SocketsSchema({ t, socketId: socket.id, platform,  auth, geolocation }).save()
 
   socket.on('disconnect', async() => {
 
-    console.log(`Socket ${socket.id} - ${unique_id} - ${t} disconnect`)
+    console.log(`Socket ${socket.id} - ${t} disconnect`)
 
     await SocketsSchema.deleteMany({t})
   });

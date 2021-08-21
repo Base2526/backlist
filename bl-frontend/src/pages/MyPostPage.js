@@ -15,40 +15,33 @@ import { LazyLoadImage } from 'react-lazy-load-image-component';
 
 import {isEmpty, onToast} from '../utils'
 
-import { addMyApps } from '../actions/user';
+import { initMyApp,  addMyApp } from '../actions/my_apps';
 import { attributesToProps } from "html-react-parser";
 
 const MyPostPage = (props) => {
     const history = useHistory();
-
-    const [isFetch, setIsFetch] = useState(false);
-    const [myApps, setMyApps] = useState([]);
+    const [myApps, setMyApps] = useState(props.my_apps);
     const [anchorEl, setAnchorEl] = React.useState(null);
 
     const [isOpen, setIsOpen] = React.useState(false);
     const [photoIndex, setPhotoIndex] = React.useState(0);
 
     useEffect(() => {
-        console.log('MyPostPage > useEffect [] : ', props.my_apps)
         fetchData()
     }, []);
 
     useEffect(() => {
-        console.log('MyPostPage > useEffect : ', props.my_apps)
-        // fetchData()
-
+        props.my_apps.sort(function(a,b){ return b.changed - a.changed; });
         setMyApps(props.my_apps)
     }, [props.my_apps]);
 
     const fetchData = async() =>{
 
+        props.initMyApp()
+
         // setLoginLoading(true)
         let response =  await axios.post(`/api/v1/search`, 
-                                        {
-                                            type: 1,
-                                            key_word: props.user.uid,
-                                            offset: 0 
-                                        }, 
+                                        { type: 1,  key_word: props.user.uid, offset: 0 }, 
                                         { headers: {'Authorization': `Basic ${ls.get('basic_auth')}` } });
 
         response = response.data
@@ -56,8 +49,9 @@ const MyPostPage = (props) => {
 
         if(response.result){
             console.log("response.datas", response.datas)
-
-            props.addMyApps(response.datas)
+            response.datas.map((data)=>{
+                props.addMyApp( {nid:data.id, data} )
+            })
         }
 
     }
@@ -377,11 +371,15 @@ const MyPostPage = (props) => {
   
 const mapStateToProps = (state, ownProps) => {
     console.log('MyPostPage> mapStateToProps : ', state)
-	return { user: state.user.data, my_apps: state.my_apps.data }
+	return { 
+            user: state.user.data, 
+            my_apps: state.my_apps.data 
+           }
 }
 
 const mapDispatchToProps = {
-    addMyApps
+    initMyApp,
+    addMyApp
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(MyPostPage)

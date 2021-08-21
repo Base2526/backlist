@@ -28,18 +28,26 @@ export const FETCH_PROFILE  = 'FETCH_PROFILE';
 export const FOLLOW_UP      = 'FOLLOW_UP';
 export const ___FOLLOW_UP   = '___FOLLOW_UP';
 export const FETCH_MY_APPS  = 'FETCH_MY_APPS';
-export const ADD_MY_APPS    = 'ADD_MY_APPS';
+
+
+ 
+
 export const ADD_HISTORY    = 'ADD_HISTORY';
 export const DELETE_HISTORY = 'DELETE_HISTORY';
-export const DELETE_MY_APP  = 'DELETE_MY_APP'; 
+// export const DELETE_MY_APP  = 'DELETE_MY_APP'; 
 
 export const ADD_FOLLOWER_POST = 'ADD_FOLLOWER_POST' // use first login insert all
 export const FOLLOWER_POST  = 'FOLLOWER_POST';       // case add each item
 export const NET_INFO   = 'NET_INFO'
 export const NOTIFICATIONS   = 'NOTIFICATIONS'
 
-
 export const LOADING_OVERLAY   = 'LOADING_OVERLAY'
 export const CLEAR_CACHED      = 'CLEAR_CACHED'
 
 export const MAINTENANCE_MODE  = 'MAINTENANCE_MODE'
+
+
+export const INIT_MY_APP   = 'INIT_MY_APP';
+export const ADD_MY_APP    = 'ADD_MY_APP';
+export const UPDATE_MY_APP = 'UPDATE_MY_APP';
+export const DELETE_MY_APP = 'DELETE_MY_APP';

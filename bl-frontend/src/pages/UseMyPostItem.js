@@ -22,6 +22,8 @@ const UseMyPostItem = (props) => {
   const [photoIndex, setPhotoIndex] = React.useState(0);
 
   useEffect(() => {
+
+    console.log('MyPostPage >  UseMyPostItem')
     setItem(props.item)
   });
   
@@ -323,7 +325,7 @@ const UseMyPostItem = (props) => {
                         }}> 
                       
                         <div>
-                          <div><h5>ชื่อ-นามสกุล:</h5> {item.name_surname}</div>
+                          <div><h5>ชื่อ-นามสกุล:</h5> {item.name_surname} - {item.id}</div>
                         </div>
 
                         <div>

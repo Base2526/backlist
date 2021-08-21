@@ -4753,6 +4753,10 @@ nodejs_bl        |     status: true
       $transfer_amount = $node->get('field_transfer_amount')->getValue()[0]['value'];
     } 
     $data['transfer_amount']  = (int)$transfer_amount;
+
+    $data['created']  = $node->getCreatedTime();
+    $data['changed']  = $node->getChangedTime();
+    
     return $data;
   }
 

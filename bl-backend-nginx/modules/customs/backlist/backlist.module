@@ -307,54 +307,19 @@ function backlist_user_insert(EntityInterface $entity) {
   }
 }
 
-function backlist_user_update(EntityInterface $entity){
-  \Drupal::logger('backlist_user_update')->notice($entity->bundle());
-
-  try {
-    switch($entity->bundle()){
-      case 'user':{
-        
-        // ------------
-        /*
-        $data_obj = [
-          "uid" => $entity->id()
-        ];
-
-        $ch = curl_init();
-        curl_setopt_array($ch, array(
-          CURLOPT_URL => "http://143.198.223.146:3000/api/update_profile",
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_HEADER => true,
-          //CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => "POST",
-          CURLOPT_POSTFIELDS => json_encode($data_obj),
-          CURLOPT_HTTPHEADER => array(
-            // "Authorization: Basic " . $basic_auth,
-            "Accept: application/json",
-            "Content-Type: application/json",
-          ),
-        ));
-
-        $response = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-        if($httpcode == 200){
-        }
-        curl_close($ch);
-        */
-
-
-        user_iu($entity);
-
-        // ------------
-        break;
-      }
-    }
-  } catch (\Throwable $e) {
-    \Drupal::logger('backlist_user_update')->notice($e->__toString());
-  }
-}
+// function backlist_user_update(EntityInterface $entity){
+//   \Drupal::logger('backlist_user_update')->notice($entity->bundle());
+//   try {
+//     switch($entity->bundle()){
+//       case 'user':{
+//         // user_iu($entity);
+//         break;
+//       }
+//     }
+//   } catch (\Throwable $e) {
+//     \Drupal::logger('backlist_user_update')->notice($e->__toString());
+//   }
+// }
 
 function backlist_user_delete(EntityInterface $entity) {
   \Drupal::logger('backlist_user_delete')->notice($entity->bundle());
@@ -398,6 +363,70 @@ function backlist_user_delete(EntityInterface $entity) {
     }
   } catch (\Throwable $e) {
     \Drupal::logger('backlist_user_delete')->notice($e->__toString());
+  }
+}
+
+/*
+การทีต้อง check ค่าก่อนแก้ไข เพราะว่าต้องการ fliter เฉพาะบ้าง field เพราะว่าจะส่งการ update ไปแจ้ง node js ว่า user นี้มีการ change value
+*/
+function backlist_user_presave(EntityInterface $entity) {
+  try{
+    if (!$entity->isNew()) {
+      $flag = 0;
+
+      $original_email  = $entity->original->get('mail')->value;
+      $updated_email   = $entity->get('mail')->value;
+      if ($original_email != $updated_email) {
+        $flag = 1;
+      }
+
+      /*
+        recheck อีกทีทำไหม ทุกครั้ง ที login original, current pass ไม่เท่ากัน
+      */
+      // $original_pass   = $entity->original->get('pass')->value;
+      // $updated_pass    = $entity->get('pass')->value;
+      // if ($original_pass != $updated_pass) {
+      //   $flag = 2;
+      // }
+
+      $original_display_name   = $entity->original->get('field_display_name')->value;
+      $updated_display_name    = $entity->get('field_display_name')->value;
+      if ($original_display_name != $updated_display_name) {
+        $flag = 3;
+      }
+
+      try{
+        $original_user_picture  = $entity->original->get('user_picture')->entity;
+        $updated_user_picture   = $entity->get('user_picture')->entity;
+        if ($original_user_picture != $updated_user_picture) {
+          $flag = 4;
+        }
+      } catch (\Throwable $e) {
+        \Drupal::logger('backlist_user_presave')->error($e->__toString());
+      }
+
+      $original_gender  = $entity->original->get('field_gender')->getValue();
+      $updated_gender   = $entity->get('field_gender')->getValue();
+      if ($original_gender != $updated_gender) {
+        $flag = 5;
+      }
+
+      $original_type_login = $entity->original->get('field_type_login')->getValue();
+      $updated_type_login  = $entity->get('field_type_login')->getValue();
+      if ($original_type_login != $updated_type_login) {
+        $flag = 6;
+      }
+
+      if($flag){
+        user_iu($entity);
+        \Drupal::logger('backlist_user_presave')->notice('Update @flag', array('@flag'=>$flag));
+      }
+    }else{
+      \Drupal::logger('backlist_user_presave')->notice('new');
+    }
+
+  } catch (\Throwable $e) {
+    \Drupal::logger('backlist_user_presave')->error($e->__toString());
   }
 }
 
@@ -465,7 +494,6 @@ function user_iu(EntityInterface $entity){
     );
     $users->insertOne($document);
   }
-
 
   // ------- Clear cache for nodejs--------
   Utils::nodejs_clear_cache_with_keys(array( 'user-'.$entity->id() ));
