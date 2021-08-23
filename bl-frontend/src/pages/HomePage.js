@@ -17,6 +17,7 @@ import LoginDialog from './LoginDialog'
 import {isEmpty, mergeArrays, onToast} from '../utils'
 import { fetchData } from '../actions/app';
 import { followUp } from '../actions/user';
+import { onMyFollow } from '../actions/my_follows';
 
 const HomePage = (props) => {
   const [allDatas, setAllDatas]           = React.useState([]);
@@ -42,7 +43,7 @@ const HomePage = (props) => {
                                                           ]);
 
   useEffect(() => {
-    console.log("useEffect #0", props.my_apps)
+    console.log("useEffect #0", props.my_apps, props.my_follows)
 
   });
 
@@ -52,6 +53,13 @@ const HomePage = (props) => {
       fetch()
     }
   }, [currentPage])
+
+  // my_follows
+
+  useEffect(() => {
+    console.log("useEffect #1 props.my_follows : ", props.my_follows)
+    
+  }, [props.my_follows])
 
   const handleFormSearch = (e) => {
     e.preventDefault();
@@ -173,6 +181,8 @@ const HomePage = (props) => {
   }
 
   const renderContent = () =>{
+
+    console.log('renderContent : ', props)
     if(loading){
       return <CircularProgress />
     }else {
@@ -181,8 +191,13 @@ const HomePage = (props) => {
                 {...props} 
                 item={item}
                 updateState={updateState}
-                followUp={(data)=>{
-                  props.followUp(data)
+                // followUp={(data)=>{
+                //   props.myFollow(data)
+                // }}
+
+                myFollow={(data)=>{
+                  // console.log('myFollow :', data)
+                  props.onMyFollow(data)
                 }}
                 />
             ))
@@ -316,6 +331,9 @@ const mapStateToProps = (state, ownProps) => {
 
     my_apps: state.user.my_apps,
 
+
+    my_follows: state.my_follows.data,
+
     maintenance: state.setting.maintenance
   };
 }
@@ -323,6 +341,8 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = {
   fetchData,
   followUp,
+
+  onMyFollow
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomePage)

@@ -51,3 +51,11 @@ export const INIT_MY_APP   = 'INIT_MY_APP';
 export const ADD_MY_APP    = 'ADD_MY_APP';
 export const UPDATE_MY_APP = 'UPDATE_MY_APP';
 export const DELETE_MY_APP = 'DELETE_MY_APP';
+
+export const INIT_MY_FOLLOW = "INIT_MY_FOLLOW";
+export const MY_FOLLOW      = "MY_FOLLOW";
+export const MY_FOLLOW_ALL  = "MY_FOLLOW_ALL"
+
+export const INIT_APP_FOLLOW_UP = "INIT_APP_FOLLOW_UP"
+export const APP_FOLLOW_UP      = "APP_FOLLOW_UP"
+export const APP_FOLLOW_UP_ALL  = "APP_FOLLOW_UP_ALL"

@@ -16,11 +16,12 @@ import HeaderBar from './pages/HeaderBar';
 import Footer from './pages/Footer';
 import routes from "./routes";
 import ScrollToTopBtn from "./components/ScrollToTopBtn";
-
-import { isEmpty, uniqueId } from "./utils"
-
 import { userLogin, userLogout } from './actions/user';
 import { addMyApp, updateMyApp, deleteMyApp } from './actions/my_apps';
+
+import { onMyFollowALL } from './actions/my_follows'
+
+var _ = require('lodash');
 
 let socket = undefined;
 
@@ -36,14 +37,14 @@ const App = (props) => {
     
     console.log('socketid() > [props.user] #0')
 
-    if( isEmpty(socket) ){
+    if( _.isEmpty(socket) ){
       console.log('socketid() > socket.auth.token : #1')
       socketid()
     }else{
       console.log('socketid() > socket.auth.token : #2')
 
-      if(isEmpty(props.user)){
-        if(!isEmpty(socket.auth.token)){
+      if(_.isEmpty(props.user)){
+        if(!_.isEmpty(socket.auth.token)){
           if(socket.auth.token !== 0){
             console.log('socketid() > socket.auth.token : #3')
             socket.auth.token = 0;
@@ -61,25 +62,22 @@ const App = (props) => {
   }, [props.user]);
 
   useEffect(() => {
-    if(!isEmpty(timeInterval)){
+    if(!_.isEmpty(timeInterval)){
       clearInterval(timeInterval)
     }
     setTimeInterval(setInterval(syc, 30000, props))
-  }, [props.user, props.follow_ups]);
+  }, [props.user, props.my_follows]);
 
+  const syc =async(props)=>{
+    let {user, my_follows} = props
 
-  const _uniqueId = (props) =>{
-    return uniqueId(isEmpty(props.user) ? '' : props.user.uid)
-  }
+    console.log("syc_local :", user, _.isEmpty(user))
+    if(!_.isEmpty(props.user)){
+      let filter_follow_ups = my_follows.filter((im)=>im.local)
 
-  const syc =(props)=>{
-    let {user, follow_ups} = props
-    if(!isEmpty(props.user)){
-      let filter_follow_ups = follow_ups.filter((im)=>im.local)
+      console.log("syc_local :", Date().toLocaleString(), props, filter_follow_ups)
 
-      // console.log("interval syc :", Date().toLocaleString(), _uniqueId(props), props, filter_follow_ups)
-
-      if(!isEmpty(filter_follow_ups)){
+      if(!_.isEmpty(filter_follow_ups)){
         // axios.post(`/node/follow_up`, {
         //   unique_id: _uniqueId(props),
         //   datas: JSON.stringify(follow_ups)
@@ -93,6 +91,19 @@ const App = (props) => {
         // .catch( (error) => {
         //   console.log('/node/follow_up : ', error)
         // });
+
+          // setLoginLoading(true)
+        let response =  await axios.post(`/api/v1/syc_local`, 
+                                          { 
+                                            uid: user.uid,  
+                                            my_follows: JSON.stringify(my_follows) 
+                                          }, 
+                                          { headers: {'Authorization': `Basic ${ls.get('basic_auth')}` } });
+
+        response = response.data
+        console.log("syc_local change : response", response)
+      }else {
+        console.log("syc_local without change")
       }
     }
   } 
@@ -119,7 +130,7 @@ const App = (props) => {
     }
     */
 
-    if(isEmpty(socket)){
+    if(_.isEmpty(socket)){
       socket = io( "/", 
         // { headers:  {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} },
         
@@ -137,7 +148,7 @@ const App = (props) => {
             "geolocation" : JSON.stringify( await geolocation() )
           },
           auth: {
-            token: isEmpty(props.user) ? 0 : props.user.uid
+            token: _.isEmpty(props.user) ? 0 : props.user.uid
           }
         },
         // {
@@ -152,7 +163,7 @@ const App = (props) => {
         
         { transports: ["websocket"] });
     }else{
-      socket.auth.token = isEmpty(props.user) ? 0 : props.user.uid;
+      socket.auth.token = _.isEmpty(props.user) ? 0 : props.user.uid;
       socket.disconnect().connect()
     }                 
     
@@ -168,6 +179,11 @@ const App = (props) => {
       socket.off('onUser', onUser);
       socket.off('onProfile', onProfile);
       socket.off('onContent', onContent);
+
+      socket.off('onMyFollows', onMyFollows);
+
+      // กรณีมีคนมากด follow content เรา
+      socket.off('onAppFollowUp', onAppFollowUp);
     }else{
       console.log('socket :', socket)
     }
@@ -179,6 +195,11 @@ const App = (props) => {
     socket.on('onUser', onUser);
     socket.on('onProfile', onProfile);
     socket.on('onContent', onContent);
+
+    socket.on('onMyFollows', onMyFollows);
+
+    // กรณีมีคนมากด follow content เรา
+    socket.on('onAppFollowUp', onAppFollowUp);
   }
 
   const onConnect = () =>{
@@ -248,59 +269,11 @@ const App = (props) => {
         case 'edit':{
           console.log("onContent edit")
           props.updateMyApp(data)
-
-          // console.log("onContent props.my_apps ", props.my_apps)
-          /*
-          let myArray = [
-            {id: 0, name: "Jhon"},
-            {id: 1, name: "Sara"},
-            {id: 2, name: "Domnic"},
-            {id: 3, name: "Bravo"}
-          ]
-          
-          let objIndex = myArray.findIndex((obj => obj.id == 1));
-          
-          myArray[objIndex] = {id: 1000, name: "444"}
-          console.log( myArray );
-          */
-
-          /*
-          // const copy = [...arr];
-          let my_apps = props.my_apps
-          let index = my_apps.findIndex((obj => obj.id == data.nid));
-
-          if(index === -1){
-            // my_apps[] = data.data
-
-            my_apps = [...my_apps, data.data]
-          }else{
-            my_apps[index] = data.data
-          }
-
-          console.log("onContent {add, edit} ", my_apps)
-
-          // props.addMyApp(my_apps)
-          */
           break;
         }
         case 'delete':{
-          // console.log("onContent delete > ", props.my_apps)
-
-          // let my_apps = props.my_apps
-          // let index = my_apps.findIndex((obj => obj.id == data.nid));
-
-          // if(index !== -1){
-            
-          //   my_apps.splice(index, 1);
-  
-          //   console.log("onContent {delete} ", my_apps)
-  
-          //   // props.addMyApp(my_apps)
-          // }
-
           console.log("onContent delete")
           props.deleteMyApp(data)
-          
           break;
         }
       }
@@ -310,6 +283,18 @@ const App = (props) => {
       // and use it here.
       console.log("onContent error :", error)
     }
+  }
+
+  const onMyFollows = (data) =>{
+    console.log("MY_FOLLOW_ALL : ", data)
+
+    props.onMyFollowALL(data)
+  }
+
+  const onAppFollowUp = (data) =>{
+    console.log("onAppFollowUp : ", data)
+
+    // props.onMyFollowALL(data)
   }
 
   const onDisconnect = () =>{
@@ -383,6 +368,7 @@ const mapStateToProps = (state, ownProps) => {
     my_apps: state.my_apps.data,
     follow_ups: state.user.follow_ups,
 
+    my_follows: state.my_follows.data,
 
     is_loading_overlay: state.user.is_loading_overlay,
   };
@@ -395,7 +381,9 @@ const mapDispatchToProps = {
 
   addMyApp, 
   updateMyApp, 
-  deleteMyApp
+  deleteMyApp,
+
+  onMyFollowALL
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)
