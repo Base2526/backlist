@@ -56,6 +56,8 @@ const UserSchema    = require('./models/UserSchema');
 const FilesSchema   = require('./models/FilesSchema');
 const ArticlesSchema = require('./models/ArticlesSchema');
 const SocketsSchema  = require('./models/SocketsSchema');
+const FollowsSchema  = require('./models/FollowsSchema');
+const AppFollowersSchema  = require('./models/AppFollowersSchema');
 
 const utils = require('./util/utils');
 
@@ -1182,6 +1184,116 @@ app.post('/v1/nodejs_notify_user',  async(req, res, next)=> {
     return res.send({result : false, message: err});
   }
 });
+
+// /v1/syc_local
+app.post('/v1/syc_local',  async(req, res, next)=> {
+  try {
+
+    let uid = req.session.userId
+    if(utils.isEmpty(uid)){
+      logger.error("/v1/syc_local without session");
+
+      return res.send({result : false, message: "without session"});
+    }
+
+    const start = Date.now()
+
+
+    let my_follows = req.body.my_follows;
+
+    /*
+    req.session.userId    = response.user.uid;
+    req.session.basicAuth = response.user.basic_auth;
+    req.session.session   = response.user.session;
+    */
+
+    console.log('/v1/syc_local, my_follows #1 : ', my_follows )
+
+    if(!utils.isEmpty(my_follows)){
+      my_follows = JSON.parse(my_follows)
+      my_follows.map( async(mf)=>{
+
+        // -----------  AppFollowersSchema  -----------
+        let app_followers = await AppFollowersSchema.findOne({ nid: mf.id });
+        if(!utils.isEmpty(app_followers)){
+          let v = app_followers.value
+          let index = v.findIndex((obj => obj.uid == uid));
+
+          let  new_value = [] 
+          if(index !== -1){
+            new_value = [...v]
+            new_value[index] = {uid : uid, status: mf.status, date:Date.now()}
+          }else{
+            new_value =  [...v, {uid : uid, status: mf.status, date:Date.now()}]
+          }
+
+          // console.log('/v1/syc_local, if : ', new_value )
+          await AppFollowersSchema.findOneAndUpdate({nid: mf.id}, {value: new_value})
+        }else{
+          await new AppFollowersSchema({ nid: mf.id, value: [{uid : uid, status: mf.status, date:Date.now()}] }, {upsert: true}).save()
+        }
+
+        // หาเจ้าของ Content เพือ ส่ง noti ไปแจ้งว่ามี คนกด follow
+        const { body } = await client.search({
+            index: 'elasticsearch_index_banlist_content_back_list',
+            body:  {
+            "query": {
+                "bool": {
+                    "must": [
+                        {"match" : { "nid": mf.id }},
+                        // {"match" : { "status": true}},
+                    ],
+                }
+            },
+            size: 1,
+            }
+        })
+
+        if(body.hits.total.value){
+          let uids = body.hits.hits.map((hit)=>{ return {uid : hit._source.uid[0]} });
+
+          // console.log('/v1/syc_local  search : uids > ' , uids[0], ' -- ', mf.id)
+
+          let __auth = uids[0].uid
+          if(__auth){
+            let sockets = await SocketsSchema.find({ auth: __auth });
+            sockets.map(async(socket) => {
+              console.log('/v1/syc_local  หาเจ้าของ Content = ', socket.socketId)
+              if(!utils.isEmpty(socket.socketId)){
+                global.io.to(socket.socketId).emit('onAppFollowUp', {data: {uid, status: mf.status}});
+              }
+            })
+          }
+        }
+        // หาเจ้าของ Content เพือ ส่ง noti ไปแจ้งว่ามี คนกด follow
+
+        // -----------  AppFollowersSchema  -----------
+
+        return mf.local = false
+      })
+
+      await FollowsSchema.findOneAndUpdate({'uid': uid}, {value: my_follows}, {upsert: true})
+
+      let sockets = await SocketsSchema.find({ auth: uid });
+      sockets.map(async(socket) => {
+        console.log('/v1/syc_local  socket.socketId = ', socket.socketId)
+        if(!utils.isEmpty(socket.socketId)){
+          global.io.to(socket.socketId).emit('onMyFollows', {my_follows});
+        }
+      })
+    }
+
+    const end = Date.now()
+    return res.send({
+      result : true,
+      function : "/v1/syc_local",
+      execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+    });
+  } catch (err) {
+    logger.error(err.message);
+    return res.send({result : false, message: err.message});
+  }
+})
 
 
 // app.post('/api/___follow_up', async(req, res) => {

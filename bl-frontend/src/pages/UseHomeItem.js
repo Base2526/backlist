@@ -27,13 +27,11 @@ const UseHomeItem = (props) => {
   const [showModalReport, setShowModalReport] = useState(false);
 
   useEffect(() => {
+
+    console.log('UseHomeItem : ', props)
     setItem(props.item)
 
-    // console.log("props.follow_ups : ", props.follow_ups) 
-
-    // console.log("props.follow_ups : ", props.follow_ups.find((el)=>el.id === item.id && el.status))
-
-    setFollowUp( isEmpty(props.follow_ups.find((el)=>el.id === item.id && el.status)) ? false : true )
+    setFollowUp( isEmpty(props.my_follows.find((el)=>el.id === item.id && el.status)) ? false : true )
   });
   
   const handleClose = () => {
@@ -365,7 +363,7 @@ const UseHomeItem = (props) => {
               </div>
 
               <div>
-                <div>สินค้า/ประเภท: {item.title}</div>
+                <div>สินค้า/ประเภท: {item.title} -- {item.id}</div>
               </div>
               <div>
                 <div>ยอดเงิน: {!isEmpty(item.transfer_amount) ? commaFormatted(item.transfer_amount) : item.transfer_amount}</div>
@@ -412,7 +410,7 @@ const UseHomeItem = (props) => {
                 if(isEmpty(props.user)){
                   props.updateState({showModalLogin: true})
                 }else{
-                  props.followUp(item)
+                  props.myFollow(item.id)
                 }
 
                 /*
