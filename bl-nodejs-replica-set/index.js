@@ -1,73 +1,52 @@
-// simple node web server that displays hello world
-// optimized for Docker image
-
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const cookieParser = require("cookie-parser");
+const _ = require('lodash')
 const express = require('express');
 const sessions = require('express-session');
-const cookieParser = require("cookie-parser");
+const app   = require('express')();
+const cookieParse = require('cookie-parser')();
+const session = require('express-session')
+// var passport = require('passport');
+// var passportInit = passport.initialize();
+// var passportSession = passport.session();
+// const MongoStore = require('connect-mongo')(session);
 const mongoStore = require('connect-mongo');
-const axios = require('axios')
+const http  = require('http');
+const server= http.createServer(app);
+let io = require('socket.io')(server, { path: '/mysocket' });
 
-const upload = require("express-fileupload");
-const FormData = require('form-data'); 
-const _ = require('lodash');
+const path = require("path");
+const multer = require("multer");
 const fs = require('fs');
+const FormData = require('form-data'); 
+const axios = require('axios')
+const upload = require("express-fileupload");
+const cors = require("cors");
 
-const NodeCache = require( "node-cache" );
-const nc = new NodeCache({ checkperiod: 60 * 60 * 15 /* 15Hour */ });
 
-var bodyParser = require('body-parser')
 
-// Api
-var cors = require("cors");
-const app = express();
 
-//MIDDLEWARES
-app.use(upload({
-  createParentPath: true,
-}));
-app.use(cors());
+const NodeCache     = require( "node-cache" );
+const nc            = new NodeCache({ checkperiod: 60 * 60 * 15 /* 15Hour */ });
 
-// https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/client-connecting.html#authentication
-const { Client } = require('@elastic/elasticsearch')
-const client = new Client({
-  // cloud: {
-  //   id: 'name:bG9jYWxob3N0JGFiY2QkZWZnaA==',
-  // },
-  node: process.env.ELASTIC_URL,
-  auth: {
-    username: process.env.ELASTIC_USERNAME,
-    password: process.env.ELASTIC_PASSWORD
-  }
-})
+const utils             = require('./util/utils');
+const SocketsSchema     = require('./models/SocketsSchema');
+const UserSchema        = require('./models/UserSchema');
+const FilesSchema       = require('./models/FilesSchema');
+const ArticlesSchema    = require('./models/ArticlesSchema');
+const FollowsSchema     = require('./models/FollowsSchema');
+const AppFollowersSchema= require('./models/AppFollowersSchema');
+const kittySchema       = require('./models/kittySchema')
 
-// this example uses express web framework so we know what longer build times
-// do and how Dockerfile layer ordering matters. If you mess up Dockerfile ordering
-// you'll see long build times on every code change + build. If done correctly,
-// code changes should be only a few seconds to build locally due to build cache.
-var mongoose = require('mongoose');
-const morgan = require('morgan');
-const path = require('path');
+require("./connection")
+
 const rfs = require('rotating-file-stream');
-// const logger = require('./util/loggerEasy');
+const morgan = require('morgan');
+
+//---------- Log -----------//
 const logger = require('./util/logger');
 const { stream }    = logger;
-const connection    = require("./connection")
-const UserSchema    = require('./models/UserSchema');
-const FilesSchema   = require('./models/FilesSchema');
-const ArticlesSchema = require('./models/ArticlesSchema');
-const SocketsSchema  = require('./models/SocketsSchema');
-const FollowsSchema  = require('./models/FollowsSchema');
-const AppFollowersSchema  = require('./models/AppFollowersSchema');
-
-const utils = require('./util/utils');
-
-const {
-  MONGO_HOSTNAME_ENV,
-  MONGO_PORT_ENV,
-  MONGO_DATABASE_NAME_ENV,
-  MONGO_USERNAME_ENV,
-  MONGO_PASSWORD_ENV
-} = process.env;
 
 const accessLogStream = rfs.createStream('access.log', {
   interval: '1d',
@@ -89,194 +68,57 @@ app.use(
     }
   )
 );
+//---------- Log -----------//
 
-// morgan provides easy logging for express, and by default it logs to stdout
-// which is a best practice in Docker. Friends don't let friends code their apps to
-// do app logging to files in containers.
-
-// const MongoClient = require('mongodb').MongoClient;
-// this example includes a connection to MongoDB
-
-// const {
-//   MONGO_USERNAME,
-//   MONGO_PASSWORD,
-//   MONGO_HOSTNAME,
-//   MONGO_PORT,
-//   MONGO_DATABASE_NAME
-// } = process.env;
-
-/*
-  - NODE_ENV=development
-  - MONGO_USERNAME=root
-  - MONGO_PASSWORD=example
-  - MONGO_HOSTNAME=mongo
-  - MONGO_PORT=27017
-  - MONGO_DATABASE_NAME=bl
-*/
-// let MONGO_USERNAME = 'root';
-// let MONGO_PASSWORD = 'example';
-// let MONGO_HOSTNAME = 'mongo';
-// let MONGO_PORT = '27017';
-// let MONGO_DATABASE_NAME = 'bl';
-
-// // Connection URL
-// const url = `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_HOSTNAME}:${MONGO_PORT}`;
-
-// // Create a new MongoClient
-// const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
-
-// let db;
-// // Use connect method to connect to the Server
-
-setTimeout(() => {
-  // client.connect(function(err) {
-  //   if (err) {
-  //     return console.error(err);
-  //   }
-  //   console.log("Connected successfully to database");
-  //   db = client.db(MONGO_DATABASE_NAME);
-  // });
-
-  console.log(`mongoose.connection.readyState: ${mongoose.connection.readyState}`);
-
-  // mongoose.STATES[mongoose.connection.readyState] 
-}, 2000);
-
-
-const oneYear = 1000 * 60 * 60 * 24 * 365;
-//session middleware
-app.use(sessions({
-    secret: "thisismysecrctekeyfhrgfgrfrty84fwir767",
-    saveUninitialized:true,
-    cookie: { maxAge: oneYear },
-    resave: false,
-    // store: new mongoStore({ mongooseConnection: connection })
-    store: mongoStore.create({
-      mongoUrl: `mongodb://${MONGO_USERNAME_ENV}:${MONGO_PASSWORD_ENV}@${MONGO_HOSTNAME_ENV}:${MONGO_PORT_ENV}/${MONGO_DATABASE_NAME_ENV}?authSource=admin`
-  })
+//MIDDLEWARES
+app.use(upload({
+  createParentPath: true,
 }));
-
-
-// app.use(bodyParser.json({limit: '10mb'}));
-// app.use(bodyParser.urlencoded({
-//   parameterLimit: 100000,
-//   limit: '50mb',
-//   extended: true
-// }));
-
-// app.use(bodyParser.urlencoded({
-//   limit: "500mb",
-//   extended: false
-// }));
-// app.use(bodyParser.json({limit: "500mb"}));
+app.use(cors());
 
 app.use(express.json({limit: '500mb'}));
 app.use(express.urlencoded({limit: '500mb'}));
-
-
-// parsing the incoming data
-// app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
-
 //serving public file
 app.use(express.static(__dirname));
-
 // cookie parser middleware
 app.use(cookieParser());
 
 app.use(morgan('common'));
-app.get('/', async (req, res) =>{
-  // console.log(`process.env = ${process.env}`)
-  // console.log(process.env)
-  // console.log(req)
 
-  // let result =  await client.search({
-  //                       index: 'elasticsearch_index_banlist_content_back_list',
-  //                       body: {
-  //                         query: {
-  //                           match: { hello: 'a' }
-  //                         }
-  //                       }
-  //                     })
+// https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/client-connecting.html#authentication
+const { Client } = require('@elastic/elasticsearch')
+const client = new Client({
+  node: process.env.ELASTIC_URL,
+  auth: {
+    username: process.env.ELASTIC_USERNAME,
+    password: process.env.ELASTIC_PASSWORD
+  }
+})
 
-  // await client.index({
-  //   index: 'elasticsearch_index_banlist_content_back_list',
-  //   refresh: true,
-  //   body: {
-  //     character: 'Tyrion Lannister',
-  //     quote: 'A Lannister always pays his debts.',
-  //     house: 'lannister'
-  //   }
-  // })
+const {
+  MONGO_HOSTNAME_ENV,
+  MONGO_PORT_ENV,
+  MONGO_DATABASE_NAME_ENV,
+  MONGO_USERNAME_ENV,
+  MONGO_PASSWORD_ENV
+} = process.env;
 
-  // const { body } = await client.get({
-  //   index: 'elasticsearch_index_banlist_content_back_list',
-  //   id: 'entity:node/9:en'
-  // })
+//session middleware
+app.use(sessions({
+    secret: "fhrgfgrfrty84fwir767",
+    saveUninitialized:true,
+    cookie: { maxAge: 1000 * 60 * 60 * 24 * 365 /* OneYear */ },
+    resave: false,
+    store: mongoStore.create({
+      mongoUrl: 'mongodb://mongo1:27017,mongo2:27017,mongo3:27017/bl?replicaSet=my-mongo-set'
+      // mongoUrl: `mongodb://${MONGO_USERNAME_ENV}:${MONGO_PASSWORD_ENV}@${MONGO_HOSTNAME_ENV}:${MONGO_PORT_ENV}/${MONGO_DATABASE_NAME_ENV}?authSource=admin`
+  })
+}));
 
-  // const { body } = await client.sql.query({
-  //   body: {
-  //     query: "SELECT * FROM \"elasticsearch_index_banlist_content_back_list\" WHERE body LIKE '%Commodo%'"
-  //   }
-  // })
+app.get('/',  async(req, res) => {
 
-  // const data = body.rows.map(row => {
-  //   const obj = {}
-  //   for (let i = 0; i < row.length; i++) {
-  //     obj[body.columns[i].name] = row[i]
-  //   }
-  //   return obj
-  // })
+  await new kittySchema({ name: 'Silence' }).save()
 
-  // const query = {
-  //   query: {
-  //     // match: {
-  //     //   field_sales_person_name: {
-  //     //     query: "สมคิด",
-  //     //     operator: "and",
-  //     //     fuzziness: "auto"
-  //     //   }
-  //     // }
-
-  //     "query_string": {
-  //       "fields": [ "field_sales_person_name", "body", "nid" ],
-  //       "query": "56",
-  //       // "minimum_should_match": 2
-  //     },
-
-  //     // "match":{
-  //     //   "title":"*bene*"
-  //     // }
-  //     /*    
-  //       query: { match_all: {}},
-  //       sort: [{ "nid": { "order": "asc" } }],
-  //       from: 0,
-  //       size: 5,
-  //     */
-  //   }
-  // }
-
-  // const { body } = await client.search({
-  //   index: 'elasticsearch_index_banlist_content_back_list',
-  //   // body: {
-  //   //   query: {
-  //   //     // match: {
-  //   //     //   // field_transfer_amount: 8449660000
-  //   //     //   banlist_name_surname_field: '*sisebruwristup*'
-  //   //     // }
-  //   //     match: {
-  //   //       title: {
-  //   //         query: 'Cogo',
-  //   //         operator: "and",
-  //   //         fuzziness: "auto"
-  //   //       }
-  //   //     }
-  //   //   }
-  //   // }
-  //   body:  query
-  // })
-
-  // res.send(body);
   res.send(`Hello Docker World\n`);
 });
 
@@ -609,7 +451,6 @@ app.post('/v1/add_banlist',  async(req, res, next)=> {
   }
 });
 
-
 /*
   Study : https://logz.io/blog/elasticsearch-queries/
 */
@@ -868,78 +709,6 @@ app.post('/v1/search',  async(req, res, next)=> {
     return res.send({"result" : false, "message": err});
   }
 });
-
-app.get('/v1/healthz', async (req, res) =>{
-	// do app logic here to determine if app is truly healthy
-	// you should return 200 if healthy, and anything else will fail
-	// if you want, you should be able to restrict this to localhost (include ipv4 and ipv6)
-
-  let health = await client.cluster.health({});
-
-  let html = `<div> \
-                <h1>Nodejs banlist status</h1> \ 
-                <ul> \
-                  <li>Mongoose connection readyState : ${mongoose.STATES[mongoose.connection.readyState]}</li> \
-                </ul> \
-                <ul> \
-                  <li>User login, userId: ${req.session.userId} basicAuth: ${req.session.basicAuth} session: ${req.session.session}  --- ${req.session.cookie.expires}</li> \
-                </ul> \
-                <ul> \
-                  <li>Elasticsearch : statusCode= ${health.statusCode}, body status: ${health.body.status}</li> \
-                </ul> \
-              </div>`;
-
-  res.send(html);
-});
-
-// app.get('/documents', function (req, res, next) {
-//   // might have not been connected just yet
-//   if (db) {
-//     db.collection('Kitten').find({}).toArray(function(err, docs) {
-//       if (err) {
-//         console.error(err);
-//         next(new Error('Error while talking to database'));
-//       } else {
-//         res.json(docs);
-//       }
-//     });
-//     // const files = Connection.db.collection('files').find({})
-//     // db.employee.insert(
-//     //   [
-//     //     {name:"Sandeep Sharma", email:"sandeep@example.com", age:28, salary:5333.94},
-//     //     {name:"Manish Fartiyal", email:"manish@example.com", age:26, salary:5555.4},
-//     //     {name:"Santosh Kumar", email:"santosh@example.com", age:30, salary:7000.74},
-//     //     {name:"Dhirendra Chauhan", email:"dhirendra@example.com", age:29, salary:4848.44}
-//     //   ]
-//     // )
-//     // db.createCollection("employee", function(err, res) {
-//     //   if (err) throw err;
-//     //   console.log("Collection created!");
-//     //   // db.close();
-//     // });
-//   } else {
-//     next(new Error('Waiting for connection to database'));
-//   }
-// })
-
-
-
-// getting-started.js
-// const kittySchema       = require('./models/kittySchema');
-// const mongoose = require('mongoose');
-// mongoose.connect('mongodb://root:example@mongo:27017/bl?authSource=admin', {useNewUrlParser: true, useUnifiedTopology: true});
-
-// const dboose = mongoose.connection;
-// dboose.on('error', console.error.bind(console, 'connection error:'));
-// dboose.once('open', async function() {
-//   // we're connected!
-//   console.log('we\'re connected!')
-
-//   // const silence = new kittySchema({ name: 'Silence' });
-//   // console.log(`silence ${silence}`)
-
-//   // await new kittySchema({ name: 'Silence' }).save()
-// });
 
 // Clear cache by keys
 app.post('/v1/cache_del',  async(req, res, next)=> {
@@ -1295,51 +1064,605 @@ app.post('/v1/syc_local',  async(req, res, next)=> {
 })
 
 
-// app.post('/api/___follow_up', async(req, res) => {
-app.get('/documents', (req, res, next) =>{
-  // might have not been connected just yet
+app.get('/v1/healthz', async (req, res) =>{
+	// do app logic here to determine if app is truly healthy
+	// you should return 200 if healthy, and anything else will fail
+	// if you want, you should be able to restrict this to localhost (include ipv4 and ipv6)
 
-  // console.log('/documents')
-  // let fss = await kittySchema.find();
-  // console.log(fss)
+  // let health = await client.cluster.health({});
 
-  // await new kittySchema({ name: 'Silence' }).save()
+  let health = await client.cluster.health({});
 
-  // NODE_ENV
+  let html = `<div> \
+                <h1>Nodejs banlist status</h1> \ 
+                <ul> \
+                  <li>Mongoose connection readyState : ${mongoose.STATES[mongoose.connection.readyState]}</li> \
+                </ul> \
+                <ul> \
+                  <li>User login, userId: ${req.session.userId} basicAuth: ${req.session.basicAuth} session: ${req.session.session}  --- ${req.session.cookie.expires}</li> \
+                </ul> \
+                <ul> \
+                  <li>Elasticsearch : statusCode= ${health.statusCode}, body status: ${health.body.status}</li> \
+                </ul> \
+              </div>`;
 
-  console.log(process.env)
+  res.send(html);
+});
 
-  res.send('I am happy and healthy\n documents');
-  // if (dboose) {
-  //   dboose.collection('Kitten').find({}).toArray(function(err, docs) {
-  //     if (err) {
-  //       console.error(err);
-  //       next(new Error('Error while talking to database'));
-  //     } else {
-  //       res.json(docs);
-  //     }
-  //   });
+// var request = require('request');
+// io.adapter(mongoAdapter( config.mongo.url ));
+global.io=io
+io.on('connection', async (socket) => {
+  global.socket = socket
+  let handshake = socket.handshake;
 
-  //   // const files = Connection.db.collection('files').find({})
-  //   // db.employee.insert(
-  //   //   [
-  //   //     {name:"Sandeep Sharma", email:"sandeep@example.com", age:28, salary:5333.94},
-  //   //     {name:"Manish Fartiyal", email:"manish@example.com", age:26, salary:5555.4},
-  //   //     {name:"Santosh Kumar", email:"santosh@example.com", age:30, salary:7000.74},
-  //   //     {name:"Dhirendra Chauhan", email:"dhirendra@example.com", age:29, salary:4848.44}
-  //   //   ]
-  //   // )
+  var t = handshake.query.t;
+  var platform = handshake.query.platform;
+  var geolocation = handshake.query.geolocation
 
-  //   // db.createCollection("employee", function(err, res) {
-  //   //   if (err) throw err;
-  //   //   console.log("Collection created!");
-  //   //   // db.close();
-  //   // });
+  // console.log(handshake.query.unique_id)
 
-    
-  // } else {
-  //   next(new Error('Waiting for connection to database'));
-  // }
+  console.log(`Socket ${socket.id} - ${t} - ${geolocation} connection`)
+  // console.log(socket)
+
+  socket.emit('uniqueID', { ...handshake.query, "socketID": socket.id });
+
+  let auth = ""
+  if(!utils.isEmpty(handshake.auth)){
+    auth = handshake.auth.token;
+
+    let  user_schema =await UserSchema.findOne({'uid':auth});
+    // console.log(`Socket UserSchema >  ${user_schema} `)
+    if(utils.isEmpty(user_schema)){
+
+      // กรณี เช็ดแล้วไม่มี user ในระบบเราจะสั่งให้ client ที่ connect เข้ามาทำการ logout ออกจากระบบ
+      socket.emit('onUser', {'mode': 'delete'});
+    }
+  }
+
+  await new SocketsSchema({ t, socketId: socket.id, platform,  auth, geolocation }).save()
+
+  socket.on('disconnect', async() => {
+
+    console.log(`Socket ${socket.id} - ${t} disconnect`)
+
+    await SocketsSchema.deleteMany({t})
+  });
+});
+  
+
+const PORT = process.env.PORT || 8080;
+server.listen(PORT, function (err) {
+  console.log(`Listening on port - ${PORT}`)
+
+  // connectMongoose().then(() => {
+  //   console.log("MongoDb connected - xxx");
+  // })
+
+  AppFollowersSchema.watch().on('change', data =>{
+    console.log('AppFollowersSchema', data.operationType, data)
+  });
+
+  FollowsSchema.watch().on('change', data =>{
+    console.log('FollowsSchema', data.operationType, data)
+  });
+
+//     console.log();
+//     // console.log(socket_connection);
+
+//     // User ทั้งหมดทีมีอยู่ในระบบ
+//     People.watch().on('change', data =>{
+//       console.log(new Date(), data)
+//       //operationType
+//       switch(data.operationType){
+//         case 'insert':{
+//           console.log('People > insert');
+//           break;
+//         }
+//         case 'delete':{
+//           console.log('People > delete');
+//           break;
+//         }
+//         case 'replace':{
+//           console.log('People > replace');
+//           break;
+//         }
+//         case 'update':{
+//           // data.documentKey._id.toString() << จะได้ _id ที่ update 
+//           People.findById(data.documentKey._id.toString(), async function (err, user) { 
+//             // _.each( user.user_access, ( uv, uk ) => { 
+//             //   // จะ emit ตาม socket.id ของแต่ละ device ที่ user access
+//             //   io.to(uv.socket_id).emit('update_user', JSON.stringify(user));
+//             // });
+
+            
+//             if(_.isEmpty(err)){
+//               var result = await UserSocketID.findOne({ uid: user.uid });
+//               if(!_.isEmpty(result)){
+//                 result.data.forEach(function(item){ 
+//                   console.log(item.socket_id);
+//                   io.to(item.socket_id).emit('update_user', JSON.stringify(user));
+//                 });
+//               }
+//             }
+//           });
+//           // console.log('People > update > ' + data.documentKey._id.toString());
+//           break;
+//         }
+//         case 'drop':{
+//           console.log('People > drop');
+//           break;
+//         }
+//         case 'rename':{
+//           console.log('People > rename');
+//           break;
+//         }
+//         case 'dropDatabase':{
+//           console.log('People > dropDatabase');
+//           break;
+//         }
+//         case 'invalidate':{
+//           console.log('People > dropDatabase');
+//           break;
+//         }
+//       }
+//     });
+
+//     // รายชือบัญชาธนาคารของ เว็บฯ
+//     HuayListBank.watch().on('change', async data =>{
+//       console.log(new Date(), data)
+//       //operationType
+//       switch(data.operationType){
+//         case 'insert':{
+//           console.log('HuayListBank > insert');
+//           break;
+//         }
+//         case 'delete':{
+//           console.log('HuayListBank > delete');
+//           break;
+//         }
+//         case 'replace':{
+//           console.log('HuayListBank > replace');
+//           break;
+//         }
+//         case 'update':{
+//           console.log('HuayListBank > update');
+//           if(socket_local.connected){
+//             socket_local.emit("huay_list_bank", JSON.stringify(await HuayListBank.find({})));
+//           }
+//           break;
+//         }
+//         case 'drop':{
+//           console.log('HuayListBank > drop');
+//           break;
+//         }
+//         case 'rename':{
+//           console.log('HuayListBank > rename');
+//           break;
+//         }
+//         case 'dropDatabase':{
+//           console.log('HuayListBank > dropDatabase');
+//           break;
+//         }
+//         case 'invalidate':{
+//           console.log('HuayListBank > dropDatabase');
+//           break;
+//         }
+//       }
+//     });
+
+//     // ช่องทางการโอนเงิน
+//     TransferMethod.watch().on('change', async data =>{
+//       console.log(new Date(), data)
+//       //operationType
+//       switch(data.operationType){
+//         case 'insert':{
+//           console.log('TransferMethod > insert');
+//           break;
+//         }
+//         case 'delete':{
+//           console.log('TransferMethod > delete');
+//           break;
+//         }
+//         case 'replace':{
+//           console.log('HuayListBank > replace');
+//           break;
+//         }
+//         case 'update':{
+//           console.log('TransferMethod > update');
+//           if(socket_local.connected){
+//             socket_local.emit("transfer_method", JSON.stringify(await TransferMethod.find({})));
+//           }
+//           break;
+//         }
+//         case 'drop':{
+//           console.log('TransferMethod > drop');
+//           break;
+//         }
+//         case 'rename':{
+//           console.log('TransferMethod > rename');
+//           break;
+//         }
+//         case 'dropDatabase':{
+//           console.log('TransferMethod > dropDatabase');
+//           break;
+//         }
+//         case 'invalidate':{
+//           console.log('TransferMethod > dropDatabase');
+//           break;
+//         }
+//       }
+//     });
+
+ 
+//     // ข้อมูลติดต่อเว็บฯ
+//     ContactUs.watch().on('change', async data =>{
+//       console.log(new Date(), data)
+//       //operationType
+//       switch(data.operationType){
+//         case 'insert':{
+//           console.log('ContactUs > insert');
+//           break;
+//         }
+//         case 'delete':{
+//           console.log('ContactUs > delete');
+//           break;
+//         }
+//         case 'replace':{
+//           console.log('ContactUs > replace');
+//           break;
+//         }
+//         case 'update':{
+//           console.log('ContactUs > update');
+//           // if(socket_local.connected){
+//           //   socket_local.emit("contact_us", JSON.stringify(await ContactUs.find({})));
+//           // }
+
+//           // var contact_us = await ContactUs.find({});
+//           // await cache.setCache('contact_us', contact_us)
+//           // io.sockets.emit("contact_us", JSON.stringify( contact_us ));
+
+//           break;
+//         }
+//         case 'drop':{
+//           console.log('ContactUs > drop');
+//           break;
+//         }
+//         case 'rename':{
+//           console.log('ContactUs > rename');
+//           break;
+//         }
+//         case 'dropDatabase':{
+//           console.log('ContactUs > dropDatabase');
+//           break;
+//         }
+//         case 'invalidate':{
+//           console.log('ContactUs > dropDatabase');
+//           break;
+//         }
+//       }
+//     });
+
+//     // รายชือธนาคารทั้งหมด
+//     ListBank.watch().on('change', async data =>{
+//       console.log(new Date(), data)
+//       //operationType
+//       switch(data.operationType){
+//         case 'insert':{
+//           console.log('ListBank > insert');
+//           break;
+//         }
+//         case 'delete':{
+//           console.log('ListBank > delete');
+//           break;
+//         }
+//         case 'replace':{
+//           console.log('ListBank > replace');
+//           break;
+//         }
+//         case 'update':{
+//           console.log('ListBank > update');
+
+//           // if(socket_local.connected){
+//           //   socket_local.emit("list_bank", JSON.stringify(await ListBank.find({})));
+//           // }
+
+//           // var list_bank = await ListBank.find({});
+//           // await cache.setCache('list_bank', list_bank)
+//           // io.sockets.emit("list_bank", JSON.stringify( list_bank ));
+
+//           break;
+//         }
+//         case 'drop':{
+//           console.log('ListBank > drop');
+//           break;
+//         }
+//         case 'rename':{
+//           console.log('ListBank > rename');
+//           break;
+//         }
+//         case 'dropDatabase':{
+//           console.log('ListBank > dropDatabase');
+//           break;
+//         }
+//         case 'invalidate':{
+//           console.log('ListBank > dropDatabase');
+//           break;
+//         }
+//       }
+//     });
+
+//     Lotterys.watch().on('change', async data =>{
+//       console.log(new Date(), data)
+//       //operationType
+//       switch(data.operationType){
+//         case 'insert':{
+//           console.log('Lotterys > insert');
+//           break;
+//         }
+//         case 'delete':{
+//           console.log('Lotterys > delete');
+//           break;
+//         }
+//         case 'replace':{
+//           console.log('Lotterys > replace');
+//           break;
+//         }
+//         case 'update':{
+//           console.log('Lotterys > update');
+
+//           // var lotterys = await Lotterys.find({});
+//           // await cache.setCache('lotterys', lotterys)
+          
+//           // io.sockets.emit("lotterys", JSON.stringify( lotterys ));
+//           break;
+//         }
+//         case 'drop':{
+//           console.log('Lotterys > drop');
+//           break;
+//         }
+//         case 'rename':{
+//           console.log('Lotterys > rename');
+//           break;
+//         }
+//         case 'dropDatabase':{
+//           console.log('Lotterys > dropDatabase');
+//           break;
+//         }
+//         case 'invalidate':{
+//           console.log('Lotterys > dropDatabase');
+//           break;
+//         }
+//       }
+//     });
+
+//     ShootNumbers.watch().on('change', async data =>{
+//       console.log(new Date(), data)
+
+//       // console.log(new Date(), data.documentKey._id.toString())
+//       //operationType
+//       switch(data.operationType){
+//         case 'insert':{
+//           console.log('ShootNumbers > insert');
+//           // if(socket_local.connected){
+//           //   let find= await ShootNumbers.find({});
+//           //   io.sockets.emit("shoot_numbers", JSON.stringify(find));
+//           // } 
+          
+//           /*
+//           let find= await ShootNumbers.findById({_id: data.documentKey._id.toString()});
+//           if(find){
+//             io.sockets.emit("shoot_numbers_" + find.round_id, JSON.stringify(find));
+//           }
+//           */
+
+//           /*
+//          let find= await ShootNumbers.findById({_id: data.documentKey._id.toString()});
+//          // console.log(find)
+//          if(find){
+//            let data = await ShootNumbers.findOne({ round_id: find.round_id });
+//            io.sockets.emit("shoot_numbers_" + find.round_id, JSON.stringify(data));
+//          }
+//          */
+
+//           // let find= await ShootNumbers.findById({_id: data.documentKey._id.toString()});
+//           // // console.log(find)
+//           // if(find){
+//           //   let data = await ShootNumbers.find({ round_id: find.round_id });
+
+//           //   await cache.setCache("shoot_numbers_" + find.round_id + "_" + find.date, data)
+
+//           //   io.sockets.emit("shoot_numbers_" + find.round_id, JSON.stringify(data));
+//           // }
+//           break;
+//         }
+//         case 'delete':{
+//           console.log('ShootNumbers > delete');
+//           break;
+//         }
+//         case 'replace':{
+//           console.log('ShootNumbers > replace');
+//           break;
+//         }
+//         case 'update':{
+//           console.log('ShootNumbers > update');
+//           /*
+//           let find= await ShootNumbers.findById({_id: data.documentKey._id.toString()});
+//           // console.log(find)
+//           if(find){
+//             let data = await ShootNumbers.findOne({ round_id: find.round_id });
+//             io.sockets.emit("shoot_numbers_" + find.round_id, JSON.stringify(data));
+//           }
+//           */
+
+// //          await ShootNumbers.create({ round_id: req.body.round_tid, 
+// //           number: req.body.data, 
+// //              uid: user.uid,
+// //             date: req.body.date,
+//     //       });
+
+//     // let data = await ShootNumbers.findOne({round_id: req.body.round_tid});
+
+//           // let find= await ShootNumbers.findById({_id: data.documentKey._id.toString()});
+//           // // console.log(find)
+//           // if(find){
+//           //   let data = await ShootNumbers.find({ round_id: find.round_id });
+
+//           //   await cache.setCache("shoot_numbers_" + find.round_id + "_" + find.date, data)
+
+//           //   io.sockets.emit("shoot_numbers_" + find.round_id, JSON.stringify(data));
+//           // }
+         
+//           break;
+//         }
+//         case 'drop':{
+//           console.log('ShootNumbers > drop');
+//           break;
+//         }
+//         case 'rename':{
+//           console.log('ShootNumbers > rename');
+//           break;
+//         }
+//         case 'dropDatabase':{
+//           console.log('ShootNumbers > dropDatabase');
+//           break;
+//         }
+//         case 'invalidate':{
+//           console.log('ShootNumbers > dropDatabase');
+//           break;
+//         }
+//       }
+//     });
+
+//     /*
+//     AwardsModel.watch().on('change', async data =>{
+//       console.log(new Date(), data)
+
+//       // console.log(new Date(), data.documentKey._id.toString())
+//       //operationType
+//       switch(data.operationType){
+//         case 'insert':{
+//           console.log('AwardsModel > insert');
+//           break;
+//         }
+//         case 'delete':{
+//           console.log('AwardsModel > delete');
+//           break;
+//         }
+//         case 'replace':{
+//           console.log('AwardsModel > replace');
+//           break;
+//         }
+//         case 'update':{
+//           console.log('AwardsModel > update');
+//           break;
+//         }
+//         case 'drop':{
+//           console.log('AwardsModel > drop');
+//           break;
+//         }
+//         case 'rename':{
+//           console.log('AwardsModel > rename');
+//           break;
+//         }
+//         case 'dropDatabase':{
+//           console.log('AwardsModel > dropDatabase');
+//           break;
+//         }
+//         case 'invalidate':{
+//           console.log('AwardsModel > dropDatabase');
+//           break;
+//         }
+//       }
+//     });
+//     */
+   
+//     UserSocketID.watch().on('change', async data =>{
+//       console.log(new Date(), data)
+//       //operationType
+//       switch(data.operationType){
+//         case 'insert':{
+//           console.log('UserSocketID > insert');
+//           break;
+//         }
+//         case 'delete':{
+//           console.log('UserSocketID > delete');
+//           break;
+//         }
+//         case 'replace':{
+//           console.log('UserSocketID > replace');
+//           break;
+//         }
+//         case 'update':{
+//           console.log('UserSocketID > update');
+          
+//           // socket_local.emit("shoot_numbers", JSON.stringify(await ShootNumbers.find({})));
+//           break;
+//         }
+//         case 'drop':{
+//           console.log('UserSocketID > drop');
+//           break;
+//         }
+//         case 'rename':{
+//           console.log('UserSocketID > rename');
+//           break;
+//         }
+//         case 'dropDatabase':{
+//           console.log('UserSocketID > dropDatabase');
+//           break;
+//         }
+//         case 'invalidate':{
+//           console.log('UserSocketID > dropDatabase');
+//           break;
+//         }
+//       }
+//     });
+
+//     DepositStatus.watch().on('change', async data =>{
+//       switch(data.operationType){
+//         case 'insert':{
+//           console.log('DepositStatus > insert');
+//           break;
+//         }
+//         case 'delete':{
+//           console.log('DepositStatus > delete');
+//           break;
+//         }
+//         case 'replace':{
+//           console.log('DepositStatus > replace');
+//           break;
+//         }
+//         case 'update':{
+//           console.log('DepositStatus > update');
+//           if(socket_local.connected){
+//             socket_local.emit("deposit_status", JSON.stringify(await DepositStatus.find({})));
+//           }
+//           break;
+//         }
+//         case 'drop':{
+//           console.log('DepositStatus > drop');
+//           break;
+//         }
+//         case 'rename':{
+//           console.log('DepositStatus > rename');
+//           break;
+//         }
+//         case 'dropDatabase':{
+//           console.log('DepositStatus > dropDatabase');
+//           break;
+//         }
+//         case 'invalidate':{
+//           console.log('DepositStatus > dropDatabase');
+//           break;
+//         }
+//       }
+//     });
+
+//     // sessionMongoStore.all(function(error, sessions){
+//     //   console.log(sessions);
+//     // })
+//   }).catch(err => {
+//     console.log( 'DB Connection Error: ${err.message}' );
+//   });
+
 })
-
-module.exports = app;
