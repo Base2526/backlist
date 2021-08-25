@@ -7,6 +7,8 @@ services:
       POSTGRES_DB: banlist
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
     volumes:
      - ./private/var/lib/postgresql:/var/lib/postgresql
     restart: always

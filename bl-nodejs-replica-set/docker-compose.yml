@@ -26,6 +26,10 @@ services:
       - ELASTIC_URL=http://backend.banlist.info:9200
       - ELASTIC_USERNAME=elastic
       - ELASTIC_PASSWORD=changeme
+
+      # Backend Drapal 9
+      - DRUPAL_API_ENV=backend-nginx:8055
+      - DRUPAL_AUTHORIZATION_ENV=c3dpZGVzd29kOjEyMzQ= # Authorization
     volumes:
       - .:/usr/src/app
     networks:

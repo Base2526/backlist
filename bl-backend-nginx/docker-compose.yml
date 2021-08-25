@@ -29,7 +29,8 @@ services:
 
       - "./nginx.conf:/etc/nginx/nginx.conf"
     environment:
-      - DB_HOST=postgres
+      # - DB_HOST=postgres
+      - DB_HOST=128.199.217.244
       - DB_NAME=banlist
       - DB_USER_NAME=postgres
       - DB_PASSWORD=postgres
@@ -79,4 +80,4 @@ services:
 networks:
   backend-network:
     external:
-      name: banlist-network
+      name: my-mongo-cluster

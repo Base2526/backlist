@@ -4,7 +4,7 @@ services:
     container_name: frontend
     build: .
     ports:
-      # - 8011:3000
+      - 8011:3000
       - 80:80
       # - 80:80
     # https://stackoverflow.com/questions/52103155/reading-an-environment-variable-in-react-which-was-set-by-docker

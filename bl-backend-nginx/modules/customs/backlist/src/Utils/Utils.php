@@ -3563,14 +3563,17 @@ class Utils extends ControllerBase {
   public static function MongoDB(){
     $mongodb = ConfigPages::config('mongodb');
 
-    $mg_host     = $mongodb->get('field_mg_host')->getValue()[0]['value'];
-    $mg_port     = $mongodb->get('field_mg_port')->getValue()[0]['value'];
-    $mg_user     = $mongodb->get('field_mg_user')->getValue()[0]['value'];
-    $mg_pass     = $mongodb->get('field_mg_pass')->getValue()[0]['value'];
-    
-    // Initialize
-    return new \MongoDB\Client('mongodb://'. $mg_user .':'. $mg_pass .'@'. $mg_host .':'. $mg_port .'/?authSource=admin');
+    // $mg_host     = $mongodb->get('field_mg_host')->getValue()[0]['value'];
+    // $mg_port     = $mongodb->get('field_mg_port')->getValue()[0]['value'];
+    // $mg_user     = $mongodb->get('field_mg_user')->getValue()[0]['value'];
+    // $mg_pass     = $mongodb->get('field_mg_pass')->getValue()[0]['value'];
+    // // Initialize
+    // return new \MongoDB\Client('mongodb://'. $mg_user .':'. $mg_pass .'@'. $mg_host .':'. $mg_port .'/?authSource=admin');
 
+
+    $replica_set     = $mongodb->get('field_replica_set')->getValue()[0]['value'];
+    
+    return new \MongoDB\Client('mongodb://'. $replica_set );
   }
 
   public static function SetupMongoDB(){
