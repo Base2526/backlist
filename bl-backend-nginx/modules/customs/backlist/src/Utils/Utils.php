@@ -4602,6 +4602,7 @@ class Utils extends ControllerBase {
             $images['thumbnail'][] = array('fid'=>$imv, 'url'=> Utils::ImageStyle_BN($imv, 'bn_thumbnail')) ;
 
             // \Drupal::logger('SearchApi')->notice($imv);
+            
           }
         } catch (\Throwable $e) {
           \Drupal::logger('SearchApi images : ')->notice($e->__toString());
@@ -4763,6 +4764,101 @@ nodejs_bl        |     status: true
     return $data;
   }
 
+  public static function mongo_node_contents($entity){
+
+    $nid         = $entity->id();
+
+    // 1 : ชือ 
+    $title = $entity->label();
+
+    // 2 : รายละเอียด
+    $detail= empty($entity->get('body')->getValue()) ? "" : $entity->get('body')->getValue()[0]['value'];
+    
+    // 3 : ชื่อบัญชี-นามสกุล ผู้รับเงินโอน
+    $name_surname = empty($entity->get('field_sales_person_name')->getValue()) ? "" : $entity->get('field_sales_person_name')->getValue()[0]['value'];
+
+    // 4 : owner id
+    $owner_id = $entity->getOwnerId();
+
+    // 5 : ยอดเงิน
+    $transfer_amount = empty($entity->get('field_transfer_amount')->getValue()) ? "" : $entity->get('field_transfer_amount')->getValue()[0]['value'];
+
+    // 6 : เลขบัตรประชาชนคนขาย
+    $id_card_number = empty($entity->get('field_id_card_number')->getValue()) ? "" : $entity->get('field_id_card_number')->getValue()[0]['value'];
+
+    // 7 : เว็บไซด์ประกาศขายของ 
+    $selling_website   = empty($entity->get('field_selling_website')->getValue()) ? "" : $entity->get('field_selling_website')->getValue()[0]['value'];
+  
+    // 8 : วันโอนเงิน 
+    $transfer_date   = empty($entity->get('field_transfer_date')->getValue()) ? "" : $entity->get('field_transfer_date')->getValue()[0];
+  
+    // 9 : รายละเอียดเพิ่มเติม
+    $detail = empty($entity->get('body')->getValue()) ? "" : $entity->get('body')->getValue()[0]['value'];
+
+    // 10 : บัญชีธนาคารคนขาย 
+    $merchant_bank_account = array();
+    $field_merchant_bank_account  = $entity->get('field_merchant_bank_account')->getValue();
+    foreach ($field_merchant_bank_account as $mi=>$mv){
+      $tmp = array();
+      $p = Paragraph::load( $mv['target_id'] );
+      
+      // เลขบัญชี
+      $field_bank_account = $p->get('field_bank_account')->getValue();
+      if(!empty($field_bank_account)){
+          $tmp['bank_account'] = $field_bank_account[0]['value'];
+      } 
+
+      // ธนาคาร/ระบบ Wallet
+      $bank_wallet_target_id = $p->get('field_bank_wallet')->target_id;
+      if(!empty($bank_wallet_target_id)){
+        // $bank_wallet = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($bank_wallet_target_id);
+        $tmp['bank_wallet'] = $bank_wallet_target_id;//$bank_wallet->label();
+      }
+      
+      $merchant_bank_account[] = $tmp;
+    }
+
+    // 11 : รูปภาพประกอบ
+    $images = array();
+    $updated_images   = $entity->get('field_images')->getValue();
+    foreach ($updated_images as $imi=>$imv){
+      $images[0][]    = array('fid'=>$imv['target_id'], 'url'=> Utils::ImageStyle_BN($imv['target_id'], 'bn_medium')) ;
+      $images[1][] = array('fid'=>$imv['target_id'], 'url'=> Utils::ImageStyle_BN($imv['target_id'], 'bn_thumbnail')) ;
+    }
+    
+    // 12 : status 
+    $status  = $entity->isPublished() ? TRUE : FALSE;
+
+    // 13 : time create
+    $created = $entity->getCreatedTime();
+
+    // 14 : last update 
+    $changed = $entity->getChangedTime();
+
+
+    $type     = $entity->bundle();
+
+    $langcode = $entity->get('langcode')->value;
+
+    return array(  
+                  "title"           => $title,
+                  "type"            => $type,
+                  "name_surname"    => $name_surname,
+                  "owner_id"        => $owner_id,
+                  "transfer_amount" => $transfer_amount,
+                  "detail"          => $detail,
+                  "selling_website" => $selling_website,
+                  "nid"              => $nid,
+                  "id_card_number"  => $id_card_number,
+                  "merchant_bank_account" => $merchant_bank_account,
+                  "images"          => $images,
+                  "status"          => $status,
+                  "created"         => $created,
+                  "changed"         => $changed,
+                  "langcode"        => $langcode,
+                );
+  }
+
   /*
   $type = 0 : reporter, 1 : owner post 
   */
@@ -4808,8 +4904,6 @@ nodejs_bl        |     status: true
         break;
       }
     }
-
-    
   }
 
   public static function setup_mongodb(){
@@ -5058,6 +5152,49 @@ nodejs_bl        |     status: true
     }
   }
 
+  public static function setup_mongodb_contents(){
+    try{
+
+      $db = Utils::MongoDB()->bl;
+
+      $bundle = 'contents';
+      $collections = $db->listCollections();
+      $collectionNames = [];
+      foreach ($collections as $collection) {
+        $collectionNames[] = $collection->getName();
+      }
+    
+      $exists = in_array($bundle, $collectionNames);
+    
+      if(!$exists){
+        $collection = $db->createCollection($bundle);
+        if($collection->ok){
+          dpm( "OK");
+        }
+      }
+    
+      $mg_content = $db->contents;
+
+      $nids = \Drupal::entityQuery('node')->condition('type','back_list')->execute();
+      $nodes =  Node::loadMultiple($nids);
+      // dpm( $nids );
+      foreach ($nodes as $entity) {
+        $nid         = $entity->id();
+        $document = Utils::mongo_node_contents($entity);
+
+        $filter     = array( 'nid' => $nid );
+        if($mg_content->count($filter)){
+          $mg_content->updateOne( [ 'nid' => $nid ], [ '$set' => $document ] );
+        }else{
+          $document["nid"] = $nid;
+          $mg_content->insertOne($document);
+        }
+      }      
+    } catch (\Throwable $e) {
+      \Drupal::logger('setup_mongodb_contents')->error($e->__toString());
+    }
+  }
+
   private static function api_gateway(){
     $api_gateway           = ConfigPages::config('api_gateway');
     $host_api_gate_way     = $api_gateway->get('field_host_api_gate_way')->getValue()[0]['value'];
@@ -5157,6 +5294,7 @@ nodejs_bl        |     status: true
   $nid
     - node id
   */
+  /*
   public static function nodejs_notify_owner_content($uid, $mode, $nid, $data){
     try{
       
@@ -5200,6 +5338,7 @@ nodejs_bl        |     status: true
       \Drupal::logger('nodejs_clear_cache_with_keys')->error($e->__toString());
     }
   }
+  */
 
   /*
   กรณีมีการลบ user 

@@ -19,11 +19,12 @@ import ScrollToTopBtn from "./components/ScrollToTopBtn";
 import { userLogin, userLogout } from './actions/user';
 import { addMyApp, updateMyApp, deleteMyApp } from './actions/my_apps';
 
-import { onMyFollowALL } from './actions/my_follows'
+import { onMyFollowALL, onMyFollowUpdateStatus } from './actions/my_follows'
 
 var _ = require('lodash');
 
 let socket = undefined;
+let interval = undefined;
 
 const App = (props) => {
   const [timeInterval, setTimeInterval] = React.useState(undefined);
@@ -49,6 +50,8 @@ const App = (props) => {
             console.log('socketid() > socket.auth.token : #3')
             socket.auth.token = 0;
             socket.disconnect().connect()
+
+            console.log('------------- disconnect ------------- #1')
           }
         }
       }else{
@@ -56,60 +59,73 @@ const App = (props) => {
           console.log('socketid() > socket.auth.token : #4')
           socket.auth.token = props.user.uid;
           socket.disconnect().connect()
+
+          console.log('------------- disconnect ------------- #2')
         }
       }
     }
   }, [props.user]);
 
-  useEffect(() => {
-    if(!_.isEmpty(timeInterval)){
-      clearInterval(timeInterval)
+  useEffect(async() => {
+    if( interval !== undefined){
+      clearInterval(interval)
     }
-    setTimeInterval(setInterval(syc, 30000, props))
-  }, [props.user, props.my_follows]);
 
-  const syc =async(props)=>{
+    console.log('useEffect [props.my_follows] #1: ')
+
     let {user, my_follows} = props
-
-    console.log("syc_local :", user, _.isEmpty(user))
-    if(!_.isEmpty(props.user)){
+    console.log("useEffect [props.my_follows] #2:", user, _.isEmpty(user), props)
+    if(!_.isEmpty(user)){
       let filter_follow_ups = my_follows.filter((im)=>im.local)
-
-      console.log("syc_local :", Date().toLocaleString(), props, filter_follow_ups)
-
+      
+      console.log("useEffect [props.my_follows] #3:", filter_follow_ups)
       if(!_.isEmpty(filter_follow_ups)){
-        // axios.post(`/node/follow_up`, {
-        //   unique_id: _uniqueId(props),
-        //   datas: JSON.stringify(follow_ups)
-        // }, {
-        //     // headers: {'Authorization': `Basic YWRtaW46U29ta2lkMDU4ODQ4Mzkx`}
-        // })
-        // .then((response) => {
-        //   let results = response.data
-        //   console.log('/node/follow_up : ', results)
-        // })
-        // .catch( (error) => {
-        //   console.log('/node/follow_up : ', error)
-        // });
+        // setTimeInterval(setInterval(async(props)=>{
+        //   let {user, my_follows} = props
+        //   let response =  await axios.post(`/v1/syc_local`, 
+        //                                   { 
+        //                                     uid: user.uid, my_follows: JSON.stringify(my_follows) 
+        //                                   }, 
+        //                                   { headers: {'Authorization': `Basic ${ls.get('basic_auth')}` } });
 
-          // setLoginLoading(true)
-        let response =  await axios.post(`/api/v1/syc_local`, 
+        //   response = response.data
+        //   console.log("useEffect [props.my_follows] #4:", response)
+
+        //   if(response.result){
+        //     props.onMyFollowUpdateStatus({})
+        //   }
+
+        //   clearInterval(timeInterval)
+        // }, 30000, props))
+
+
+        interval = setInterval(async(props)=>{
+          let {user, my_follows} = props
+          let response =  await axios.post(`/v1/syc_local`, 
                                           { 
-                                            uid: user.uid,  
-                                            my_follows: JSON.stringify(my_follows) 
+                                            uid: user.uid, my_follows: JSON.stringify(my_follows) 
                                           }, 
                                           { headers: {'Authorization': `Basic ${ls.get('basic_auth')}` } });
 
-        response = response.data
-        console.log("syc_local change : response", response)
+          response = response.data
+          console.log("useEffect [props.my_follows] #4:", response)
+
+          if(response.result){
+            props.onMyFollowUpdateStatus({})
+          }
+
+          clearInterval(interval)
+        }, 15000, props)
       }else {
-        console.log("syc_local without change")
+        console.log("useEffect [props.my_follows] #5:")
       }
+    }else{
+      console.log("useEffect [props.my_follows] #6:")
     }
-  } 
+  }, [props.my_follows]);
 
   const geolocation = async () => {
-    const res = await axios.get('https://geolocation-db.com/json/')
+    const res = await axios.get( process.env.REACT_APP_GEOLOCATION )
     let data = {}
     if(res.status === 200){
       data = res.data
@@ -140,7 +156,7 @@ const App = (props) => {
         //   }
         // },
         { 
-          path: '/api/mysocket',
+          path: '/mysocket',
           query: {
             "platform" : process.env.REACT_APP_PLATFORM, 
             // "unique_id": _uniqueId(props),
@@ -165,6 +181,8 @@ const App = (props) => {
     }else{
       socket.auth.token = _.isEmpty(props.user) ? 0 : props.user.uid;
       socket.disconnect().connect()
+
+      console.log('------------- disconnect ------------- #3')
     }                 
     
     if (socket.connected === false && socket.connecting === false) {
@@ -184,6 +202,9 @@ const App = (props) => {
 
       // กรณีมีคนมากด follow content เรา
       socket.off('onAppFollowUp', onAppFollowUp);
+
+
+      socket.off('test', test);
     }else{
       console.log('socket :', socket)
     }
@@ -200,6 +221,20 @@ const App = (props) => {
 
     // กรณีมีคนมากด follow content เรา
     socket.on('onAppFollowUp', onAppFollowUp);
+
+    socket.on('connect_error', handleErrors);
+    socket.on('connect_failed', handleErrors);
+
+
+    socket.on('test', test);
+  }
+
+  const test = (data)=>{
+    console.log("test :", data)
+  }
+
+  const handleErrors = (err)=>{
+    console.log('connect_error + connect_failed', err);
   }
 
   const onConnect = () =>{
@@ -207,7 +242,7 @@ const App = (props) => {
   }
 
   const onUniqueID = (data) =>{
-    console.log("unique_id :", data)
+    // console.log("unique_id :", data)
 
     // ls.set('socketIO', JSON.stringify(data))
 
@@ -225,6 +260,8 @@ const App = (props) => {
       switch(mode){
         case 'delete':{
           socket.disconnect();
+
+          console.log('------------- disconnect ------------- #4')
 
           ls.remove('basic_auth')
           ls.remove('session')
@@ -286,9 +323,13 @@ const App = (props) => {
   }
 
   const onMyFollows = (data) =>{
-    console.log("MY_FOLLOW_ALL : ", data)
+    try{
+      console.log("MY_FOLLOW_ALL : ", data)
 
-    props.onMyFollowALL(data)
+      props.onMyFollowALL(data)
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   const onAppFollowUp = (data) =>{
@@ -383,7 +424,8 @@ const mapDispatchToProps = {
   updateMyApp, 
   deleteMyApp,
 
-  onMyFollowALL
+  onMyFollowALL,
+  onMyFollowUpdateStatus
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

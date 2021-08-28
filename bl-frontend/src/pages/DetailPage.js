@@ -56,7 +56,7 @@ const DetailPage = (props) => {
         if(!isEmpty(_data)){
             setItem(_data)
         }else{
-            axios.post(`/api/v1/search`, {
+            axios.post(`/v1/search`, {
                 type: 8,
                 key_word: JSON.stringify([nid]),
                 offset: 0

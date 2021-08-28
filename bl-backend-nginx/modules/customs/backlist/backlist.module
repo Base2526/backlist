@@ -25,6 +25,8 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\user\UserInterface;
 
+use Drupal\paragraphs\Entity\Paragraph;
+
 use Drupal\backlist\Utils\Utils;
 
 /**
@@ -496,8 +498,14 @@ function user_iu(EntityInterface $entity){
   }
 
   // ------- Clear cache for nodejs--------
-  Utils::nodejs_clear_cache_with_keys(array( 'user-'.$entity->id() ));
+  // Utils::nodejs_clear_cache_with_keys(array( 'user-'.$entity->id() ));
   // ------- Clear cache for nodejs--------
+}
+
+function backlist_node_presave(EntityInterface $entity) {
+  if ($entity->bundle() == 'back_list') {
+    mongo_content($entity);
+  }
 }
 
 /**
@@ -515,9 +523,20 @@ function backlist_node_insert(EntityInterface $entity) {
     //   // add from api
     // }
 
+    //-------------------- add new to mongodb --------------------------
+    /*
+    
+    */
+
+
+    //-------------------- add new to mongodb --------------------------
+
     // ------- notify_owner_content --------
-    Utils::nodejs_notify_owner_content( $entity->getOwnerId(), 'add', $entity->id(), Utils::GetFieldNode($entity) );
+    // Utils::nodejs_notify_owner_content( $entity->getOwnerId(), 'add', $entity->id(), Utils::GetFieldNode($entity) );
     // ------- notify_owner_content --------
+
+
+    mongo_content($entity);
   }
 }
 
@@ -570,8 +589,16 @@ function backlist_node_update(EntityInterface $entity) {
     }
 
     if ($entity->bundle() == 'back_list') {
+
+
+      //-------------------- edit new to mongodb --------------------------
+
+
+      //-------------------- edit new to mongodb --------------------------
+
+
       // ------- notify_owner_content --------
-      Utils::nodejs_notify_owner_content( $entity->getOwnerId(), 'edit', $entity->id(), Utils::GetFieldNode($entity) );
+      // Utils::nodejs_notify_owner_content( $entity->getOwnerId(), 'edit', $entity->id(), Utils::GetFieldNode($entity) );
       // ------- notify_owner_content --------
     }
 
@@ -586,19 +613,24 @@ function backlist_node_update(EntityInterface $entity) {
 function backlist_node_delete(EntityInterface $entity) {
   switch($entity->bundle()){
     case 'back_list':{
-
-      // Utils::node_my_apps($entity->getOwnerId());
-
-      // \Drupal::logger('backlist_node_delete')->error( $entity->id() );
-
-      // $twit_id = $entity->get('field_twit_id')->getValue();
-      // if(!empty($twit_id)){
-      //   Utils::Twitter_Delete_By_TwitId($twit_id[0]['value']);
-      // }
-
       try{
+        //-------------------- delete new to mongodb --------------------------
+
+        $db = Utils::MongoDB()->bl;
+      
+        $mg_content = $db->contents;
+        $nid         = $entity->id();
+        $filter     = array( 'nid' => $nid );
+      
+        if($mg_content->count($filter)){
+          $mg_content->deleteOne($filter);
+        }
+
+        
+        //-------------------- delete new to mongodb --------------------------
+
          // ------- notify_owner_content --------
-         Utils::nodejs_notify_owner_content( $entity->getOwnerId(), 'delete', $entity->id(), array() );
+        //  Utils::nodejs_notify_owner_content( $entity->getOwnerId(), 'delete', $entity->id(), array() );
          // ------- notify_owner_content --------
       } catch (\Throwable $e) {
         \Drupal::logger('backlist_node_update')->error($e->__toString());
@@ -606,6 +638,240 @@ function backlist_node_delete(EntityInterface $entity) {
       
       break;
     }
+  }
+}
+
+function mongo_content(EntityInterface $entity){
+  try{
+
+    $nid        = $entity->id();
+
+    if(empty($nid)){
+      return;
+    }
+
+    $db = Utils::MongoDB()->bl;
+
+    $bundle = 'contents';
+    $collections = $db->listCollections();
+    $collectionNames = [];
+    foreach ($collections as $collection) {
+      $collectionNames[] = $collection->getName();
+    }
+  
+    $exists = in_array($bundle, $collectionNames);
+  
+    if(!$exists){
+      $collection = $db->createCollection($bundle);
+      if($collection->ok){
+        dpm( "OK");
+      }
+    }
+  
+    $mg_content = $db->contents;
+    
+    $filter     = array( 'nid' => $nid );
+
+
+    $flag = 0;
+
+    if (!$entity->isNew()) {
+      if($mg_content->count($filter)){
+        $flag = 3;
+      }else{
+        $flag = 2;
+      }
+    }else{
+      $flag =1;
+    }
+
+    switch($flag){
+      case 1:
+      case 2:{
+          $document = Utils::mongo_node_contents($entity);
+          if($mg_content->count($filter)){
+            $mg_content->updateOne( [ 'nid' => $nid ], [ '$set' => $document ] );
+          }else{
+            $document["nid"] = $nid;
+            $mg_content->insertOne($document);
+          }
+        break;
+      }
+
+      case 3:{
+
+        $set = array();
+
+        $original_label  = $entity->original->label();
+        $updated_label   = $entity->label();
+        if ($original_label != $updated_label) {
+          $set['title'] = $updated_label;
+        }
+
+        // ยอดเงิน 
+        $original_transfer_amount  = $entity->original->get('field_transfer_amount')->getValue();
+        $updated_transfer_amount   = $entity->get('field_transfer_amount')->getValue();
+        if ($original_transfer_amount != $updated_transfer_amount) {
+          $set['transfer_amount'] = $updated_transfer_amount[0]['value'];
+        }
+
+        // ชื่อบัญชี-นามสกุล ผู้รับเงินโอน
+        $original_sales_person_name  = $entity->original->get('field_sales_person_name')->getValue();
+        $updated_sales_person_name   = $entity->get('field_sales_person_name')->getValue();
+        if ($original_sales_person_name != $updated_sales_person_name) {
+          $set['name_surname'] = $updated_sales_person_name[0]['value'];
+        }
+
+        $set['nid']       = $nid;
+        $set['owner_id'] = $entity->getOwnerId();
+
+        // เลขบัตรประชาชนคนขาย
+        $original_id_card_number  = $entity->original->get('field_id_card_number')->getValue();
+        $updated_id_card_number   = $entity->get('field_id_card_number')->getValue();
+        if ($original_id_card_number != $updated_id_card_number) {
+          $set['id_card_number'] = $updated_id_card_number[0]['value'];
+        }
+
+        // เว็บไซด์ประกาศขายของ 
+        $original_selling_website  = $entity->original->get('field_selling_website')->getValue();
+        $updated_selling_website   = $entity->get('field_selling_website')->getValue();
+        if ($original_selling_website != $updated_selling_website) {
+          $set['selling_website'] = $updated_selling_website[0]['value'];
+        }
+      
+        // วันโอนเงิน 
+        // $original_transfer_date  = $entity->original->get('field_transfer_date')->getValue();
+        // $updated_transfer_date   = $entity->get('field_transfer_date')->getValue();
+        // if ($original_transfer_date != $updated_transfer_date) {
+        //   $set['transfer_date'] = $updated_transfer_date[0];
+        // }
+
+        // รายละเอียดเพิ่มเติม
+        $original_body  = $entity->original->get('body')->getValue();
+        $updated_body   = $entity->get('body')->getValue();
+        if ($original_body != $updated_body) {
+          $set['detail'] = $updated_body[0]['value'];
+        }
+
+        // บัญชีธนาคารคนขาย 
+        $original_merchant_bank_account  = $entity->original->get('field_merchant_bank_account')->getValue();
+        $updated_merchant_bank_account   = $entity->get('field_merchant_bank_account')->getValue();
+        if ($original_merchant_bank_account != $updated_merchant_bank_account) {
+          // original
+          $original_mba = array();
+          foreach ($original_merchant_bank_account as $mi=>$mv){
+            $tmp = array();
+            $p = Paragraph::load( $mv['target_id'] );
+            
+            // เลขบัญชี
+            $field_bank_account = $p->get('field_bank_account')->getValue();
+            if(!empty($field_bank_account)){
+                $tmp['bank_account'] = $field_bank_account[0]['value'];
+            } 
+      
+            // ธนาคาร/ระบบ Wallet
+            $bank_wallet_target_id = $p->get('field_bank_wallet')->target_id;
+            if(!empty($bank_wallet_target_id)){
+              // $bank_wallet = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($bank_wallet_target_id);
+              $tmp['bank_wallet'] = $bank_wallet_target_id;//$bank_wallet->label();
+            }
+            
+            $original_mba[] = $tmp;
+          }
+          // original
+
+          // updated
+          $updated_mba = array();
+          foreach ($updated_merchant_bank_account as $mi=>$mv){
+            $tmp = array();
+            $p = Paragraph::load( $mv['target_id'] );
+            
+            // เลขบัญชี
+            $field_bank_account = $p->get('field_bank_account')->getValue();
+            if(!empty($field_bank_account)){
+                $tmp['bank_account'] = $field_bank_account[0]['value'];
+            } 
+      
+            // ธนาคาร/ระบบ Wallet
+            $bank_wallet_target_id = $p->get('field_bank_wallet')->target_id;
+            if(!empty($bank_wallet_target_id)){
+              // $bank_wallet = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($bank_wallet_target_id);
+              $tmp['bank_wallet'] = $bank_wallet_target_id;//$bank_wallet->label();
+            }
+            
+            $updated_mba[] = $tmp;
+          }
+          // updated
+
+          if($original_mba != $updated_mba){
+            $set['merchant_bank_account'] = $updated_mba;
+          }
+        }
+
+        // รูปภาพประกอบ
+        $original_images  = $entity->original->get('field_images')->getValue();
+        $updated_images   = $entity->get('field_images')->getValue();
+        if ($original_images != $updated_images) {
+          $oi = array();
+          foreach ($original_images as $imi=>$imv){
+            $oi[] = $imv['target_id'];
+          }
+
+          $ui = array();
+          foreach ($updated_images as $imi=>$imv){
+            $ui[] = $imv['target_id'];
+          }
+
+          if($oi != $ui){
+
+            // 11 : รูปภาพประกอบ
+            $images = array();
+            foreach ($ui as $target_id){
+              $images[0][] = array('fid'=>$target_id, 'url'=> Utils::ImageStyle_BN($target_id, 'bn_medium')) ;
+              $images[1][] = array('fid'=>$target_id, 'url'=> Utils::ImageStyle_BN($target_id, 'bn_thumbnail')) ;
+            }
+            
+            $set['images'] = $images;
+          }
+        }
+
+        $original_published  = $entity->original->isPublished();
+        $updated_published   = $entity->isPublished();
+        if ($original_published != $updated_published) {
+          $set['status'] = $entity->isPublished() ? TRUE : FALSE;
+        }
+
+        $original_changed  = $entity->original->getChangedTime();
+        $updated_changed   = $entity->getChangedTime();
+        if ($original_changed != $updated_changed) {
+          $set["changed"] = $updated_changed;
+        }
+        
+        /*
+        "title"           => $title,
+        "name_surname"    => $name_surname,
+        "owner_id"        => $owner_id,
+        "transfer_amount" => $transfer_amount,
+        "detail"          => $detail,
+        "selling_website" => $selling_website,
+        "id"              => $id,
+        "id_card_number"  => $id_card_number,
+        "merchant_bank_account" => $merchant_bank_account,
+        "images"          => $images,
+        "status"          => $status,
+        "created"         => $created,
+        "changed"         => $changed,
+        */
+       
+        if(!empty($set)){
+          $mg_content->updateOne( [ 'nid' => $nid ], [ '$set' => $set ] );
+        }
+        break;
+      }
+    }
+
+  } catch (\Throwable $e) {
+    \Drupal::logger('backlist_node_presave')->error($e->__toString());
   }
 }
 

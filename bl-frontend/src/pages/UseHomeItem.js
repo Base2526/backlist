@@ -28,9 +28,8 @@ const UseHomeItem = (props) => {
 
   useEffect(() => {
 
-    console.log('UseHomeItem : ', props)
+    // console.log('UseHomeItem : ', props)
     setItem(props.item)
-
     setFollowUp( isEmpty(props.my_follows.find((el)=>el.id === item.id && el.status)) ? false : true )
   });
   

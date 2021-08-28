@@ -12,11 +12,11 @@ const ForDeveloperPage = (props) => {
     const [data, setData]  = React.useState("");
 
     useEffect(async() => {
-        let response =  await axios.post(`/api/v1/get_html`,  {'nid':1}, { headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} });
+        let response =  await axios.post(`/v1/get_html`,  {'nid':1}, { headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} });
         if(response.status === 200){
             
             let data = response.data
-            console.log("/api/v1/get_html", data)
+            console.log("/v1/get_html", data)
             if(data.result){
                 setData(data.data)
             }

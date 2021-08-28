@@ -1,4 +1,4 @@
-import { INIT_MY_FOLLOW, MY_FOLLOW, MY_FOLLOW_ALL} from '../constants';
+import { INIT_MY_FOLLOW, MY_FOLLOW, MY_FOLLOW_ALL, MY_FOLLOW_UPDATE_STATUS} from '../constants';
 
 const initialState = {
     data: []
@@ -28,7 +28,16 @@ const my_follows = (state = initialState, action) => {
         }
 
         case MY_FOLLOW_ALL:{
-            return { ...state, data: action.data.my_follows };
+            return { ...state, data: action.data.my_follows }
+        }
+
+        case MY_FOLLOW_UPDATE_STATUS:{
+            let state_data  = state.data
+            state_data.map((sd)=>{
+                sd.local = false;
+                return sd
+            })
+            return { ...state, data: state_data }
         }
 
         default:

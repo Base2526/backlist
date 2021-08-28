@@ -112,14 +112,14 @@ const AddBanlistDialog = (props) => {
       files.map((file) => { data.append('files[]', file) })
 
 
-      console.log("/api/v1/add_banlist start ")
+      console.log("/v1/add_banlist start ")
 
       // setLoginLoading(true)
-      let response =  await axios.post(`/api/v1/add_banlist`, data, { headers: {'Authorization': `Basic ${ls.get('basic_auth')}`, 'content-type': 'multipart/form-data'} });
+      let response =  await axios.post(`/v1/add_banlist`, data, { headers: {'Authorization': `Basic ${ls.get('basic_auth')}`, 'content-type': 'multipart/form-data'} });
 
       response = response.data
 
-      console.log("/api/v1/add_banlist > ", response)
+      console.log("/v1/add_banlist > ", response)
 
       if(response.result){
         props.onClose()
@@ -131,7 +131,7 @@ const AddBanlistDialog = (props) => {
       /*
       setCreateLoading(true)
 
-      axios.post(`/api/added_banlist?_format=json`, data, {
+      axios.post(`/added_banlist?_format=json`, data, {
         headers: { 
           'Authorization': `Basic ${props.user.basic_auth}`,
           'content-type': 'multipart/form-data'
@@ -139,7 +139,7 @@ const AddBanlistDialog = (props) => {
       })
       .then((response) => {
         let results = response.data
-        console.log("/api/added_banlist > ", results)
+        console.log("/added_banlist > ", results)
         
         if(results.result){
           // // true

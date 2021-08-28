@@ -9,6 +9,9 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
 import UseMyPostItem from "./UseMyPostItem";
 
+import MyPostConfirmDeleteDialog from './MyPostConfirmDeleteDialog'
+import MyPostConfirmUpdateStatusDialog from './MyPostConfirmUpdateStatusDialog'
+
 import MoreVertOutlinedIcon from '@material-ui/icons/MoreVertOutlined';
 
 import { LazyLoadImage } from 'react-lazy-load-image-component';
@@ -26,6 +29,9 @@ const MyPostPage = (props) => {
     const [isOpen, setIsOpen] = React.useState(false);
     const [photoIndex, setPhotoIndex] = React.useState(0);
 
+    const [showModalConfirmDelete, setShowModalConfirmDelete] = React.useState(false);
+    const [showModalConfirmUpdateStatus, setShowModalConfirmUpdateStatus] = React.useState(false);
+
     useEffect(() => {
         fetchData()
     }, []);
@@ -40,7 +46,7 @@ const MyPostPage = (props) => {
         props.initMyApp()
 
         // setLoginLoading(true)
-        let response =  await axios.post(`/api/v1/search`, 
+        let response =  await axios.post(`/v1/search`, 
                                         { type: 1,  key_word: props.user.uid, offset: 0 }, 
                                         { headers: {'Authorization': `Basic ${ls.get('basic_auth')}` } });
 
@@ -89,8 +95,15 @@ const MyPostPage = (props) => {
           }
         }
     }
-    
 
+    const onModalConfirmDelete = data => {
+        setShowModalConfirmDelete(data)
+    }
+
+    const onModalConfirmUpdateStatus = data =>{
+        setShowModalConfirmUpdateStatus(data)
+    }
+    
     const itemView = (item) =>{
         console.log('itemView :', item)
     
@@ -361,9 +374,15 @@ const MyPostPage = (props) => {
                     <UseMyPostItem 
                         {...props} 
                         item={item}
-                        updateState={updateState}/>
+                        updateState={updateState}
+                        onModalConfirmDelete={onModalConfirmDelete}
+                        onModalConfirmUpdateStatus={onModalConfirmUpdateStatus}
+                        />
                 ))
                 }
+
+                {showModalConfirmDelete && <MyPostConfirmDeleteDialog showModalConfirmDelete={showModalConfirmDelete} onClose = {()=>{setShowModalConfirmDelete(false)}} />}
+                {showModalConfirmUpdateStatus && <MyPostConfirmUpdateStatusDialog showModalConfirmUpdateStatus={showModalConfirmUpdateStatus} onClose = {()=>{setShowModalConfirmUpdateStatus(false)}} /> }
                 </div>
             </div>
             )

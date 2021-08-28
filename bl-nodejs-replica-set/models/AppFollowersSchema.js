@@ -1,6 +1,7 @@
 const mongoose = require( 'mongoose' );
 
 const AppFollowersSchema = new mongoose.Schema({
+    _id: mongoose.Schema.Types.ObjectId,
     nid: String,
     value: [],
 },

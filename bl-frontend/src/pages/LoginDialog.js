@@ -325,11 +325,11 @@ const LoginDialog = (props) => {
         } else {
 
           setLoginLoading(true)
-          let response =  await axios.post(`/api/v1/login`, { email: _email,  password: _password,  }, { headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} });
+          let response =  await axios.post(`/v1/login`, { email: _email,  password: _password,  }, { headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} });
 
           response = response.data
 
-          console.log("/api/v1/login : response =", response)
+          console.log("/v1/login : response =", response)
 
           
           if(response.result){
@@ -350,7 +350,7 @@ const LoginDialog = (props) => {
 
             props.userLogin(data)
 
-            console.log('/api/login > user : ', response, data)
+            console.log('/login > user : ', response, data)
 
             props.onClose()
 
@@ -363,7 +363,7 @@ const LoginDialog = (props) => {
 
           /*
           setLoginLoading(true)
-          axios.post(`/api/v1/login`, {
+          axios.post(`/v1/login`, {
             name: _email, 
             password: _password, 
             // unique_id: uniqueId()
@@ -396,10 +396,10 @@ const LoginDialog = (props) => {
 
             setLoginLoading(false)
     
-            console.log('/api/login > results : ', results)
+            console.log('/login > results : ', results)
           })
           .catch((error)=>{
-            console.log('/api/login > results : ', error)
+            console.log('/login > results : ', error)
             onToast("error", error)
             setLoginLoading(false)
           });
@@ -429,7 +429,7 @@ const LoginDialog = (props) => {
         
           /*
           setRegisterLoading(true)
-          axios.post(`/api/v1/login`, {
+          axios.post(`/v1/login`, {
             type: 0,
             name: _displayName,
             email: _email, 
@@ -447,7 +447,7 @@ const LoginDialog = (props) => {
     
             setRegisterLoading(false)
     
-            console.log('/api/register > results : ', results)
+            console.log('/register > results : ', results)
           })
           .catch((error)=>{
             onToast("error", error)
@@ -458,10 +458,10 @@ const LoginDialog = (props) => {
 
           setRegisterLoading(true)
 
-          console.log('/api/v1/register > start')
-          let response =  await axios.post(`/api/v1/register`, { email: _email, name: _displayName, password: _password,  }, { headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} });
+          console.log('/v1/register > start')
+          let response =  await axios.post(`/v1/register`, { email: _email, name: _displayName, password: _password,  }, { headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} });
 
-          console.log('/api/v1/register > response : ', response)
+          console.log('/v1/register > response : ', response)
           response = response.data
 
           // setLoginLoading(false)
@@ -490,7 +490,7 @@ const LoginDialog = (props) => {
 
           /*
           setForgotLoading(true)
-          axios.post(`/api/v1/reset_password`, {
+          axios.post(`/v1/reset_password`, {
             email: _email
           })
           .then((response) => {
@@ -512,10 +512,10 @@ const LoginDialog = (props) => {
           */
 
           setForgotLoading(true)
-          console.log('/api/v1/reset_password > start')
-          let response =  await axios.post(`/api/v1/reset_password`, { email: _email }, { headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} });
+          console.log('/v1/reset_password > start')
+          let response =  await axios.post(`/v1/reset_password`, { email: _email }, { headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} });
 
-          console.log('/api/v1/reset_password > response : ', response)
+          console.log('/v1/reset_password > response : ', response)
           response = response.data
 
           setForgotLoading(false)

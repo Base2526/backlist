@@ -14,7 +14,7 @@ const session = require('express-session')
 const mongoStore = require('connect-mongo');
 const http  = require('http');
 const server= http.createServer(app);
-let io = require('socket.io')(server, { path: '/mysocket' });
+let io = require('socket.io')(server, { path: '/mysocket' }); ///socketio/mysocket
 
 const path = require("path");
 const multer = require("multer");
@@ -23,9 +23,6 @@ const FormData = require('form-data');
 const axios = require('axios')
 const upload = require("express-fileupload");
 const cors = require("cors");
-
-
-
 
 const NodeCache     = require( "node-cache" );
 const nc            = new NodeCache({ checkperiod: 60 * 60 * 15 /* 15Hour */ });
@@ -37,7 +34,10 @@ const FilesSchema       = require('./models/FilesSchema');
 const ArticlesSchema    = require('./models/ArticlesSchema');
 const FollowsSchema     = require('./models/FollowsSchema');
 const AppFollowersSchema= require('./models/AppFollowersSchema');
+
 const kittySchema       = require('./models/kittySchema')
+
+const ContentsSchema    = require('./models/ContentsSchema')
 
 require("./connection")
 
@@ -117,7 +117,14 @@ app.use(sessions({
 
 app.get('/',  async(req, res) => {
 
-  await new kittySchema({ name: 'Silence' }).save()
+  // await new kittySchema({ name: 'Silence' }).save()
+
+ 
+  // logger.error("ABCCCC");
+
+  // let _ks =  await kittySchema.findOneAndUpdate({text: 12}, {text: 111}, { new: true, upsert: true  })
+
+  // console.log(_ks)
 
   res.send(`Hello Docker World\n`);
 });
@@ -456,8 +463,6 @@ app.post('/v1/add_banlist',  async(req, res, next)=> {
 */
 app.post('/v1/search',  async(req, res, next)=> {
 
-  // logger.error(`Ready Listening on port 2`);
-
   const start = Date.now()
   try {
     let key_word = req.body.key_word;
@@ -465,7 +470,7 @@ app.post('/v1/search',  async(req, res, next)=> {
     let offset   = req.body.offset;
     let full_text_fields = req.body.full_text_fields;
 
-    console.log('/v1/search >', key_word, type, offset, full_text_fields)
+    // console.log('/v1/search >', key_word, type, offset, full_text_fields)
 
     if(key_word === undefined){
       return res.send({ status: false, message:"Keyword is empty" });
@@ -486,7 +491,7 @@ app.post('/v1/search',  async(req, res, next)=> {
                   "size": 20
                 }
           
-        console.log( 'query >', query );
+        // console.log( 'query >', query );
         break;
       }
 
@@ -505,7 +510,7 @@ app.post('/v1/search',  async(req, res, next)=> {
                   },
                 }
 
-        console.log( 'query >', query );
+        // console.log( 'query >', query );
 
         const { body } = await client.search({
           index: 'elasticsearch_index_banlist_content_back_list',
@@ -571,7 +576,7 @@ app.post('/v1/search',  async(req, res, next)=> {
                   },
                 }
 
-        console.log( 'query >', query );
+        // console.log( 'query >', query );
         break;
       }
 
@@ -720,8 +725,8 @@ app.post('/v1/cache_del',  async(req, res, next)=> {
       return res.send({ status: false, message:"Without keys" });
     }
 
-    console.log("keys >> ", keys)
-
+    // console.log("keys >> ", keys)
+    /*
     keys.map( async(key) => {
       let key1 = key.split("-");
       // console.log("key1 >> ", key1)
@@ -742,7 +747,7 @@ app.post('/v1/cache_del',  async(req, res, next)=> {
             }
 
             if(!utils.isEmpty(user)){
-              global.io.to(socket.socketId).emit('onProfile', user);
+              io.to(socket.socketId).emit('onProfile', user);
             }
             
           })
@@ -753,7 +758,9 @@ app.post('/v1/cache_del',  async(req, res, next)=> {
         //   break;
         // }
       }
+      
     })
+    */
 
     nc.del( keys );
 
@@ -860,7 +867,7 @@ app.post('/v1/notify_owner_content',  async(req, res, next)=> {
       // }
 
       if(!utils.isEmpty(socket.socketId)){
-        global.io.to(socket.socketId).emit('onContent', {mode, nid, data});
+        io.to(socket.socketId).emit('onContent', {mode, nid, data});
       }
     })
 
@@ -928,7 +935,7 @@ app.post('/v1/nodejs_notify_user',  async(req, res, next)=> {
     sockets.map(async(socket) => {
       console.log('/v1/nodejs_notify_user  socket.socketId = ', socket.socketId)
       if(!utils.isEmpty(socket.socketId)){
-        global.io.to(socket.socketId).emit('onUser', {'mode': mode});
+        io.to(socket.socketId).emit('onUser', {'mode': mode});
       }
     })
 
@@ -975,80 +982,102 @@ app.post('/v1/syc_local',  async(req, res, next)=> {
     req.session.session   = response.user.session;
     */
 
+    // await new kittySchema({ text: '/v1/syc_local' }).save()
+
     console.log('/v1/syc_local, my_follows #1 : ', my_follows )
 
     if(!utils.isEmpty(my_follows)){
       my_follows = JSON.parse(my_follows)
       my_follows.map( async(mf)=>{
 
-        // -----------  AppFollowersSchema  -----------
-        let app_followers = await AppFollowersSchema.findOne({ nid: mf.id });
-        if(!utils.isEmpty(app_followers)){
-          let v = app_followers.value
-          let index = v.findIndex((obj => obj.uid == uid));
+                          // -----------  AppFollowersSchema  -----------
+                          let app_followers = await AppFollowersSchema.findOne({ nid: mf.id });
+                          if(!utils.isEmpty(app_followers)){
+                            let v = app_followers.value
+                            let index = v.findIndex((obj => obj.uid == uid));
 
-          let  new_value = [] 
-          if(index !== -1){
-            new_value = [...v]
-            new_value[index] = {uid : uid, status: mf.status, date:Date.now()}
-          }else{
-            new_value =  [...v, {uid : uid, status: mf.status, date:Date.now()}]
-          }
+                            let  new_value = [] 
+                            if(index !== -1){
+                              new_value = [...v]
+                              new_value[index] = {uid : uid, status: mf.status, date:Date.now()}
+                            }else{
+                              new_value =  [...v, {uid : uid, status: mf.status, date:Date.now()}]
+                            }
 
-          // console.log('/v1/syc_local, if : ', new_value )
-          await AppFollowersSchema.findOneAndUpdate({nid: mf.id}, {value: new_value})
-        }else{
-          await new AppFollowersSchema({ nid: mf.id, value: [{uid : uid, status: mf.status, date:Date.now()}] }, {upsert: true}).save()
-        }
+                            // console.log('/v1/syc_local, if : ', new_value )
+                            await AppFollowersSchema.findOneAndUpdate({nid: mf.id}, {value: new_value}, { new: true, upsert: true  })
+                          }else{
+                            // await new AppFollowersSchema({ nid: mf.id, value: [{uid : uid, status: mf.status, date:Date.now()}] }, {upsert: true}).save()
 
-        // หาเจ้าของ Content เพือ ส่ง noti ไปแจ้งว่ามี คนกด follow
-        const { body } = await client.search({
-            index: 'elasticsearch_index_banlist_content_back_list',
-            body:  {
-            "query": {
-                "bool": {
-                    "must": [
-                        {"match" : { "nid": mf.id }},
-                        // {"match" : { "status": true}},
-                    ],
-                }
-            },
-            size: 1,
-            }
-        })
+                            await AppFollowersSchema.findOneAndUpdate({nid: mf.id}, {value: [{uid : uid, status: mf.status, date:Date.now()}]}, { new: true, upsert: true  })
+                          }
 
-        if(body.hits.total.value){
-          let uids = body.hits.hits.map((hit)=>{ return {uid : hit._source.uid[0]} });
+                          // หาเจ้าของ Content เพือ ส่ง noti ไปแจ้งว่ามี คนกด follow
+                          const { body } = await client.search({
+                              index: 'elasticsearch_index_banlist_content_back_list',
+                              body:  {
+                              "query": {
+                                  "bool": {
+                                      "must": [
+                                          {"match" : { "nid": mf.id }},
+                                          // {"match" : { "status": true}},
+                                      ],
+                                  }
+                              },
+                              size: 1,
+                              }
+                          })
 
-          // console.log('/v1/syc_local  search : uids > ' , uids[0], ' -- ', mf.id)
+                          if(body.hits.total.value){
+                            let uids = body.hits.hits.map((hit)=>{ return {uid : hit._source.uid[0]} });
 
-          let __auth = uids[0].uid
-          if(__auth){
-            let sockets = await SocketsSchema.find({ auth: __auth });
-            sockets.map(async(socket) => {
-              console.log('/v1/syc_local  หาเจ้าของ Content = ', socket.socketId)
-              if(!utils.isEmpty(socket.socketId)){
-                global.io.to(socket.socketId).emit('onAppFollowUp', {data: {uid, status: mf.status}});
-              }
-            })
-          }
-        }
-        // หาเจ้าของ Content เพือ ส่ง noti ไปแจ้งว่ามี คนกด follow
+                            // console.log('/v1/syc_local  search : uids > ' , uids[0], ' -- ', mf.id)
 
-        // -----------  AppFollowersSchema  -----------
+                            // let __auth = uids[0].uid
+                            // if(__auth){
+                            //   let sockets = await SocketsSchema.find({ auth: __auth });
+                            //   sockets.map(async(socket) => {
+                            //     console.log('/v1/syc_local  หาเจ้าของ Content = ', socket.socketId)
+                            //     if(!utils.isEmpty(socket.socketId)){
+                            //       global.io.to(socket.socketId).emit('onAppFollowUp', {data: {uid, status: mf.status}});
+                            //     }
+                            //   })
+                            // }
+                          }
+                          // หาเจ้าของ Content เพือ ส่ง noti ไปแจ้งว่ามี คนกด follow
 
-        return mf.local = false
-      })
+                          // -----------  AppFollowersSchema  -----------
 
-      await FollowsSchema.findOneAndUpdate({'uid': uid}, {value: my_follows}, {upsert: true})
+                          // mf.local = false
+                          // return mf
+                        })
 
-      let sockets = await SocketsSchema.find({ auth: uid });
-      sockets.map(async(socket) => {
-        console.log('/v1/syc_local  socket.socketId = ', socket.socketId)
-        if(!utils.isEmpty(socket.socketId)){
-          global.io.to(socket.socketId).emit('onMyFollows', {my_follows});
-        }
-      })
+      let new_my_follows = []
+      console.log('/v1/syc_local, new_my_follows #1 : ', uid , ' - ', new_my_follows )
+      //-----------------  FollowsSchema  -------------------
+      let follow = await FollowsSchema.findOne({ 'uid': uid });
+      if(!utils.isEmpty(follow)){
+        // 'Not Empty'
+        /*
+        จะดึงจาก db เก่าแล้วเอามา merge         
+        */
+        var merge = (a, b, p) => a.filter(aa =>!b.find(bb => aa[p] === bb[p])).concat(b).map((v)=>{  v.local = false; return v });
+        new_my_follows = merge(follow.value, my_follows, "id");
+      }else{
+        new_my_follows = my_follows.map((mf)=>{mf.local = false; return mf})
+      }
+
+      console.log('/v1/syc_local, new_my_follows #2 : ', uid , ' - ', new_my_follows )
+      await FollowsSchema.findOneAndUpdate({'uid': uid}, {value: new_my_follows},  { new: true, upsert: true })
+
+      // let sockets = await SocketsSchema.find({ auth: uid });
+      // sockets.map(async(socket) => {
+      //   console.log('/v1/syc_local  socket.socketId = ', socket.socketId, ' - ', uid)
+      //   if(!utils.isEmpty(socket.socketId)){
+      //     global.io.to(socket.socketId).emit('onMyFollows', {my_follows: new_my_follows});
+      //   }
+      // })
+      //-----------------  FollowsSchema  -------------------
     }
 
     const end = Date.now()
@@ -1091,9 +1120,8 @@ app.get('/v1/healthz', async (req, res) =>{
 
 // var request = require('request');
 // io.adapter(mongoAdapter( config.mongo.url ));
-global.io=io
 io.on('connection', async (socket) => {
-  global.socket = socket
+  // global.socket = socket
   let handshake = socket.handshake;
 
   var t = handshake.query.t;
@@ -1102,17 +1130,17 @@ io.on('connection', async (socket) => {
 
   // console.log(handshake.query.unique_id)
 
-  console.log(`Socket ${socket.id} - ${t} - ${geolocation} connection`)
+  console.log(`Socket ${socket.id} - ${t} - ${geolocation} - ${handshake.auth} - ${handshake.auth.token} connection`)
   // console.log(socket)
 
   socket.emit('uniqueID', { ...handshake.query, "socketID": socket.id });
 
-  let auth = ""
-  if(!utils.isEmpty(handshake.auth)){
-    auth = handshake.auth.token;
+  let token = 0
+  if(handshake.auth.token !== 0){
+    token = handshake.auth.token;
 
-    let  user_schema =await UserSchema.findOne({'uid':auth});
-    // console.log(`Socket UserSchema >  ${user_schema} `)
+    let  user_schema =await UserSchema.findOne({'uid':token});
+    // console.log(`Socket UserSchema  ------- >  ${user_schema} `)
     if(utils.isEmpty(user_schema)){
 
       // กรณี เช็ดแล้วไม่มี user ในระบบเราจะสั่งให้ client ที่ connect เข้ามาทำการ logout ออกจากระบบ
@@ -1120,7 +1148,8 @@ io.on('connection', async (socket) => {
     }
   }
 
-  await new SocketsSchema({ t, socketId: socket.id, platform,  auth, geolocation }).save()
+
+  await SocketsSchema.findOneAndUpdate({t}, { t, socketId: socket.id, platform,  auth:token, geolocation }, { new: true, upsert: true  })
 
   socket.on('disconnect', async() => {
 
@@ -1140,12 +1169,222 @@ server.listen(PORT, function (err) {
   // })
 
   AppFollowersSchema.watch().on('change', data =>{
-    console.log('AppFollowersSchema', data.operationType, data)
+    console.log('AppFollowersSchema', data.operationType, data, JSON.stringify(data))
+
+    switch(data.operationType){
+      case 'insert':{
+        console.log('AppFollowersSchema > insert');
+        break;
+      } 
+
+      case 'update':{
+        console.log('AppFollowersSchema > insert');
+        break;
+      }
+    }
   });
 
-  FollowsSchema.watch().on('change', data =>{
-    console.log('FollowsSchema', data.operationType, data)
+  FollowsSchema.watch().on('change', async data =>{
+    console.log('FollowsSchema > init : ', data.operationType, data, JSON.stringify(data))
+
+    switch(data.operationType){
+      case 'insert':{
+        let followsSchema = await FollowsSchema.findById(data.documentKey._id.toString()) 
+        console.log('FollowsSchema > insert : ', JSON.stringify(followsSchema));
+
+        let uid = followsSchema.uid
+        let value = followsSchema.value
+
+        let sockets = await SocketsSchema.find({ auth: uid });
+        sockets.map(async(socket) => {
+          console.log('/v1/syc_local  socket.socketId = ', socket.socketId, ' - ', uid)
+          if(!utils.isEmpty(socket.socketId)){
+            io.to(socket.socketId).emit('onMyFollows', {my_follows: value});
+          }
+        })
+        break;
+      } 
+
+      case 'update':{
+        let followsSchema = await FollowsSchema.findById(data.documentKey._id.toString()) 
+        console.log('FollowsSchema > update : ', JSON.stringify(followsSchema), followsSchema.uid, followsSchema.value);
+
+        let uid = followsSchema.uid
+        let value = followsSchema.value
+
+        let sockets = await SocketsSchema.find({ auth: uid });
+        sockets.map(async(socket) => {
+          console.log('/v1/syc_local  socket.socketId = ', socket.socketId, ' - ', uid)
+          if(!utils.isEmpty(socket.socketId)){
+            io.to(socket.socketId).emit('onMyFollows', {my_follows: value});
+          }
+        })
+        
+        break;
+      }
+    }
   });
+
+  ContentsSchema.watch().on('change', async data =>{
+    console.log('ContentsSchema > init : ', data.operationType)
+
+    switch(data.operationType){
+      case 'insert':
+      case 'update':{
+        try{
+          let cs = await ContentsSchema.findById(data.documentKey._id.toString()) 
+          // console.log('ContentsSchema > update : ', JSON.stringify(cs) );
+
+          // "entity:node/397:en"
+          if(!utils.isEmpty(cs)){
+            await client.index({
+              index: "banlist", 
+              type: "content",
+              id: cs._id + ":"+ cs.owner_id +":"+ cs.nid +":"+ cs.type + ":" + cs.langcode,
+              body: {
+                ref: cs._id,
+                title: cs.title,
+                type: cs.type,
+                name_surname: cs.name_surname,
+                owner_id: cs.owner_id,
+                transfer_amount: cs.transfer_amount,
+                detail: cs.detail,
+                selling_website: cs.selling_website,
+                nid: cs.nid,
+                id_card_number: cs.id_card_number,
+                merchant_bank_account: cs.merchant_bank_account,
+                images: cs.images,
+                status: cs.status,
+                created: cs.created,
+                changed: cs.changed,
+                langcode: cs.langcode,
+              }
+            })
+          }
+
+        }catch(err) {
+          console.log( err );
+        }
+      
+        // let uid = followsSchema.uid
+        // let value = followsSchema.value
+
+        // let sockets = await SocketsSchema.find({ auth: uid });
+        // sockets.map(async(socket) => {
+        //   console.log('/v1/syc_local  socket.socketId = ', socket.socketId, ' - ', uid)
+        //   if(!utils.isEmpty(socket.socketId)){
+        //     global.io.to(socket.socketId).emit('onMyFollows', {my_follows: value});
+        //   }
+        // })
+        
+        break;
+      }
+
+      case 'delete':{
+
+        try{
+          // let contentsSchema = await ContentsSchema.findById(data.documentKey._id.toString()) 
+          console.log('ContentsSchema > delete : ', data.documentKey._id.toString() );
+
+          // let cs = await ContentsSchema.findById(data.documentKey._id.toString()) 
+          // console.log('ContentsSchema > delete : ', JSON.stringify(cs) );
+
+          // let uid = followsSchema.uid
+          // let value = followsSchema.value
+
+          // let sockets = await SocketsSchema.find({ auth: uid });
+          // sockets.map(async(socket) => {
+          //   console.log('/v1/syc_local  socket.socketId = ', socket.socketId, ' - ', uid)
+          //   if(!utils.isEmpty(socket.socketId)){
+          //     global.io.to(socket.socketId).emit('onMyFollows', {my_follows: value});
+          //   }
+          // })
+
+          // await client.delete({ index: "banlist", type: "content", id: data.documentKey._id.toString() });
+  
+          const results  = await client.search({
+                                                index: 'banlist',
+                                                body:  {
+                                                "query": {
+                                                    "bool": {
+                                                        "must": [
+                                                            {"match" : { "ref": data.documentKey._id.toString() }},
+                                                        ],
+                                                    }
+                                                },
+                                                size: 1,
+                                                }
+                                            })
+          // console.log("body :", body)
+          if(results.statusCode === 200){
+            let _ids = body.hits.hits.map((hit)=>{ return hit._id})
+            if(_ids.length > 0){
+              const myArr =  _ids[0].split(":");
+              let _id = myArr[0];
+              let owner_id = myArr[1];
+              let nid = myArr[2];
+              let type = myArr[3];
+              let langcode = myArr[4];
+
+              // console.log("_id : ", _id)
+              // console.log("owner_id : ", owner_id)
+              // console.log("nid : ", nid)
+              // console.log("type : ", type)
+              // console.log("langcode : ", langcode)
+
+              console.log('ContentsSchema > delete : nid ', nid)
+
+              io.sockets.emit('onContent', {mode: 'delete', nid});             
+            }
+          }
+
+          await client.deleteByQuery({  index: 'banlist',
+                                        type: 'content',
+                                        body: {
+                                          query: {
+                                              match: { ref: data.documentKey._id.toString() }
+                                          }
+                                        }
+                                      });
+        }catch(err) {
+          console.log(err);
+        }
+        break;
+      }
+    }
+  });
+
+  UserSchema.watch().on('change', async data =>{
+    console.log('UserSchema > init : ', data.operationType, JSON.stringify(data))
+    switch(data.operationType){
+      case 'insert':
+      case 'update':{
+        let user = await UserSchema.findById(data.documentKey._id.toString()) 
+        if(!utils.isEmpty(user)){
+          let sockets = await SocketsSchema.find({auth: user.uid });
+          sockets.map(async(socket) => {
+            if(!utils.isEmpty(socket.socketId)){
+              io.to(socket.socketId).emit('onProfile', user);
+            }
+          })
+        }
+        break;
+      }
+      case 'delete':{
+        let user = await UserSchema.findById(data.documentKey._id.toString()) 
+        if(!utils.isEmpty(user)){
+          let sockets = await SocketsSchema.find({auth: user.uid });
+          sockets.map(async(socket) => {
+            if(!utils.isEmpty(socket.socketId)){
+              io.to(socket.socketId).emit('onUser', {'mode': 'delete'});
+            }
+          })
+        }
+        break;
+      }
+    }
+  });
+
 
 //     console.log();
 //     // console.log(socket_connection);

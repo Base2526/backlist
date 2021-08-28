@@ -21,6 +21,8 @@ services:
       # REACT_APP_API: "http://157.230.240.133:8055"
       # REACT_APP_MY_SOCKET: "http://nodejs_bl:3000"
       REACT_APP_AUTHORIZATION: "YWRtaW46MTIzNA==" 
+
+      REACT_APP_GEOLOCATION: "https://geolocation-db.com/json/"
     tty: true
     stdin_open: true
     volumes:

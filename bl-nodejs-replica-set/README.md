@@ -104,3 +104,18 @@ SOFTWARE.
 
 Mongo-replica-set
 https://www.sohamkamani.com/blog/2016/06/30/docker-mongo-replica-set/
+
+
+Socket IO
+
+- จะสร้างไปทุก client ที่ ผูก function นี้ไว้
+io.sockets.emit('test', {"a":"b"});
+
+- จะสร้างเฉพาะ socketId เท่านั้น
+io.to(socketId).emit('test', {"a":"b"});
+
+
+Elastis search
+await client.indices.delete({
+  index: 'banlist',
+});

@@ -406,9 +406,17 @@ const UseMyPostItem = (props) => {
 
                   handleClose()
                 }}>Report</MenuItem> */}
-                <MenuItem onClick={()=>{}}>{item.status ? 'Unpublished' : 'Published'}</MenuItem>
+                <MenuItem onClick={()=>{
+                   props.onModalConfirmUpdateStatus(true)
+                   setAnchorEl(null);
+                }}>{item.status ? 'Unpublished' : 'Published'}</MenuItem>
                 <MenuItem onClick={()=>{}}>Edit</MenuItem>
-                <MenuItem onClick={()=>{}} >Delete</MenuItem>
+                <MenuItem onClick={()=>{
+
+                  props.onModalConfirmDelete(true)
+                  setAnchorEl(null);
+
+                }} >Delete</MenuItem>
             </Menu> 
             
     </div>

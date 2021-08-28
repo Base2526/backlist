@@ -1,10 +1,10 @@
 version: "3.3"
 services:
-  backend-nginx:
+  backend_nginx:
     restart: always
     # image: backendnginx
     build: .
-    container_name: backend-nginx
+    container_name: backend_nginx
     ports:
       - 8055:80
     volumes:
