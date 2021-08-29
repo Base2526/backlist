@@ -143,7 +143,7 @@ class LoginResource extends ResourceBase {
           }
 
           $user = array(
-                    'uid'       =>  $uid,
+                    'uid'       =>  intval($uid),
                     'name'      =>  $display_name,
                     'email'     =>  $email,
                     'image_url' =>  $image_url,

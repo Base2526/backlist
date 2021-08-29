@@ -2,7 +2,7 @@ const mongoose = require( 'mongoose' );
 
 const FollowsSchema = new mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
-    uid: String,
+    uid: Number,
     value: [],
 },
 {

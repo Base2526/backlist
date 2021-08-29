@@ -4766,7 +4766,7 @@ nodejs_bl        |     status: true
 
   public static function mongo_node_contents($entity){
 
-    $nid         = $entity->id();
+    $nid   = intval($entity->id());
 
     // 1 : ชือ 
     $title = $entity->label();
@@ -4778,7 +4778,7 @@ nodejs_bl        |     status: true
     $name_surname = empty($entity->get('field_sales_person_name')->getValue()) ? "" : $entity->get('field_sales_person_name')->getValue()[0]['value'];
 
     // 4 : owner id
-    $owner_id = $entity->getOwnerId();
+    $owner_id = intval($entity->getOwnerId());
 
     // 5 : ยอดเงิน
     $transfer_amount = empty($entity->get('field_transfer_amount')->getValue()) ? "" : $entity->get('field_transfer_amount')->getValue()[0]['value'];
@@ -4939,7 +4939,10 @@ nodejs_bl        |     status: true
       $users = $userStorage->loadMultiple($uids);
 
       foreach($users as $user){
-        $filter = array('uid' => $user->id() );
+
+        $uid = intval($user->id());
+
+        $filter = array('uid' => $uid );
         if(!$mg_user->count($filter)){
           $email   = $user->getEmail();
           $pass    = $user->getPassword();
@@ -4968,7 +4971,7 @@ nodejs_bl        |     status: true
           }
 
           $document = array( 
-            "uid"     => $user->id(), 
+            "uid"     => $uid, 
             'email'   => $email,
             "name"    => $name,
             "pass"    => $pass,
@@ -5061,7 +5064,10 @@ nodejs_bl        |     status: true
         }
     
         $articles = $db->articles;
-        $filter = array('nid' => $node->id() );
+
+        $nid = intval($node->id());
+
+        $filter = array( 'nid' => $nid );
 
         if($articles->count($filter)){
           // $articles->updateOne(
@@ -5070,7 +5076,7 @@ nodejs_bl        |     status: true
           //                 );
         }else{
           $document = array( 
-            "nid"   => $node->id(), 
+            "nid"   => $nid , 
             "title" => $node->label(),
             "body" => empty($node->get('body')->getValue()) ? "" : $node->get('body')->getValue()[0]['value']
           );
@@ -5179,7 +5185,7 @@ nodejs_bl        |     status: true
       $nodes =  Node::loadMultiple($nids);
       // dpm( $nids );
       foreach ($nodes as $entity) {
-        $nid         = $entity->id();
+        $nid      = intval($entity->id());
         $document = Utils::mongo_node_contents($entity);
 
         $filter     = array( 'nid' => $nid );

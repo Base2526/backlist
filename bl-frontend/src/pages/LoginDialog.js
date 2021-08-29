@@ -333,28 +333,17 @@ const LoginDialog = (props) => {
 
           
           if(response.result){
-            let data = response.data
-               // let { userLogin,
-            //       ___followUp,
-            //       fetchMyApps,
-            //       addfollowerPost,
-            //       addMyApps } = props
+            let { basic_auth, session, user } = response.data
+           
+            ls.set('basic_auth', basic_auth)
+            ls.set('session', session)
 
-            ls.set('basic_auth', data.basic_auth)
-            ls.set('session', data.session)
-
-            // let basic_auth = ls.get('basic_auth')
-            // let session = ls.get('session')
-        
-            // console.log("basic_auth,  session = ", basic_auth, session)
-
-            props.userLogin(data)
-
-            console.log('/login > user : ', response, data)
-
+            props.userLogin(user)
             props.onClose()
 
+            console.log('/login > user : ', response, user)
             onToast("info", `Welcome to banlist.info`)
+            
           }else{
             onToast("error", response.message)
           }

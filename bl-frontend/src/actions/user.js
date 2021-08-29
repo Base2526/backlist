@@ -1,3 +1,4 @@
+import Ajv from "ajv"
 import { USER_LOGIN, USER_LOGOUT, FETCH_PROFILE, 
          FOLLOW_UP, ___FOLLOW_UP, FETCH_MY_APPS, ADD_HISTORY, 
          DELETE_HISTORY, ADD_FOLLOWER_POST, FOLLOWER_POST ,
@@ -89,7 +90,41 @@ const _clear_cached = data => ({
 });
 
 export const userLogin = (data) => dispatch => {
-  dispatch(_dataUserLogin(data));
+  const schema = {
+    type: "object",
+    properties: {
+      _id: {type: "string"},
+      uid: {type: "number"},
+      name: {type: "string"},
+      pass: {type: "string"},
+      email: {type: "string"},
+      gender: {type: "string"},
+      type_login: {type: "string"},
+      image_url: {type: "string"},
+    },
+    required: ["uid", "name", "email" ],
+    additionalProperties: false,
+    /*
+    basic_auth: "c2FzZXNodXBpcmF3OjEyMzQ="
+​​​
+email: "saseshupiraw@example.com"
+​​​
+image_url: "http://165.22.99.230:8055/sites/default/files/pictures/2021-08/screen-shot-2564-08-10-at-15.47.48.png"
+​​​
+name: "saseshupiraw"
+​​​
+session: "yA-dCL7e9zdsT4O6K23GFsa4236FPMtTu27XNbhLPgY"
+​​​
+uid: "65"
+    */
+  }
+  const ajv = new Ajv() 
+  const validate = ajv.compile(schema)
+  
+  console.log("userLogin : >> ", data )
+  if(validate(data)){
+    dispatch(_dataUserLogin(data));
+  }
 }
 
 export const userLogout = () => dispatch => {

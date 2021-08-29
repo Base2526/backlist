@@ -157,9 +157,28 @@ app.post('/v1/login',  async(req, res)=> {
     req.session.basicAuth = response.user.basic_auth;
     req.session.session   = response.user.session;
 
-    return res.send({result: true, 
-                     execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`,
-                     data: response.user}); 
+    // const docs = await ContentsSchema.find({ owner_id: 60 });
+  // console.log(JSON.stringify(docs))
+
+    let user = await UserSchema.findOne({uid: response.user.uid}) 
+
+    if(!utils.isEmpty(user)){
+      let data =  {
+                    basic_auth:response.user.basic_auth,
+                    session: response.user.session,
+                    user: user,
+                    my_apps: await ContentsSchema.find({ owner_id: response.user.uid }),
+                  }
+  
+      return res.send({result: true, 
+                       execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`,
+                       data}); 
+    }else{
+      return res.send({ result: false, 
+        code: response.code,
+        execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`
+      });
+    }
   }else{
     return res.send({ result: false, 
                       code: response.code,
@@ -1140,7 +1159,7 @@ io.on('connection', async (socket) => {
     token = handshake.auth.token;
 
     let  user_schema =await UserSchema.findOne({'uid':token});
-    // console.log(`Socket UserSchema  ------- >  ${user_schema} `)
+    console.log(`Socket UserSchema  ------- >  ${user_schema}  -- ${handshake.auth.token}`)
     if(utils.isEmpty(user_schema)){
 
       // กรณี เช็ดแล้วไม่มี user ในระบบเราจะสั่งให้ client ที่ connect เข้ามาทำการ logout ออกจากระบบ
@@ -1156,6 +1175,16 @@ io.on('connection', async (socket) => {
     console.log(`Socket ${socket.id} - ${t} disconnect`)
 
     await SocketsSchema.deleteMany({t})
+  });
+
+  socket.conn.on('heartbeat', ()=>{
+    if (!socket.authenticated) {
+      // Don't start counting as present until they authenticate.
+      return;
+    }
+
+    console.log(`Heartbeat ${socket.id} - ${t} - ${geolocation} - ${handshake.auth} - ${handshake.auth.token} connection`)
+ 
   });
 });
   
@@ -1317,7 +1346,7 @@ server.listen(PORT, function (err) {
                                             })
           // console.log("body :", body)
           if(results.statusCode === 200){
-            let _ids = body.hits.hits.map((hit)=>{ return hit._id})
+            let _ids = results.body.hits.hits.map((hit)=>{ return hit._id})
             if(_ids.length > 0){
               const myArr =  _ids[0].split(":");
               let _id = myArr[0];
@@ -1372,18 +1401,51 @@ server.listen(PORT, function (err) {
       }
       case 'delete':{
         let user = await UserSchema.findById(data.documentKey._id.toString()) 
+
+        console.log('UserSchema > delete : ', data.operationType, JSON.stringify(user))
         if(!utils.isEmpty(user)){
           let sockets = await SocketsSchema.find({auth: user.uid });
-          sockets.map(async(socket) => {
-            if(!utils.isEmpty(socket.socketId)){
-              io.to(socket.socketId).emit('onUser', {'mode': 'delete'});
-            }
-          })
+          // sockets.map(async(socket) => {
+          //   if(!utils.isEmpty(socket.socketId)){
+          //     io.to(socket.socketId).emit('onUser', {'mode': 'delete'});
+          //   }
+          // })
         }
         break;
       }
     }
   });
+
+  SocketsSchema.watch().on('change', async data =>{
+    console.log('UserSchema > init : ', data.operationType, JSON.stringify(data))
+    switch(data.operationType){
+      case 'insert':
+      case 'update':{
+        // let user = await UserSchema.findById(data.documentKey._id.toString()) 
+        // if(!utils.isEmpty(user)){
+        //   let sockets = await SocketsSchema.find({auth: user.uid });
+        //   sockets.map(async(socket) => {
+        //     if(!utils.isEmpty(socket.socketId)){
+        //       io.to(socket.socketId).emit('onProfile', user);
+        //     }
+        //   })
+        // }
+        break;
+      }
+      case 'delete':{
+        // let user = await UserSchema.findById(data.documentKey._id.toString()) 
+        // if(!utils.isEmpty(user)){
+        //   let sockets = await SocketsSchema.find({auth: user.uid });
+        //   sockets.map(async(socket) => {
+        //     if(!utils.isEmpty(socket.socketId)){
+        //       io.to(socket.socketId).emit('onUser', {'mode': 'delete'});
+        //     }
+        //   })
+        }
+        break;
+    }
+  });
+
 
 
 //     console.log();

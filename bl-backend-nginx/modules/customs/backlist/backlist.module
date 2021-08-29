@@ -330,32 +330,6 @@ function backlist_user_delete(EntityInterface $entity) {
     switch($entity->bundle()){
       case 'user':{
       
-        /*
-        $db = Utils::MongoDB()->bl;
-
-        $bundle = 'users';
-        $collections = $db->listCollections();
-        $collectionNames = [];
-        foreach ($collections as $collection) {
-          $collectionNames[] = $collection->getName();
-        }
-      
-        $exists = in_array($bundle, $collectionNames);
-      
-        if(!$exists){
-          $collection = $db->createCollection($bundle);
-          if($collection->ok){
-            dpm( "OK");
-          }
-        }
-
-        $users = $db->users;
-        $filter = array('uid' => $entity->id() );
-        if($users->count($filter)){
-          $users->deleteOne( $filter );
-        }
-        */
-
         // ------- nodejs_notify_user --------
         Utils::nodejs_notify_user( $entity->id(), 'delete' );
         // ------- nodejs_notify_user --------
@@ -451,8 +425,10 @@ function user_iu(EntityInterface $entity){
     }
   }
 
+  $uid = intval($entity->id());
+
   $users = $db->users;
-  $filter = array('uid' => $entity->id() );
+  $filter = array('uid' => $uid );
 
   $email   = $entity->getEmail();
   $pass    = $entity->getPassword();
@@ -481,12 +457,12 @@ function user_iu(EntityInterface $entity){
 
   if($users->count($filter)){
     $users->updateOne(
-                    [ 'uid' => $entity->id() ],
+                    [ 'uid' => $uid ],
                     [ '$set' => ['email'=>$email, "name" => $name, "pass"=>$pass, "image_url"=>$image_url, "gender"=>$gender, "type_login"=>$type_login ]]
                     );
   }else{
     $document = array( 
-      "uid"     => $entity->id(), 
+      "uid"     => $uid, 
       'email'   => $email,
       "name"    => $name,
       "pass"    => $pass,
@@ -619,7 +595,7 @@ function backlist_node_delete(EntityInterface $entity) {
         $db = Utils::MongoDB()->bl;
       
         $mg_content = $db->contents;
-        $nid         = $entity->id();
+        $nid        = intval($entity->id()) ;
         $filter     = array( 'nid' => $nid );
       
         if($mg_content->count($filter)){
@@ -644,7 +620,7 @@ function backlist_node_delete(EntityInterface $entity) {
 function mongo_content(EntityInterface $entity){
   try{
 
-    $nid        = $entity->id();
+    $nid        = intval($entity->id());
 
     if(empty($nid)){
       return;
@@ -722,8 +698,8 @@ function mongo_content(EntityInterface $entity){
           $set['name_surname'] = $updated_sales_person_name[0]['value'];
         }
 
-        $set['nid']       = $nid;
-        $set['owner_id'] = $entity->getOwnerId();
+        $set['nid']      = $nid;
+        $set['owner_id'] = intval($entity->getOwnerId());
 
         // เลขบัตรประชาชนคนขาย
         $original_id_card_number  = $entity->original->get('field_id_card_number')->getValue();

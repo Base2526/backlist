@@ -11,6 +11,8 @@ import { Base64 } from 'js-base64';
 
 import ls from 'local-storage';
 
+import Ajv from "ajv"
+
 import Breadcrumbs from './pages/Breadcrumbs'
 import HeaderBar from './pages/HeaderBar';
 import Footer from './pages/Footer';
@@ -36,7 +38,7 @@ const App = (props) => {
 
   useEffect(() => {
     
-    console.log('socketid() > [props.user] #0')
+    console.log('socketid() > [props.user] #0 > ', props.user , socket )
 
     if( _.isEmpty(socket) ){
       console.log('socketid() > socket.auth.token : #1')
@@ -282,11 +284,7 @@ const App = (props) => {
   }
 
   const onProfile = (data) =>{
-    console.log("onProfile :", data)
-
-    props.userLogin(data)
-
-    console.log("onProfile : >> ", data)
+    props.userLogin(data) 
   }
 
   const onContent = (data) =>{
