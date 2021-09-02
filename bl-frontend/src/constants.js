@@ -49,6 +49,7 @@ export const MAINTENANCE_MODE  = 'MAINTENANCE_MODE'
 
 export const INIT_MY_APP   = 'INIT_MY_APP';
 export const ADD_MY_APP    = 'ADD_MY_APP';
+export const ADD_MY_APP_ALL= 'ADD_MY_APP_ALL';
 export const UPDATE_MY_APP = 'UPDATE_MY_APP';
 export const DELETE_MY_APP = 'DELETE_MY_APP';
 

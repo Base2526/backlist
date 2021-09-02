@@ -18,7 +18,7 @@ import { LazyLoadImage } from 'react-lazy-load-image-component';
 
 import {isEmpty, onToast} from '../utils'
 
-import { initMyApp,  addMyApp } from '../actions/my_apps';
+import { initMyApp,  addMyAppALL } from '../actions/my_apps';
 import { attributesToProps } from "html-react-parser";
 
 const MyPostPage = (props) => {
@@ -43,11 +43,11 @@ const MyPostPage = (props) => {
 
     const fetchData = async() =>{
 
-        props.initMyApp()
+        // props.initMyApp()
 
         // setLoginLoading(true)
-        let response =  await axios.post(`/v1/search`, 
-                                        { type: 1,  key_word: props.user.uid, offset: 0 }, 
+        let response =  await axios.post(`/v1/my_post`, 
+                                        { uid: props.user.uid }, 
                                         { headers: {'Authorization': `Basic ${ls.get('basic_auth')}` } });
 
         response = response.data
@@ -55,11 +55,12 @@ const MyPostPage = (props) => {
 
         if(response.result){
             console.log("response.datas", response.datas)
-            response.datas.map((data)=>{
-                props.addMyApp( {nid:data.id, data} )
-            })
-        }
+            // response.datas.map((data)=>{
+            //     props.addMyApp( {nid:data.id, data} )
+            // })
 
+            props.addMyAppALL(response.datas)
+        }
     }
 
     const handleClose = () => {
@@ -398,7 +399,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = {
     initMyApp,
-    addMyApp
+    addMyAppALL
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(MyPostPage)

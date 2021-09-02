@@ -33,7 +33,7 @@ services:
       - DB_HOST=128.199.217.244
       - DB_NAME=banlist
       - DB_USER_NAME=postgres
-      - DB_PASSWORD=postgres
+      - DB_PASSWORD=Somkid058848391
 
       - __DEV__=true
 

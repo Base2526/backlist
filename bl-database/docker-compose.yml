@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: banlist
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: Somkid058848391
     ports:
       - 5432:5432
     volumes:

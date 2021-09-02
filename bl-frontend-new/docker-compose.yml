@@ -1,0 +1,113 @@
+version: '3'
+
+services:
+################################
+#   Setup react app container
+################################
+  web:
+    build: ./client
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+    expose:
+      - 3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/app
+
+    networks:
+      - nodejs-network
+      # volumes:
+      # - ./src:/app/src
+
+################################
+#   Setup REDIS Server
+################################
+  # redis:
+  #   image: redis:3.2-alpine
+  #   expose:
+  #     - 6379
+  #   volumes:
+  #     - redis_data:/data
+################################
+#   Setup Socket Server container
+################################
+  server:
+    build: ./server
+    # command: npm run dev:watch
+    expose:
+      - 3001
+    ports:
+      - "3001:3001"
+      
+    # depends_on: 
+    #   - redis
+    volumes:
+      - ./server:/app
+    environment:
+      - MONGO_HOSTNAME_ENV=mongo
+      - MONGO_PORT_ENV=27017
+      - MONGO_DATABASE_NAME_ENV=bl
+      - MONGO_USERNAME_ENV=root
+      - MONGO_PASSWORD_ENV=example
+
+      - PORT=3000
+      - ELASTIC_URL=http://elasticsearch.banlist.info:9200
+      - ELASTIC_USERNAME=elastic
+      - ELASTIC_PASSWORD=changeme
+
+      # Backend Drapal 9
+      - DRUPAL_API_ENV=http://backend_nginx
+      - DRUPAL_AUTHORIZATION_ENV=c3dpZGVzd29kOjEyMzQ= # Authorization
+
+    networks:
+      - nodejs-network
+################################
+#   Setup nginx load balancer
+################################
+  nginx:
+    build: ./nginx
+    #image: nginx:1.13 # this will use the latest version of 1.13.x
+    ports:
+      - '80:80' # expose 80 on host and sent to 80 in container
+    depends_on: 
+      - web
+    # volumes:
+    #   - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    #   - ./client/img:/etc/nginx/html/img
+# volumes:  
+#   redis_data:
+
+    networks:
+      - nodejs-network
+
+  mongo-express:
+    image: mongo-express
+    volumes:
+      - ./config.default.js:/node_modules/mongo-express/config.js
+    environment:
+      # - ME_CONFIG_MONGODB_SERVER="url.mongo1,url.mongo2,url.mongo3"
+      # - ME_CONFIG_MONGODB_URL='mongodb://mongo1:27017,mongo2:27017,mongo3:27017/bl?replicaSet=my-mongo-set'
+      # - ME_CONFIG_MONGODB_SERVER="mongo1:27017,mongo2:27017,mongo3:27017"
+      # - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_SERVER=mongo1:27017,mongo2:27017,mongo3
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+      - ME_CONFIG_MONGODB_AUTH_DATABASE=test
+      # - ME_CONFIG_MONGODB_AUTH_USERNAME=root
+      # - ME_CONFIG_MONGODB_AUTH_PASSWORD=example
+      - ME_CONFIG_BASICAUTH_USERNAME=dev
+      - ME_CONFIG_BASICAUTH_PASSWORD=dev
+      # - ME_CONFIG_MONGODB_ADMINUSERNAME="admin"
+      # - ME_CONFIG_MONGODB_ADMINPASSWORD="admin"
+    # depends_on:
+    #   - mongo
+    ports:
+      - "8081:8081"
+    networks:
+      - nodejs-network
+
+networks:
+  nodejs-network:
+    external:
+      name: my-mongo-cluster

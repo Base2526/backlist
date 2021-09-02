@@ -1,0 +1,52 @@
+{
+  "name": "chatapp",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@elastic/elasticsearch": "^7.14.1",
+    "axios": "^0.21.1",
+    "body-parser": "^1.18.3",
+    "cli-highlight": "^2.1.11",
+    "connect-mongo": "^4.5.0",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dateformat": "^3.0.3",
+    "express": "4.16.4",
+    "express-fileupload": "^1.2.1",
+    "express-session": "^1.17.2",
+    "form-data": "^4.0.0",
+    "fs": "^0.0.1-security",
+    "http": "^0.0.1-security",
+    "immutable": "^3.8.2",
+    "lodash": "^4.17.21",
+    "mongodb": "^4.1.0",
+    "mongojs": "^3.1.0",
+    "mongoose": "^5.13.2",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.2",
+    "node-cache": "^5.1.2",
+    "path": "^0.12.7",
+    "rotating-file-stream": "^2.1.5",
+    "socket.io": "2.2.0",
+    "uuid": "3.3.2",
+    "winston": "^3.3.3",
+    "winston-daily-rotate-file": "^4.5.5",
+    "winston-mongodb": "^5.0.7"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

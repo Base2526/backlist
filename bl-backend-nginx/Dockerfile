@@ -37,6 +37,12 @@ RUN mkdir sites/default/files && \
 
 RUN mkdir sites/default/files/sync && \
     chmod 777 sites/default/files/sync
+
+RUN mkdir sites/default/files/temp && \
+    chmod 777 sites/default/files/temp
+
+RUN mkdir sites/default/files/private && \
+    chmod 777 sites/default/files/private
     
 # COPY modules sites/default/modules
 RUN composer install

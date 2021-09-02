@@ -542,7 +542,7 @@ $settings['file_private_path'] = $app_root . '/sites/default/files/private';
  *
  * @see \Drupal\Component\FileSystem\FileSystem::getOsTemporaryDirectory()
  */
-$settings['file_temp_path'] = $app_root . '/sites/default/files/tmp';
+$settings['file_temp_path'] = $app_root . '/sites/default/files/temp';
 
 /**
  * Session write interval:

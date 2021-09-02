@@ -1,0 +1,354 @@
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux'
+import axios from 'axios';
+import { CircularProgress } from '@material-ui/core';
+import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
+import { Button } from "react-bootstrap";
+import ls from 'local-storage';
+
+import Pagination from "./Pagination";
+import UseHomeItem from "./UseHomeItem";
+import Checkbox from "../components/Checkbox";
+import AddBanlistDialog from './AddBanlistDialog'
+// import ReportDialog from './ReportDialog'
+import InputSearchField from '../components/InputSearchField'
+
+import LoginDialog from './LoginDialog'
+import {isEmpty, mergeArrays, onToast} from '../utils'
+import { fetchData } from '../actions/app';
+import { followUp } from '../actions/user';
+import { onMyFollow } from '../actions/my_follows';
+
+const HomePage = (props) => {
+  const [allDatas, setAllDatas]           = React.useState([]);
+  const [currentDatas, setCurrentDatas]   = React.useState([]);
+  const [currentPage, setCurrentPage]     = React.useState(0);
+  const [totalPages, setTotalPages]       = React.useState(0);
+  const [pageLimit, setPageLimit]         = React.useState(20);
+  const [allResultCount, setAllResultCount] = React.useState(10000);
+
+  const [searchWord, setSearchWord]               = React.useState("");
+  const [loading, setLoading]                     = React.useState(false);
+  const [searchLoading, setSearchLoading]         = React.useState(false);
+  const [showModal, setShowModal]                 = React.useState(false);
+  const [showModalLogin, setShowModalLogin]       = React.useState(false);
+  const [showModalReport, setShowModalReport]     = React.useState(false);
+  const [selectedCheckboxes, setSelectedCheckboxes] = React.useState(["title"]);
+
+  const [itemsCategory, setItemCategory] = React.useState([ { id: 'title', title: 'สินค้า/ประเภท'},
+                                                            { id: 'banlist_name_surname_field', title: 'ชื่อ-นามสกุล บัญชีผู้รับเงินโอน'},
+                                                            { id: 'field_id_card_number', title: 'เลขบัตรประชาชนคนขาย'},
+                                                            { id: 'body', title: 'รายละเอียด'},
+                                                            { id: 'banlist_book_bank_field', title: 'บัญชีธนาคาร'},
+                                                          ]);
+
+  useEffect(() => {
+    console.log("useEffect #0", props.my_apps, props.my_follows)
+
+  });
+
+  useEffect(() => {
+    console.log("useEffect #1 ", currentPage)
+    if(currentPage !== undefined){
+      fetch()
+    }
+  }, [currentPage])
+
+  // my_follows
+
+  useEffect(() => {
+    console.log("useEffect #1 props.my_follows : ", props.my_follows)
+    
+  }, [props.my_follows])
+
+  const handleFormSearch = (e) => {
+    e.preventDefault();
+
+    console.log('selectedCheckboxes : ', JSON.stringify(selectedCheckboxes))
+
+    if(isEmpty(selectedCheckboxes)){
+      onToast('error', "Please select category")
+    }else{
+      setSearchLoading(true)
+      axios.post(`/api/v1/search`, {
+        type: 99,
+        key_word: searchWord,
+        offset: 0,
+        full_text_fields: JSON.stringify(selectedCheckboxes)
+      }, {
+        headers: {'Authorization': isEmpty(ls.get('basic_auth')) ? `Basic ${process.env.REACT_APP_AUTHORIZATION}` : ls.get('basic_auth')}
+      })
+      .then((response) => {
+        let results = response.data
+        console.log('/api/v1/search : ', results)
+        if(results.result){
+          // true
+          let {execution_time, datas, count, all_result_count} = results;
+          props.fetchData(datas);
+          setAllDatas(mergeArrays(allDatas, datas))
+          setCurrentDatas(datas)
+          setAllResultCount(all_result_count)
+          setTotalPages(Math.ceil(all_result_count / pageLimit))
+        }
+  
+        setSearchLoading(false)
+  
+      })
+      .catch( (error) => {
+        onToast("error", error)
+  
+        setSearchLoading(false)
+      });
+    }
+    
+  }
+
+  const clearSearch = () =>{
+    fetch()
+  }
+
+  const fetch = () =>{
+
+    console.log('fetch : ', currentPage)
+    setLoading(true)
+    axios.post(`/api/v1/search`, {
+      type: 0,
+      key_word: '*',
+      offset:  currentPage === 0 ? 0 : currentPage - 1
+    }, {
+        headers: {'Authorization': isEmpty(ls.get('basic_auth')) ? `Basic ${process.env.REACT_APP_AUTHORIZATION}` : ls.get('basic_auth')}
+    })
+    .then((response) => {
+      let results = response.data
+      console.log('/api/v1/search : ', response)
+      if(results.result){
+        // true
+        let {execution_time, datas, count, all_result_count} = results;
+        props.fetchData(datas);
+
+        setAllDatas(mergeArrays(allDatas, datas))
+        setCurrentDatas(datas)
+        
+
+        setAllResultCount(all_result_count)
+        setTotalPages(Math.ceil(all_result_count / pageLimit))
+
+      }
+
+      setLoading(false)
+
+    })
+    .catch( (error) => {
+      console.log('/api/v1/search : ', error)
+
+      onToast('error', error)
+
+      setLoading(false)
+    });
+  }
+
+  const toggleCheckbox = (data) => {
+    let temp = [...selectedCheckboxes]
+    let select =  temp.find((item)=>item === data)
+
+    if(select !== undefined){
+      temp = temp.filter((item)=>item !== data)
+    }else{
+      temp = [...temp, data]
+    }
+    setSelectedCheckboxes(temp)
+  }
+
+  const onPageChanged = (data) => {
+    const { currentPage, totalPages, pageLimit } = data;
+    const offset = (currentPage - 1) * pageLimit;
+    const currentDatas = allDatas.slice(offset, offset + pageLimit);
+
+    setCurrentPage(currentPage)
+    // setCurrentDatas(currentDatas)
+    setTotalPages(totalPages)
+  };
+
+  const updateState = data => {
+    switch(Object.keys(data)[0]){
+      case "showModalLogin":{
+        setShowModalLogin(Object.values(data)[0])
+        break;
+      }
+      case "showModalReport":{
+        setShowModalReport(Object.values(data)[0])
+        break;
+      }
+    }
+  }
+
+  const renderContent = () =>{
+
+    console.log('renderContent : ', props)
+    if(loading){
+      return <CircularProgress />
+    }else {
+      return currentDatas.map( (item, index) => (
+              <UseHomeItem 
+                key={index}
+                {...props} 
+                item={item}
+                updateState={updateState}
+                // followUp={(data)=>{
+                //   props.myFollow(data)
+                // }}
+
+                myFollow={(data)=>{
+                  // console.log('myFollow :', data)
+                  props.onMyFollow(data)
+                }}
+                />
+            ))
+    }
+  }
+    
+  return (<div className="container mb-5">
+            {
+             props.maintenance 
+             ?  <div>We’ll be back soon! Sorry for the inconvenience but we’re performing some maintenance at the moment. We’ll be back online shortly!</div>
+             :  <div>
+                  <AddBanlistDialog showModal={showModal} onClose = {()=>{ setShowModal(false) }} />
+                  {/* { showModalReport && <ReportDialog showModal={showModalReport} onClose = {()=>{  setShowModalReport(false) }}  /> } */}
+                  <div>
+                    <form /*onSubmit={handleFormSubmit}*/ >
+                      <div>
+                        <div>
+                          {/* <input 
+                            type="search" 
+                            name="title" 
+                            value={searchWord} 
+                            onChange={(e)=>{ 
+                              console.log("search : ", e.target.value)
+                              setSearchWord(e.target.value) 
+                            }}
+                            /> */}
+
+                          <InputSearchField 
+                            label="Input keyword"
+                            placeholder="Input keyword"
+                            value={searchWord}  
+                            onChange={(e)=>{ 
+                              setSearchWord(e.target.value)
+                            }}
+                            onClear={(e)=>{
+                              setSearchWord('')
+                              setCurrentPage(1)
+
+                              clearSearch()
+                            }}/>
+                          {/* <button 
+                            type="submit" 
+                            disabled={isEmpty(searchWord) ? true : false}
+                            onClick={(e)=>{
+                              handleFormSearch(e)
+                            }}
+                            className={"div-button"}>
+                            ค้นหา{ searchLoading && <CircularProgress size={10}/> }
+                          </button> */}
+
+                          <Button 
+                            variant="primary" 
+                            disabled={isEmpty(searchWord) ? true : false}
+                            onClick={(e)=>{ handleFormSearch(e)}}>Search { searchLoading && <CircularProgress size={15}/> }</Button>
+
+                          {/* searchLoading */}
+                        </div>
+                        <div style={{paddingTop:10}}>
+                          <div style={{fontSize:"20px"}}>Search by category </div>
+                          <ul class="flex-container row">
+                            {
+                              // selectedCheckboxes
+                              itemsCategory.map((itm, index)=>{
+                                return  <li class="flex-item" key={index}>
+                                          <Checkbox
+                                            label={itm.title}
+                                            handleCheckboxChange={toggleCheckbox}
+                                            value={itm.id}
+                                            key={itm.id}
+                                            checked={(selectedCheckboxes.find((item)=>item === itm.id) === undefined) ? false : true}/>
+                                        </li>
+                              })
+                            }
+                          </ul>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                  <div className="row d-flex flex-row py-5"> 
+                    { renderContent() }
+
+                    <div className="w-100 px-4 py-5 d-flex flex-row flex-wrap align-items-center justify-content-between">
+                      <div className="d-flex flex-row py-4 align-items-center">
+                        <Pagination
+                          totalRecords={allResultCount}
+                          pageLimit={pageLimit}
+                          pageNeighbours={1}
+                          onPageChanged={onPageChanged}
+                        />
+                      </div>
+                      <div className="d-flex flex-row align-items-center">
+                      <h2>
+                        <strong className="text-secondary">{allResultCount}</strong>  Item
+                      </h2>
+                        {currentPage && (
+                          <span className="current-page d-inline-block h-100 pl-4 text-secondary">
+                            Page <span className="font-weight-bold">{currentPage}</span> /{" "}
+                            <span className="font-weight-bold">{totalPages}</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                  </div>
+                  {showModalLogin &&  <LoginDialog showModal={showModalLogin} onClose = {()=>{  setShowModalLogin(false) }} />}
+                  <div 
+                    className="fab"
+                    onClick={()=>{
+                      if(isEmpty(props.user)){
+                        setShowModalLogin(true)
+                      }else{
+                        setShowModal(true)
+                      }
+                    }}>
+                    <AddCircleOutlinedIcon  style={{fill: props.socket_connected ? "red" : "green", fontSize: '48px'}}/>
+                  </div>  
+                
+                </div>
+
+            }
+            
+          </div>
+  )
+}
+
+const mapStateToProps = (state, ownProps) => {
+  console.log('HomePage state : >>> ', state)
+	return {
+    user: state.user.data,
+    data: state.app.data,
+    follow_ups: state.user.follow_ups,
+
+    my_apps: state.user.my_apps,
+
+
+    my_follows: state.my_follows.data,
+
+    socket_connected : state.data,
+
+    maintenance: state.setting.maintenance
+  };
+}
+
+const mapDispatchToProps = {
+  fetchData,
+  followUp,
+
+  onMyFollow
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomePage)

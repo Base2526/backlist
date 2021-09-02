@@ -14,7 +14,13 @@ const session = require('express-session')
 const mongoStore = require('connect-mongo');
 const http  = require('http');
 const server= http.createServer(app);
-let io = require('socket.io')(server, { path: '/mysocket' }); ///socketio/mysocket
+let io = require('socket.io')(server, { 
+                                        path: '/mysocket' ,
+                                        cors: {
+                                          origin: "https://front-domain.com",
+                                          methods: ["GET", "POST"],
+                                          credentials: true
+                                        }}); ///socketio/mysocket
 
 const path = require("path");
 const multer = require("multer");
@@ -342,6 +348,30 @@ app.post('/v1/get_html',  async(req, res, next)=> {
                       cache,
                       execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
                       data 
+                    });
+  } catch (err) {
+    logger.error(err);
+    return res.send({result : false, message: err});
+  }
+});
+
+app.post('/v1/my_post',  async(req, res, next)=> {
+  try {
+    const start = Date.now()
+
+    let uid = req.body.uid;
+
+    if(uid === undefined){
+      return res.send({ result: false, message:"UID is empty" });
+    }
+
+    let my_apps =  await ContentsSchema.find({ owner_id: uid })
+    const end = Date.now()
+
+    return res.send({
+                      result : true,
+                      execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+                      datas: my_apps
                     });
   } catch (err) {
     logger.error(err);

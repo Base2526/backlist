@@ -5047,6 +5047,10 @@ nodejs_bl        |     status: true
       // Utils::setup_file_mongodb();
       //--------------  file  -------------------
 
+      //--------------  contents node  -------------------
+      Utils::setup_mongodb_contents();
+      //--------------  contents node  -------------------
+
 
       //-------------- สำหรับนักพัฒนา, About us, Terms of service ----------------------
       $articles = array(1, 2, 3);

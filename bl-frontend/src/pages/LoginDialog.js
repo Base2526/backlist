@@ -15,6 +15,8 @@ import { userLogin, ___followUp, fetchMyApps, addfollowerPost } from '../actions
 
 // import { addMyApp } from '../actions/my_apps';
 
+import { addMyAppALL } from '../actions/my_apps';
+
 const LoginDialog = (props) => {
   const [displayName, setDisplayName] = React.useState("");
   const [email, setEmail] = React.useState("");
@@ -333,12 +335,17 @@ const LoginDialog = (props) => {
 
           
           if(response.result){
-            let { basic_auth, session, user } = response.data
+            let { basic_auth, session, user, my_apps } = response.data
            
             ls.set('basic_auth', basic_auth)
             ls.set('session', session)
 
             props.userLogin(user)
+
+          
+            props.addMyAppALL(my_apps)
+            
+
             props.onClose()
 
             console.log('/login > user : ', response, user)
@@ -564,7 +571,7 @@ const mapDispatchToProps = {
   addfollowerPost,
 
 
-  // addMyApps
+  addMyAppALL
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginDialog)
