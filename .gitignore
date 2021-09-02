@@ -32,4 +32,5 @@ nodejs/mongo
 webs/node_modules
 reactjs/node_modules
 
-nodejs-docker/node_modulesChatApp-docker-compose-dev.zip
+nodejs-docker/node_modules
+ChatApp-docker-compose-dev.zip
