@@ -28,9 +28,9 @@ const UseHomeItem = (props) => {
 
   useEffect(() => {
 
-    // console.log('UseHomeItem : ', props)
+    // console.log('UseHomeItem : ', props.my_follows)
     setItem(props.item)
-    setFollowUp( isEmpty(props.my_follows.find((el)=>el.id === item.id && el.status)) ? false : true )
+    setFollowUp( isEmpty(props.my_follows.find((el)=>el.nid === item.nid && el.status)) ? false : true )
   });
   
   const handleClose = () => {
@@ -69,7 +69,7 @@ const UseHomeItem = (props) => {
         }
         case 1:{
           return(
-              <div key={item.id}> 
+              <div key={item.nid}> 
                   <div class="hi-container">
                       <div class="hi-sub-container1">
                           <div class="hi-item1" 
@@ -118,7 +118,7 @@ const UseHomeItem = (props) => {
         }
 
         case 2:{
-            return(<div key={item.id}> 
+            return(<div key={item.nid}> 
                 <div class="hi-container">
                 <div class="hi-sub-container1">
                     <div class="hi-item1" 
@@ -176,7 +176,7 @@ const UseHomeItem = (props) => {
         }
         
         case 3:{
-            return(<div key={item.id}> 
+            return(<div key={item.nid}> 
                 <div class="hi-container">
                 <div class="hi-sub-container1">
                     <div class="hi-item1" 
@@ -244,7 +244,7 @@ const UseHomeItem = (props) => {
         }
 
         default:{
-            return(<div key={item.id}> 
+            return(<div key={item.nid}> 
                         <div class="hi-container">
                         <div class="hi-sub-container1">
                             <div class="hi-item1" 
@@ -318,7 +318,7 @@ const UseHomeItem = (props) => {
               anchorEl={anchorEl}
               onClose={handleClose}
               open={Boolean(anchorEl)}>
-              <CopyToClipboard text={"http://localhost:8099/detail/" + item.id}>
+              <CopyToClipboard text={"http://localhost:8099/detail/" + item.nid}>
                 <MenuItem onClick={()=>{
 
                   toast.info("Link to post copied to clipboard.", 
@@ -345,7 +345,7 @@ const UseHomeItem = (props) => {
   }
   
   return (
-    <div key={item.id} style={{margin: 10}}>  
+    <div key={item.nid} style={{margin: 10}}>  
       {itemView()}
       <div style={{cursor: 'pointer'}} onClick={()=>{
         // console.log('/detail/:id : ', props)
@@ -406,10 +406,12 @@ const UseHomeItem = (props) => {
                 //             autoClose: 1000,
                 //           }) 
 
+                // console.log(item)
+
                 if(isEmpty(props.user)){
                   props.updateState({showModalLogin: true})
                 }else{
-                  props.myFollow(item.id)
+                  props.myFollow(item.nid)
                 }
 
                 /*

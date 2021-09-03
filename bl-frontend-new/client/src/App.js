@@ -33,10 +33,15 @@ let interval = undefined;
 const App = (props) => {
   const [timeInterval, setTimeInterval] = React.useState(undefined);
 
-  // useEffect(() => {
-  //   socketid()
-  //   console.log('socketid()')
-  // }, []);
+  useEffect(() => {
+   
+    console.log('socketid() []')
+
+    if( !_.isEmpty(socket) ){
+      window.addEventListener("beforeunload", () => socket.disconnect());
+    }
+   
+  }, []);
 
   useEffect(() => {
     
@@ -46,18 +51,19 @@ const App = (props) => {
       console.log('socketid() > socket.auth.token : #1')
       socketid()
     }else{
-      console.log('socketid() > socket.auth.token : #2')
+      console.log('socketid() > socket.auth.token : #2',  props.user , '-- ', socket.query )
 
       if(_.isEmpty(props.user)){
-        if(!_.isEmpty(socket.query.auth_token)){
+        // if(!_.isEmpty(socket.query.auth_token)){
           if(socket.query.auth_token !== 0){
-            console.log('socketid() > socket.auth.token : #3')
+            console.log('socketid() > socket.auth.token : #3 A', socket)
             socket.query.auth_token = 0;
+            console.log('socketid() > socket.auth.token : #3 B', socket)
             socket.disconnect().connect()
 
             console.log('------------- disconnect ------------- #1')
           }
-        }
+        // }
       }else{
         if(socket.query.auth_token !== props.user.uid){
           console.log('socketid() > socket.auth.token : #4')
@@ -112,7 +118,7 @@ const App = (props) => {
                                           { headers: {'Authorization': `Basic ${ls.get('basic_auth')}` } });
 
           response = response.data
-          console.log("useEffect [props.my_follows] #4:", response)
+          console.log("useEffect [props.my_follows] #4:", response, user)
 
           if(response.result){
             props.onMyFollowUpdateStatus({})
@@ -161,6 +167,8 @@ const App = (props) => {
         // },
         { 
           // path: '/mysocket',
+          // 'sync disconnect on unload': false,
+          'sync disconnect on unload': true,
           query: {
             "platform" : process.env.REACT_APP_PLATFORM, 
             // "unique_id": _uniqueId(props),
@@ -184,7 +192,9 @@ const App = (props) => {
         // },
         // { query:{ `platform=${process.env.REACT_APP_PLATFORM}&unique_id=3434&version=${process.env.REACT_APP_VERSIONS}` }}, 
         
-        { transports: ["websocket"] });
+        { transports: ["websocket"] }
+        
+        );
     }else{
       socket.auth.token = _.isEmpty(props.user) ? 0 : props.user.uid;
       socket.disconnect().connect()
@@ -208,10 +218,12 @@ const App = (props) => {
       socket.off('onMyFollows', onMyFollows);
 
       // กรณีมีคนมากด follow content เรา
-      socket.off('onAppFollowUp', onAppFollowUp);
+      // socket.off('onAppFollowUp', onAppFollowUp);
 
 
       socket.off('test', test);
+
+      socket.off('onAppFollowers', onAppFollowers)
     }else{
       console.log('socket :', socket)
     }
@@ -227,13 +239,15 @@ const App = (props) => {
     socket.on('onMyFollows', onMyFollows);
 
     // กรณีมีคนมากด follow content เรา
-    socket.on('onAppFollowUp', onAppFollowUp);
+    // socket.on('onAppFollowUp', onAppFollowUp);
 
     socket.on('connect_error', handleErrors);
     socket.on('connect_failed', handleErrors);
 
 
     socket.on('test', test);
+
+    socket.off('onAppFollowers', onAppFollowers)
   }
 
   const test = (data)=>{
@@ -343,8 +357,8 @@ const App = (props) => {
     }
   }
 
-  const onAppFollowUp = (data) =>{
-    console.log("onAppFollowUp : ", data)
+  const onAppFollowers = (data) =>{
+    console.log("onAppFollowers : ", data)
 
     // props.onMyFollowALL(data)
   }

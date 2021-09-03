@@ -14,14 +14,14 @@ const my_follows = (state = initialState, action) => {
             let state_data  = state.data
             let action_data = action.data;
 
-            let index = state_data.findIndex((obj => obj.id == action_data));
+            let index = state_data.findIndex((obj => obj.nid == action_data));
             if(index === -1){
-               let  new_state_data = [...state_data, {id: action_data, status:true, date: Date.now(), local:true}]
+               let  new_state_data = [...state_data, {nid: action_data, status:true, date: Date.now(), local:true}]
 
                return  { ...state, data: new_state_data }
             }else{
                 let  new_state_data = [...state_data]
-                new_state_data[index] = {id: action_data, status:!state_data[index].status, date: Date.now(), local:true}
+                new_state_data[index] = {nid: action_data, status:!state_data[index].status, date: Date.now(), local:true}
  
                 return  { ...state, data: new_state_data }
             }

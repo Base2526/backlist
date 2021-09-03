@@ -17,7 +17,9 @@ const cors = require("cors");
 
 const app = require('express')();
 const http = require('http').Server(app);
-var io = require('socket.io')(http);
+var io = require('socket.io')(http, {pingInterval: 1000, pingTimeout: 500});
+
+
 
 const NodeCache     = require( "node-cache" );
 const nc            = new NodeCache({ checkperiod: 60 * 60 * 15 /* 15Hour */ });
@@ -110,20 +112,58 @@ app.use(sessions({
 http.listen(3001,()=> {
 	console.log("Express Server with Socket.io Running!!!")
 
-	AppFollowersSchema.watch().on('change', data =>{
+	AppFollowersSchema.watch().on('change', async data =>{
 		console.log('AppFollowersSchema', data.operationType, data, JSON.stringify(data))
 	
 		try{
 			switch(data.operationType){
-			case 'insert':{
-				console.log('AppFollowersSchema > insert');
-				break;
-			} 
-		
-			case 'update':{
-				console.log('AppFollowersSchema > insert');
-				break;
-			}
+				case 'insert':
+				case 'update':{
+					let app_followers_schema = await AppFollowersSchema.findById(data.documentKey._id.toString()) 
+					//   console.log('AppFollowersSchema > insert, update : #1 ', data.documentKey._id.toString(), JSON.stringify(app_followers_schema));
+					if(app_followers_schema){
+						let nid = app_followers_schema.nid
+
+						// คนที followers ทั้งหมด
+						let app_followers = app_followers_schema.value
+
+
+						app_followers.map(async(app_follower)=>{
+							if(app_follower.status){
+								// console.log('AppFollowersSchema > insert, update : app_follower.uid : ', app_follower.uid)
+
+								let uid = app_follower.uid
+								let sockets = await SocketsSchema.find({ auth: uid });
+								sockets.map(async(socket) => {
+								  console.log('AppFollowersSchema  socket.socketId, uid  #1= ', socket.socketId, ' - ', uid)
+								  if(!utils.isEmpty(socket.socketId)){
+								    io.to(socket.socketId).emit('onAppFollowers', {app_followers});
+								  }
+								})
+							}
+						})
+						
+						let contents_schema = await ContentsSchema.findOne({nid: nid}) 
+						if(contents_schema){
+							// เจ้าของ contents
+							let owner_id = contents_schema.owner_id
+
+							console.log('AppFollowersSchema > insert, update : owner_id, nid  #2= ', owner_id, nid)
+
+							let sockets = await SocketsSchema.find({ auth: owner_id });
+							sockets.map(async(socket) => {
+								console.log('AppFollowersSchema  socket.socketId-owner_id = ', socket.socketId, ' - ', owner_id)
+								if(!utils.isEmpty(socket.socketId)){
+									io.to(socket.socketId).emit('onAppFollowers', {app_followers});
+								}
+							})
+						}
+
+						// console.log('AppFollowersSchema > insert, update : #3 ', nid);
+					}
+
+					break;
+				}
 			}
 		}catch(err) {
 			console.log( err );
@@ -143,9 +183,9 @@ http.listen(3001,()=> {
 
 				let sockets = await SocketsSchema.find({ auth: uid });
 				sockets.map(async(socket) => {
-					console.log('/v1/syc_local  socket.socketId = ', socket.socketId, ' - ', uid)
+					// console.log('/v1/syc_local  socket.socketId = ', socket.socketId, ' - ', uid)
 					if(!utils.isEmpty(socket.socketId)){
-					io.to(socket.socketId).emit('onMyFollows', {my_follows: value});
+						io.to(socket.socketId).emit('onMyFollows', {my_follows: value});
 					}
 				})
 				break;
@@ -160,9 +200,9 @@ http.listen(3001,()=> {
 
 				let sockets = await SocketsSchema.find({ auth: uid });
 				sockets.map(async(socket) => {
-					console.log('/v1/syc_local  socket.socketId = ', socket.socketId, ' - ', uid)
+					// console.log('/v1/syc_local  socket.socketId = ', socket.socketId, ' - ', uid)
 					if(!utils.isEmpty(socket.socketId)){
-					io.to(socket.socketId).emit('onMyFollows', {my_follows: value});
+						io.to(socket.socketId).emit('onMyFollows', {my_follows: value});
 					}
 				})
 			
@@ -354,7 +394,7 @@ http.listen(3001,()=> {
 	});
 
 	SocketsSchema.watch().on('change', async data =>{
-		console.log('UserSchema > init : ', data.operationType, JSON.stringify(data))
+		console.log('SocketsSchema > init : ', data.operationType, JSON.stringify(data))
 		switch(data.operationType){
 			case 'insert':
 			case 'update':{
@@ -408,8 +448,6 @@ app.get('/client_delete',  async(req, res) => {
 });
 
 app.get('/',  async(req, res) => {  
-	
-
 	res.send(`>> Hello Docker World <<\n`);
 });
 
@@ -541,29 +579,29 @@ return res.send({...data, execution_time: `Time Taken to execute = ${(end - star
 
 app.post('/v1/reset_password',  async(req, res, next)=> {
 
-let email = req.body.email;
+	let email = req.body.email;
 
-if(email === undefined ){
-	return res.send({ status: false, message:"Email is empty" });
-}
+	if(email === undefined ){
+		return res.send({ status: false, message:"Email is empty" });
+	}
 
-// http://api.banlist.info:8090/api/v1/login?_format=json
-const response = await axios.post(`${process.env.DRUPAL_API_ENV}/v1/reset_password?_format=json`, {
-								"email":email, 
-							},{
-								headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
-							});
+	// http://api.banlist.info:8090/api/v1/login?_format=json
+	const response = await axios.post(`${process.env.DRUPAL_API_ENV}/v1/reset_password?_format=json`, {
+									"email":email, 
+								},{
+									headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
+								});
 
-let data = response.data
+	let data = response.data
 
-// if(data.result){
-//   req.session.userId    = data.user.uid;
-//   req.session.basicAuth = data.user.basic_auth;
-//   req.session.session   = data.user.session;
-// }
+	// if(data.result){
+	//   req.session.userId    = data.user.uid;
+	//   req.session.basicAuth = data.user.basic_auth;
+	//   req.session.session   = data.user.session;
+	// }
 
-console.log(data.result)
-return res.send(data);
+	console.log(data.result)
+	return res.send(data);
 });
 
 app.post('/v1/logout', (req, res, next) =>{
@@ -897,10 +935,12 @@ app.post('/v1/search',  async(req, res, next)=> {
 			nid AND status= {true or false}
 			*/
 			case 2: {
+				//------------- cache ----------------- 
 				let node = nc.get( `node-${key_word}` );
 				if(!utils.isEmpty(node)){
 					return res.send({...node, cache: true});
 				}
+				//------------- cache ----------------- 
 
 				query = {
 						"query": {
@@ -951,7 +991,9 @@ app.post('/v1/search',  async(req, res, next)=> {
 							cache         : false
 						}
 				
+				//------------- cache ----------------- 
 				nc.set( `node-${key_word}` , node );
+				//------------- cache ----------------- 
 
 				return res.send(node);
 			}
@@ -1117,80 +1159,80 @@ app.post('/v1/search',  async(req, res, next)=> {
 
 // Clear cache by keys
 app.post('/v1/cache_del',  async(req, res, next)=> {
-try {
-	const start = Date.now()
-	let keys = req.body.keys;
+	try {
+		const start = Date.now()
+		let keys = req.body.keys;
 
-	if(keys === undefined){
-		return res.send({ status: false, message:"Without keys" });
-	}
-
-	// console.log("keys >> ", keys)
-	/*
-	keys.map( async(key) => {
-	let key1 = key.split("-");
-	// console.log("key1 >> ", key1)
-
-	switch(key1[0]){
-		case 'user':{
-		
-		let sockets = await SocketsSchema.find({auth: key1[1]});
-		// console.log(sockets)
-
-		sockets.map(async(socket) => {
-			console.log('socket.socketId = ', socket.socketId)
-			let user = nc.get( `user-${socket.auth}` );
-			if(utils.isEmpty(user)){
-			user = await UserSchema.findOne({'uid':socket.auth});;
-		
-			nc.set( `user-${socket.auth}` , user );
-			}
-
-			if(!utils.isEmpty(user)){
-			io.to(socket.socketId).emit('onProfile', user);
-			}
-			
-		})
-		break;
+		if(keys === undefined){
+			return res.send({ status: false, message:"Without keys" });
 		}
 
-		// case 'node':{
-		//   break;
-		// }
+		// console.log("keys >> ", keys)
+		/*
+		keys.map( async(key) => {
+		let key1 = key.split("-");
+		// console.log("key1 >> ", key1)
+
+		switch(key1[0]){
+			case 'user':{
+			
+			let sockets = await SocketsSchema.find({auth: key1[1]});
+			// console.log(sockets)
+
+			sockets.map(async(socket) => {
+				console.log('socket.socketId = ', socket.socketId)
+				let user = nc.get( `user-${socket.auth}` );
+				if(utils.isEmpty(user)){
+				user = await UserSchema.findOne({'uid':socket.auth});;
+			
+				nc.set( `user-${socket.auth}` , user );
+				}
+
+				if(!utils.isEmpty(user)){
+				io.to(socket.socketId).emit('onProfile', user);
+				}
+				
+			})
+			break;
+			}
+
+			// case 'node':{
+			//   break;
+			// }
+		}
+		
+		})
+		*/
+
+		nc.del( keys );
+
+		const end = Date.now()
+		return res.send({
+						result : true,
+						execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+						});
+	} catch (err) {
+		logger.error(err);
+		return res.send({result : false, message: err});
 	}
-	
-	})
-	*/
-
-	nc.del( keys );
-
-	const end = Date.now()
-	return res.send({
-					result : true,
-					execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
-					});
-} catch (err) {
-	logger.error(err);
-	return res.send({result : false, message: err});
-}
 });
   
 // Clear cache flush all
 app.post('/v1/cache_flush_all',  async(req, res, next)=> {
-try {
-	const start = Date.now()
+	try {
+		const start = Date.now()
 
-	nc.flushAll();
+		nc.flushAll();
 
-	const end = Date.now()
-	return res.send({
-					result : true,
-					execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
-					});
-} catch (err) {
-	logger.error(err);
-	return res.send({result : false, message: err});
-}
+		const end = Date.now()
+		return res.send({
+						result : true,
+						execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+						});
+	} catch (err) {
+		logger.error(err);
+		return res.send({result : false, message: err});
+	}
 });
 
 // notify_owner_content
@@ -1362,134 +1404,139 @@ try {
   
 // /v1/syc_local
 app.post('/v1/syc_local',  async(req, res, next)=> {
-try {
+	try {
 
-	let uid = req.session.userId
-	if(utils.isEmpty(uid)){
-	logger.error("/v1/syc_local without session");
+		let uid = req.session.userId
+		if(utils.isEmpty(uid)){
+			logger.error("/v1/syc_local without session");
 
-	return res.send({result : false, message: "without session"});
-	}
+			return res.send({result : false, message: "without session"});
+		}
 
-	const start = Date.now()
+		const start = Date.now()
 
 
-	let my_follows = req.body.my_follows;
+		let my_follows = req.body.my_follows;
 
-	/*
-	req.session.userId    = response.user.uid;
-	req.session.basicAuth = response.user.basic_auth;
-	req.session.session   = response.user.session;
-	*/
+		/*
+		req.session.userId    = response.user.uid;
+		req.session.basicAuth = response.user.basic_auth;
+		req.session.session   = response.user.session;
+		*/
 
-	// await new kittySchema({ text: '/v1/syc_local' }).save()
+		// await new kittySchema({ text: '/v1/syc_local' }).save()
 
-	console.log('/v1/syc_local, my_follows #1 : ', my_follows )
+		console.log('/v1/syc_local, my_follows #1 : ', my_follows )
 
-	if(!utils.isEmpty(my_follows)){
-	my_follows = JSON.parse(my_follows)
-	my_follows.map( async(mf)=>{
+		if(!utils.isEmpty(my_follows)){
+			my_follows = JSON.parse(my_follows)
+			my_follows.map( async(mf)=>{
 
-						// -----------  AppFollowersSchema  -----------
-						let app_followers = await AppFollowersSchema.findOne({ nid: mf.id });
-						if(!utils.isEmpty(app_followers)){
-							let v = app_followers.value
-							let index = v.findIndex((obj => obj.uid == uid));
+				if(mf.nid){
+					// -----------  AppFollowersSchema  -----------
+					let app_followers = await AppFollowersSchema.findOne({ nid: mf.nid });
+					if(!utils.isEmpty(app_followers)){
+						let v = app_followers.value
+						let index = v.findIndex((obj => obj.uid == uid));
 
-							let  new_value = [] 
-							if(index !== -1){
+						let  new_value = [] 
+						if(index !== -1){
 							new_value = [...v]
 							new_value[index] = {uid : uid, status: mf.status, date:Date.now()}
-							}else{
-							new_value =  [...v, {uid : uid, status: mf.status, date:Date.now()}]
-							}
-
-							// console.log('/v1/syc_local, if : ', new_value )
-							await AppFollowersSchema.findOneAndUpdate({nid: mf.id}, {value: new_value}, { new: true, upsert: true  })
 						}else{
-							// await new AppFollowersSchema({ nid: mf.id, value: [{uid : uid, status: mf.status, date:Date.now()}] }, {upsert: true}).save()
-
-							await AppFollowersSchema.findOneAndUpdate({nid: mf.id}, {value: [{uid : uid, status: mf.status, date:Date.now()}]}, { new: true, upsert: true  })
+							new_value =  [...v, {uid : uid, status: mf.status, date:Date.now()}]
 						}
 
-						// หาเจ้าของ Content เพือ ส่ง noti ไปแจ้งว่ามี คนกด follow
-						const { body } = await client.search({
-							index: 'elasticsearch_index_banlist_content_back_list',
-							body:  {
-							"query": {
-								"bool": {
-									"must": [
-										{"match" : { "nid": mf.id }},
-										// {"match" : { "status": true}},
-									],
-								}
-							},
-							size: 1,
-							}
-						})
+						// console.log('/v1/syc_local, if : ', new_value )
+						await AppFollowersSchema.findOneAndUpdate({nid: mf.nid}, {value: new_value}, { new: true, upsert: true  })
+					}else{
+						// await new AppFollowersSchema({ nid: mf.id, value: [{uid : uid, status: mf.status, date:Date.now()}] }, {upsert: true}).save()
 
-						if(body.hits.total.value){
-							let uids = body.hits.hits.map((hit)=>{ return {uid : hit._source.uid[0]} });
+						await AppFollowersSchema.findOneAndUpdate({nid: mf.nid}, {value: [{uid : uid, status: mf.status, date:Date.now()}]}, { new: true, upsert: true  })
+					}
+				}
+				
 
-							// console.log('/v1/syc_local  search : uids > ' , uids[0], ' -- ', mf.id)
+		
+				// // หาเจ้าของ Content เพือ ส่ง noti ไปแจ้งว่ามี คนกด follow
+				// const { body } = await client.search({
+				// 	index: 'banlist',
+				// 	body:  {
+				// 	"query": {
+				// 		"bool": {
+				// 			"must": [
+				// 				{"match" : { "nid": mf.id }},
+				// 				// {"match" : { "status": true}},
+				// 			],
+				// 		}
+				// 	},
+				// 	size: 1,
+				// 	}
+				// })
 
-							// let __auth = uids[0].uid
-							// if(__auth){
-							//   let sockets = await SocketsSchema.find({ auth: __auth });
-							//   sockets.map(async(socket) => {
-							//     console.log('/v1/syc_local  หาเจ้าของ Content = ', socket.socketId)
-							//     if(!utils.isEmpty(socket.socketId)){
-							//       global.io.to(socket.socketId).emit('onAppFollowUp', {data: {uid, status: mf.status}});
-							//     }
-							//   })
-							// }
-						}
-						// หาเจ้าของ Content เพือ ส่ง noti ไปแจ้งว่ามี คนกด follow
+				// if(body.hits.total.value){
+				// 	let uids = body.hits.hits.map((hit)=>{ return {uid : hit._source.uid[0]} });
 
-						// -----------  AppFollowersSchema  -----------
+				// 	// console.log('/v1/syc_local  search : uids > ' , uids[0], ' -- ', mf.id)
 
-						// mf.local = false
-						// return mf
-						})
+				// 	// let __auth = uids[0].uid
+				// 	// if(__auth){
+				// 	//   let sockets = await SocketsSchema.find({ auth: __auth });
+				// 	//   sockets.map(async(socket) => {
+				// 	//     console.log('/v1/syc_local  หาเจ้าของ Content = ', socket.socketId)
+				// 	//     if(!utils.isEmpty(socket.socketId)){
+				// 	//       global.io.to(socket.socketId).emit('onAppFollowUp', {data: {uid, status: mf.status}});
+				// 	//     }
+				// 	//   })
+				// 	// }
+				// }
+				// // หาเจ้าของ Content เพือ ส่ง noti ไปแจ้งว่ามี คนกด follow
+			
 
-	let new_my_follows = []
-	console.log('/v1/syc_local, new_my_follows #1 : ', uid , ' - ', new_my_follows )
-	//-----------------  FollowsSchema  -------------------
-	let follow = await FollowsSchema.findOne({ 'uid': uid });
-	if(!utils.isEmpty(follow)){
-		// 'Not Empty'
-		/*
-		จะดึงจาก db เก่าแล้วเอามา merge         
-		*/
-		var merge = (a, b, p) => a.filter(aa =>!b.find(bb => aa[p] === bb[p])).concat(b).map((v)=>{  v.local = false; return v });
-		new_my_follows = merge(follow.value, my_follows, "id");
-	}else{
-		new_my_follows = my_follows.map((mf)=>{mf.local = false; return mf})
+				// -----------  AppFollowersSchema  -----------
+
+				// mf.local = false
+				// return mf
+			})
+
+			let new_my_follows = []
+			console.log('/v1/syc_local, new_my_follows #1 : ', uid , ' - ', new_my_follows )
+			//-----------------  FollowsSchema  -------------------
+			let follow = await FollowsSchema.findOne({ 'uid': uid });
+			if(!utils.isEmpty(follow)){
+				// 'Not Empty'
+				
+				// จะดึงจาก db เก่าแล้วเอามา merge         
+				
+				var merge = (a, b, p) => a.filter(aa =>!b.find(bb => aa[p] === bb[p])).concat(b).map((v)=>{  v.local = false; return v });
+				new_my_follows = merge(follow.value, my_follows, "nid");
+			}else{
+				new_my_follows = my_follows.map((mf)=>{mf.local = false; return mf})
+			}
+
+			console.log('/v1/syc_local, new_my_follows #2 : ', uid , ' - ', new_my_follows )
+			await FollowsSchema.findOneAndUpdate({'uid': uid}, {value: new_my_follows},  { new: true, upsert: true })
+
+			// let sockets = await SocketsSchema.find({ auth: uid });
+			// sockets.map(async(socket) => {
+			//   console.log('/v1/syc_local  socket.socketId = ', socket.socketId, ' - ', uid)
+			//   if(!utils.isEmpty(socket.socketId)){
+			//     global.io.to(socket.socketId).emit('onMyFollows', {my_follows: new_my_follows});
+			//   }
+			// })
+			//-----------------  FollowsSchema  -------------------
+		}
+
+		const end = Date.now()
+		return res.send({
+			result : true,
+			function : "/v1/syc_local",
+			execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+		});
+	} catch (err) {
+		logger.error(err.message);
+		return res.send({result : false, message: err.message});
 	}
-
-	console.log('/v1/syc_local, new_my_follows #2 : ', uid , ' - ', new_my_follows )
-	await FollowsSchema.findOneAndUpdate({'uid': uid}, {value: new_my_follows},  { new: true, upsert: true })
-
-	// let sockets = await SocketsSchema.find({ auth: uid });
-	// sockets.map(async(socket) => {
-	//   console.log('/v1/syc_local  socket.socketId = ', socket.socketId, ' - ', uid)
-	//   if(!utils.isEmpty(socket.socketId)){
-	//     global.io.to(socket.socketId).emit('onMyFollows', {my_follows: new_my_follows});
-	//   }
-	// })
-	//-----------------  FollowsSchema  -------------------
-	}
-
-	const end = Date.now()
-	return res.send({
-	result : true,
-	function : "/v1/syc_local",
-	execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
-	});
-} catch (err) {
-	logger.error(err.message);
-	return res.send({result : false, message: err.message});
-}
 })
 
 app.get('/v1/healthz', async (req, res) =>{
@@ -1550,24 +1597,26 @@ io.on('connection', async (socket) => {
 	  }
 	}
 
-  
+	console.log(`Socket ${socket.id} - ${t} connection`)
   
 	await SocketsSchema.findOneAndUpdate({t}, { t, socketId: socket.id, platform,  auth:token, geolocation }, { new: true, upsert: true  })
   
 	socket.on('disconnect', async() => {
-  
-	  console.log(`Socket ${socket.id} - ${t} disconnect`)
-  
-	  await SocketsSchema.deleteMany({t})
+		let  sockets_schema =await SocketsSchema.findOne({t: t});
+		if(sockets_schema){
+			let del = await SocketsSchema.deleteOne({t: t});
+			console.log(`Socket disconnect :` , del)
+		}
+		console.log(`Socket ${socket.id} - ${t} disconnect`)
 	});
   
 	socket.conn.on('heartbeat', ()=>{
-	  if (!socket.authenticated) {
-		// Don't start counting as present until they authenticate.
-		return;
-	  }
+	//   if (!socket.authenticated) {
+	// 	// Don't start counting as present until they authenticate.
+	// 	return;
+	//   }
   
-	  console.log(`Heartbeat ${socket.id} - ${t} - ${geolocation} - ${handshake.auth} - ${handshake.auth.token} connection`)
+	  console.log(`----->  Heartbeat connection`)
    
 	});
 });
