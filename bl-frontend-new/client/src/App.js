@@ -10,6 +10,7 @@ import axios from 'axios';
 import { Base64 } from 'js-base64';
 
 import ls from 'local-storage';
+import { deviceDetect } from "react-device-detect";
 
 import Ajv from "ajv"
 
@@ -34,19 +35,24 @@ const App = (props) => {
   const [timeInterval, setTimeInterval] = React.useState(undefined);
 
   useEffect(() => {
+    checkLocalStorage()
    
     console.log('socketid() []')
-
-    if( !_.isEmpty(socket) ){
-      window.addEventListener("beforeunload", () => socket.disconnect());
-    }
-   
   }, []);
 
   useEffect(() => {
     
-    console.log('socketid() > [props.user] #0 > ', props.user , socket )
+    console.log('socketid() > [props.user] #0 > ', props.user , socket )  
 
+    if( !_.isEmpty(socket) ){
+      console.log('socketid() > socket.auth.token : #1')
+      socket.disconnect()
+      socket = null;
+    }
+
+    socketid()
+
+    /*
     if( _.isEmpty(socket) ){
       console.log('socketid() > socket.auth.token : #1')
       socketid()
@@ -74,6 +80,7 @@ const App = (props) => {
         }
       }
     }
+    */
   }, [props.user]);
 
   useEffect(async() => {
@@ -134,13 +141,31 @@ const App = (props) => {
     }
   }, [props.my_follows]);
 
-  const geolocation = async () => {
-    const res = await axios.get( process.env.REACT_APP_GEOLOCATION )
-    let data = {}
-    if(res.status === 200){
-      data = res.data
+  const checkLocalStorage = ()=>{
+    // http://apassant.net/2012/01/16/timeout-for-html5-localstorage/
+    var hours = 4; // Reset when storage is more than 24hours
+    var now = new Date().getTime();
+    var setupTime = localStorage.getItem('setupTime');
+    if (setupTime == null) {
+      localStorage.setItem('setupTime', now)
+    } else {
+      if(now-setupTime > hours*60*60*1000) {
+        localStorage.clear()
+        localStorage.setItem('setupTime', now);
+      }
     }
+  }
 
+  const geolocation = async () => {
+    let data = JSON.parse(localStorage.getItem("geolocation"))
+    if(_.isEmpty(data)){
+      const res = await axios.get( process.env.REACT_APP_GEOLOCATION )
+      if(res.status === 200){
+        data = res.data
+      }
+
+      localStorage.setItem('geolocation', JSON.stringify(data))
+    }
     return data;
   }
 
@@ -173,6 +198,7 @@ const App = (props) => {
             "platform" : process.env.REACT_APP_PLATFORM, 
             // "unique_id": _uniqueId(props),
             "version"  : process.env.REACT_APP_VERSIONS,
+            "device_detect" : JSON.stringify( deviceDetect() ),
             "geolocation" : JSON.stringify( await geolocation() ),
             auth_token: _.isEmpty(props.user) ? 0 : props.user.uid
           },

@@ -17,9 +17,10 @@ const cors = require("cors");
 
 const app = require('express')();
 const http = require('http').Server(app);
-var io = require('socket.io')(http, {pingInterval: 1000, pingTimeout: 500});
+var io = require('socket.io')(http /*, {pingInterval: 1500, pingTimeout: 1500} */);
+// io.set('transports', ['xhr-polling']);
 
-
+// 'transports', ['xhr-polling']
 
 const NodeCache     = require( "node-cache" );
 const nc            = new NodeCache({ checkperiod: 60 * 60 * 15 /* 15Hour */ });
@@ -45,6 +46,7 @@ require("./connection")
 //---------- Log -----------//
 const logger = require('./util/logger');
 const { stream }    = logger;
+
 
 const accessLogStream = rfs.createStream('access.log', {
   interval: '1d',
@@ -105,12 +107,17 @@ app.use(sessions({
   })
 }));
 
-
 // const express = require('express');
 // const uuidV4 = require('uuid/v4');
 // var dateFormat = require('dateformat');
-http.listen(3001,()=> {
+http.listen(3001,async()=> {
 	console.log("Express Server with Socket.io Running!!!")
+
+	try{
+		await SocketsSchema.deleteMany();
+	}catch(err) {
+		console.log( err );
+	}
 
 	AppFollowersSchema.watch().on('change', async data =>{
 		console.log('AppFollowersSchema', data.operationType, data, JSON.stringify(data))
@@ -118,50 +125,89 @@ http.listen(3001,()=> {
 		try{
 			switch(data.operationType){
 				case 'insert':
-				case 'update':{
-					let app_followers_schema = await AppFollowersSchema.findById(data.documentKey._id.toString()) 
-					//   console.log('AppFollowersSchema > insert, update : #1 ', data.documentKey._id.toString(), JSON.stringify(app_followers_schema));
-					if(app_followers_schema){
-						let nid = app_followers_schema.nid
+				case 'update':
+				case 'replace': {
 
-						// คนที followers ทั้งหมด
-						let app_followers = app_followers_schema.value
+					try{
+						let app_followers_schema = await AppFollowersSchema.findById(data.documentKey._id.toString()) 
+						//   console.log('AppFollowersSchema > insert, update : #1 ', data.documentKey._id.toString(), JSON.stringify(app_followers_schema));
+						if(!_.isEmpty(app_followers_schema)){
+							let nid = app_followers_schema.nid
+
+							// คนที followers ทั้งหมด
+							let app_followers = app_followers_schema.value
 
 
-						app_followers.map(async(app_follower)=>{
-							if(app_follower.status){
-								// console.log('AppFollowersSchema > insert, update : app_follower.uid : ', app_follower.uid)
+							app_followers.map(async(app_follower)=>{
+								if(app_follower.status){
+									// console.log('AppFollowersSchema > insert, update : app_follower.uid : ', app_follower.uid)
 
-								let uid = app_follower.uid
-								let sockets = await SocketsSchema.find({ auth: uid });
-								sockets.map(async(socket) => {
-								  console.log('AppFollowersSchema  socket.socketId, uid  #1= ', socket.socketId, ' - ', uid)
-								  if(!utils.isEmpty(socket.socketId)){
-								    io.to(socket.socketId).emit('onAppFollowers', {app_followers});
-								  }
-								})
-							}
-						})
-						
-						let contents_schema = await ContentsSchema.findOne({nid: nid}) 
-						if(contents_schema){
-							// เจ้าของ contents
-							let owner_id = contents_schema.owner_id
-
-							console.log('AppFollowersSchema > insert, update : owner_id, nid  #2= ', owner_id, nid)
-
-							let sockets = await SocketsSchema.find({ auth: owner_id });
-							sockets.map(async(socket) => {
-								console.log('AppFollowersSchema  socket.socketId-owner_id = ', socket.socketId, ' - ', owner_id)
-								if(!utils.isEmpty(socket.socketId)){
-									io.to(socket.socketId).emit('onAppFollowers', {app_followers});
+									let uid = app_follower.uid
+									let sockets = await SocketsSchema.find({ auth: uid });
+									sockets.map(async(socket) => {
+									console.log('AppFollowersSchema  socket.socketId, uid  #1= ', socket.socketId, ' - ', uid)
+									if(!utils.isEmpty(socket.socketId)){
+										io.to(socket.socketId).emit('onAppFollowers', {app_followers});
+									}
+									})
 								}
 							})
+							
+							let contents_schema = await ContentsSchema.findOne({nid: nid}) 
+							if(contents_schema){
+								// เจ้าของ contents
+								let owner_id = contents_schema.owner_id
+
+								console.log('AppFollowersSchema > insert, update : owner_id, nid  #2= ', owner_id, nid)
+
+								let sockets = await SocketsSchema.find({ auth: owner_id });
+								sockets.map(async(socket) => {
+									console.log('AppFollowersSchema  socket.socketId-owner_id = ', socket.socketId, ' - ', owner_id)
+									if(!utils.isEmpty(socket.socketId)){
+										io.to(socket.socketId).emit('onAppFollowers', {app_followers});
+									}
+								})
+							}
+
+							// console.log('AppFollowersSchema > insert, update : #3 ', nid);
+
+
+							// Update search engine // nid
+
+							// let app_followers_schema = await AppFollowersSchema.findOne({nid: nid})
+							// if(!_.isEmpty(app_followers_schema)){
+							// 	console.log("app_followers_schema : " , JSON.stringify(app_followers_schema), app_followers_schema.value)
+							// }
+							let query = {
+								"query": {
+									"bool": {
+										"must": [
+											{"match" : { "nid": nid }},
+											// {"match" : { "status": true}},
+										],
+									}
+								},
+							}
+							// console.log( 'query >', query );
+							const { body } = await client.search({ index: 'banlist', body:  query })
+															
+							if(body.hits.total.value){			
+								await client.update({
+									index: "banlist", 
+									type: "content",
+									id: body.hits.hits[0]._id,
+									body: {
+										doc: {
+											app_followers: app_followers_schema.value
+										}
+									}
+								})
+							}
 						}
 
-						// console.log('AppFollowersSchema > insert, update : #3 ', nid);
+					} catch (err) {
+						console.log(err);
 					}
-
 					break;
 				}
 			}
@@ -191,6 +237,7 @@ http.listen(3001,()=> {
 				break;
 			} 
 
+			case 'replace':
 			case 'update':{
 				let followsSchema = await FollowsSchema.findById(data.documentKey._id.toString()) 
 				console.log('FollowsSchema > update : ', JSON.stringify(followsSchema), followsSchema.uid, followsSchema.value);
@@ -216,7 +263,8 @@ http.listen(3001,()=> {
 
 		switch(data.operationType){
 			case 'insert':
-			case 'update':{
+			case 'update':
+			case 'replace':{
 				try{
 					let cs = await ContentsSchema.findById(data.documentKey._id.toString()) 
 					// console.log('ContentsSchema > update : ', JSON.stringify(cs) );
@@ -230,22 +278,22 @@ http.listen(3001,()=> {
 							type: "content",
 							id: cs._id + ":"+ cs.owner_id +":"+ cs.nid +":"+ cs.type + ":" + cs.langcode,
 							body: {
-							ref: cs._id,
-							title: cs.title,
-							type: cs.type,
-							name_surname: cs.name_surname,
-							owner_id: cs.owner_id,
-							transfer_amount: cs.transfer_amount,
-							detail: cs.detail,
-							selling_website: cs.selling_website,
-							nid: cs.nid,
-							id_card_number: cs.id_card_number,
-							merchant_bank_account: cs.merchant_bank_account,
-							images: cs.images,
-							status: cs.status,
-							created: cs.created,
-							changed: cs.changed,
-							langcode: cs.langcode,
+								ref: cs._id,
+								title: cs.title,
+								type: cs.type,
+								name_surname: cs.name_surname,
+								owner_id: cs.owner_id,
+								transfer_amount: cs.transfer_amount,
+								detail: cs.detail,
+								selling_website: cs.selling_website,
+								nid: cs.nid,
+								id_card_number: cs.id_card_number,
+								merchant_bank_account: cs.merchant_bank_account,
+								images: cs.images,
+								status: cs.status,
+								created: cs.created,
+								changed: cs.changed,
+								langcode: cs.langcode,
 							}
 						})
 
@@ -356,7 +404,8 @@ http.listen(3001,()=> {
 		console.log('UserSchema > init : ', data.operationType, JSON.stringify(data))
 		switch(data.operationType){
 			case 'insert':
-			case 'update':{
+			case 'update':
+			case 'replace':{
 				try{
 					let user = await UserSchema.findById(data.documentKey._id.toString()) 
 					if(!utils.isEmpty(user)){
@@ -397,7 +446,8 @@ http.listen(3001,()=> {
 		console.log('SocketsSchema > init : ', data.operationType, JSON.stringify(data))
 		switch(data.operationType){
 			case 'insert':
-			case 'update':{
+			case 'update':
+			case 'replace':{
 			// let user = await UserSchema.findById(data.documentKey._id.toString()) 
 			// if(!utils.isEmpty(user)){
 			//   let sockets = await SocketsSchema.find({auth: user.uid });
@@ -448,6 +498,93 @@ app.get('/client_delete',  async(req, res) => {
 });
 
 app.get('/',  async(req, res) => {  
+
+	/*
+		var results = body.hits.hits.map((hit)=>{ 
+													let title           = hit._source.title;
+													// let name            = utils.isEmpty(hit._source.field_sales_person_name) ? "" : hit._source.field_sales_person_name;  
+													// let surname         = utils.isEmpty(hit._source.field_sales_person_surname) ? "" : hit._source.field_sales_person_surname;  
+													let name_surname    = utils.isEmpty(hit._source.name_surname) ? "" : hit._source.name_surname; 
+													let owner_id        = hit._source.owner_id;
+													let transfer_amount = utils.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount; 
+													let detail          = utils.isEmpty(hit._source.detail) ? "" : hit._source.detail;
+													let nid              = hit._source.nid;
+													let id_card_number  = utils.isEmpty(hit._source.id_card_number) ? [] : hit._source.id_card_number ;
+													let images          = hit._source.images;
+													let status          = hit._source.status;
+
+													let created          = hit._source.created;
+													let changed          = hit._source.changed;
+
+													return {nid, owner_id, name_surname, title, transfer_amount, detail, id_card_number, images, status, created, changed}
+												});
+	*/
+	
+	/*
+	let query = {
+		"query": {
+			"bool": {
+				"must": [
+					{"match" : { "nid": 195 }},
+					// {"match" : { "status": true}},
+				],
+			}
+		},
+	}
+	// console.log( 'query >', query );
+	const { body } = await client.search({
+		index: 'banlist',
+		body:  query
+	})
+	
+	// console.log("body : " , JSON.stringify(body))
+
+	if(body.hits.total.value){
+		var _id = body.hits.hits[0]._id
+
+		console.log("body : " , JSON.stringify(body), ' _id ', _id)
+	}
+	*/
+
+	/*
+	"hits": {
+		"total": {
+			"value": 0,
+			"relation": "eq"
+		},
+		"max_score": null,
+		"hits": []
+	}
+	*/
+
+	// console.log("body : " , JSON.stringify(body))
+	// await client.indices.delete({
+	// 	index: 'banlist',
+	// });
+
+	/*
+	try{
+		await client.update({
+			index: "banlist", 
+			type: "content",
+			id: "6133981e1da54e564122ec45:1:195:back_list:en",
+			body: {
+				// put the partial document under the `doc` key
+				// title: 'xvvv'
+
+				doc: {
+					title: 'xvvv',
+					name_surname: '-name_surname-',
+					name_surnamex: ['a', 'b']
+				}
+			}
+		})
+
+	} catch (err) {
+		console.log(err);
+	}
+	*/
+	
 	res.send(`>> Hello Docker World <<\n`);
 });
 
@@ -478,26 +615,25 @@ app.post('/v1/login',  async(req, res)=> {
 	  req.session.userId    = response.user.uid;
 	  req.session.basicAuth = response.user.basic_auth;
 	  req.session.session   = response.user.session;
-  
-	  // const docs = await ContentsSchema.find({ owner_id: 60 });
-	// console.log(JSON.stringify(docs))
-  
+    
 	  let user = await UserSchema.findOne({uid: response.user.uid}) 
   
 	  if(!utils.isEmpty(user)){
 
-		let my_apps =  await ContentsSchema.find({ owner_id: 71 })
+		let my_apps =  await ContentsSchema.find({ owner_id: response.user.uid })
 
-		let app_followers =  await Promise.all( my_apps.map(async (item)=>{	
-			let app_follower = await AppFollowersSchema.findOne({nid: item.nid})
-			return  {nid: item.nid, app_follower}
-		}))
+		let app_followers = await Promise.all( 
+								my_apps.map(async (item)=>{	
+									let app_follower = await AppFollowersSchema.findOne({nid: item.nid})
+									return  {nid: item.nid, app_follower}
+								})
+							)
 
 		let data =  {
 					  basic_auth:response.user.basic_auth,
 					  session: response.user.session,
-					  user: user,
-					  my_apps: await ContentsSchema.find({ owner_id: response.user.uid }),
+					  user,
+					  my_apps,
 					  app_followers
 					}
 	
@@ -886,8 +1022,8 @@ app.post('/v1/search',  async(req, res, next)=> {
 				// console.log( 'query >', query );
 
 				const { body } = await client.search({
-				index: 'banlist',
-				body:  query
+					index: 'banlist',
+					body:  query
 				})
 			
 				var results = body.hits.hits.map((hit)=>{ 
@@ -903,10 +1039,12 @@ app.post('/v1/search',  async(req, res, next)=> {
 													let images          = hit._source.images;
 													let status          = hit._source.status;
 
+													let app_followers   = _.isEmpty(hit._source.app_followers) ? [] : hit._source.app_followers;
+
 													let created          = hit._source.created;
 													let changed          = hit._source.changed;
 
-													return {nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, created, changed}
+													return {nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers, created, changed}
 												});
 				const end = Date.now()
 
@@ -972,11 +1110,12 @@ app.post('/v1/search',  async(req, res, next)=> {
 													let id_card_number  = utils.isEmpty(hit._source.id_card_number) ? [] : hit._source.id_card_number ;
 													let images          = hit._source.images;
 													let status          = hit._source.status;
+													let app_followers   = _.isEmpty(hit._source.app_followers) ? [] : hit._source.app_followers;
 
 													let created          = hit._source.created;
 													let changed          = hit._source.changed;
 
-													return {nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, created, changed}
+													return {nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers, created, changed}
 												});
 				const end = Date.now()
 
@@ -1054,10 +1193,13 @@ app.post('/v1/search',  async(req, res, next)=> {
 														let images          = hit._source.images;
 														let status          = hit._source.status;
 
+														let app_followers   = _.isEmpty(hit._source.app_followers) ? [] : hit._source.app_followers;
+
+
 														let created          = hit._source.created;
 														let changed          = hit._source.changed;
 
-														return {nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, created, changed}
+														return {nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers,  created, changed}
 												});
 				const end = Date.now()
 			
@@ -1098,10 +1240,12 @@ app.post('/v1/search',  async(req, res, next)=> {
 											let images          = hit._source.images;
 											let status          = hit._source.status;
 
+											let app_followers   = _.isEmpty(hit._source.app_followers) ? [] : hit._source.app_followers;
+
 											let created          = hit._source.created;
 											let changed          = hit._source.changed;
 
-											return {nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, created, changed}
+											return {nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers, created, changed}
 										});
 		const end = Date.now()
 
@@ -1544,24 +1688,23 @@ app.get('/v1/healthz', async (req, res) =>{
 	// you should return 200 if healthy, and anything else will fail
 	// if you want, you should be able to restrict this to localhost (include ipv4 and ipv6)
 
-// let health = await client.cluster.health({});
+	// let health = await client.cluster.health({});
 
-let health = await client.cluster.health({});
+	let health = await client.cluster.health({});
+	let html = `<div> \
+					<h1>Nodejs banlist status</h1> \ 
+					<ul> \
+					<li>Mongoose connection readyState : ${mongoose.STATES[mongoose.connection.readyState]}</li> \
+					</ul> \
+					<ul> \
+					<li>User login, userId: ${req.session.userId} basicAuth: ${req.session.basicAuth} session: ${req.session.session}  --- ${req.session.cookie.expires}</li> \
+					</ul> \
+					<ul> \
+					<li>Elasticsearch : statusCode= ${health.statusCode}, body status: ${health.body.status}</li> \
+					</ul> \
+				</div>`;
 
-let html = `<div> \
-				<h1>Nodejs banlist status</h1> \ 
-				<ul> \
-				<li>Mongoose connection readyState : ${mongoose.STATES[mongoose.connection.readyState]}</li> \
-				</ul> \
-				<ul> \
-				<li>User login, userId: ${req.session.userId} basicAuth: ${req.session.basicAuth} session: ${req.session.session}  --- ${req.session.cookie.expires}</li> \
-				</ul> \
-				<ul> \
-				<li>Elasticsearch : statusCode= ${health.statusCode}, body status: ${health.body.status}</li> \
-				</ul> \
-			</div>`;
-
-res.send(html);
+	res.send(html);
 });
 
 
@@ -1577,8 +1720,9 @@ io.on('connection', async (socket) => {
   
 	var t = handshake.query.t;
 	var platform = handshake.query.platform;
+	var device_detect = handshake.query.device_detect;
 	var geolocation = handshake.query.geolocation
-	var token = handshake.query.auth_token;
+	var token = parseInt(handshake.query.auth_token);
   
 	// console.log(handshake.query.unique_id)
   
@@ -1593,13 +1737,13 @@ io.on('connection', async (socket) => {
 	  if(utils.isEmpty(user_schema)){
   
 		// กรณี เช็ดแล้วไม่มี user ในระบบเราจะสั่งให้ client ที่ connect เข้ามาทำการ logout ออกจากระบบ
-		socket.emit('onUser', {'mode': 'delete'});
+		socket.emit('onUser', {'mode': 'delete', 'A': token});
 	  }
 	}
 
 	console.log(`Socket ${socket.id} - ${t} connection`)
   
-	await SocketsSchema.findOneAndUpdate({t}, { t, socketId: socket.id, platform,  auth:token, geolocation }, { new: true, upsert: true  })
+	await SocketsSchema.findOneAndUpdate({t}, { t, socketId: socket.id, platform,  auth:token, device_detect, geolocation }, { new: true, upsert: true  })
   
 	socket.on('disconnect', async() => {
 		let  sockets_schema =await SocketsSchema.findOne({t: t});
@@ -1616,7 +1760,7 @@ io.on('connection', async (socket) => {
 	// 	return;
 	//   }
   
-	  console.log(`----->  Heartbeat connection`)
+	  console.log(`Heartbeat connection ${socket.id} - `, socket.connected)
    
 	});
 });

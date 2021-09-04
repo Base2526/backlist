@@ -43,23 +43,15 @@ const HomePage = (props) => {
                                                           ]);
 
   useEffect(() => {
-    console.log("useEffect #0", props.my_apps, props.my_follows)
-
-  });
+    console.log("useEffect #0")
+  }, []);
 
   useEffect(() => {
-    console.log("useEffect #1 ", currentPage)
     if(currentPage !== undefined){
       fetch()
     }
   }, [currentPage])
 
-  // my_follows
-
-  useEffect(() => {
-    console.log("useEffect #1 props.my_follows : ", props.my_follows)
-    
-  }, [props.my_follows])
 
   const handleFormSearch = (e) => {
     e.preventDefault();
@@ -107,23 +99,20 @@ const HomePage = (props) => {
     fetch()
   }
 
-  const fetch = () =>{
-
-    console.log('fetch : ', currentPage)
+  const fetch = async() =>{
     setLoading(true)
-    axios.post(`/api/v1/search`, {
-      type: 0,
-      key_word: '*',
-      offset:  currentPage === 0 ? 0 : currentPage - 1
-    }, {
-        headers: {'Authorization': isEmpty(ls.get('basic_auth')) ? `Basic ${process.env.REACT_APP_AUTHORIZATION}` : ls.get('basic_auth')}
-    })
-    .then((response) => {
-      let results = response.data
-      console.log('/api/v1/search : ', response)
-      if(results.result){
-        // true
-        let {execution_time, datas, count, all_result_count} = results;
+    let response = await axios.post(`/api/v1/search`, { type: 0,
+                                                        key_word: '*',
+                                                        offset:  currentPage === 0 ? 0 : currentPage - 1
+                                                      }, {
+                                                          headers: {'Authorization': isEmpty(ls.get('basic_auth')) ? `Basic ${process.env.REACT_APP_AUTHORIZATION}` : ls.get('basic_auth')}
+                                                      });
+
+    response = response.data
+    if(response.result){
+        console.log("response.datas", response.datas)
+
+        let {execution_time, datas, count, all_result_count} = response;
         props.fetchData(datas);
 
         setAllDatas(mergeArrays(allDatas, datas))
@@ -132,19 +121,9 @@ const HomePage = (props) => {
 
         setAllResultCount(all_result_count)
         setTotalPages(Math.ceil(all_result_count / pageLimit))
+    }
 
-      }
-
-      setLoading(false)
-
-    })
-    .catch( (error) => {
-      console.log('/api/v1/search : ', error)
-
-      onToast('error', error)
-
-      setLoading(false)
-    });
+    setLoading(false)
   }
 
   const toggleCheckbox = (data) => {
@@ -327,7 +306,7 @@ const HomePage = (props) => {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  console.log('HomePage state : >>> ', state)
+  console.log('mapStateToProps :', state.my_follows.data)
 	return {
     user: state.user.data,
     data: state.app.data,

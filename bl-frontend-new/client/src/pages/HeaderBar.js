@@ -47,7 +47,7 @@ const HeaderBar = (props) => {
                  <Toolbar>
                    <Typography variant="h6" style={{flexGrow: 1, color: 'white'}}>
                     <div  onClick={()=>{ history.push({pathname: `/`, state: {} }) }}>
-                      <span style={{cursor:'pointer'}} >Banlist.info</span>
+                      <span style={{cursor:'pointer'}} >Banlist.info {_.isEmpty(props.socket_data)? '[Disconnect]' : "[Connected]"}</span>
                     </div>
                    </Typography>
 
@@ -151,6 +151,7 @@ const HeaderBar = (props) => {
 };
   
 const mapStateToProps = (state, ownProps) => {
+
 	return {
     user: state.user.data,
     data: state.app.data,
@@ -158,7 +159,9 @@ const mapStateToProps = (state, ownProps) => {
 
 
     my_apps: state.my_apps.data,
-    maintenance: state.setting.maintenance
+    maintenance: state.setting.maintenance,
+
+    socket_data: state.socket.data
   };
 }
 

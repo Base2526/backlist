@@ -17,6 +17,10 @@ import LoginDialog from './LoginDialog'
 import { isEmpty, commaFormatted } from "../utils";
 import ReportDialog from './ReportDialog'
 
+import { onMyFollow } from '../actions/my_follows';
+
+var _ = require('lodash');
+
 // Hook
 function usePrevious(value) {
     // The ref object is a generic container whose current property is mutable ...
@@ -46,7 +50,16 @@ const DetailPage = (props) => {
     const prevNid = usePrevious(props.match.params.nid);
 
     useEffect( async() => {
-        let { pathname, state} = props.location
+        let {state} = props.location
+        let {match}  = props
+
+        setNid(match.params.nid)
+
+        // _.isEmpty( (props.my_follows.find((el)=>el.nid === nid && el.status)) )
+        // let __x = _.isEmpty( (props.my_follows.find((el)=>el.nid === parseInt(match.params.nid) && el.status)) );
+        // let __y = props.my_follows;
+        // let __z = props.my_follows.find((el)=>el.nid === parseInt(match.params.nid) && el.status )
+        // console.log("__x , __y, __z =", __x, __y, __z, match.params.nid)
 
         if(state === undefined){
 
@@ -63,41 +76,21 @@ const DetailPage = (props) => {
 
                 let {datas} = response
                 if(!isEmpty(datas)){
+                    if(_.isEmpty(datas[0])){
+                        props.history.goBack();
+                        return;
+                    }
+
                     setItem(datas[0])
                 }
             }
-
-            // console.log("ref.value > useEffect : ", props) 
-            // let {match, data}  = props
-            // setNid(match.params.nid)
-            // let _data = data.find((item)=> item.id == match.params.nid)
-
-            // console.log("ref.value > _data", _data) 
-
-            // if(!isEmpty(_data)){
-            //     setItem(_data)
-            // }else{
-            //     axios.post(`/api/v1/search`, {
-            //         type: 8,
-            //         key_word: JSON.stringify([nid]),
-            //         offset: 0
-            //     }, {
-            //         headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`}
-            //     })
-            //     .then((response) =>  {
-            //         let results = response.data
-
-            //         console.log("then > response", response) 
-            //         if(results.result && results.count){
-            //             setItem(results.datas[0])
-            //         }
-            //     })
-            //     .catch((error) => {
-            //         console.log("error :", error)
-            //     });
-            // }
-
         }else{
+
+            if(_.isEmpty(state.item)){
+                props.history.goBack();
+                return;
+            }
+
             setItem(state.item)
         }
 
@@ -143,17 +136,12 @@ const DetailPage = (props) => {
                         </div>
                         <div>
                             <VerifiedUserOutlinedIcon 
-                                style={{cursor:'pointer'}}
+                                style={{cursor:'pointer', fill: _.isEmpty( (props.my_follows.find((el)=>el.nid === parseInt(nid) && el.status)) ) ? "gray" : "red"}}
                                 onClick={()=>{ 
-                                    if(isEmpty(props.user)){
+                                    if(_.isEmpty(props.user)){
                                         setShowModalLogin(true)
                                     }else{
-                                        toast.info("Follow up or Unfollow up", 
-                                            {
-                                                position: "bottom-right", 
-                                                hideProgressBar: true,
-                                                autoClose: 1000,
-                                            }) 
+                                        props.onMyFollow(item.nid)
                                     }
                                 }} />
                             <MoreVertOutlinedIcon 
@@ -248,11 +236,13 @@ const mapStateToProps = (state, ownProps) => {
     return {
       user: state.user.data,
       data: state.app.data,
+      my_follows: state.my_follows.data,
     };
 }
   
 const mapDispatchToProps = {
     // fetchData,
+    onMyFollow
 }
   
 export default connect(mapStateToProps, mapDispatchToProps)(DetailPage)

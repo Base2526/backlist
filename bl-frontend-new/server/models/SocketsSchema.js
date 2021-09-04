@@ -6,6 +6,7 @@ const SocketsSchema = new mongoose.Schema({
     socketId: String,
     platform: String,
     auth: Number,
+    device_detect: String,
     geolocation:  String,
 },
 {

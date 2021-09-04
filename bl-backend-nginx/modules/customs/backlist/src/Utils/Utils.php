@@ -4856,6 +4856,7 @@ nodejs_bl        |     status: true
                   "created"         => $created,
                   "changed"         => $changed,
                   "langcode"        => $langcode,
+                  "app_followers"   => array(),
                 );
   }
 

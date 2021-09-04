@@ -15,6 +15,8 @@ import parse from 'html-react-parser';
 import ReportDialog from './ReportDialog'
 import { isEmpty, commaFormatted, ReadMore } from "../utils";
 
+var _ = require('lodash');
+
 const UseHomeItem = (props) => {
   const [item, setItem] = useState({});
   const [anchorEl, setAnchorEl] = useState(null);
@@ -30,7 +32,8 @@ const UseHomeItem = (props) => {
 
     // console.log('UseHomeItem : ', props.my_follows)
     setItem(props.item)
-    setFollowUp( isEmpty(props.my_follows.find((el)=>el.nid === item.nid && el.status)) ? false : true )
+    // 
+    setFollowUp( _.isEmpty( (props.my_follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ) ? false : true )
   });
   
   const handleClose = () => {
@@ -397,7 +400,7 @@ const UseHomeItem = (props) => {
           </div>
           <div>
             <VerifiedUserOutlinedIcon 
-              style={{fill: followUp ? "red" : "gray"}}
+              style={{fill: _.isEmpty( (props.my_follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ) ? "gray" : "red"}}
               onClick={()=>{ 
                 // toast.info("Wow so easy!", 
                 //           {
