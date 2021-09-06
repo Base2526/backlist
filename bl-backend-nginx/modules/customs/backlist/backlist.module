@@ -591,7 +591,6 @@ function backlist_node_delete(EntityInterface $entity) {
     case 'back_list':{
       try{
         //-------------------- delete new to mongodb --------------------------
-
         $db = Utils::MongoDB()->bl;
       
         $mg_content = $db->contents;
@@ -601,13 +600,11 @@ function backlist_node_delete(EntityInterface $entity) {
         if($mg_content->count($filter)){
           $mg_content->deleteOne($filter);
         }
-
-        
         //-------------------- delete new to mongodb --------------------------
 
-         // ------- notify_owner_content --------
-        //  Utils::nodejs_notify_owner_content( $entity->getOwnerId(), 'delete', $entity->id(), array() );
-         // ------- notify_owner_content --------
+        // ------- notify_owner_content --------
+        // Utils::nodejs_notify_owner_content( $entity->getOwnerId(), 'delete', $entity->id(), array() );
+        // ------- notify_owner_content --------
       } catch (\Throwable $e) {
         \Drupal::logger('backlist_node_update')->error($e->__toString());
       }

@@ -979,11 +979,10 @@ app.post('/v1/search',  async(req, res, next)=> {
 		let type     = req.body.type;
 		let offset   = req.body.offset;
 		let full_text_fields = req.body.full_text_fields;
+		let page_limit = _.isEmpty(req.body.page_limit) ? 20 :  req.body.page_limit;
 
-		// console.log('/v1/search >', key_word, type, offset, full_text_fields)
-
-		if(key_word === undefined){
-		return res.send({ status: false, message:"Keyword is empty" });
+		if(_.isEmpty(key_word)){
+			return res.send({ status: false, message:"Keyword is empty" });
 		}
 
 		let query = {}
@@ -997,8 +996,8 @@ app.post('/v1/search',  async(req, res, next)=> {
 								]
 							}
 						},
-						"from": offset * 20 + 1, 
-						"size": 20
+						"from": offset * page_limit + 1, 
+						"size": page_limit
 						}
 				
 				// console.log( 'query >', query );
@@ -1010,17 +1009,15 @@ app.post('/v1/search',  async(req, res, next)=> {
 			*/
 			case 1: {
 				query = {
-						"query": {
-							"bool": {
-								"must": [
-									{"match" : { "uid": key_word }},
-									// {"match" : { "status": true}},
-								],
-							}
-						},
+							"query": {
+								"bool": {
+									"must": [
+										{"match" : { "uid": key_word }},
+										// {"match" : { "status": true}},
+									],
+								}
+							},
 						}
-
-				// console.log( 'query >', query );
 
 				const { body } = await client.search({
 					index: process.env.ELASTIC_INDEX,
@@ -1028,9 +1025,9 @@ app.post('/v1/search',  async(req, res, next)=> {
 				})
 			
 				var results = body.hits.hits.map((hit)=>{ 
+													let _id             = hit._id;
+													let ref             = hit._source.ref;
 													let title           = hit._source.title;
-													// let name            = utils.isEmpty(hit._source.field_sales_person_name) ? "" : hit._source.field_sales_person_name;  
-													// let surname         = utils.isEmpty(hit._source.field_sales_person_surname) ? "" : hit._source.field_sales_person_surname;  
 													let name_surname    = utils.isEmpty(hit._source.name_surname) ? "" : hit._source.name_surname; 
 													let owner_id        = hit._source.owner_id;
 													let transfer_amount = utils.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount; 
@@ -1045,18 +1042,10 @@ app.post('/v1/search',  async(req, res, next)=> {
 													let created          = hit._source.created;
 													let changed          = hit._source.changed;
 
-													return {nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers, created, changed}
+													return {_id, ref, nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers, created, changed}
 												});
 				const end = Date.now()
 
-				// console.log( 'results >', { ...['a', 'b', 'c'] } );
-			
-				/*
-				all_result_count: 10
-				count: 10
-				*/
-				///------------------
-				// if(response.data.result){
 				return res.send({ result        : true,
 								execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`, 
 								body          : body,
@@ -1082,17 +1071,15 @@ app.post('/v1/search',  async(req, res, next)=> {
 				//------------- cache ----------------- 
 
 				query = {
-						"query": {
-							"bool": {
-								"must": [
-									{"match" : { "nid": key_word }},
-									// {"match" : { "status": true}},
-								],
-							}
-						},
+							"query": {
+								"bool": {
+									"must": [
+										{"match" : { "nid": key_word }},
+										// {"match" : { "status": true}},
+									],
+								}
+							},
 						}
-
-				// console.log( 'query >', query );
 
 				const { body } = await client.search({
 					index: process.env.ELASTIC_INDEX,
@@ -1100,9 +1087,9 @@ app.post('/v1/search',  async(req, res, next)=> {
 				})
 			
 				var results = body.hits.hits.map((hit)=>{ 
+													let _id             = hit._id;
+													let ref             = hit._source.ref;
 													let title           = hit._source.title;
-													// let name            = utils.isEmpty(hit._source.field_sales_person_name) ? "" : hit._source.field_sales_person_name;  
-													// let surname         = utils.isEmpty(hit._source.field_sales_person_surname) ? "" : hit._source.field_sales_person_surname;  
 													let name_surname    = utils.isEmpty(hit._source.name_surname) ? "" : hit._source.name_surname; 
 													let owner_id        = hit._source.owner_id;
 													let transfer_amount = utils.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount; 
@@ -1116,7 +1103,7 @@ app.post('/v1/search',  async(req, res, next)=> {
 													let created          = hit._source.created;
 													let changed          = hit._source.changed;
 
-													return {nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers, created, changed}
+													return {_id, ref, nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers, created, changed}
 												});
 				const end = Date.now()
 
@@ -1145,21 +1132,19 @@ app.post('/v1/search',  async(req, res, next)=> {
 				const fields = JSON.parse(full_text_fields);
 				const should = fields.map((field) => { return {'wildcard': {[field]: `*${key_word}*`}}});
 				query = {
-						"query": {
-							"bool": {
-								"must_not": [
-								{"match": { "status": false}}
-								],
-								should
-							}
-						},
+							"query": {
+								"bool": {
+									"must_not": [
+									{"match": { "status": false}}
+									],
+									should
+								}
+							},
 						}
 
-				// console.log( 'query >', query );
 				break;
 			}
 
-			// test 
 			case 9999: {
 
 				const fields = [ {name: "title"}, {name: "body"} ]
@@ -1176,20 +1161,20 @@ app.post('/v1/search',  async(req, res, next)=> {
 																should
 															}
 														},
-														size: 5,
+														size: page_limit,
 														}
 													})
 
 				var results = [];
 				results = body.hits.hits.map((hit)=>{ 
+														let _id             = hit._id;
+														let ref             = hit._source.ref;
 														let title           = hit._source.title;
-														// let name            = utils.isEmpty(hit._source.field_sales_person_name) ? "" : hit._source.field_sales_person_name;  
-														// let surname         = utils.isEmpty(hit._source.field_sales_person_surname) ? "" : hit._source.field_sales_person_surname;  
 														let name_surname    = utils.isEmpty(hit._source.name_surname) ? "" : hit._source.name_surname; 
 														let owner_id        = hit._source.owner_id;
 														let transfer_amount = utils.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount; 
 														let detail          = utils.isEmpty(hit._source.detail) ? "" : hit._source.detail;
-														let nid              = hit._source.nid;
+														let nid             = hit._source.nid;
 														let id_card_number  = utils.isEmpty(hit._source.id_card_number) ? [] : hit._source.id_card_number ;
 														let images          = hit._source.images;
 														let status          = hit._source.status;
@@ -1200,16 +1185,10 @@ app.post('/v1/search',  async(req, res, next)=> {
 														let created          = hit._source.created;
 														let changed          = hit._source.changed;
 
-														return {nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers,  created, changed}
+														return {_id, ref, nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers,  created, changed}
 												});
 				const end = Date.now()
 			
-				/*
-				all_result_count: 10
-				count: 10
-				*/
-				///------------------
-				// if(response.data.result){
 				return res.send({ result        : true,
 								execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`, 
 								body          : body,
@@ -1218,7 +1197,6 @@ app.post('/v1/search',  async(req, res, next)=> {
 			
 								hits: body.hits.hits,
 								count         : results.length });
-				break;
 			}
 		}
 		
@@ -1229,9 +1207,9 @@ app.post('/v1/search',  async(req, res, next)=> {
 
 		var results = [];
 		results = body.hits.hits.map((hit)=>{ 
+											let _id             = hit._id;
+										    let ref             = hit._source.ref;
 											let title           = hit._source.title;
-											// let name            = utils.isEmpty(hit._source.field_sales_person_name) ? "" : hit._source.field_sales_person_name;  
-											// let surname         = utils.isEmpty(hit._source.field_sales_person_surname) ? "" : hit._source.field_sales_person_surname;  
 											let name_surname    = utils.isEmpty(hit._source.name_surname) ? "" : hit._source.name_surname; 
 											let owner_id        = hit._source.owner_id;
 											let transfer_amount = utils.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount; 
@@ -1246,16 +1224,9 @@ app.post('/v1/search',  async(req, res, next)=> {
 											let created          = hit._source.created;
 											let changed          = hit._source.changed;
 
-											return {nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers, created, changed}
+											return {_id, ref, nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers, created, changed}
 										});
 		const end = Date.now()
-
-		/*
-		all_result_count: 10
-		count: 10
-		*/
-		///------------------
-		// if(response.data.result){
 		return res.send({ result        : true,
 						execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`, 
 						body          : body,
@@ -1264,38 +1235,7 @@ app.post('/v1/search',  async(req, res, next)=> {
 
 						hits: body.hits.hits,
 						count         : results.length });
-		// }else{
-		//   return res.send(response.data);
-		// }
 		
-		/*
-		const query = {
-		query: {
-			"query_string": {
-			"fields": [ "field_sales_person_name", "body" ],
-			"query": `*${key_word}*`,
-			},
-			
-			//   query: { match_all: {}},
-			//  sort: [{ "nid": { "order": "asc" } }],
-			//  from: 0,
-			//  size: 5,
-			
-		}
-		}
-
-		const { body } = await client.search({
-		index: process.env.ELASTIC_INDEX,
-		body:  query
-		})
-
-		return res.send({"result"        : true,
-						"execution_time": `Time Taken to execute = ${(Date.now() - start)/1000} seconds`,
-						"count"         : body.hits.total.value,
-						"datas"         : body.hits.hits,
-						});
-						*/
-
 	} catch (err) {
 		logger.error(err);
 		return res.send({"result" : false, "message": err});

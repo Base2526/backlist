@@ -1,60 +1,48 @@
-import { FETCH_DATA, CHECK_DATA, FETCH_ALL_DATA, TEST_DATA, CLEAR_DATA } from '../constants';
+import { ADD_CONTENTS_DATA, CLEAR_ALL_CONTENTS_DATA, MY_FOLLOW } from '../constants';
 
-export const  mergeArrays = (...arrays) => {
-  let jointArray = []
+var _ = require('lodash');
 
-  arrays.forEach(array => {
-      jointArray = [...jointArray, ...array]
-  })
-  const uniqueArray = jointArray.reduce((newArray, item) =>{
-      let found = newArray.find(({ id }) => id === item.id);
-      if (found){
-          return newArray
-      } else {
-          return [...newArray, item]
-      }
-  }, [])
-  return uniqueArray
-}
-
+var merge = (a, b, p) => a.filter(aa =>!b.find(bb => aa[p] === bb[p]));
 const initialState = {
-  data: [],
-  tests: []
+  data: []
 }
 
 const app = (state = initialState, action) => {
   switch (action.type) {
-    case FETCH_DATA:{
-      return {
-        ...state,
-        data: mergeArrays(state.data, action.data)
-      }
+    case ADD_CONTENTS_DATA:{
+      var merged = _.merge(_.keyBy(state.data, 'nid'), _.keyBy(action.data, 'nid'));
+  
+      console.log('ADD_CONTENTS_DATA : ', _.values(merged))
+      return { ...state, data: _.values(merged)}
     }
 
-    // case FETCH_ALL_DATA:{
-    //   console.log('FETCH_ALL_DATA action : ', action.data)
-    //   return {
-    //     ...state,
-    //     data: [ ...state.data, ...action.data]
-    //   }
-    // }
-    
-    // case TEST_DATA: {
-    //   // console.log('TEST_DATA ', action.data)
-    //   return {...state, 
-    //             tests: action.data}
-    // }
+    case MY_FOLLOW:{
+      let state_data  = state.data
+      let action_data = action.data;
 
-    // case CHECK_DATA: {
-    //   console.log('CHECT_DATA state >> ', state)
-    //   // console.log('CHECT_DATA action>> ', action.data)
+      let index = state_data.findIndex((obj => obj.nid == action_data.nid));
+      
+      let __t = state_data[index];
+      if(!_.isEmpty(__t)){
+        let app_followers = __t.app_followers
 
-    //   return state;
-    // }
+        let _index = app_followers.findIndex((obj => obj.uid == action_data.uid));
+        if(_index === -1){
+          app_followers = [...app_followers, {uid: action_data.uid, status: true, date  : Date.now()}]
+        }else{
+          app_followers[_index].status = action_data.status
+          console.log('app_followers :', app_followers, app_followers[_index].status)
+        }
 
-    // case CLEAR_DATA: {
-    //   return initialState;
-    // }
+        state_data.splice(index,1, {...__t, app_followers})
+      }
+
+      return { ...state, data: state_data};
+    }
+
+    case CLEAR_ALL_CONTENTS_DATA:{
+      return initialState
+    }
       
     default:
       return state;

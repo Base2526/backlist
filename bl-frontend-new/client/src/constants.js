@@ -14,7 +14,8 @@ export const API_URL_SOCKET_IO = () => {
 
 export const FETCH_ALL_DATA = 'FETCH_ALL_DATA';
 
-export const FETCH_DATA = 'FETCH_DATA';
+export const ADD_CONTENTS_DATA       = 'ADD_CONTENTS_DATA';
+export const CLEAR_ALL_CONTENTS_DATA = 'CLEAR_ALL_CONTENTS_DATA';
 
 export const TEST_DATA = 'TEST_DATA';
 

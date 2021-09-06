@@ -107,6 +107,18 @@ const DetailPage = (props) => {
         setAnchorEl(null);
     }
 
+    const count_app_followers = () =>{
+        return (_.filter(item.app_followers, (o) => { return o.status; })).length
+    }
+
+    const is_follows = () =>{
+        if(!_.isEmpty(props.user)){
+          return _.isEmpty( (props.my_follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ) ? "gray" : "red"
+        }
+    
+        return "gray"
+      }
+
     return (
         <div>
             { showModalReport && <ReportDialog showModal={showModalReport} onClose = {()=>{  setShowModalReport(false) }}  /> }
@@ -136,12 +148,20 @@ const DetailPage = (props) => {
                         </div>
                         <div>
                             <VerifiedUserOutlinedIcon 
-                                style={{cursor:'pointer', fill: _.isEmpty( (props.my_follows.find((el)=>el.nid === parseInt(nid) && el.status)) ) ? "gray" : "red"}}
+                                style={{ cursor:'pointer', fill: is_follows() }}
                                 onClick={()=>{ 
                                     if(_.isEmpty(props.user)){
                                         setShowModalLogin(true)
                                     }else{
-                                        props.onMyFollow(item.nid)
+
+                                        let f = props.my_follows.find((o)=> o.nid === item.nid)
+
+                                        let status = true
+                                        if(!_.isEmpty(f)){
+                                            status = !f.status
+                                        }
+
+                                        props.onMyFollow({uid: props.user.uid,  nid: item.nid, status})
                                     }
                                 }} />
                             <MoreVertOutlinedIcon 
@@ -153,7 +173,7 @@ const DetailPage = (props) => {
                             <div style={{cursor:'pointer',}} onClick={()=>{
                                 props.history.push({pathname: `/my-follower/${item.nid}`, key: item.nid, state: { item } })
                                 }}>
-                                 { _.isEmpty(item.app_followers) ? 0 : item.app_followers.length } follower
+                                 { count_app_followers() } follower
                             </div>
                         </div>
                         <div className="row d-flex flex-row py-5"> 

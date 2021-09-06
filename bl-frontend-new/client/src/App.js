@@ -84,8 +84,10 @@ const App = (props) => {
   }, [props.user]);
 
   useEffect(async() => {
-    if( interval !== undefined){
+    if( _.isEmpty(interval) ){
       clearInterval(interval)
+
+      interval = undefined
     }
 
     console.log('useEffect [props.my_follows] #1: ')
@@ -97,25 +99,6 @@ const App = (props) => {
       
       console.log("useEffect [props.my_follows] #3:", filter_follow_ups)
       if(!_.isEmpty(filter_follow_ups)){
-        // setTimeInterval(setInterval(async(props)=>{
-        //   let {user, my_follows} = props
-        //   let response =  await axios.post(`/v1/syc_local`, 
-        //                                   { 
-        //                                     uid: user.uid, my_follows: JSON.stringify(my_follows) 
-        //                                   }, 
-        //                                   { headers: {'Authorization': `Basic ${ls.get('basic_auth')}` } });
-
-        //   response = response.data
-        //   console.log("useEffect [props.my_follows] #4:", response)
-
-        //   if(response.result){
-        //     props.onMyFollowUpdateStatus({})
-        //   }
-
-        //   clearInterval(timeInterval)
-        // }, 30000, props))
-
-
         interval = setInterval(async(props)=>{
           let {user, my_follows} = props
           let response =  await axios.post(`/api/v1/syc_local`, 
@@ -132,7 +115,7 @@ const App = (props) => {
           }
 
           clearInterval(interval)
-        }, 15000, props)
+        }, 3000, props)
       }else {
         console.log("useEffect [props.my_follows] #5:")
       }
@@ -388,8 +371,6 @@ const App = (props) => {
 
     // props.onMyFollowALL(data)
   }
-
-
 
   return( <BR>
             <LoadingOverlay

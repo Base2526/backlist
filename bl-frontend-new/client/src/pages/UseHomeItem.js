@@ -30,7 +30,7 @@ const UseHomeItem = (props) => {
 
   useEffect(() => {
 
-    // console.log('UseHomeItem : ', props.my_follows)
+    console.log('UseHomeItem : ', props.user.uid)
     setItem(props.item)
     // 
     setFollowUp( _.isEmpty( (props.my_follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ) ? false : true )
@@ -346,6 +346,18 @@ const UseHomeItem = (props) => {
                   }}>Report</MenuItem>
             </Menu> 
   }
+
+  const count_app_followers = () =>{
+      return (_.filter(item.app_followers, (o) => { return o.status; })).length
+  }
+
+  const is_follows = () =>{
+    if(!_.isEmpty(props.user)){
+      return _.isEmpty( (props.my_follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ) ? "gray" : "red"
+    }
+
+    return "gray"
+  }
   
   return (
     <div key={item.nid} style={{margin: 10}}>  
@@ -400,7 +412,7 @@ const UseHomeItem = (props) => {
           </div>
           <div>
             <VerifiedUserOutlinedIcon 
-              style={{fill: _.isEmpty( (props.my_follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ) ? "gray" : "red"}}
+              style={{fill:  is_follows() }}
               onClick={()=>{ 
                 // toast.info("Wow so easy!", 
                 //           {
@@ -409,12 +421,21 @@ const UseHomeItem = (props) => {
                 //             autoClose: 1000,
                 //           }) 
 
-                // console.log(item)
+                console.log("props.user : ", props.user)
 
-                if(isEmpty(props.user)){
+                if(_.isEmpty(props.user)){
                   props.updateState({showModalLogin: true})
                 }else{
-                  props.myFollow(item.nid)
+
+                  let f = props.my_follows.find((o)=> o.nid === item.nid)
+
+                  let status = true
+                  if(!_.isEmpty(f)){
+                    status = !f.status
+                  }
+
+                  props.myFollow({uid: props.user.uid, nid: item.nid, status})
+                  
                 }
 
                 /*
@@ -452,7 +473,7 @@ const UseHomeItem = (props) => {
             <div onClick={()=>{
               props.history.push({pathname: `my-follower/${item.nid}`, key: item.nid, state: { item } })
             }}>
-              { _.isEmpty(item.app_followers) ? 0 : item.app_followers.length } follower
+              { count_app_followers() } follower
             </div>
           </div>
       </div>

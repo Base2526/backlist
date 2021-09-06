@@ -6,6 +6,8 @@ import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 import { Button } from "react-bootstrap";
 import ls from 'local-storage';
 
+import Ajv from "ajv"
+
 import Pagination from "./Pagination";
 import UseHomeItem from "./UseHomeItem";
 import Checkbox from "../components/Checkbox";
@@ -14,18 +16,20 @@ import AddBanlistDialog from './AddBanlistDialog'
 import InputSearchField from '../components/InputSearchField'
 
 import LoginDialog from './LoginDialog'
-import {isEmpty, mergeArrays, onToast} from '../utils'
-import { fetchData } from '../actions/app';
+import { isEmpty, mergeArrays, onToast } from '../utils'
+import { addContentsData } from '../actions/app';
 import { followUp } from '../actions/user';
 import { onMyFollow } from '../actions/my_follows';
+
+var _ = require('lodash');
 
 const HomePage = (props) => {
   const [allDatas, setAllDatas]           = React.useState([]);
   const [currentDatas, setCurrentDatas]   = React.useState([]);
   const [currentPage, setCurrentPage]     = React.useState(0);
   const [totalPages, setTotalPages]       = React.useState(0);
-  const [pageLimit, setPageLimit]         = React.useState(20);
-  const [allResultCount, setAllResultCount] = React.useState(10000);
+  const [pageLimit, setPageLimit]         = React.useState(25);
+  const [allResultCount, setAllResultCount] = React.useState(0);
 
   const [searchWord, setSearchWord]               = React.useState("");
   const [loading, setLoading]                     = React.useState(false);
@@ -44,14 +48,27 @@ const HomePage = (props) => {
 
   useEffect(() => {
     console.log("useEffect #0")
+    //----------------
   }, []);
 
   useEffect(() => {
-    if(currentPage !== undefined){
-      fetch()
-    }
-  }, [currentPage])
+    console.log("useEffect #0 props.data : ", props.data)
 
+    let datas = props.data
+
+    setAllDatas(mergeArrays(allDatas, datas))
+    setCurrentDatas(datas)
+    // setAllResultCount(all_result_count)
+    setTotalPages(Math.ceil(allResultCount / pageLimit))
+    //----------------
+  }, [props.data]);
+
+  useEffect(() => {
+    // if( !_.isEmpty(currentPage) ){
+    fetch(currentPage)
+    // }
+    console.log("response fetch: ", props.data, currentPage)
+  }, [currentPage])
 
   const handleFormSearch = (e) => {
     e.preventDefault();
@@ -66,7 +83,8 @@ const HomePage = (props) => {
         type: 99,
         key_word: searchWord,
         offset: 0,
-        full_text_fields: JSON.stringify(selectedCheckboxes)
+        full_text_fields: JSON.stringify(selectedCheckboxes),
+        page_limit: pageLimit
       }, {
         headers: {'Authorization': isEmpty(ls.get('basic_auth')) ? `Basic ${process.env.REACT_APP_AUTHORIZATION}` : ls.get('basic_auth')}
       })
@@ -76,7 +94,7 @@ const HomePage = (props) => {
         if(results.result){
           // true
           let {execution_time, datas, count, all_result_count} = results;
-          props.fetchData(datas);
+          props.addContentsData(datas);
           setAllDatas(mergeArrays(allDatas, datas))
           setCurrentDatas(datas)
           setAllResultCount(all_result_count)
@@ -96,31 +114,32 @@ const HomePage = (props) => {
   }
 
   const clearSearch = () =>{
-    fetch()
+    fetch(0)
   }
 
-  const fetch = async() =>{
+  const fetch = async(currentPage) =>{
     setLoading(true)
     let response = await axios.post(`/api/v1/search`, { type: 0,
                                                         key_word: '*',
-                                                        offset:  currentPage === 0 ? 0 : currentPage - 1
+                                                        offset:  currentPage === 0 ? 0 : currentPage - 1,
+                                                        page_limit: pageLimit
                                                       }, {
                                                           headers: {'Authorization': isEmpty(ls.get('basic_auth')) ? `Basic ${process.env.REACT_APP_AUTHORIZATION}` : ls.get('basic_auth')}
                                                       });
 
     response = response.data
-    console.log("response.datas", response.datas)
+    console.log("response", response, pageLimit)
     if(response.result){
 
         let {execution_time, datas, count, all_result_count} = response;
-        props.fetchData(datas);
+        props.addContentsData(datas);
 
-        setAllDatas(mergeArrays(allDatas, datas))
-        setCurrentDatas(datas)
-        
+        // setCurrentPage(currentPage)
 
+        // setAllDatas(mergeArrays(allDatas, datas))
+        // setCurrentDatas(datas)
         setAllResultCount(all_result_count)
-        setTotalPages(Math.ceil(all_result_count / pageLimit))
+        // setTotalPages(Math.ceil(all_result_count / pageLimit))
     }
 
     setLoading(false)
@@ -143,9 +162,14 @@ const HomePage = (props) => {
     const offset = (currentPage - 1) * pageLimit;
     const currentDatas = allDatas.slice(offset, offset + pageLimit);
 
-    setCurrentPage(currentPage)
+    console.log("response fetch: @  ", data, currentPage, currentPage === 0 ? 1 : currentPage )
+
+    setCurrentPage( currentPage === 0 ? 1 : currentPage )
     // setCurrentDatas(currentDatas)
     setTotalPages(totalPages)
+
+
+    // fetch(currentPage)
   };
 
   const updateState = data => {
@@ -285,15 +309,14 @@ const HomePage = (props) => {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  console.log('mapStateToProps :', state.my_follows.data)
+
+  console.log('state.app.data : ', state)
 	return {
     user: state.user.data,
     data: state.app.data,
     follow_ups: state.user.follow_ups,
 
     my_apps: state.user.my_apps,
-
-
     my_follows: state.my_follows.data,
 
     socket_connected : state.data,
@@ -303,7 +326,7 @@ const mapStateToProps = (state, ownProps) => {
 }
 
 const mapDispatchToProps = {
-  fetchData,
+  addContentsData,
   followUp,
 
   onMyFollow
