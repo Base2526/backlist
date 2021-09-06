@@ -149,6 +149,12 @@ const DetailPage = (props) => {
                                 onClick={(e)=>{
                                     setAnchorEl(e.currentTarget);
                                 }} />
+
+                            <div style={{cursor:'pointer',}} onClick={()=>{
+                                props.history.push({pathname: `/my-follower/${item.nid}`, key: item.nid, state: { item } })
+                                }}>
+                                 { _.isEmpty(item.app_followers) ? 0 : item.app_followers.length } follower
+                            </div>
                         </div>
                         <div className="row d-flex flex-row py-5"> 
                             {
@@ -200,7 +206,7 @@ const DetailPage = (props) => {
                             anchorEl={anchorEl}
                             onClose={handleClose}
                             open={Boolean(anchorEl)}>
-                            <CopyToClipboard text={"http://localhost:8099/detail/" + item.id}>
+                            <CopyToClipboard text={"http://localhost:8099/detail/" + item.nid}>
                             <MenuItem onClick={()=>{
                                 toast.info("Link to post copied to clipboard.", 
                                         {
@@ -223,6 +229,8 @@ const DetailPage = (props) => {
                                 handleClose()
                             }}>Report</MenuItem>
                         </Menu> 
+
+                        
 
                         { showModalLogin &&  <LoginDialog showModal={showModalLogin} onClose = {()=>{ setShowModalLogin(false) }} />}
 

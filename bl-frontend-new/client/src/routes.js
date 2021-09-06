@@ -11,6 +11,8 @@ import ForDeveloperPage from './pages/ForDeveloperPage'
 import ForgetPasswordPage from './pages/ForgetPasswordPage';
 import RegisterPage from './pages/RegisterPage';
 
+import FollowerPage from './pages/FollowerPage'
+
 export default [
     { path: "/", name: "หน้าหลัก", Component: HomePage },
     { path: "/register", name: "สมัครสมาชิก", Component: RegisterPage },
@@ -21,6 +23,8 @@ export default [
     { path: "/my-profile/my-followup", name: "My follow up", Component: MyFollowUpPage },
     { path: "/my-profile/my-post/:nid", name: "รายละเอียด", Component: DetailPage },
     { path: "/my-profile/my-followup/:nid", name: "รายละเอียด", Component: DetailPage },
+
+    { path: "/my-follower/:nid", name: "ผู้ติดตาม", Component: FollowerPage },
     // { path: "/my-profile/detail/:nid", name: "รายละเอียด", Component: DetailPage },
     // /my-profile/detail/70287
     { path: "/settings", name: "Settings", Component: SettingsPage },

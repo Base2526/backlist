@@ -189,11 +189,11 @@ http.listen(3001,async()=> {
 								},
 							}
 							// console.log( 'query >', query );
-							const { body } = await client.search({ index: 'banlist', body:  query })
+							const { body } = await client.search({ index: process.env.ELASTIC_INDEX, body:  query })
 															
 							if(body.hits.total.value){			
 								await client.update({
-									index: "banlist", 
+									index: process.env.ELASTIC_INDEX, 
 									type: "content",
 									id: body.hits.hits[0]._id,
 									body: {
@@ -274,7 +274,7 @@ http.listen(3001,async()=> {
 					// "entity:node/397:en"
 					if(!utils.isEmpty(cs)){
 						await client.index({
-							index: "banlist", 
+							index: process.env.ELASTIC_INDEX, 
 							type: "content",
 							id: cs._id + ":"+ cs.owner_id +":"+ cs.nid +":"+ cs.type + ":" + cs.langcode,
 							body: {
@@ -338,10 +338,10 @@ http.listen(3001,async()=> {
 					//   }
 					// })
 
-					// await client.delete({ index: "banlist", type: "content", id: data.documentKey._id.toString() });
+					// await client.delete({ index: process.env.ELASTIC_INDEX, type: "content", id: data.documentKey._id.toString() });
 			
 					const results  = await client.search({
-														index: 'banlist',
+														index: process.env.ELASTIC_INDEX,
 														body:  {
 														"query": {
 															"bool": {
@@ -384,7 +384,8 @@ http.listen(3001,async()=> {
 						}
 					}
 
-					await client.deleteByQuery({  index: 'banlist',
+					await client.deleteByQuery({  
+												index: process.env.ELASTIC_INDEX,
 												type: 'content',
 												body: {
 													query: {
@@ -492,7 +493,7 @@ app.get('/client_delete',  async(req, res) => {
 
 
 	await client.indices.delete({
-		index: 'elasticsearch_index_banlist_content_back_list',
+		index: process.env.ELASTIC_INDEX,
 	});
 	res.send(`>> client_delete <<\n`);
 });
@@ -533,7 +534,7 @@ app.get('/',  async(req, res) => {
 	}
 	// console.log( 'query >', query );
 	const { body } = await client.search({
-		index: 'banlist',
+		index: process.env.ELASTIC_INDEX,
 		body:  query
 	})
 	
@@ -558,14 +559,14 @@ app.get('/',  async(req, res) => {
 	*/
 
 	// console.log("body : " , JSON.stringify(body))
-	// await client.indices.delete({
-	// 	index: 'banlist',
-	// });
+	await client.indices.delete({
+		index: process.env.ELASTIC_INDEX,
+	});
 
 	/*
 	try{
 		await client.update({
-			index: "banlist", 
+			index: process.env.ELASTIC_INDEX, 
 			type: "content",
 			id: "6133981e1da54e564122ec45:1:195:back_list:en",
 			body: {
@@ -1022,7 +1023,7 @@ app.post('/v1/search',  async(req, res, next)=> {
 				// console.log( 'query >', query );
 
 				const { body } = await client.search({
-					index: 'banlist',
+					index: process.env.ELASTIC_INDEX,
 					body:  query
 				})
 			
@@ -1094,7 +1095,7 @@ app.post('/v1/search',  async(req, res, next)=> {
 				// console.log( 'query >', query );
 
 				const { body } = await client.search({
-					index: 'banlist',
+					index: process.env.ELASTIC_INDEX,
 					body:  query
 				})
 			
@@ -1165,7 +1166,7 @@ app.post('/v1/search',  async(req, res, next)=> {
 				const should = fields.map((val) => { return {'wildcard': {[val.name]: `*${key_word}*`}}});
 
 				const { body } = await client.search({
-														index: 'banlist',
+														index: process.env.ELASTIC_INDEX,
 														body:  {
 														"query": {
 															"bool": {
@@ -1222,7 +1223,7 @@ app.post('/v1/search',  async(req, res, next)=> {
 		}
 		
 		const { body } = await client.search({
-			index: 'banlist',
+			index: process.env.ELASTIC_INDEX,
 			body:  query
 		})
 
@@ -1284,7 +1285,7 @@ app.post('/v1/search',  async(req, res, next)=> {
 		}
 
 		const { body } = await client.search({
-		index: 'elasticsearch_index_banlist_content_back_list',
+		index: process.env.ELASTIC_INDEX,
 		body:  query
 		})
 
@@ -1298,6 +1299,45 @@ app.post('/v1/search',  async(req, res, next)=> {
 	} catch (err) {
 		logger.error(err);
 		return res.send({"result" : false, "message": err});
+	}
+});
+
+
+// Clear cache by keys
+app.post('/v1/get_followers',  async(req, res, next)=> {
+	try {
+		const start = Date.now()
+		let nid = req.body.nid;
+
+		if(_.isEmpty(nid)){
+			return res.send({ status: false, message:"Without keys" });
+		}
+
+		let app_followers = await AppFollowersSchema.findOne({ nid });
+		if(!utils.isEmpty(app_followers)){
+			let values = app_followers.value.filter(function(value) {return value.status; });
+			if(!_.isEmpty(values)){
+				let app_followers = await Promise.all( 
+														values.map(async (value)=>{	
+															return await UserSchema.findOne({'uid':value.uid});
+														})
+													)
+
+				const end = Date.now()
+				
+				return res.send({
+								result : true,
+								execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+								datas: app_followers
+								});
+			}
+		}
+
+		return res.send({result : false, message: 'empty'});
+				
+	} catch (err) {
+		logger.error(err);
+		return res.send({result : false, message: err});
 	}
 });
 
@@ -1414,7 +1454,7 @@ try {
 					}
 
 		const { body } = await client.search({
-		index: 'elasticsearch_index_banlist_content_back_list',
+		index: process.env.ELASTIC_INDEX,
 		body:  query
 		})
 	
@@ -1604,7 +1644,7 @@ app.post('/v1/syc_local',  async(req, res, next)=> {
 		
 				// // หาเจ้าของ Content เพือ ส่ง noti ไปแจ้งว่ามี คนกด follow
 				// const { body } = await client.search({
-				// 	index: 'banlist',
+				// 	index: process.env.ELASTIC_INDEX,
 				// 	body:  {
 				// 	"query": {
 				// 		"bool": {

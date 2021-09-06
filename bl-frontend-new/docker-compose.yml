@@ -55,6 +55,7 @@ services:
       - ELASTIC_URL=http://elasticsearch.banlist.info:9200
       - ELASTIC_USERNAME=elastic
       - ELASTIC_PASSWORD=changeme
+      - ELASTIC_INDEX=banlist_dev
 
       # Backend Drapal 9
       - DRUPAL_API_ENV=http://backend_nginx

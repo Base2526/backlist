@@ -449,6 +449,11 @@ const UseHomeItem = (props) => {
                 */
               }} />
             <MoreVertOutlinedIcon onClick={handleClick} />
+            <div onClick={()=>{
+              props.history.push({pathname: `my-follower/${item.nid}`, key: item.nid, state: { item } })
+            }}>
+              { _.isEmpty(item.app_followers) ? 0 : item.app_followers.length } follower
+            </div>
           </div>
       </div>
       {menu()}  

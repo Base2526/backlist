@@ -109,8 +109,8 @@ const HomePage = (props) => {
                                                       });
 
     response = response.data
+    console.log("response.datas", response.datas)
     if(response.result){
-        console.log("response.datas", response.datas)
 
         let {execution_time, datas, count, all_result_count} = response;
         props.fetchData(datas);
@@ -162,8 +162,6 @@ const HomePage = (props) => {
   }
 
   const renderContent = () =>{
-
-    console.log('renderContent : ', props)
     if(loading){
       return <CircularProgress />
     }else {
@@ -197,16 +195,7 @@ const HomePage = (props) => {
                     <form /*onSubmit={handleFormSubmit}*/ >
                       <div>
                         <div>
-                          {/* <input 
-                            type="search" 
-                            name="title" 
-                            value={searchWord} 
-                            onChange={(e)=>{ 
-                              console.log("search : ", e.target.value)
-                              setSearchWord(e.target.value) 
-                            }}
-                            /> */}
-
+                          
                           <InputSearchField 
                             label="Input keyword"
                             placeholder="Input keyword"
@@ -220,16 +209,6 @@ const HomePage = (props) => {
 
                               clearSearch()
                             }}/>
-                          {/* <button 
-                            type="submit" 
-                            disabled={isEmpty(searchWord) ? true : false}
-                            onClick={(e)=>{
-                              handleFormSearch(e)
-                            }}
-                            className={"div-button"}>
-                            ค้นหา{ searchLoading && <CircularProgress size={10}/> }
-                          </button> */}
-
                           <Button 
                             variant="primary" 
                             disabled={isEmpty(searchWord) ? true : false}
