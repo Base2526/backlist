@@ -267,35 +267,75 @@ http.listen(3001,async()=> {
 			case 'replace':{
 				try{
 					let cs = await ContentsSchema.findById(data.documentKey._id.toString()) 
-					// console.log('ContentsSchema > update : ', JSON.stringify(cs) );
-
-
-
-					// "entity:node/397:en"
 					if(!utils.isEmpty(cs)){
-						await client.index({
+
+						let query = {
+							"query": {
+								"bool": {
+									"must": [
+										{"match" : { "nid": cs.nid }},
+									],
+								}
+							},
+						}
+				
+						const { body } = await client.search({
 							index: process.env.ELASTIC_INDEX, 
-							type: "content",
-							id: cs._id + ":"+ cs.owner_id +":"+ cs.nid +":"+ cs.type + ":" + cs.langcode,
-							body: {
-								ref: cs._id,
-								title: cs.title,
-								type: cs.type,
-								name_surname: cs.name_surname,
-								owner_id: cs.owner_id,
-								transfer_amount: cs.transfer_amount,
-								detail: cs.detail,
-								selling_website: cs.selling_website,
-								nid: cs.nid,
-								id_card_number: cs.id_card_number,
-								merchant_bank_account: cs.merchant_bank_account,
-								images: cs.images,
-								status: cs.status,
-								created: cs.created,
-								changed: cs.changed,
-								langcode: cs.langcode,
-							}
+							body:  query
 						})
+				
+						// console.log('body >>> ', body, body.hits.total.value)
+						if( !body.hits.total.value ){
+							await client.index({
+								index: process.env.ELASTIC_INDEX, 
+								type: "content",
+								id: cs._id + ":"+ cs.owner_id +":"+ cs.nid +":"+ cs.type + ":" + cs.langcode,
+								body: {
+									ref: cs._id,
+									title: cs.title,
+									type: cs.type,
+									name_surname: cs.name_surname,
+									owner_id: cs.owner_id,
+									transfer_amount: cs.transfer_amount,
+									detail: cs.detail,
+									selling_website: cs.selling_website,
+									nid: cs.nid,
+									id_card_number: cs.id_card_number,
+									merchant_bank_account: cs.merchant_bank_account,
+									images: cs.images,
+									status: cs.status,
+									created: cs.created,
+									changed: cs.changed,
+									langcode: cs.langcode,
+								}
+							})	
+						}else{
+							await client.update({
+								index: process.env.ELASTIC_INDEX, 
+								type: "content",
+								id: body.hits.hits[0]._id,
+								body: {
+									doc: {
+										ref: cs._id,
+										title: cs.title,
+										type: cs.type,
+										name_surname: cs.name_surname,
+										owner_id: cs.owner_id,
+										transfer_amount: cs.transfer_amount,
+										detail: cs.detail,
+										selling_website: cs.selling_website,
+										nid: cs.nid,
+										id_card_number: cs.id_card_number,
+										merchant_bank_account: cs.merchant_bank_account,
+										images: cs.images,
+										status: cs.status,
+										created: cs.created,
+										changed: cs.changed,
+										langcode: cs.langcode,
+									}
+								}
+							})
+						}
 
 						nc.del( [`node-${cs.nid}`] );
 					}
@@ -424,17 +464,16 @@ http.listen(3001,async()=> {
 			}
 			case 'delete':{
 				try{
-					let user = await UserSchema.findById(data.documentKey._id.toString()) 
-
-					console.log('UserSchema > delete : ', data.operationType, JSON.stringify(user))
-					if(!utils.isEmpty(user)){
-						let sockets = await SocketsSchema.find({auth: user.uid });
-						// sockets.map(async(socket) => {
-						//   if(!utils.isEmpty(socket.socketId)){
-						//     io.to(socket.socketId).emit('onUser', {'mode': 'delete'});
-						//   }
-						// })
-					}
+					// let user = await UserSchema.findById(data.documentKey._id.toString()) 
+					// console.log('UserSchema > delete : ', data.operationType, JSON.stringify(user))
+					// if(!utils.isEmpty(user)){
+					// 	let sockets = await SocketsSchema.find({auth: user.uid });
+					// 	// sockets.map(async(socket) => {
+					// 	//   if(!utils.isEmpty(socket.socketId)){
+					// 	//     io.to(socket.socketId).emit('onUser', {'mode': 'delete'});
+					// 	//   }
+					// 	// })
+					// }
 				}catch(err) {
 					console.log( err );
 				}
@@ -491,10 +530,63 @@ http.listen(3001,async()=> {
 
 app.get('/client_delete',  async(req, res) => {  
 
+	try{
+		/*
+		await client.indices.delete({
+			index: process.env.ELASTIC_INDEX,
+		});
+		*/
 
-	await client.indices.delete({
-		index: process.env.ELASTIC_INDEX,
-	});
+		let query = {
+			"query": {
+				"bool": {
+					"must": [
+						{"match" : { "nid": 277888 }},
+						// {"match" : { "status": true}},
+					],
+				}
+			},
+		}
+
+		const { body } = await client.search({
+			index: 'banlist',
+			body:  query
+		})
+
+		console.log('body >>> ', body, body.hits.total.value)
+
+	} catch (error) {
+		console.log("err >>>", error, error.response, error.message);
+
+		if (error.response) {
+			console.log(error.response.data);
+			console.log(error.response.status);
+			console.log(error.response.headers);
+		}
+	}
+
+	// var results = body.hits.hits.map((hit)=>{ 
+	// 							let _id             = hit._id;
+	// 							let ref             = hit._source.ref;
+	// 							let title           = hit._source.title;
+	// 							let name_surname    = utils.isEmpty(hit._source.name_surname) ? "" : hit._source.name_surname; 
+	// 							let owner_id        = hit._source.owner_id;
+	// 							let transfer_amount = utils.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount; 
+	// 							let detail          = utils.isEmpty(hit._source.detail) ? "" : hit._source.detail;
+	// 							let nid              = hit._source.nid;
+	// 							let id_card_number  = utils.isEmpty(hit._source.id_card_number) ? [] : hit._source.id_card_number ;
+	// 							let images          = hit._source.images;
+	// 							let status          = hit._source.status;
+
+	// 							let app_followers   = _.isEmpty(hit._source.app_followers) ? [] : hit._source.app_followers;
+
+	// 							let created          = hit._source.created;
+	// 							let changed          = hit._source.changed;
+
+	// 							return {_id, ref, nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers, created, changed}
+	// 						});
+
+
 	res.send(`>> client_delete <<\n`);
 });
 
@@ -846,127 +938,127 @@ upload image
 https://attacomsian.com/blog/uploading-files-nodejs-express
 */
 app.post('/v1/add_banlist',  async(req, res, next)=> {
-const start = Date.now()
-try {
+	const start = Date.now()
+	try {
 
-	console.log('req >', req.headers.authorization)
-	// console.log('res >', res)
+		console.log('req >', req.headers.authorization)
+		// console.log('res >', res)
 
-/*
-nid: '0',
-product_type: '2',
-transfer_amount: '-2',
-person_name: '4',
-person_surname: '5',
-id_card_number: '-135',
-selling_website: '5',
-transfer_date: 'Wed Aug 18 2021 20:23:57 GMT+0700 (Indochina Time)',
-detail: '5',
-merchant_bank_account: '[]'
-	*/
-	// let key_word = req.body.key_word;
-	// let type     = req.body.type;
-	// let offset   = req.body.offset;
-	// let full_text_fields = req.body.full_text_fields;
+		/*
+			nid: '0',
+			product_type: '2',
+			transfer_amount: '-2',
+			person_name: '4',
+			person_surname: '5',
+			id_card_number: '-135',
+			selling_website: '5',
+			transfer_date: 'Wed Aug 18 2021 20:23:57 GMT+0700 (Indochina Time)',
+			detail: '5',
+			merchant_bank_account: '[]'
+		*/
+		// let key_word = req.body.key_word;
+		// let type     = req.body.type;
+		// let offset   = req.body.offset;
+		// let full_text_fields = req.body.full_text_fields;
 
-	// const file = req.files;
-	// const bodyData = req.body;
+		// const file = req.files;
+		// const bodyData = req.body;
 
-	const draft           = req.body.draft;
-	const nid             = req.body.nid;
-	const product_type    = req.body.product_type;
-	const transfer_amount = req.body.transfer_amount;
-	const person_name     = req.body.person_name;
-	const person_surname  = req.body.person_surname;
-	const id_card_number  = req.body.id_card_number;
-	const selling_website = req.body.selling_website;
-	const transfer_date   = req.body.transfer_date;
-	const detail          = req.body.detail;
-	const merchant_bank_account = req.body.merchant_bank_account;
+		const draft           = req.body.draft;
+		const nid             = req.body.nid;
+		const product_type    = req.body.product_type;
+		const transfer_amount = req.body.transfer_amount;
+		const person_name     = req.body.person_name;
+		const person_surname  = req.body.person_surname;
+		const id_card_number  = req.body.id_card_number;
+		const selling_website = req.body.selling_website;
+		const transfer_date   = req.body.transfer_date;
+		const detail          = req.body.detail;
+		const merchant_bank_account = req.body.merchant_bank_account;
 
-	const files           = req.files;
+		const files           = req.files;
 
-	//-------------------
-	let photos = []; 
-	if(!utils.isEmpty(files)) {
-	files['files[]'].map(async(photo) => { 
-		let path = './uploads/' + photo.name
-		if (!fs.existsSync(path)) {
-		photo.mv(path);
+		//-------------------
+		let photos = []; 
+		if(!utils.isEmpty(files)) {
+		files['files[]'].map(async(photo) => { 
+			let path = './uploads/' + photo.name
+			if (!fs.existsSync(path)) {
+			photo.mv(path);
+			}
+
+			photos.push({  
+				name: photo.name,
+				mimetype: photo.mimetype,
+				size: photo.size
+			});
+		})
 		}
 
-		photos.push({  
-			name: photo.name,
-			mimetype: photo.mimetype,
-			size: photo.size
+		// console.log('photos > ', photos)
+		//-------------------
+
+		const form = new FormData();
+		// draft
+		form.append('draft', draft);
+		form.append('nid', nid);
+		form.append('product_type', product_type);
+		form.append('transfer_amount', transfer_amount);
+		form.append('person_name', person_name);
+		form.append('person_surname', person_surname);
+		form.append('id_card_number', id_card_number);
+		form.append('selling_website', selling_website);
+		form.append('transfer_date', transfer_date);
+		form.append('detail', detail);
+		form.append('merchant_bank_account', merchant_bank_account);
+
+		photos.map((photo) => { 
+		// form.append('files[]', file) 
+		form.append('files[]', fs.createReadStream('./uploads/' + photo.name), {
+			filename: photo.name
 		});
-	})
-	}
+		})
 
-	// console.log('photos > ', photos)
-	//-------------------
+		const request_config = {
+		headers: { 
+			'Authorization': req.headers.authorization , 
+			// 'Content-Type': 'multipart/form-data',
+			'Content-Type':   form.getHeaders()['content-type'],
+		},
+		maxContentLength: 10000000000,
+		maxBodyLength: 10000000000
+		};
+		// console.log('data > ', form)
 
-	const form = new FormData();
-	// draft
-	form.append('draft', draft);
-	form.append('nid', nid);
-	form.append('product_type', product_type);
-	form.append('transfer_amount', transfer_amount);
-	form.append('person_name', person_name);
-	form.append('person_surname', person_surname);
-	form.append('id_card_number', id_card_number);
-	form.append('selling_website', selling_website);
-	form.append('transfer_date', transfer_date);
-	form.append('detail', detail);
-	form.append('merchant_bank_account', merchant_bank_account);
+		const response = await axios.post(`${process.env.DRUPAL_API_ENV}/api/added_banlist?_format=json`, form , request_config);
+		// console.log('response > ', response);
 
-	photos.map((photo) => { 
-	// form.append('files[]', file) 
-	form.append('files[]', fs.createReadStream('./uploads/' + photo.name), {
-		filename: photo.name
-	});
-	})
+		const end = Date.now()
 
-	const request_config = {
-	headers: { 
-		'Authorization': req.headers.authorization , 
-		// 'Content-Type': 'multipart/form-data',
-		'Content-Type':   form.getHeaders()['content-type'],
-	},
-	maxContentLength: 10000000000,
-	maxBodyLength: 10000000000
-	};
-	// console.log('data > ', form)
+		if(response.status === 200){
 
-	const response = await axios.post(`${process.env.DRUPAL_API_ENV}/api/added_banlist?_format=json`, form , request_config);
-	// console.log('response > ', response);
+		// delete file all on local
+		photos.map((photo) => { 
+			let path = './uploads/' + photo.name
+			if (fs.existsSync(path)) {
+			fs.unlinkSync(path);
+			}
+		})
 
-	const end = Date.now()
+		let data = response.data
 
-	if(response.status === 200){
-
-	// delete file all on local
-	photos.map((photo) => { 
-		let path = './uploads/' + photo.name
-		if (fs.existsSync(path)) {
-		fs.unlinkSync(path);
+		return res.send({ result : true, 
+							...data, 
+							// photos,
+							execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`, });
+		}else{
+		return res.send({result : false, "message": err});
 		}
-	})
-
-	let data = response.data
-
-	return res.send({ result : true, 
-						...data, 
-						// photos,
-						execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`, });
-	}else{
-	return res.send({result : false, "message": err});
+		
+	} catch (err) {
+		logger.error(err);
+		return res.send({result: false, "message": err});
 	}
-	
-} catch (err) {
-	logger.error(err);
-	return res.send({result: false, "message": err});
-}
 });
 
 /*
@@ -1491,29 +1583,29 @@ try {
 	let mode = req.body.mode;
 
 	if(uid === undefined || mode === undefined){
-	return res.send({ status: false, message:"Without uid, mode" });
+		return res.send({ status: false, message:"Without uid, mode" });
 	}
 
-	console.log("/v1/nodejs_notify_user  uid :", uid, " mode : ", mode)
+	// console.log("/v1/nodejs_notify_user  uid :", uid, " mode : ", mode)
 
-	let sockets = await SocketsSchema.find({ auth: uid });
+	// let sockets = await SocketsSchema.find({ auth: uid });
 
-	sockets.map(async(socket) => {
-	console.log('/v1/nodejs_notify_user  socket.socketId = ', socket.socketId)
-	if(!utils.isEmpty(socket.socketId)){
-		io.to(socket.socketId).emit('onUser', {'mode': mode});
-	}
-	})
+	// sockets.map(async(socket) => {
+	// console.log('/v1/nodejs_notify_user  socket.socketId = ', socket.socketId)
+	// 	if(!utils.isEmpty(socket.socketId)){
+	// 		io.to(socket.socketId).emit('onUser', {'mode': mode});
+	// 	}
+	// })
 
-	switch(mode){
-	case 'delete':{
+	// switch(mode){
+	// case 'delete':{
 
-		await SocketsSchema.deleteMany({ auth: uid });
-		await UserSchema.deleteMany({ uid: uid });
+	// 	await SocketsSchema.deleteMany({ auth: uid });
+	// 	await UserSchema.deleteMany({ uid: uid });
 
-		break;
-	}
-	}
+	// 	break;
+	// }
+	// }
 
 	const end = Date.now()
 	return res.send({
@@ -1699,7 +1791,7 @@ io.on('connection', async (socket) => {
 	let handshake = socket.handshake;
   
 	var t = handshake.query.t;
-	var platform = handshake.query.platform;
+	// var platform = handshake.query.platform;
 	var device_detect = handshake.query.device_detect;
 	var geolocation = handshake.query.geolocation
 	var token = parseInt(handshake.query.auth_token);
@@ -1723,7 +1815,7 @@ io.on('connection', async (socket) => {
 
 	console.log(`Socket ${socket.id} - ${t} connection`)
   
-	await SocketsSchema.findOneAndUpdate({t}, { t, socketId: socket.id, platform,  auth:token, device_detect, geolocation }, { new: true, upsert: true  })
+	await SocketsSchema.findOneAndUpdate({t}, { t, socketId: socket.id,  auth:token, device_detect, geolocation }, { new: true, upsert: true  })
   
 	socket.on('disconnect', async() => {
 		let  sockets_schema =await SocketsSchema.findOne({t: t});

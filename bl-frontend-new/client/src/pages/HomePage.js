@@ -17,14 +17,14 @@ import InputSearchField from '../components/InputSearchField'
 
 import LoginDialog from './LoginDialog'
 import { isEmpty, mergeArrays, onToast } from '../utils'
-import { addContentsData } from '../actions/app';
+import { addContentsData, setTotalValue } from '../actions/app';
 import { followUp } from '../actions/user';
 import { onMyFollow } from '../actions/my_follows';
 
 var _ = require('lodash');
 
 const HomePage = (props) => {
-  const [allDatas, setAllDatas]           = React.useState([]);
+  // const [allDatas, setAllDatas]           = React.useState([]);
   const [currentDatas, setCurrentDatas]   = React.useState([]);
   const [currentPage, setCurrentPage]     = React.useState(0);
   const [totalPages, setTotalPages]       = React.useState(0);
@@ -56,9 +56,10 @@ const HomePage = (props) => {
 
     let datas = props.data
 
-    setAllDatas(mergeArrays(allDatas, datas))
+    // setAllDatas(mergeArrays(allDatas, datas))
+
     setCurrentDatas(datas)
-    // setAllResultCount(all_result_count)
+    setAllResultCount(props.total_value)
     setTotalPages(Math.ceil(allResultCount / pageLimit))
     //----------------
   }, [props.data]);
@@ -70,51 +71,38 @@ const HomePage = (props) => {
     console.log("response fetch: ", props.data, currentPage)
   }, [currentPage])
 
-  const handleFormSearch = (e) => {
+  const handleFormSearch = async(e) => {
     e.preventDefault();
-
-    console.log('selectedCheckboxes : ', JSON.stringify(selectedCheckboxes))
-
     if(isEmpty(selectedCheckboxes)){
       onToast('error', "Please select category")
     }else{
+
       setSearchLoading(true)
-      axios.post(`/api/v1/search`, {
-        type: 99,
-        key_word: searchWord,
-        offset: 0,
-        full_text_fields: JSON.stringify(selectedCheckboxes),
-        page_limit: pageLimit
-      }, {
-        headers: {'Authorization': isEmpty(ls.get('basic_auth')) ? `Basic ${process.env.REACT_APP_AUTHORIZATION}` : ls.get('basic_auth')}
-      })
-      .then((response) => {
-        let results = response.data
-        console.log('/api/v1/search : ', results)
-        if(results.result){
-          // true
-          let {execution_time, datas, count, all_result_count} = results;
+      let response = await axios.post(`/api/v1/search`, { 
+                                                          type: 99,
+                                                          key_word: searchWord,
+                                                          offset: 0,
+                                                          full_text_fields: JSON.stringify(selectedCheckboxes),
+                                                          page_limit: pageLimit
+                                                        }, {
+                                                            headers: {'Authorization': isEmpty(ls.get('basic_auth')) ? `Basic ${process.env.REACT_APP_AUTHORIZATION}` : ls.get('basic_auth')}
+                                                        });
+  
+      response = response.data
+      console.log("response", response, pageLimit)
+      if(response.result){
+  
+          let {execution_time, datas, count, all_result_count} = response;
           props.addContentsData(datas);
-          setAllDatas(mergeArrays(allDatas, datas))
-          setCurrentDatas(datas)
-          setAllResultCount(all_result_count)
-          setTotalPages(Math.ceil(all_result_count / pageLimit))
-        }
+          props.setTotalValue(all_result_count);
+      }
   
-        setSearchLoading(false)
-  
-      })
-      .catch( (error) => {
-        onToast("error", error)
-  
-        setSearchLoading(false)
-      });
+      setSearchLoading(false)
     }
-    
   }
 
   const clearSearch = () =>{
-    fetch(0)
+    setCurrentPage(0)
   }
 
   const fetch = async(currentPage) =>{
@@ -133,13 +121,7 @@ const HomePage = (props) => {
 
         let {execution_time, datas, count, all_result_count} = response;
         props.addContentsData(datas);
-
-        // setCurrentPage(currentPage)
-
-        // setAllDatas(mergeArrays(allDatas, datas))
-        // setCurrentDatas(datas)
-        setAllResultCount(all_result_count)
-        // setTotalPages(Math.ceil(all_result_count / pageLimit))
+        props.setTotalValue(all_result_count);
     }
 
     setLoading(false)
@@ -160,7 +142,7 @@ const HomePage = (props) => {
   const onPageChanged = (data) => {
     const { currentPage, totalPages, pageLimit } = data;
     const offset = (currentPage - 1) * pageLimit;
-    const currentDatas = allDatas.slice(offset, offset + pageLimit);
+    // const currentDatas = allDatas.slice(offset, offset + pageLimit);
 
     console.log("response fetch: @  ", data, currentPage, currentPage === 0 ? 1 : currentPage )
 
@@ -288,7 +270,7 @@ const HomePage = (props) => {
 
                   </div>
                   {showModalLogin &&  <LoginDialog showModal={showModalLogin} onClose = {()=>{  setShowModalLogin(false) }} />}
-                  <div 
+                  {/* <div 
                     className="fab"
                     onClick={()=>{
                       if(isEmpty(props.user)){
@@ -298,7 +280,7 @@ const HomePage = (props) => {
                       }
                     }}>
                     <AddCircleOutlinedIcon  style={{fill: props.socket_connected ? "red" : "green", fontSize: '48px'}}/>
-                  </div>  
+                  </div>   */}
                 
                 </div>
 
@@ -314,6 +296,8 @@ const mapStateToProps = (state, ownProps) => {
 	return {
     user: state.user.data,
     data: state.app.data,
+
+    total_value: state.app.total_value,
     follow_ups: state.user.follow_ups,
 
     my_apps: state.user.my_apps,
@@ -327,6 +311,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = {
   addContentsData,
+  setTotalValue,
   followUp,
 
   onMyFollow

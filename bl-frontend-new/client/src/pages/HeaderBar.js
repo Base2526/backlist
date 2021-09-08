@@ -107,9 +107,14 @@ const HeaderBar = (props) => {
       
                             <MenuItem 
                               onClick={()=>{
+                                history.push({pathname: `/new-post`, state: {} })
+                                setAnchorEl(null);
+                              }}>New post</MenuItem>
+                            <MenuItem 
+                              onClick={()=>{
                                 history.push({pathname: `/my-profile/my-post`, state: {} })
                                 setAnchorEl(null);
-                              }}>My post {props.my_apps.length}</MenuItem>
+                              }}>Your post {props.my_apps.length}</MenuItem>
       
                             {/* <MenuItem 
                               onClick={()=>{

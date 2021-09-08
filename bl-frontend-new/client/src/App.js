@@ -115,7 +115,7 @@ const App = (props) => {
           }
 
           clearInterval(interval)
-        }, 3000, props)
+        }, 2000, props)
       }else {
         console.log("useEffect [props.my_follows] #5:")
       }
@@ -155,15 +155,6 @@ const App = (props) => {
   const socketid = async() =>{
     console.log('process.env :', process.env, ', props : ', props, ', geolocation : ', await geolocation())
 
-    /*
-    
-    {
-      extraHeaders: {
-        Authorization: "Bearer authorization_token_here"
-      }
-    }
-    */
-
     if(_.isEmpty(socket)){
       socket = io( "/", 
         // { headers:  {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} },
@@ -178,31 +169,15 @@ const App = (props) => {
           // 'sync disconnect on unload': false,
           'sync disconnect on unload': true,
           query: {
-            "platform" : process.env.REACT_APP_PLATFORM, 
+            // "platform" : process.env.REACT_APP_PLATFORM, 
             // "unique_id": _uniqueId(props),
             "version"  : process.env.REACT_APP_VERSIONS,
             "device_detect" : JSON.stringify( deviceDetect() ),
             "geolocation" : JSON.stringify( await geolocation() ),
             auth_token: _.isEmpty(props.user) ? 0 : props.user.uid
           },
-
-          
-          // auth: {
-          //   token: _.isEmpty(props.user) ? 0 : props.user.uid
-          // }
         },
-        // {
-        //   auth: {
-        //     token: "123"
-        //   },
-        //   query: {
-        //     "unique_id": "my-value"
-        //   }
-        // },
-        // { query:{ `platform=${process.env.REACT_APP_PLATFORM}&unique_id=3434&version=${process.env.REACT_APP_VERSIONS}` }}, 
-        
         { transports: ["websocket"] }
-        
         );
     }else{
       socket.auth.token = _.isEmpty(props.user) ? 0 : props.user.uid;
@@ -219,19 +194,15 @@ const App = (props) => {
       socket.off('connect', onConnect)
       socket.off("uniqueID", onUniqueID);
       socket.off('disconnect', onDisconnect);
+      socket.off('connect_error', handleErrors);
+      socket.off('connect_failed', handleErrors);
+      socket.off('onSyc', handleSyc);
 
       socket.off('onUser', onUser);
       socket.off('onProfile', onProfile);
       socket.off('onContent', onContent);
-
       socket.off('onMyFollows', onMyFollows);
-
-      // กรณีมีคนมากด follow content เรา
-      // socket.off('onAppFollowUp', onAppFollowUp);
-
-
       socket.off('test', test);
-
       socket.off('onAppFollowers', onAppFollowers)
     }else{
       console.log('socket :', socket)
@@ -240,23 +211,20 @@ const App = (props) => {
     socket.on('connect', onConnect)
     socket.on("uniqueID", onUniqueID);
     socket.on('disconnect', onDisconnect);
+    socket.on('connect_error', handleErrors);
+    socket.on('connect_failed', handleErrors);
+    socket.on('onSyc', handleSyc);
 
     socket.on('onUser', onUser);
     socket.on('onProfile', onProfile);
     socket.on('onContent', onContent);
-
     socket.on('onMyFollows', onMyFollows);
-
-    // กรณีมีคนมากด follow content เรา
-    // socket.on('onAppFollowUp', onAppFollowUp);
-
-    socket.on('connect_error', handleErrors);
-    socket.on('connect_failed', handleErrors);
-
-
     socket.on('test', test);
-
     socket.off('onAppFollowers', onAppFollowers)
+  }
+
+  const handleSyc = (data) =>{
+    console.log("handleSyc :", data)
   }
 
   const test = (data)=>{

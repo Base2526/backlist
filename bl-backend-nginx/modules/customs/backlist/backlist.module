@@ -309,36 +309,73 @@ function backlist_user_insert(EntityInterface $entity) {
   }
 }
 
-// function backlist_user_update(EntityInterface $entity){
-//   \Drupal::logger('backlist_user_update')->notice($entity->bundle());
-//   try {
-//     switch($entity->bundle()){
-//       case 'user':{
-//         // user_iu($entity);
-//         break;
-//       }
-//     }
-//   } catch (\Throwable $e) {
-//     \Drupal::logger('backlist_user_update')->notice($e->__toString());
-//   }
-// }
-
 function backlist_user_delete(EntityInterface $entity) {
   \Drupal::logger('backlist_user_delete')->notice($entity->bundle());
 
   try {
     switch($entity->bundle()){
       case 'user':{
+        $uid = intval($entity->id());  
+
+        // users
+        //----------------- delete users ------------------- 
+        $users = Utils::MongoDB_Connect_Collection('users');
+
+        $users_filter     = array('uid' => $uid);
+        if($users->count($users_filter)){
+          if(empty($users->deleteOne($users_filter))){
+            \Drupal::logger('backlist_user_delete')->error('Error, result_user = @uid', array( '@uid'=>$uid ));
+          }else{
+            \Drupal::logger('backlist_user_delete')->notice('Notice, result_user = @uid', array( '@uid'=>$uid ));
+          }
+        }
+        //----------------- delete users ------------------- 
+
+        // sockets
+        //----------------- delete sockets ------------------- 
+        // $sockets = Utils::MongoDB_Connect_Collection('sockets');
+      
+        // $filter  = array('auth' => $uid);
+        // if($sockets->count( $filter )){
+        //   $sockets->deleteMany( $filter );
+        // }
+        //----------------- delete sockets ------------------- 
+
+        // follows
+        //----------------- delete follows ------------------- 
+        $follows = Utils::MongoDB_Connect_Collection('follows');
+      
+        $filter     = array('uid' => $uid);
+        if($follows->count($filter)){
+          if(empty($follows->deleteOne($filter))){
+            \Drupal::logger('backlist_user_delete')->error('Error, follows = @uid', array( '@uid'=>$uid ));
+          }else{
+            \Drupal::logger('backlist_user_delete')->notice('Notice, follows = @uid', array( '@uid'=>$uid ));
+          }
+        }
+        //----------------- delete follows ------------------- 
+
+        // appfollowers
+        //----------------- delete appfollowers ------------------- 
+        $appfollowers = Utils::MongoDB_Connect_Collection('appfollowers');
+
+        $appfollowers_fs = $appfollowers->find( array('value.uid' => $uid));
+        foreach ($appfollowers_fs as $appfollowers_f) {        
+          $is_update = $appfollowers-> updateOne( // array("_id" => new \MongoDB\BSON\ObjectId('6135f675db39cb71ab76dd0e')),
+                                                  array("_id" => $appfollowers_f["_id"]),
+                                                  array( '$pull' => array( "value" => array( "uid" => $uid )))
+                                                );
+        }
+        //----------------- delete appfollowers ------------------- 
       
         // ------- nodejs_notify_user --------
-        Utils::nodejs_notify_user( $entity->id(), 'delete' );
+        // Utils::nodejs_notify_user( $entity->id(), 'delete' );
         // ------- nodejs_notify_user --------
-        
         break;
       }
     }
   } catch (\Throwable $e) {
-    \Drupal::logger('backlist_user_delete')->notice($e->__toString());
+    \Drupal::logger('backlist_user_delete >> ')->error($e->__toString());
   }
 }
 
@@ -407,6 +444,7 @@ function backlist_user_presave(EntityInterface $entity) {
 }
 
 function user_iu(EntityInterface $entity){
+  /*
   $db = Utils::MongoDB()->bl;
 
   $bundle = 'users';
@@ -425,9 +463,13 @@ function user_iu(EntityInterface $entity){
     }
   }
 
-  $uid = intval($entity->id());
+  
 
   $users = $db->users;
+  */
+
+  $uid = intval($entity->id());
+  $users = Utils::MongoDB_Connect_Collection('users');
   $filter = array('uid' => $uid );
 
   $email   = $entity->getEmail();
@@ -523,6 +565,7 @@ function backlist_node_update(EntityInterface $entity) {
       $articles = array(1, 2, 3); // สำหรับนักพัฒนา, About us, Terms of service
 
       if (in_array($entity->id(), $articles)) {
+        /*
         $db = Utils::MongoDB()->bl;
 
         $bundle = 'articles';
@@ -542,6 +585,9 @@ function backlist_node_update(EntityInterface $entity) {
         }
     
         $articles = $db->articles;
+        */
+
+        $articles = Utils::MongoDB_Connect_Collection('articles');
         $filter = array('nid' => $entity->id() );
 
         if($articles->count($filter)){
@@ -591,9 +637,10 @@ function backlist_node_delete(EntityInterface $entity) {
     case 'back_list':{
       try{
         //-------------------- delete new to mongodb --------------------------
-        $db = Utils::MongoDB()->bl;
-      
-        $mg_content = $db->contents;
+        // $db = Utils::MongoDB()->bl;
+        // $mg_content = $db->contents;
+
+        $mg_content = Utils::MongoDB_Connect_Collection('contents');
         $nid        = intval($entity->id()) ;
         $filter     = array( 'nid' => $nid );
       
@@ -623,6 +670,7 @@ function mongo_content(EntityInterface $entity){
       return;
     }
 
+    /*
     $db = Utils::MongoDB()->bl;
 
     $bundle = 'contents';
@@ -642,9 +690,11 @@ function mongo_content(EntityInterface $entity){
     }
   
     $mg_content = $db->contents;
+    */
+
+    $mg_content = Utils::MongoDB_Connect_Collection('contents');
     
     $filter     = array( 'nid' => $nid );
-
 
     $flag = 0;
 
@@ -1247,6 +1297,7 @@ function backlist_taxonomy_term_update(EntityInterface $entity) {
       // \Drupal::logger('backlist_taxonomy_term_update')->error( $entity->bundle() ." : ". $entity->label() ." : ". $entity->id()." : ". $entity->getWeight() );
 
       try{
+        /*
         $db = Utils::MongoDB()->bl;
 
         $collections = $db->listCollections();
@@ -1265,6 +1316,8 @@ function backlist_taxonomy_term_update(EntityInterface $entity) {
         }
 
         $bank_wallet = $db->bank_wallet;
+        */
+        $bank_wallet = Utils::MongoDB_Connect_Collection('bank_wallet');
         $filter = array('tid' => $entity->id() );
 
         if($bank_wallet->count($filter)){
@@ -1289,6 +1342,7 @@ function backlist_taxonomy_term_update(EntityInterface $entity) {
 
     case 'gender':{
       try{
+        /*
         $db = Utils::MongoDB()->bl;
 
         $collections = $db->listCollections();
@@ -1307,6 +1361,8 @@ function backlist_taxonomy_term_update(EntityInterface $entity) {
         }
 
         $gender = $db->gender;
+        */
+        $gender = Utils::MongoDB_Connect_Collection('gender');
         $filter = array('tid' => $entity->id() );
 
         if($gender->count($filter)){
@@ -1338,7 +1394,7 @@ function backlist_taxonomy_term_update(EntityInterface $entity) {
  */
 function backlist_file_update(EntityInterface $entity) {
   try{
-    
+    /*
     $db = Utils::MongoDB()->bl;
 
     $bundle = 'files';
@@ -1358,6 +1414,9 @@ function backlist_file_update(EntityInterface $entity) {
     }
 
     $files = $db->files;
+    */
+
+    $files = Utils::MongoDB_Connect_Collection('files');
     $filter = array('fid' => $entity->id() );
 
     if($entity->isTemporary()){

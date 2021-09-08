@@ -9,7 +9,7 @@
 # build environment
 FROM node:alpine as build
 
-ENV REACT_APP_PLATFORM website
+# ENV REACT_APP_PLATFORM website
       
 ENV REACT_APP_DEBUG TRUE
 ENV REACT_APP_VERSIONS 1.0   

@@ -1,10 +1,15 @@
 import Ajv from "ajv"
-import { ADD_CONTENTS_DATA, CLEAR_ALL_CONTENTS_DATA } from '../constants';
+import { ADD_CONTENTS_DATA, SET_TOTAL_VALUE, CLEAR_ALL_CONTENTS_DATA } from '../constants';
 
 const _addContentsData = data => ({
   type: ADD_CONTENTS_DATA,
   data,
 });
+
+const _setTotalValue = data =>({
+  type: SET_TOTAL_VALUE,
+  data,
+})
 
 const _clearAllContentsData = () => ({
   type: CLEAR_ALL_CONTENTS_DATA
@@ -36,6 +41,22 @@ export const addContentsData = (data) => dispatch => {
     dispatch(_addContentsData(data));
   }else{
     console.log('Ajv invalid addContentsData : ', data)
+  }
+}
+
+export const setTotalValue = (data) => dispatch => {  
+  const schema = {
+    type: "integer",
+    additionalProperties: false,
+  }
+
+  const ajv = new Ajv() 
+  const validate = ajv.compile(schema)
+
+  if(validate(data)){
+    dispatch(_setTotalValue(data));
+  }else{
+    console.log('Ajv invalid setTotalValue : ', data)
   }
 }
 

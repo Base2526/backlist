@@ -13,6 +13,8 @@ import RegisterPage from './pages/RegisterPage';
 
 import FollowerPage from './pages/FollowerPage'
 
+import NewPostPage from './pages/NewPostPage'
+
 export default [
     { path: "/", name: "หน้าหลัก", Component: HomePage },
     { path: "/register", name: "สมัครสมาชิก", Component: RegisterPage },
@@ -32,4 +34,6 @@ export default [
     { path: "/terms-of-service", name: "Terms of Service", Component: TermsofServicePage },
     { path: "/about-up", name: "About up", Component: AboutupPage },
     { path: "/for-developer", name: "For Developer", Component: ForDeveloperPage },
+
+    { path: "/new-post", name: "New post", Component: NewPostPage },
 ];

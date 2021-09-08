@@ -34,6 +34,16 @@
             "date": 1630904472999,
             "name": "/app/logs/nodejs-guide-2021-09-06.log",
             "hash": "2a8b431cc8acd40e1bc644d10146ab34"
+        },
+        {
+            "date": 1630981315992,
+            "name": "/app/logs/nodejs-guide-2021-09-07.log",
+            "hash": "4daa204c9117d63c790cd16a2d6991d0"
+        },
+        {
+            "date": 1631069658109,
+            "name": "/app/logs/nodejs-guide-2021-09-08.log",
+            "hash": "6cee6749f80daf33bc1ed495de7ea327"
         }
     ]
 }

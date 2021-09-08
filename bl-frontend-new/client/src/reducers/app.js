@@ -1,19 +1,21 @@
-import { ADD_CONTENTS_DATA, CLEAR_ALL_CONTENTS_DATA, MY_FOLLOW } from '../constants';
+import { ADD_CONTENTS_DATA, SET_TOTAL_VALUE, CLEAR_ALL_CONTENTS_DATA, MY_FOLLOW } from '../constants';
 
 var _ = require('lodash');
 
-var merge = (a, b, p) => a.filter(aa =>!b.find(bb => aa[p] === bb[p]));
 const initialState = {
+  total_value: 0,
   data: []
 }
 
 const app = (state = initialState, action) => {
   switch (action.type) {
     case ADD_CONTENTS_DATA:{
-      var merged = _.merge(_.keyBy(state.data, 'nid'), _.keyBy(action.data, 'nid'));
-  
-      console.log('ADD_CONTENTS_DATA : ', _.values(merged))
+      let merged = _.merge(_.keyBy(state.data, 'nid'), _.keyBy(action.data, 'nid'));
       return { ...state, data: _.values(merged)}
+    }
+
+    case SET_TOTAL_VALUE:{
+      return { ...state, total_value: action.data}
     }
 
     case MY_FOLLOW:{

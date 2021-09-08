@@ -366,6 +366,17 @@ const MyPostPage = (props) => {
             }
         }
       }
+
+    // const items = () =>{
+    //     return  datas.map((data, idx) => {
+    //                         return  <div key={idx}  style={{borderStyle: "dashed"}}>
+    //                                     <div>{data.uid}</div>
+    //                                     <div>{data.name}</div>
+    //                                     <div>{data.email}</div>
+    //                                     <div>{data.image_url}</div>
+    //                                 </div>
+    //                      })
+    // }
   
     return (
             <div className="container mb-5">

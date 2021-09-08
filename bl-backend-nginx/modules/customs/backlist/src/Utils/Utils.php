@@ -31,6 +31,8 @@ use voku\helper\SimpleHtmlDomNodeInterface;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\search_api\Entity\Index;
 
+use Elasticsearch\ClientBuilder;
+
 class Utils extends ControllerBase {
 
   public static function consent_template_api($lang){
@@ -3576,8 +3578,36 @@ class Utils extends ControllerBase {
     return new \MongoDB\Client('mongodb://'. $replica_set );
   }
 
+  public static function MongoDB_Connect_Collection($bundle){
+    try{
+      $db = Utils::MongoDB()->bl;
+          
+      $collections = $db->listCollections();
+      $collectionNames = [];
+      foreach ($collections as $collection) {
+        $collectionNames[] = $collection->getName();
+      }
+
+      $exists = in_array($bundle, $collectionNames);
+
+      if(!$exists){
+        $collection = $db->createCollection($bundle);
+        if($collection->ok){
+          \Drupal::logger('MongoDB_Connect_Collection')->notice('OK');
+        }
+      }
+
+      return $db->$bundle;
+
+    } catch (\Throwable $e) {
+      \Drupal::logger('MongoDB_Connect_Collection')->notice($e->__toString());
+    }
+  }
+
+
   public static function SetupMongoDB(){
     try{
+      /*
       $db = Utils::MongoDB()->bl;
 
       $collections = $db->listCollections();
@@ -3597,6 +3627,9 @@ class Utils extends ControllerBase {
         }
       }
       $bank_wallet = $db->bank_wallet;
+      */
+
+      $bank_wallet = Utils::MongoDB_Connect_Collection('bank_wallet');
 
       $terms =\Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($vid);
       foreach ($terms as $term) {
@@ -3618,6 +3651,7 @@ class Utils extends ControllerBase {
       /////////////////  bank_wallet /////////////////
 
       /////////////////  gender /////////////////
+      /*
       $vid = 'gender';
       $exists = in_array($vid, $collectionNames);
       if(!$exists){
@@ -3627,6 +3661,9 @@ class Utils extends ControllerBase {
         }
       }
       $gender = $db->gender;
+      */
+
+      $gender = Utils::MongoDB_Connect_Collection('gender');
 
       $terms =\Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($vid);
       foreach ($terms as $term) {
@@ -4909,6 +4946,7 @@ nodejs_bl        |     status: true
 
   public static function setup_mongodb(){
     try{
+      /*
       $db = Utils::MongoDB()->bl;
 
       //--------------  user  ------------------
@@ -4929,12 +4967,16 @@ nodejs_bl        |     status: true
       }
     
       $mg_user = $db->users;
+      */
+
+      $mg_user = Utils::MongoDB_Connect_Collection('users');
       
       $userStorage = \Drupal::entityTypeManager()->getStorage('user');
       $query = $userStorage->getQuery();
       $uids = $query
         ->condition('status', '1')
         //->condition('roles', 'moderator')
+        ->condition('uid', 1, '<>')
         ->execute();
 
       $users = $userStorage->loadMultiple($uids);
@@ -4987,7 +5029,7 @@ nodejs_bl        |     status: true
       //--------------  user  ------------------
 
       //--------------  bank_wallet  ------------------
-      
+      /*
       $bundle = 'bank_wallet';
       $exists = in_array($bundle, $collectionNames);
 
@@ -4999,6 +5041,9 @@ nodejs_bl        |     status: true
       }
 
       $bank_wallet = $db->bank_wallet;
+      */
+
+      $bank_wallet = Utils::MongoDB_Connect_Collection('bank_wallet');
       // $filter = array('tid' => $entity->id() );
 
       $terms =\Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($bundle);
@@ -5017,6 +5062,7 @@ nodejs_bl        |     status: true
       //--------------  bank_wallet  ------------------
 
       //--------------  gender  -------------------
+      /*
       $bundle = 'gender';
       $exists = in_array($bundle, $collectionNames);
 
@@ -5028,8 +5074,10 @@ nodejs_bl        |     status: true
       }
 
       $gender = $db->gender;
+      */
+      $gender = Utils::MongoDB_Connect_Collection('gender');
 
-      $terms =\Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($bundle);
+      $terms =\Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree('gender');
       foreach ($terms as $term) {
         $filter = array( 'tid' => $term->tid );
 
@@ -5054,10 +5102,14 @@ nodejs_bl        |     status: true
 
 
       //-------------- สำหรับนักพัฒนา, About us, Terms of service ----------------------
+
+      $articles = Utils::MongoDB_Connect_Collection('articles');
+
       $articles = array(1, 2, 3);
       foreach($articles as $nid){
         $node = Node::load($nid);
 
+        /*
         $bundle = 'articles';
         $exists = in_array($bundle, $collectionNames);
     
@@ -5069,6 +5121,9 @@ nodejs_bl        |     status: true
         }
     
         $articles = $db->articles;
+        */
+
+        
 
         $nid = intval($node->id());
 
@@ -5116,6 +5171,7 @@ nodejs_bl        |     status: true
         }
       }
 
+      /*
       $db = Utils::MongoDB()->bl;
   
       $bundle = 'files';
@@ -5135,6 +5191,9 @@ nodejs_bl        |     status: true
       }
   
       $files = $db->files;
+      */
+
+      $files = Utils::MongoDB_Connect_Collection('files');
 
       // add new to mongodb
       foreach ($useds as $fid){
@@ -5166,6 +5225,7 @@ nodejs_bl        |     status: true
   public static function setup_mongodb_contents(){
     try{
 
+      /*
       $db = Utils::MongoDB()->bl;
 
       $bundle = 'contents';
@@ -5185,6 +5245,9 @@ nodejs_bl        |     status: true
       }
     
       $mg_content = $db->contents;
+      */
+
+      $mg_content = Utils::MongoDB_Connect_Collection('contents');
 
       $nids = \Drupal::entityQuery('node')->condition('type','back_list')->execute();
       $nodes =  Node::loadMultiple($nids);
@@ -5399,6 +5462,140 @@ nodejs_bl        |     status: true
       }
     } catch (\Throwable $e) {
       \Drupal::logger('nodejs_clear_cache_with_keys')->error($e->__toString());
+    }
+  }
+
+  public static function setup_elastic_search(){
+
+    $config_elasticsearch = ConfigPages::config('config_elasticsearch');
+
+    $elastic_host     = $config_elasticsearch->get('field_elastic_host')->getValue()[0]['value'];
+    $elastic_port     = $config_elasticsearch->get('field_elastic_port')->getValue()[0]['value'];
+    $elastic_user     = $config_elasticsearch->get('field_elastic_user')->getValue()[0]['value'];
+    $elastic_pass     = $config_elasticsearch->get('field_elastic_pass')->getValue()[0]['value'];
+    $elastic_index    = $config_elasticsearch->get('field_elastic_index')->getValue()[0]['value'];
+
+    if(
+      empty($elastic_host) ||
+      empty($elastic_port) ||
+      empty($elastic_user) ||
+      empty($elastic_pass) ||
+      empty($elastic_index) 
+    ){
+      dpm('Config empty');
+      return;
+    }
+
+    $hosts = [
+      [
+          'host' => $elastic_host,
+          'port' => $elastic_port,
+          'user' => $elastic_user,
+          'pass' => $elastic_pass
+      ]
+    ];
+    
+    $client = ClientBuilder::create()
+                        ->setHosts($hosts)
+                        ->build();
+
+    $mg_content = Utils::MongoDB_Connect_Collection('contents');
+
+    $cursor = $mg_content->find();
+
+    $count = 0;
+   
+    // iterate cursor to display title of documents	
+    foreach ($cursor as $document) {
+      // echo $document["_id"] . "\n";
+
+      $id = $document["_id"]->__toString() . ":" . $document["owner_id"] .":". $document["nid"] .":". $document["type"] .":". $document["langcode"];
+
+      $merchant_bank_account = array();
+      $merchant_bank_account = json_decode( json_encode( $document["merchant_bank_account"]->getArrayCopy() ) );
+
+      $images = array();
+      $images = json_decode( json_encode( $document["images"]->getArrayCopy() ) );
+      
+      $params = [
+        'index' => $elastic_index,
+        'type'=> "content",
+        'id'    => $id,
+        'body'  => [
+          "ref"=> $document["_id"]->__toString(),
+          "title"=> $document["title"],
+          "type"=> $document["type"],
+          "name_surname"=> $document["name_surname"],
+          "owner_id"=> $document["owner_id"],
+          "transfer_amount"=> $document["transfer_amount"],
+          "detail"=> $document["detail"],
+          "selling_website"=> $document["selling_website"],
+          "nid"=> $document["nid"],
+          "id_card_number"=> $document["id_card_number"],
+          "merchant_bank_account"=> $merchant_bank_account,
+          "images"=> $images,
+          "status"=> boolval($document["status"]),
+          "created"=> $document["created"],
+          "changed"=> $document["changed"],
+          "langcode"=> $document["langcode"],
+        ]
+      ];
+      
+      if(!$client->indices()->exists(array('index'=>$elastic_index ))){
+        $response = $client->index($params);
+
+        $count++;
+      }else{
+        try{
+          $source = $client->getSource(array( 'index' => $elastic_index, 'id' => $id ));
+          
+        } catch (\Throwable $e) {
+          $response = $client->index($params);
+          $count++;
+        }
+      }
+    }
+
+    dpm($count);  
+  }
+
+  public static function clear_elastic_search(){
+
+    $config_elasticsearch = ConfigPages::config('config_elasticsearch');
+
+    $elastic_host     = $config_elasticsearch->get('field_elastic_host')->getValue()[0]['value'];
+    $elastic_port     = $config_elasticsearch->get('field_elastic_port')->getValue()[0]['value'];
+    $elastic_user     = $config_elasticsearch->get('field_elastic_user')->getValue()[0]['value'];
+    $elastic_pass     = $config_elasticsearch->get('field_elastic_pass')->getValue()[0]['value'];
+    $elastic_index    = $config_elasticsearch->get('field_elastic_index')->getValue()[0]['value'];
+
+    if(
+      empty($elastic_host) ||
+      empty($elastic_port) ||
+      empty($elastic_user) ||
+      empty($elastic_pass) ||
+      empty($elastic_index) 
+    ){
+      dpm('Config empty');
+      return;
+    }
+
+    $hosts = [
+      [
+          'host' => $elastic_host,
+          'port' => $elastic_port,
+          'user' => $elastic_user,
+          'pass' => $elastic_pass
+      ]
+    ];
+    
+    $client = ClientBuilder::create()
+                        ->setHosts($hosts)
+                        ->build();
+
+    $response = $client->indices()->delete( array('index' => $elastic_index) );
+    if($response['acknowledged']){
+      dpm("OK");
     }
   }
 }
