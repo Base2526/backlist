@@ -33,4 +33,4 @@ services:
 networks:
   db-network:
     external:
-      name: banlist-network
+      name: my-mongo-cluster

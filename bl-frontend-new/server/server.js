@@ -95,17 +95,19 @@ const client = new Client({
   }
 })
 
+var sessionMiddleware = sessions({
+	secret: "fhrgfgrfrty84fwir767",
+	saveUninitialized:true,
+	cookie: { maxAge: 1000 * 60 * 60 * 24 * 365 /* OneYear */ },
+	resave: false,
+	store: mongoStore.create({
+	mongoUrl: 'mongodb://mongo1:27017,mongo2:27017,mongo3:27017/bl?replicaSet=my-mongo-set'
+	// mongoUrl: `mongodb://${MONGO_USERNAME_ENV}:${MONGO_PASSWORD_ENV}@${MONGO_HOSTNAME_ENV}:${MONGO_PORT_ENV}/${MONGO_DATABASE_NAME_ENV}?authSource=admin`
+	})
+})
+
 //session middleware
-app.use(sessions({
-    secret: "fhrgfgrfrty84fwir767",
-    saveUninitialized:true,
-    cookie: { maxAge: 1000 * 60 * 60 * 24 * 365 /* OneYear */ },
-    resave: false,
-    store: mongoStore.create({
-      mongoUrl: 'mongodb://mongo1:27017,mongo2:27017,mongo3:27017/bl?replicaSet=my-mongo-set'
-      // mongoUrl: `mongodb://${MONGO_USERNAME_ENV}:${MONGO_PASSWORD_ENV}@${MONGO_HOSTNAME_ENV}:${MONGO_PORT_ENV}/${MONGO_DATABASE_NAME_ENV}?authSource=admin`
-  })
-}));
+app.use(sessionMiddleware);
 
 // const express = require('express');
 // const uuidV4 = require('uuid/v4');
@@ -146,7 +148,7 @@ http.listen(3001,async()=> {
 									let sockets = await SocketsSchema.find({ auth: uid });
 									sockets.map(async(socket) => {
 									console.log('AppFollowersSchema  socket.socketId, uid  #1= ', socket.socketId, ' - ', uid)
-									if(!utils.isEmpty(socket.socketId)){
+									if(!_.isEmpty(socket.socketId)){
 										io.to(socket.socketId).emit('onAppFollowers', {app_followers});
 									}
 									})
@@ -163,7 +165,7 @@ http.listen(3001,async()=> {
 								let sockets = await SocketsSchema.find({ auth: owner_id });
 								sockets.map(async(socket) => {
 									console.log('AppFollowersSchema  socket.socketId-owner_id = ', socket.socketId, ' - ', owner_id)
-									if(!utils.isEmpty(socket.socketId)){
+									if(!_.isEmpty(socket.socketId)){
 										io.to(socket.socketId).emit('onAppFollowers', {app_followers});
 									}
 								})
@@ -225,13 +227,15 @@ http.listen(3001,async()=> {
 				console.log('FollowsSchema > insert : ', JSON.stringify(followsSchema));
 
 				let uid = followsSchema.uid
-				let value = followsSchema.value
+				let datas = followsSchema.value
 
 				let sockets = await SocketsSchema.find({ auth: uid });
 				sockets.map(async(socket) => {
 					// console.log('/v1/syc_local  socket.socketId = ', socket.socketId, ' - ', uid)
-					if(!utils.isEmpty(socket.socketId)){
-						io.to(socket.socketId).emit('onMyFollows', {my_follows: value});
+					if(!_.isEmpty(socket.socketId)){
+						// io.to(socket.socketId).emit('onMyFollows', {my_follows: value});
+
+						io.to(socket.socketId).emit('onSyc', {type:'follows', operation_type: data.operationType, datas });
 					}
 				})
 				break;
@@ -243,13 +247,14 @@ http.listen(3001,async()=> {
 				console.log('FollowsSchema > update : ', JSON.stringify(followsSchema), followsSchema.uid, followsSchema.value);
 
 				let uid = followsSchema.uid
-				let value = followsSchema.value
+				let datas = followsSchema.value
 
 				let sockets = await SocketsSchema.find({ auth: uid });
 				sockets.map(async(socket) => {
-					// console.log('/v1/syc_local  socket.socketId = ', socket.socketId, ' - ', uid)
-					if(!utils.isEmpty(socket.socketId)){
-						io.to(socket.socketId).emit('onMyFollows', {my_follows: value});
+					if(!_.isEmpty(socket.socketId)){
+						// io.to(socket.socketId).emit('onMyFollows', {my_follows: value});
+
+						io.to(socket.socketId).emit('onSyc', {type:'follows', operation_type: data.operationType, datas });
 					}
 				})
 			
@@ -267,7 +272,7 @@ http.listen(3001,async()=> {
 			case 'replace':{
 				try{
 					let cs = await ContentsSchema.findById(data.documentKey._id.toString()) 
-					if(!utils.isEmpty(cs)){
+					if(!_.isEmpty(cs)){
 
 						let query = {
 							"query": {
@@ -350,7 +355,7 @@ http.listen(3001,async()=> {
 				// let sockets = await SocketsSchema.find({ auth: uid });
 				// sockets.map(async(socket) => {
 				//   console.log('/v1/syc_local  socket.socketId = ', socket.socketId, ' - ', uid)
-				//   if(!utils.isEmpty(socket.socketId)){
+				//   if(!_.isEmpty(socket.socketId)){
 				//     global.io.to(socket.socketId).emit('onMyFollows', {my_follows: value});
 				//   }
 				// })
@@ -373,7 +378,7 @@ http.listen(3001,async()=> {
 					// let sockets = await SocketsSchema.find({ auth: uid });
 					// sockets.map(async(socket) => {
 					//   console.log('/v1/syc_local  socket.socketId = ', socket.socketId, ' - ', uid)
-					//   if(!utils.isEmpty(socket.socketId)){
+					//   if(!_.isEmpty(socket.socketId)){
 					//     global.io.to(socket.socketId).emit('onMyFollows', {my_follows: value});
 					//   }
 					// })
@@ -449,10 +454,10 @@ http.listen(3001,async()=> {
 			case 'replace':{
 				try{
 					let user = await UserSchema.findById(data.documentKey._id.toString()) 
-					if(!utils.isEmpty(user)){
+					if(!_.isEmpty(user)){
 						let sockets = await SocketsSchema.find({auth: user.uid });
 						sockets.map(async(socket) => {
-						if(!utils.isEmpty(socket.socketId)){
+						if(!_.isEmpty(socket.socketId)){
 							io.to(socket.socketId).emit('onProfile', user);
 						}
 						})
@@ -466,10 +471,10 @@ http.listen(3001,async()=> {
 				try{
 					// let user = await UserSchema.findById(data.documentKey._id.toString()) 
 					// console.log('UserSchema > delete : ', data.operationType, JSON.stringify(user))
-					// if(!utils.isEmpty(user)){
+					// if(!_.isEmpty(user)){
 					// 	let sockets = await SocketsSchema.find({auth: user.uid });
 					// 	// sockets.map(async(socket) => {
-					// 	//   if(!utils.isEmpty(socket.socketId)){
+					// 	//   if(!_.isEmpty(socket.socketId)){
 					// 	//     io.to(socket.socketId).emit('onUser', {'mode': 'delete'});
 					// 	//   }
 					// 	// })
@@ -489,10 +494,10 @@ http.listen(3001,async()=> {
 			case 'update':
 			case 'replace':{
 			// let user = await UserSchema.findById(data.documentKey._id.toString()) 
-			// if(!utils.isEmpty(user)){
+			// if(!_.isEmpty(user)){
 			//   let sockets = await SocketsSchema.find({auth: user.uid });
 			//   sockets.map(async(socket) => {
-			//     if(!utils.isEmpty(socket.socketId)){
+			//     if(!_.isEmpty(socket.socketId)){
 			//       io.to(socket.socketId).emit('onProfile', user);
 			//     }
 			//   })
@@ -501,10 +506,10 @@ http.listen(3001,async()=> {
 			}
 			case 'delete':{
 			// let user = await UserSchema.findById(data.documentKey._id.toString()) 
-			// if(!utils.isEmpty(user)){
+			// if(!_.isEmpty(user)){
 			//   let sockets = await SocketsSchema.find({auth: user.uid });
 			//   sockets.map(async(socket) => {
-			//     if(!utils.isEmpty(socket.socketId)){
+			//     if(!_.isEmpty(socket.socketId)){
 			//       io.to(socket.socketId).emit('onUser', {'mode': 'delete'});
 			//     }
 			//   })
@@ -569,12 +574,12 @@ app.get('/client_delete',  async(req, res) => {
 	// 							let _id             = hit._id;
 	// 							let ref             = hit._source.ref;
 	// 							let title           = hit._source.title;
-	// 							let name_surname    = utils.isEmpty(hit._source.name_surname) ? "" : hit._source.name_surname; 
+	// 							let name_surname    = _.isEmpty(hit._source.name_surname) ? "" : hit._source.name_surname; 
 	// 							let owner_id        = hit._source.owner_id;
-	// 							let transfer_amount = utils.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount; 
-	// 							let detail          = utils.isEmpty(hit._source.detail) ? "" : hit._source.detail;
+	// 							let transfer_amount = _.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount; 
+	// 							let detail          = _.isEmpty(hit._source.detail) ? "" : hit._source.detail;
 	// 							let nid              = hit._source.nid;
-	// 							let id_card_number  = utils.isEmpty(hit._source.id_card_number) ? [] : hit._source.id_card_number ;
+	// 							let id_card_number  = _.isEmpty(hit._source.id_card_number) ? [] : hit._source.id_card_number ;
 	// 							let images          = hit._source.images;
 	// 							let status          = hit._source.status;
 
@@ -595,14 +600,14 @@ app.get('/',  async(req, res) => {
 	/*
 		var results = body.hits.hits.map((hit)=>{ 
 													let title           = hit._source.title;
-													// let name            = utils.isEmpty(hit._source.field_sales_person_name) ? "" : hit._source.field_sales_person_name;  
-													// let surname         = utils.isEmpty(hit._source.field_sales_person_surname) ? "" : hit._source.field_sales_person_surname;  
-													let name_surname    = utils.isEmpty(hit._source.name_surname) ? "" : hit._source.name_surname; 
+													// let name            = _.isEmpty(hit._source.field_sales_person_name) ? "" : hit._source.field_sales_person_name;  
+													// let surname         = _.isEmpty(hit._source.field_sales_person_surname) ? "" : hit._source.field_sales_person_surname;  
+													let name_surname    = _.isEmpty(hit._source.name_surname) ? "" : hit._source.name_surname; 
 													let owner_id        = hit._source.owner_id;
-													let transfer_amount = utils.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount; 
-													let detail          = utils.isEmpty(hit._source.detail) ? "" : hit._source.detail;
+													let transfer_amount = _.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount; 
+													let detail          = _.isEmpty(hit._source.detail) ? "" : hit._source.detail;
 													let nid              = hit._source.nid;
-													let id_card_number  = utils.isEmpty(hit._source.id_card_number) ? [] : hit._source.id_card_number ;
+													let id_card_number  = _.isEmpty(hit._source.id_card_number) ? [] : hit._source.id_card_number ;
 													let images          = hit._source.images;
 													let status          = hit._source.status;
 
@@ -651,9 +656,9 @@ app.get('/',  async(req, res) => {
 	*/
 
 	// console.log("body : " , JSON.stringify(body))
-	await client.indices.delete({
-		index: process.env.ELASTIC_INDEX,
-	});
+	// await client.indices.delete({
+	// 	index: process.env.ELASTIC_INDEX,
+	// });
 
 	/*
 	try{
@@ -677,7 +682,69 @@ app.get('/',  async(req, res) => {
 		console.log(err);
 	}
 	*/
+
+	/*
+	let query = {
+		"query": {
+			"bool": {
+				"must": [
+					{"match" : { "owner_id": 60 }},
+					// {"match" : { "status": true}},
+				],
+			}
+		},
+	}
+
+	const { body } = await client.search({
+		index: process.env.ELASTIC_INDEX,
+		body:  query
+	})
 	
+	console.log('body :', body )
+
+	*/
+
+	let query = {
+		"query": {
+			// "bool": {
+			// 	"must": [
+			// 		{"match" : { "nid": value.nid }},
+			// 		// {"match" : { "status": true}},
+			// 	],
+			// }
+
+			terms: {
+				nid: [230, 225]
+			  }
+		},
+	}
+
+	const { body } = await client.search({
+		index: process.env.ELASTIC_INDEX,
+		body:  query
+	})
+
+	console.log('body :', body )
+	// body.hits.hits.map((hit)=>{ 
+	// 									let _id             = hit._id;
+	// 									let ref             = hit._source.ref;
+	// 									let title           = hit._source.title;
+	// 									let name_surname    = _.isEmpty(hit._source.name_surname) ? "" : hit._source.name_surname; 
+	// 									let owner_id        = hit._source.owner_id;
+	// 									let transfer_amount = _.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount; 
+	// 									let detail          = _.isEmpty(hit._source.detail) ? "" : hit._source.detail;
+	// 									let nid              = hit._source.nid;
+	// 									let id_card_number  = _.isEmpty(hit._source.id_card_number) ? [] : hit._source.id_card_number ;
+	// 									let images          = hit._source.images;
+	// 									let status          = hit._source.status;
+
+	// 									let app_followers   = _.isEmpty(hit._source.app_followers) ? [] : hit._source.app_followers;
+
+	// 									let created          = hit._source.created;
+	// 									let changed          = hit._source.changed;
+
+	// 									return {_id, ref, nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers, created, changed}
+	// 								});
 	res.send(`>> Hello Docker World <<\n`);
 });
 
@@ -705,39 +772,50 @@ app.post('/v1/login',  async(req, res)=> {
 	console.log('/v1/login : ', response)
 	
 	if(response.result){
-	  req.session.userId    = response.user.uid;
+
+	  let  uid = response.user.uid;
+
+	  req.session.userId    = uid;
 	  req.session.basicAuth = response.user.basic_auth;
 	  req.session.session   = response.user.session;
     
-	  let user = await UserSchema.findOne({uid: response.user.uid}) 
+
+
+	  let user = await UserSchema.findOne({uid}) 
   
-	  if(!utils.isEmpty(user)){
+	  if(!_.isEmpty(user)){
 
-		let my_apps =  await ContentsSchema.find({ owner_id: response.user.uid })
+		let contents =  await ContentsSchema.find({ owner_id: uid })
 
-		let app_followers = await Promise.all( 
-								my_apps.map(async (item)=>{	
-									let app_follower = await AppFollowersSchema.findOne({nid: item.nid})
-									return  {nid: item.nid, app_follower}
-								})
-							)
+		// let app_followers = await Promise.all( 
+		// 						my_apps.map(async (item)=>{	
+		// 							let app_follower = await AppFollowersSchema.findOne({nid: item.nid})
+		// 							return  {nid: item.nid, app_follower}
+		// 						})
+		// 					)
+
+		let followsSchema = await FollowsSchema.findOne({ uid });
+		let follows = []
+		if(!_.isEmpty(followsSchema)){
+			follows = followsSchema.value.filter(function(value) { return value.status });
+		}
 
 		let data =  {
 					  basic_auth:response.user.basic_auth,
 					  session: response.user.session,
 					  user,
-					  my_apps,
-					  app_followers
+					  contents,
+					  follows
 					}
 	
 		return res.send({result: true, 
 						 execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`,
 						 data}); 
 	  }else{
-		return res.send({ result: false, 
-		  code: response.code,
-		  execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`
-		});
+		return res.send({ 	result: false, 
+							code: response.code,
+							execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`
+							});
 	  }
 	}else{
 	  return res.send({ result: false, 
@@ -748,62 +826,35 @@ app.post('/v1/login',  async(req, res)=> {
 });
   
 app.post('/v1/register',  async(req, res)=> {
-const start = Date.now()
+	const start = Date.now()
 
-let email = req.body.email;
-let name = req.body.name;
-let password = req.body.password;
+	let email = req.body.email;
+	let name = req.body.name;
+	let password = req.body.password;
 
-// console.log(user)
-// console.log(pass)
+	if(email === undefined &&  name === undefined && password === undefined){
+		return res.send({ status: false, message:"Email & Name & Pass is empty" });
+	}else if(email === undefined){
+		return res.send({ status: false, message:"Email is empty" });
+	}else if(name === undefined){
+		return res.send({ status: false, message:"Name is empty" });
+	}else if(password === undefined){
+		return res.send({ status: false, message:"Pass is empty" });
+	}
 
+	// http://api.banlist.info:8090/api/v1/login?_format=json 
+	const response = await axios.post(`${process.env.DRUPAL_API_ENV}/v1/register?_format=json`, 
+								{
+									"email":  email,
+									"name":  name, 
+									"password": password, 
+								},{
+									// headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
+								});
 
-// let encrypt = utils.encrypt("ABC");
-// let decrypt = utils.decrypt(encrypt);
-// console.log(encrypt);
-// console.log(decrypt);
-// await new UserSchema({ name: 'Silence' }).save()
-
-// const user_schema = await UserSchema.findOne({'uid':1});
-
-// console.log( user_schema );
-
-if(email === undefined &&  name === undefined && password === undefined){
-	return res.send({ status: false, message:"Email & Name & Pass is empty" });
-}else if(email === undefined){
-	return res.send({ status: false, message:"Email is empty" });
-}else if(name === undefined){
-	return res.send({ status: false, message:"Name is empty" });
-}else if(password === undefined){
-	return res.send({ status: false, message:"Pass is empty" });
-}
-
-
-// http://api.banlist.info:8090/api/v1/login?_format=json 
-const response = await axios.post(`${process.env.DRUPAL_API_ENV}/v1/register?_format=json`, 
-							{
-								"email":  email,
-								"name":  name, 
-								"password": password, 
-							},{
-								// headers: { 'Authorization': `Basic ${process.env.DRUPAL_AUTHORIZATION_ENV}` }
-							});
-
-let data = response.data
-
-const end = Date.now()
-
-// if(data.result){
-//   req.session.userId    = data.user.uid;
-//   req.session.basicAuth = data.user.basic_auth;
-//   req.session.session   = data.user.session;
-// }
-
-
-// console.log(data.result)
-return res.send({...data, execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`});
-
-// 
+	let data = response.data
+	const end = Date.now()
+	return res.send({...data, execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`});
 });
 
 app.post('/v1/reset_password',  async(req, res, next)=> {
@@ -852,7 +903,7 @@ app.post('/v1/profile',  async(req, res, next)=> {
 		let data = nc.get( `user-${uid}` );
 
 		let cache = true;
-		if(utils.isEmpty(data)){
+		if(_.isEmpty(data)){
 			cache = false;
 			data = await UserSchema.findOne({'uid':uid});
 
@@ -886,7 +937,7 @@ try {
 	let data = nc.get( `node-${nid}` );
 
 	let cache = true;
-	if(utils.isEmpty(data)){
+	if(_.isEmpty(data)){
 	cache = false;
 	data = (await ArticlesSchema.findOne({'nid':nid})).body;
 
@@ -980,7 +1031,7 @@ app.post('/v1/add_banlist',  async(req, res, next)=> {
 
 		//-------------------
 		let photos = []; 
-		if(!utils.isEmpty(files)) {
+		if(!_.isEmpty(files)) {
 		files['files[]'].map(async(photo) => { 
 			let path = './uploads/' + photo.name
 			if (!fs.existsSync(path)) {
@@ -1067,18 +1118,22 @@ Study : https://logz.io/blog/elasticsearch-queries/
 app.post('/v1/search',  async(req, res, next)=> {
 	const start = Date.now()
 	try {
+
+		console.log('/v1/search req: ', req.body)
 		let key_word = req.body.key_word;
 		let type     = req.body.type;
 		let offset   = req.body.offset;
 		let full_text_fields = req.body.full_text_fields;
 		let page_limit = _.isEmpty(req.body.page_limit) ? 20 :  req.body.page_limit;
 
-		if(_.isEmpty(key_word)){
+		if(_.isEmpty([key_word])){
 			return res.send({ status: false, message:"Keyword is empty" });
 		}
 
 		let query = {}
 		switch(type){
+
+			// search all status == true
 			case 0: {
 				query = {
 						"query": {
@@ -1097,14 +1152,14 @@ app.post('/v1/search',  async(req, res, next)=> {
 			}
 
 			/*
-			uid AND status= {true or false}
+			uid AND status= {true and false}
 			*/
 			case 1: {
 				query = {
 							"query": {
 								"bool": {
 									"must": [
-										{"match" : { "uid": key_word }},
+										{"match" : { "owner_id": key_word }},
 										// {"match" : { "status": true}},
 									],
 								}
@@ -1116,26 +1171,7 @@ app.post('/v1/search',  async(req, res, next)=> {
 					body:  query
 				})
 			
-				var results = body.hits.hits.map((hit)=>{ 
-													let _id             = hit._id;
-													let ref             = hit._source.ref;
-													let title           = hit._source.title;
-													let name_surname    = utils.isEmpty(hit._source.name_surname) ? "" : hit._source.name_surname; 
-													let owner_id        = hit._source.owner_id;
-													let transfer_amount = utils.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount; 
-													let detail          = utils.isEmpty(hit._source.detail) ? "" : hit._source.detail;
-													let nid              = hit._source.nid;
-													let id_card_number  = utils.isEmpty(hit._source.id_card_number) ? [] : hit._source.id_card_number ;
-													let images          = hit._source.images;
-													let status          = hit._source.status;
-
-													let app_followers   = _.isEmpty(hit._source.app_followers) ? [] : hit._source.app_followers;
-
-													let created          = hit._source.created;
-													let changed          = hit._source.changed;
-
-													return {_id, ref, nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers, created, changed}
-												});
+				var results = body.hits.hits.map((hit)=>{ return utils.elasticField(hit) });
 				const end = Date.now()
 
 				return res.send({ result        : true,
@@ -1146,18 +1182,16 @@ app.post('/v1/search',  async(req, res, next)=> {
 			
 								hits: body.hits.hits,
 								count         : results.length });
-			
-				break;
 			}
 
 
 			/*
-			nid AND status= {true or false}
+			one nid AND status= {true or false}
 			*/
 			case 2: {
 				//------------- cache ----------------- 
 				let node = nc.get( `node-${key_word}` );
-				if(!utils.isEmpty(node)){
+				if(!_.isEmpty(node)){
 					return res.send({...node, cache: true});
 				}
 				//------------- cache ----------------- 
@@ -1178,25 +1212,7 @@ app.post('/v1/search',  async(req, res, next)=> {
 					body:  query
 				})
 			
-				var results = body.hits.hits.map((hit)=>{ 
-													let _id             = hit._id;
-													let ref             = hit._source.ref;
-													let title           = hit._source.title;
-													let name_surname    = utils.isEmpty(hit._source.name_surname) ? "" : hit._source.name_surname; 
-													let owner_id        = hit._source.owner_id;
-													let transfer_amount = utils.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount; 
-													let detail          = utils.isEmpty(hit._source.detail) ? "" : hit._source.detail;
-													let nid              = hit._source.nid;
-													let id_card_number  = utils.isEmpty(hit._source.id_card_number) ? [] : hit._source.id_card_number ;
-													let images          = hit._source.images;
-													let status          = hit._source.status;
-													let app_followers   = _.isEmpty(hit._source.app_followers) ? [] : hit._source.app_followers;
-
-													let created          = hit._source.created;
-													let changed          = hit._source.changed;
-
-													return {_id, ref, nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers, created, changed}
-												});
+				var results = body.hits.hits.map((hit)=>{ return utils.elasticField(hit) });
 				const end = Date.now()
 
 				node = {result        : true,
@@ -1217,6 +1233,21 @@ app.post('/v1/search',  async(req, res, next)=> {
 				return res.send(node);
 			}
 
+
+			/*
+			Many nid AND status= {true and false}
+			*/
+			case 3: {
+				query = {
+					"query": {
+						terms: {
+							nid: key_word
+						}
+					}
+				}
+				break;
+			}
+
 			/*
 				search by key_word and select field dynamic
 			*/
@@ -1227,7 +1258,7 @@ app.post('/v1/search',  async(req, res, next)=> {
 							"query": {
 								"bool": {
 									"must_not": [
-									{"match": { "status": false}}
+										{"match": { "status": false}}
 									],
 									should
 								}
@@ -1262,12 +1293,12 @@ app.post('/v1/search',  async(req, res, next)=> {
 														let _id             = hit._id;
 														let ref             = hit._source.ref;
 														let title           = hit._source.title;
-														let name_surname    = utils.isEmpty(hit._source.name_surname) ? "" : hit._source.name_surname; 
+														let name_surname    = _.isEmpty(hit._source.name_surname) ? "" : hit._source.name_surname; 
 														let owner_id        = hit._source.owner_id;
-														let transfer_amount = utils.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount; 
-														let detail          = utils.isEmpty(hit._source.detail) ? "" : hit._source.detail;
+														let transfer_amount = _.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount; 
+														let detail          = _.isEmpty(hit._source.detail) ? "" : hit._source.detail;
 														let nid             = hit._source.nid;
-														let id_card_number  = utils.isEmpty(hit._source.id_card_number) ? [] : hit._source.id_card_number ;
+														let id_card_number  = _.isEmpty(hit._source.id_card_number) ? [] : hit._source.id_card_number ;
 														let images          = hit._source.images;
 														let status          = hit._source.status;
 
@@ -1298,26 +1329,7 @@ app.post('/v1/search',  async(req, res, next)=> {
 		})
 
 		var results = [];
-		results = body.hits.hits.map((hit)=>{ 
-											let _id             = hit._id;
-										    let ref             = hit._source.ref;
-											let title           = hit._source.title;
-											let name_surname    = utils.isEmpty(hit._source.name_surname) ? "" : hit._source.name_surname; 
-											let owner_id        = hit._source.owner_id;
-											let transfer_amount = utils.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount; 
-											let detail          = utils.isEmpty(hit._source.detail) ? "" : hit._source.detail;
-											let nid              = hit._source.nid;
-											let id_card_number  = utils.isEmpty(hit._source.id_card_number) ? [] : hit._source.id_card_number ;
-											let images          = hit._source.images;
-											let status          = hit._source.status;
-
-											let app_followers   = _.isEmpty(hit._source.app_followers) ? [] : hit._source.app_followers;
-
-											let created          = hit._source.created;
-											let changed          = hit._source.changed;
-
-											return {_id, ref, nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers, created, changed}
-										});
+		results = body.hits.hits.map((hit)=>{ return utils.elasticField(hit) });
 		const end = Date.now()
 		return res.send({ result        : true,
 						execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`, 
@@ -1334,6 +1346,70 @@ app.post('/v1/search',  async(req, res, next)=> {
 	}
 });
 
+app.post('/v1/follows',  async(req, res, next)=> {
+	try {
+		const start = Date.now()
+		let uid = req.body.uid;
+
+		if(_.isEmpty([uid])){
+			return res.send({ status: false, message:"Empty uid" });
+		}
+
+		let followsSchema = await FollowsSchema.findOne({ uid });
+		if(!_.isEmpty(followsSchema)){
+			let datas = followsSchema.value.filter(function(value) { return value.status });
+
+			const end = Date.now()
+			return res.send({
+							result : true,
+							execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+							datas
+							});
+
+			/*
+			if(!_.isEmpty(follows)){
+				
+				let query = {
+					"query": {
+						terms: {
+							nid: follows.map(o => o.nid)
+						}
+					}
+				}
+
+				const { body } = await client.search({
+					index: process.env.ELASTIC_INDEX,
+					body:  query
+				})
+
+				let datas =  body.hits.hits.map((hit)=>{ return utils.elasticField(hit) });
+
+				const end = Date.now()
+				return res.send({
+								result : true,
+								execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+								datas,
+								follows
+								});
+			}else{
+
+				const end = Date.now()
+				return res.send({
+								result : true,
+								execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+								datas: []
+								});
+			}
+			*/
+		}
+
+		return res.send({result : false, message: 'empty'});
+				
+	} catch (err) {
+		logger.error(err);
+		return res.send({result : false, message: err});
+	}
+});
 
 // Clear cache by keys
 app.post('/v1/get_followers',  async(req, res, next)=> {
@@ -1346,7 +1422,7 @@ app.post('/v1/get_followers',  async(req, res, next)=> {
 		}
 
 		let app_followers = await AppFollowersSchema.findOne({ nid });
-		if(!utils.isEmpty(app_followers)){
+		if(!_.isEmpty(app_followers)){
 			let values = app_followers.value.filter(function(value) {return value.status; });
 			if(!_.isEmpty(values)){
 				let app_followers = await Promise.all( 
@@ -1398,13 +1474,13 @@ app.post('/v1/cache_del',  async(req, res, next)=> {
 			sockets.map(async(socket) => {
 				console.log('socket.socketId = ', socket.socketId)
 				let user = nc.get( `user-${socket.auth}` );
-				if(utils.isEmpty(user)){
+				if(_.isEmpty(user)){
 				user = await UserSchema.findOne({'uid':socket.auth});;
 			
 				nc.set( `user-${socket.auth}` , user );
 				}
 
-				if(!utils.isEmpty(user)){
+				if(!_.isEmpty(user)){
 				io.to(socket.socketId).emit('onProfile', user);
 				}
 				
@@ -1453,169 +1529,169 @@ app.post('/v1/cache_flush_all',  async(req, res, next)=> {
 
 // notify_owner_content
 app.post('/v1/notify_owner_content',  async(req, res, next)=> {
-try {
-	const start = Date.now()
-	let uid = req.body.uid;
-	let mode = req.body.mode;
-	let nid = req.body.nid;
-	let data = req.body.data;
+	try {
+		const start = Date.now()
+		let uid = req.body.uid;
+		let mode = req.body.mode;
+		let nid = req.body.nid;
+		let data = req.body.data;
 
-	// $data_obj = [ 'uid'=>$uid, 'mode'=>$mode, 'nid'=>$nid ];
+		// $data_obj = [ 'uid'=>$uid, 'mode'=>$mode, 'nid'=>$nid ];
 
-	if(uid === undefined || mode === undefined || nid === undefined){
-	return res.send({ status: false, message:"Without uid, mode, nid" });
-	}
+		if(uid === undefined || mode === undefined || nid === undefined){
+			return res.send({ status: false, message:"Without uid, mode, nid" });
+		}
 
-	console.log("/v1/notify_owner_content  uid :", uid, " mode : ", mode, " nid : ", nid , " data : ", data, data.images)
+		console.log("/v1/notify_owner_content  uid :", uid, " mode : ", mode, " nid : ", nid , " data : ", data, data.images)
 
-	let sockets = await SocketsSchema.find({ auth: uid });
+		let sockets = await SocketsSchema.find({ auth: uid });
 
-	/*
-	let datas = [];
-	switch(mode){
-	case 'add':
-	case 'edit':{
-		let   query = {
-						"query": {
-							"bool": {
-								"must": [
-									{"match" : { "nid": nid }},
-								],
-							}
-						},
-					}
+		/*
+		let datas = [];
+		switch(mode){
+		case 'add':
+		case 'edit':{
+			let   query = {
+							"query": {
+								"bool": {
+									"must": [
+										{"match" : { "nid": nid }},
+									],
+								}
+							},
+						}
 
-		const { body } = await client.search({
-		index: process.env.ELASTIC_INDEX,
-		body:  query
-		})
-	
-		datas = body.hits.hits.map((hit)=>{ 
-											let title           = hit._source.title[0];
-											let name            = utils.isEmpty(hit._source.field_sales_person_name) ? "" : hit._source.field_sales_person_name[0];  
-											let surname         = utils.isEmpty(hit._source.field_sales_person_surname) ? "" : hit._source.field_sales_person_surname[0];  
-											let name_surname    = utils.isEmpty(hit._source.banlist_name_surname_field) ? "" : hit._source.banlist_name_surname_field[0]; 
-											let owner_id        = hit._source.uid[0];
-											let transfer_amount = utils.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount[0]; 
-											let detail          = utils.isEmpty(hit._source.body) ? "" : hit._source.body[0] ;
-											let id              = hit._source.nid[0];
-											let id_card_number  = utils.isEmpty(hit._source.field_id_card_number) ? [] : hit._source.field_id_card_number[0] ;
-											let images          = hit._source.banlist_images_field;
-											let status          = hit._source.status[0];
-	
-											return {id, owner_id, name, surname, name_surname, title, transfer_amount, detail, id_card_number, images, status}
-										});
-		// const end = Date.now()
-
+			const { body } = await client.search({
+			index: process.env.ELASTIC_INDEX,
+			body:  query
+			})
 		
-		break;
-	}
-	}
-
-	console.log('/v1/notify_owner_content  datas = ', datas, ' >> ', datas[0].images)
-	*/
-
-	sockets.map(async(socket) => {
-	console.log('/v1/notify_owner_content  socket.socketId = ', socket.socketId)
-	// let user = nc.get( `user-${socket.auth}` );
-	// if(utils.isEmpty(user)){
-	//   user = await UserSchema.findOne({'uid':socket.auth});;
-
-	//   // nc.set( `user-${socket.auth}` , user );
-	// }
-
-	if(!utils.isEmpty(socket.socketId)){
-		io.to(socket.socketId).emit('onContent', {mode, nid, data});
-	}
-	})
-
-	// keys.map( async(key) => {
-	//   let key1 = key.split("-");
-	//   console.log("key1 >> ", key1, global)
-
-	//   switch(key1[0]){
-	//     case 'user':{
+			datas = body.hits.hits.map((hit)=>{ 
+												let title           = hit._source.title[0];
+												let name            = _.isEmpty(hit._source.field_sales_person_name) ? "" : hit._source.field_sales_person_name[0];  
+												let surname         = _.isEmpty(hit._source.field_sales_person_surname) ? "" : hit._source.field_sales_person_surname[0];  
+												let name_surname    = _.isEmpty(hit._source.banlist_name_surname_field) ? "" : hit._source.banlist_name_surname_field[0]; 
+												let owner_id        = hit._source.uid[0];
+												let transfer_amount = _.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount[0]; 
+												let detail          = _.isEmpty(hit._source.body) ? "" : hit._source.body[0] ;
+												let id              = hit._source.nid[0];
+												let id_card_number  = _.isEmpty(hit._source.field_id_card_number) ? [] : hit._source.field_id_card_number[0] ;
+												let images          = hit._source.banlist_images_field;
+												let status          = hit._source.status[0];
 		
-	//       let sockets = await SocketsSchema.find({auth: key1[1]});
-	//       // console.log(sockets)
+												return {id, owner_id, name, surname, name_surname, title, transfer_amount, detail, id_card_number, images, status}
+											});
+			// const end = Date.now()
 
-	//       sockets.map(async(socket) => {
-	//         console.log('socket.socketId = ', socket.socketId)
-	//         let user = nc.get( `user-${socket.auth}` );
-	//         if(utils.isEmpty(user)){
-	//           user = await UserSchema.findOne({'uid':socket.auth});;
-		
-	//           nc.set( `user-${socket.auth}` , user );
-	//         }
-
-	//         if(!utils.isEmpty(user)){
-	//           global.io.to(socket.socketId).emit('onProfile', user);
-	//         }
 			
-	//       })
-	//       break;
-	//     }
+			break;
+		}
+		}
 
-	//     // case 'node':{
-	//     //   break;
-	//     // }
-	//   }
-	// })
+		console.log('/v1/notify_owner_content  datas = ', datas, ' >> ', datas[0].images)
+		*/
 
-	// nc.del( keys );
+		sockets.map(async(socket) => {
+		console.log('/v1/notify_owner_content  socket.socketId = ', socket.socketId)
+		// let user = nc.get( `user-${socket.auth}` );
+		// if(_.isEmpty(user)){
+		//   user = await UserSchema.findOne({'uid':socket.auth});;
 
-	const end = Date.now()
-	return res.send({
-					result : true,
-					execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
-					});
-} catch (err) {
-	logger.error(err);
-	return res.send({result : false, message: err});
-}
+		//   // nc.set( `user-${socket.auth}` , user );
+		// }
+
+		if(!_.isEmpty(socket.socketId)){
+			io.to(socket.socketId).emit('onContent', {mode, nid, data});
+		}
+		})
+
+		// keys.map( async(key) => {
+		//   let key1 = key.split("-");
+		//   console.log("key1 >> ", key1, global)
+
+		//   switch(key1[0]){
+		//     case 'user':{
+			
+		//       let sockets = await SocketsSchema.find({auth: key1[1]});
+		//       // console.log(sockets)
+
+		//       sockets.map(async(socket) => {
+		//         console.log('socket.socketId = ', socket.socketId)
+		//         let user = nc.get( `user-${socket.auth}` );
+		//         if(_.isEmpty(user)){
+		//           user = await UserSchema.findOne({'uid':socket.auth});;
+			
+		//           nc.set( `user-${socket.auth}` , user );
+		//         }
+
+		//         if(!_.isEmpty(user)){
+		//           global.io.to(socket.socketId).emit('onProfile', user);
+		//         }
+				
+		//       })
+		//       break;
+		//     }
+
+		//     // case 'node':{
+		//     //   break;
+		//     // }
+		//   }
+		// })
+
+		// nc.del( keys );
+
+		const end = Date.now()
+		return res.send({
+						result : true,
+						execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+						});
+	} catch (err) {
+		logger.error(err);
+		return res.send({result : false, message: err});
+	}
 });
 
 // nodejs_notify_user
 app.post('/v1/nodejs_notify_user',  async(req, res, next)=> {
-try {
-	const start = Date.now()
-	let uid = req.body.uid;
-	let mode = req.body.mode;
+	try {
+		const start = Date.now()
+		let uid = req.body.uid;
+		let mode = req.body.mode;
 
-	if(uid === undefined || mode === undefined){
-		return res.send({ status: false, message:"Without uid, mode" });
+		if(uid === undefined || mode === undefined){
+			return res.send({ status: false, message:"Without uid, mode" });
+		}
+
+		// console.log("/v1/nodejs_notify_user  uid :", uid, " mode : ", mode)
+
+		// let sockets = await SocketsSchema.find({ auth: uid });
+
+		// sockets.map(async(socket) => {
+		// console.log('/v1/nodejs_notify_user  socket.socketId = ', socket.socketId)
+		// 	if(!_.isEmpty(socket.socketId)){
+		// 		io.to(socket.socketId).emit('onUser', {'mode': mode});
+		// 	}
+		// })
+
+		// switch(mode){
+		// case 'delete':{
+
+		// 	await SocketsSchema.deleteMany({ auth: uid });
+		// 	await UserSchema.deleteMany({ uid: uid });
+
+		// 	break;
+		// }
+		// }
+
+		const end = Date.now()
+		return res.send({
+						result : true,
+						execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+						});
+	} catch (err) {
+		logger.error(err);
+		return res.send({result : false, message: err});
 	}
-
-	// console.log("/v1/nodejs_notify_user  uid :", uid, " mode : ", mode)
-
-	// let sockets = await SocketsSchema.find({ auth: uid });
-
-	// sockets.map(async(socket) => {
-	// console.log('/v1/nodejs_notify_user  socket.socketId = ', socket.socketId)
-	// 	if(!utils.isEmpty(socket.socketId)){
-	// 		io.to(socket.socketId).emit('onUser', {'mode': mode});
-	// 	}
-	// })
-
-	// switch(mode){
-	// case 'delete':{
-
-	// 	await SocketsSchema.deleteMany({ auth: uid });
-	// 	await UserSchema.deleteMany({ uid: uid });
-
-	// 	break;
-	// }
-	// }
-
-	const end = Date.now()
-	return res.send({
-					result : true,
-					execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
-					});
-} catch (err) {
-	logger.error(err);
-	return res.send({result : false, message: err});
-}
 });
   
 // /v1/syc_local
@@ -1623,35 +1699,23 @@ app.post('/v1/syc_local',  async(req, res, next)=> {
 	try {
 
 		let uid = req.session.userId
-		if(utils.isEmpty(uid)){
+		if(_.isEmpty([uid])){
 			logger.error("/v1/syc_local without session");
 
 			return res.send({result : false, message: "without session"});
 		}
 
 		const start = Date.now()
-
-
-		let my_follows = req.body.my_follows;
-
-		/*
-		req.session.userId    = response.user.uid;
-		req.session.basicAuth = response.user.basic_auth;
-		req.session.session   = response.user.session;
-		*/
-
-		// await new kittySchema({ text: '/v1/syc_local' }).save()
+		let my_follows = req.body.follows;
 
 		console.log('/v1/syc_local, my_follows #1 : ', my_follows )
-
-		if(!utils.isEmpty(my_follows)){
+		if(!_.isEmpty(my_follows)){
 			my_follows = JSON.parse(my_follows)
 			my_follows.map( async(mf)=>{
-
 				if(mf.nid){
 					// -----------  AppFollowersSchema  -----------
 					let app_followers = await AppFollowersSchema.findOne({ nid: mf.nid });
-					if(!utils.isEmpty(app_followers)){
+					if(!_.isEmpty(app_followers)){
 						let v = app_followers.value
 						let index = v.findIndex((obj => obj.uid == uid));
 
@@ -1671,59 +1735,15 @@ app.post('/v1/syc_local',  async(req, res, next)=> {
 						await AppFollowersSchema.findOneAndUpdate({nid: mf.nid}, {value: [{uid : uid, status: mf.status, date:Date.now()}]}, { new: true, upsert: true  })
 					}
 				}
-				
-
-		
-				// // หาเจ้าของ Content เพือ ส่ง noti ไปแจ้งว่ามี คนกด follow
-				// const { body } = await client.search({
-				// 	index: process.env.ELASTIC_INDEX,
-				// 	body:  {
-				// 	"query": {
-				// 		"bool": {
-				// 			"must": [
-				// 				{"match" : { "nid": mf.id }},
-				// 				// {"match" : { "status": true}},
-				// 			],
-				// 		}
-				// 	},
-				// 	size: 1,
-				// 	}
-				// })
-
-				// if(body.hits.total.value){
-				// 	let uids = body.hits.hits.map((hit)=>{ return {uid : hit._source.uid[0]} });
-
-				// 	// console.log('/v1/syc_local  search : uids > ' , uids[0], ' -- ', mf.id)
-
-				// 	// let __auth = uids[0].uid
-				// 	// if(__auth){
-				// 	//   let sockets = await SocketsSchema.find({ auth: __auth });
-				// 	//   sockets.map(async(socket) => {
-				// 	//     console.log('/v1/syc_local  หาเจ้าของ Content = ', socket.socketId)
-				// 	//     if(!utils.isEmpty(socket.socketId)){
-				// 	//       global.io.to(socket.socketId).emit('onAppFollowUp', {data: {uid, status: mf.status}});
-				// 	//     }
-				// 	//   })
-				// 	// }
-				// }
-				// // หาเจ้าของ Content เพือ ส่ง noti ไปแจ้งว่ามี คนกด follow
-			
-
-				// -----------  AppFollowersSchema  -----------
-
-				// mf.local = false
-				// return mf
 			})
 
 			let new_my_follows = []
 			console.log('/v1/syc_local, new_my_follows #1 : ', uid , ' - ', new_my_follows )
 			//-----------------  FollowsSchema  -------------------
 			let follow = await FollowsSchema.findOne({ 'uid': uid });
-			if(!utils.isEmpty(follow)){
-				// 'Not Empty'
+			if(!_.isEmpty(follow)){
 				
 				// จะดึงจาก db เก่าแล้วเอามา merge         
-				
 				var merge = (a, b, p) => a.filter(aa =>!b.find(bb => aa[p] === bb[p])).concat(b).map((v)=>{  v.local = false; return v });
 				new_my_follows = merge(follow.value, my_follows, "nid");
 			}else{
@@ -1736,7 +1756,7 @@ app.post('/v1/syc_local',  async(req, res, next)=> {
 			// let sockets = await SocketsSchema.find({ auth: uid });
 			// sockets.map(async(socket) => {
 			//   console.log('/v1/syc_local  socket.socketId = ', socket.socketId, ' - ', uid)
-			//   if(!utils.isEmpty(socket.socketId)){
+			//   if(!_.isEmpty(socket.socketId)){
 			//     global.io.to(socket.socketId).emit('onMyFollows', {my_follows: new_my_follows});
 			//   }
 			// })
@@ -1784,6 +1804,10 @@ app.get('/v1/healthz', async (req, res) =>{
 /* Socket logic starts here																   */
 /***************************************************************************************** */
 
+io.use(function(socket, next) {
+	sessionMiddleware(socket.request, socket.request.res, next);
+});
+
 // var request = require('request');
 // io.adapter(mongoAdapter( config.mongo.url ));
 io.on('connection', async (socket) => {
@@ -1796,21 +1820,28 @@ io.on('connection', async (socket) => {
 	var geolocation = handshake.query.geolocation
 	var token = parseInt(handshake.query.auth_token);
   
-	// console.log(handshake.query.unique_id)
-  
+
+	// let userId = socket.request.session.userId
+	// if(_.isEmpty(userId)){
+	// 	// io.to(socket.socketId).emit('onSyc', {type:'follows', operation_type: data.operationType, datas });
+	// 	socket.emit('onSyc', {type: 'user', operation_type:'delete'});
+	// }
+
 	// console.log(`Socket ${socket.id} - ${t} - ${handshake} - ${geolocation} connection`)
 	// console.log(`Handshake `, handshake, JSON.stringify(handshake), handshake.query.auth)
 	// console.log(`handshake.auth_token`, handshake.query.auth_token, JSON.stringify(handshake.query.auth_token))
 	// socket.emit('uniqueID', { ...handshake.query, "socketID": socket.id });
   
 	if(token !== 0){
-	  let  user_schema =await UserSchema.findOne({'uid':token});
-	//   console.log(`Socket UserSchema  ------- >  ${user_schema}  -- ${token}`)
-	  if(utils.isEmpty(user_schema)){
-  
-		// กรณี เช็ดแล้วไม่มี user ในระบบเราจะสั่งให้ client ที่ connect เข้ามาทำการ logout ออกจากระบบ
-		socket.emit('onUser', {'mode': 'delete', 'A': token});
-	  }
+		let userId 		= 	socket.request.session.userId
+	  	let user_schema =	await UserSchema.findOne({'uid':token});
+		//   console.log(`Socket UserSchema  ------- >  ${user_schema}  -- ${userId} -- ${token} `)
+		if(_.isEmpty(user_schema) || _.isEmpty([userId])){
+	
+			// กรณี เช็ดแล้วไม่มี user ในระบบเราจะสั่งให้ client ที่ connect เข้ามาทำการ logout ออกจากระบบ
+			// socket.emit('onUser', {'mode': 'delete', 'A': token});
+			socket.emit('onSyc', {type: 'user', operation_type:'delete'});
+		}
 	}
 
 	console.log(`Socket ${socket.id} - ${t} connection`)

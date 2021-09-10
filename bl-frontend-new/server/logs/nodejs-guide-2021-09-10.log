@@ -1,0 +1,597 @@
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 02:26:18 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 12697 - 1196.584 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 02:34:24 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 12696 - 419.272 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 02:35:39 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 12697 - 196.995 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 02:36:51 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 12697 - 293.504 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 02:37:22 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 12697 - 277.024 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 02:38:47 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 12697 - 154.049 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 02:40:58 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 12697 - 171.340 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 02:41:08 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 276.313 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 02:41:08 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 324.399 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 02:42:10 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 351.606 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 02:42:10 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 493.380 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 03:08:29 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 196.223 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 03:08:29 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 364.177 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 03:08:34 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 12697 - 91.701 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 03:15:35 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 12697 - 227.527 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 03:18:45 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 12697 - 107.180 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 03:19:07 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 12697 - 134.248 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 03:23:07 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 12697 - 184.647 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 03:24:18 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 119425 - 113.257 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 03:24:29 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 253.933 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 03:24:29 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 304.928 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 03:36:07 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 675.553 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 03:36:07 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 751.915 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 03:36:13 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 12697 - 136.530 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 03:41:50 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 494.609 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 03:41:50 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 409.493 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 03:42:15 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 734.380 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 03:42:27 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 29.845 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:03:43 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 489.821 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:03:43 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 533.781 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:03:45 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 1629.162 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:04:03 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 52.917 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:12:19 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 752 - 357.248 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:12:22 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 149.188 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:12:44 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 428.761 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:12:45 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 114.734 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:13:19 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 752 - 173.778 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:13:21 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 47.619 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:16:52 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 372.803 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:16:54 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 124.399 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:18:52 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 205.339 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:18:53 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 77.241 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:21:38 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 67.224 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:21:40 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 93.891 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:21:56 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 148.283 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:21:58 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 82.792 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:22:29 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 279.770 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:22:30 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 73.604 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:31:04 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 278.499 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:31:06 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 1233.092 ms\n"}
+{"level":"error","message":"(server.js:1325)❯❯▶ key_word.map is not a function","stack":"TypeError: key_word.map is not a function\n    at /app/server.js:1225:22\n    at Layer.handle [as handle_request] (/app/node_modules/express/lib/router/layer.js:95:5)\n    at next (/app/node_modules/express/lib/router/route.js:137:13)\n    at Route.dispatch (/app/node_modules/express/lib/router/route.js:112:3)\n    at Layer.handle [as handle_request] (/app/node_modules/express/lib/router/layer.js:95:5)\n    at /app/node_modules/express/lib/router/index.js:281:22\n    at Function.process_params (/app/node_modules/express/lib/router/index.js:335:12)\n    at next (/app/node_modules/express/lib/router/index.js:275:10)\n    at /app/node_modules/express-session/index.js:506:7\n    at /app/node_modules/connect-mongo/build/main/lib/MongoStore.js:222:17\n    at runMicrotasks (<anonymous>)\n    at processTicksAndRejections (internal/process/task_queues.js:97:5)"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:33:41 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 29 - 278.253 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:33:41 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 640.112 ms\n"}
+{"level":"error","message":"(server.js:1325)❯❯▶ key_word.map is not a function","stack":"TypeError: key_word.map is not a function\n    at /app/server.js:1225:22\n    at Layer.handle [as handle_request] (/app/node_modules/express/lib/router/layer.js:95:5)\n    at next (/app/node_modules/express/lib/router/route.js:137:13)\n    at Route.dispatch (/app/node_modules/express/lib/router/route.js:112:3)\n    at Layer.handle [as handle_request] (/app/node_modules/express/lib/router/layer.js:95:5)\n    at /app/node_modules/express/lib/router/index.js:281:22\n    at Function.process_params (/app/node_modules/express/lib/router/index.js:335:12)\n    at next (/app/node_modules/express/lib/router/index.js:275:10)\n    at /app/node_modules/express-session/index.js:506:7\n    at /app/node_modules/connect-mongo/build/main/lib/MongoStore.js:222:17\n    at runMicrotasks (<anonymous>)\n    at processTicksAndRejections (internal/process/task_queues.js:97:5)"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:33:42 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 29 - 192.637 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:33:42 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 57.575 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:35:03 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 286.876 ms\n"}
+{"name":"ResponseError","meta":{"body":{"error":{"root_cause":[{"type":"parsing_exception","reason":"No value specified for terms query","line":1,"col":27}],"type":"parsing_exception","reason":"No value specified for terms query","line":1,"col":27},"status":400},"statusCode":400,"headers":{"content-type":"application/json; charset=UTF-8","content-length":"223"},"meta":{"context":null,"request":{"params":{"method":"POST","path":"/banlist_dev/_search","body":"{\"query\":{\"terms\":{\"nid\":[null,null,null,null,null,null,null]}}}","querystring":"","headers":{"user-agent":"elasticsearch-js/7.14.1 (linux 5.10.25-linuxkit-x64; Node.js v12.22.6)","x-elastic-client-meta":"es=7.14.1,js=12.22.6,t=7.14.1,hc=12.22.6","content-type":"application/json","content-length":"64"},"timeout":30000},"options":{},"id":1},"name":"elasticsearch-js","connection":{"url":"http://elasticsearch.banlist.info:9200/","id":"http://elasticsearch.banlist.info:9200/","headers":{},"deadCount":0,"resurrectTimeout":0,"_openRequests":1,"status":"alive","roles":{"master":true,"data":true,"ingest":true,"ml":false}},"attempts":0,"aborted":false}},"level":"error","message":"(server.js:1325)❯❯▶ parsing_exception: [parsing_exception] Reason: No value specified for terms query","stack":"ResponseError: parsing_exception: [parsing_exception] Reason: No value specified for terms query\n    at onBody (/app/node_modules/@elastic/elasticsearch/lib/Transport.js:350:23)\n    at IncomingMessage.onEnd (/app/node_modules/@elastic/elasticsearch/lib/Transport.js:276:11)\n    at IncomingMessage.emit (events.js:326:22)\n    at endReadableNT (_stream_readable.js:1241:12)\n    at processTicksAndRejections (internal/process/task_queues.js:84:21)"}
+{"name":"ResponseError","meta":{"body":{"error":{"root_cause":[{"type":"parsing_exception","reason":"No value specified for terms query","line":1,"col":27}],"type":"parsing_exception","reason":"No value specified for terms query","line":1,"col":27},"status":400},"statusCode":400,"headers":{"content-type":"application/json; charset=UTF-8","content-length":"223"},"meta":{"context":null,"request":{"params":{"method":"POST","path":"/banlist_dev/_search","body":"{\"query\":{\"terms\":{\"nid\":[null,null,null,null,null,null,null]}}}","querystring":"","headers":{"user-agent":"elasticsearch-js/7.14.1 (linux 5.10.25-linuxkit-x64; Node.js v12.22.6)","x-elastic-client-meta":"es=7.14.1,js=12.22.6,t=7.14.1,hc=12.22.6","content-type":"application/json","content-length":"64"},"timeout":30000},"options":{},"id":3},"name":"elasticsearch-js","connection":{"url":"http://elasticsearch.banlist.info:9200/","id":"http://elasticsearch.banlist.info:9200/","headers":{},"deadCount":0,"resurrectTimeout":0,"_openRequests":0,"status":"alive","roles":{"master":true,"data":true,"ingest":true,"ml":false}},"attempts":0,"aborted":false}},"level":"error","message":"(server.js:1325)❯❯▶ parsing_exception: [parsing_exception] Reason: No value specified for terms query","stack":"ResponseError: parsing_exception: [parsing_exception] Reason: No value specified for terms query\n    at onBody (/app/node_modules/@elastic/elasticsearch/lib/Transport.js:350:23)\n    at IncomingMessage.onEnd (/app/node_modules/@elastic/elasticsearch/lib/Transport.js:276:11)\n    at IncomingMessage.emit (events.js:326:22)\n    at endReadableNT (_stream_readable.js:1241:12)\n    at processTicksAndRejections (internal/process/task_queues.js:84:21)"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:35:04 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 1148 - 1561.067 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:35:04 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 1148 - 1167.337 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:35:04 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 82.733 ms\n"}
+{"name":"ResponseError","meta":{"body":{"error":{"root_cause":[{"type":"parsing_exception","reason":"No value specified for terms query","line":1,"col":27}],"type":"parsing_exception","reason":"No value specified for terms query","line":1,"col":27},"status":400},"statusCode":400,"headers":{"content-type":"application/json; charset=UTF-8","content-length":"223"},"meta":{"context":null,"request":{"params":{"method":"POST","path":"/banlist_dev/_search","body":"{\"query\":{\"terms\":{\"nid\":[null,null,null,null,null,null,null]}}}","querystring":"","headers":{"user-agent":"elasticsearch-js/7.14.1 (linux 5.10.25-linuxkit-x64; Node.js v12.22.6)","x-elastic-client-meta":"es=7.14.1,js=12.22.6,t=7.14.1,hc=12.22.6","content-type":"application/json","content-length":"64"},"timeout":30000},"options":{},"id":4},"name":"elasticsearch-js","connection":{"url":"http://elasticsearch.banlist.info:9200/","id":"http://elasticsearch.banlist.info:9200/","headers":{},"deadCount":0,"resurrectTimeout":0,"_openRequests":0,"status":"alive","roles":{"master":true,"data":true,"ingest":true,"ml":false}},"attempts":0,"aborted":false}},"level":"error","message":"(server.js:1325)❯❯▶ parsing_exception: [parsing_exception] Reason: No value specified for terms query","stack":"ResponseError: parsing_exception: [parsing_exception] Reason: No value specified for terms query\n    at onBody (/app/node_modules/@elastic/elasticsearch/lib/Transport.js:350:23)\n    at IncomingMessage.onEnd (/app/node_modules/@elastic/elasticsearch/lib/Transport.js:276:11)\n    at IncomingMessage.emit (events.js:326:22)\n    at endReadableNT (_stream_readable.js:1241:12)\n    at processTicksAndRejections (internal/process/task_queues.js:84:21)"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:36:24 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 1148 - 886.797 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:36:24 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 954.329 ms\n"}
+{"name":"ResponseError","meta":{"body":{"error":{"root_cause":[{"type":"parsing_exception","reason":"No value specified for terms query","line":1,"col":27}],"type":"parsing_exception","reason":"No value specified for terms query","line":1,"col":27},"status":400},"statusCode":400,"headers":{"content-type":"application/json; charset=UTF-8","content-length":"223"},"meta":{"context":null,"request":{"params":{"method":"POST","path":"/banlist_dev/_search","body":"{\"query\":{\"terms\":{\"nid\":[null,null,null,null,null,null,null]}}}","querystring":"","headers":{"user-agent":"elasticsearch-js/7.14.1 (linux 5.10.25-linuxkit-x64; Node.js v12.22.6)","x-elastic-client-meta":"es=7.14.1,js=12.22.6,t=7.14.1,hc=12.22.6","content-type":"application/json","content-length":"64"},"timeout":30000},"options":{},"id":5},"name":"elasticsearch-js","connection":{"url":"http://elasticsearch.banlist.info:9200/","id":"http://elasticsearch.banlist.info:9200/","headers":{},"deadCount":0,"resurrectTimeout":0,"_openRequests":0,"status":"alive","roles":{"master":true,"data":true,"ingest":true,"ml":false}},"attempts":0,"aborted":false}},"level":"error","message":"(server.js:1325)❯❯▶ parsing_exception: [parsing_exception] Reason: No value specified for terms query","stack":"ResponseError: parsing_exception: [parsing_exception] Reason: No value specified for terms query\n    at onBody (/app/node_modules/@elastic/elasticsearch/lib/Transport.js:350:23)\n    at IncomingMessage.onEnd (/app/node_modules/@elastic/elasticsearch/lib/Transport.js:276:11)\n    at IncomingMessage.emit (events.js:326:22)\n    at endReadableNT (_stream_readable.js:1241:12)\n    at processTicksAndRejections (internal/process/task_queues.js:84:21)"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:36:25 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 1148 - 167.373 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:36:25 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 86.782 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:37:14 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 117.146 ms\n"}
+{"name":"ResponseError","meta":{"body":{"error":{"root_cause":[{"type":"parsing_exception","reason":"No value specified for terms query","line":1,"col":27}],"type":"parsing_exception","reason":"No value specified for terms query","line":1,"col":27},"status":400},"statusCode":400,"headers":{"content-type":"application/json; charset=UTF-8","content-length":"223"},"meta":{"context":null,"request":{"params":{"method":"POST","path":"/banlist_dev/_search","body":"{\"query\":{\"terms\":{\"nid\":[null,null,null,null,null,null,null]}}}","querystring":"","headers":{"user-agent":"elasticsearch-js/7.14.1 (linux 5.10.25-linuxkit-x64; Node.js v12.22.6)","x-elastic-client-meta":"es=7.14.1,js=12.22.6,t=7.14.1,hc=12.22.6","content-type":"application/json","content-length":"64"},"timeout":30000},"options":{},"id":3},"name":"elasticsearch-js","connection":{"url":"http://elasticsearch.banlist.info:9200/","id":"http://elasticsearch.banlist.info:9200/","headers":{},"deadCount":0,"resurrectTimeout":0,"_openRequests":1,"status":"alive","roles":{"master":true,"data":true,"ingest":true,"ml":false}},"attempts":0,"aborted":false}},"level":"error","message":"(server.js:1325)❯❯▶ parsing_exception: [parsing_exception] Reason: No value specified for terms query","stack":"ResponseError: parsing_exception: [parsing_exception] Reason: No value specified for terms query\n    at onBody (/app/node_modules/@elastic/elasticsearch/lib/Transport.js:350:23)\n    at IncomingMessage.onEnd (/app/node_modules/@elastic/elasticsearch/lib/Transport.js:276:11)\n    at IncomingMessage.emit (events.js:326:22)\n    at endReadableNT (_stream_readable.js:1241:12)\n    at processTicksAndRejections (internal/process/task_queues.js:84:21)"}
+{"name":"ResponseError","meta":{"body":{"error":{"root_cause":[{"type":"parsing_exception","reason":"No value specified for terms query","line":1,"col":27}],"type":"parsing_exception","reason":"No value specified for terms query","line":1,"col":27},"status":400},"statusCode":400,"headers":{"content-type":"application/json; charset=UTF-8","content-length":"223"},"meta":{"context":null,"request":{"params":{"method":"POST","path":"/banlist_dev/_search","body":"{\"query\":{\"terms\":{\"nid\":[null,null,null,null,null,null,null]}}}","querystring":"","headers":{"user-agent":"elasticsearch-js/7.14.1 (linux 5.10.25-linuxkit-x64; Node.js v12.22.6)","x-elastic-client-meta":"es=7.14.1,js=12.22.6,t=7.14.1,hc=12.22.6","content-type":"application/json","content-length":"64"},"timeout":30000},"options":{},"id":1},"name":"elasticsearch-js","connection":{"url":"http://elasticsearch.banlist.info:9200/","id":"http://elasticsearch.banlist.info:9200/","headers":{},"deadCount":0,"resurrectTimeout":0,"_openRequests":0,"status":"alive","roles":{"master":true,"data":true,"ingest":true,"ml":false}},"attempts":0,"aborted":false}},"level":"error","message":"(server.js:1325)❯❯▶ parsing_exception: [parsing_exception] Reason: No value specified for terms query","stack":"ResponseError: parsing_exception: [parsing_exception] Reason: No value specified for terms query\n    at onBody (/app/node_modules/@elastic/elasticsearch/lib/Transport.js:350:23)\n    at IncomingMessage.onEnd (/app/node_modules/@elastic/elasticsearch/lib/Transport.js:276:11)\n    at IncomingMessage.emit (events.js:326:22)\n    at endReadableNT (_stream_readable.js:1241:12)\n    at processTicksAndRejections (internal/process/task_queues.js:84:21)"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:37:16 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 1148 - 1061.208 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:37:16 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 1148 - 1853.627 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:37:16 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 72.378 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:39:13 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 461.448 ms\n"}
+{"name":"ResponseError","meta":{"body":{"error":{"root_cause":[{"type":"parsing_exception","reason":"No value specified for terms query","line":1,"col":27}],"type":"parsing_exception","reason":"No value specified for terms query","line":1,"col":27},"status":400},"statusCode":400,"headers":{"content-type":"application/json; charset=UTF-8","content-length":"223"},"meta":{"context":null,"request":{"params":{"method":"POST","path":"/banlist_dev/_search","body":"{\"query\":{\"terms\":{\"nid\":[null,null,null,null,null,null,null]}}}","querystring":"","headers":{"user-agent":"elasticsearch-js/7.14.1 (linux 5.10.25-linuxkit-x64; Node.js v12.22.6)","x-elastic-client-meta":"es=7.14.1,js=12.22.6,t=7.14.1,hc=12.22.6","content-type":"application/json","content-length":"64"},"timeout":30000},"options":{},"id":1},"name":"elasticsearch-js","connection":{"url":"http://elasticsearch.banlist.info:9200/","id":"http://elasticsearch.banlist.info:9200/","headers":{},"deadCount":0,"resurrectTimeout":0,"_openRequests":0,"status":"alive","roles":{"master":true,"data":true,"ingest":true,"ml":false}},"attempts":0,"aborted":false}},"level":"error","message":"(server.js:1327)❯❯▶ parsing_exception: [parsing_exception] Reason: No value specified for terms query","stack":"ResponseError: parsing_exception: [parsing_exception] Reason: No value specified for terms query\n    at onBody (/app/node_modules/@elastic/elasticsearch/lib/Transport.js:350:23)\n    at IncomingMessage.onEnd (/app/node_modules/@elastic/elasticsearch/lib/Transport.js:276:11)\n    at IncomingMessage.emit (events.js:326:22)\n    at endReadableNT (_stream_readable.js:1241:12)\n    at processTicksAndRejections (internal/process/task_queues.js:84:21)"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:39:15 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 1148 - 1601.122 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:39:15 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 57.185 ms\n"}
+{"name":"ResponseError","meta":{"body":{"error":{"root_cause":[{"type":"parsing_exception","reason":"No value specified for terms query","line":1,"col":27}],"type":"parsing_exception","reason":"No value specified for terms query","line":1,"col":27},"status":400},"statusCode":400,"headers":{"content-type":"application/json; charset=UTF-8","content-length":"223"},"meta":{"context":null,"request":{"params":{"method":"POST","path":"/banlist_dev/_search","body":"{\"query\":{\"terms\":{\"nid\":[null,null,null,null,null,null,null]}}}","querystring":"","headers":{"user-agent":"elasticsearch-js/7.14.1 (linux 5.10.25-linuxkit-x64; Node.js v12.22.6)","x-elastic-client-meta":"es=7.14.1,js=12.22.6,t=7.14.1,hc=12.22.6","content-type":"application/json","content-length":"64"},"timeout":30000},"options":{},"id":3},"name":"elasticsearch-js","connection":{"url":"http://elasticsearch.banlist.info:9200/","id":"http://elasticsearch.banlist.info:9200/","headers":{},"deadCount":0,"resurrectTimeout":0,"_openRequests":0,"status":"alive","roles":{"master":true,"data":true,"ingest":true,"ml":false}},"attempts":0,"aborted":false}},"level":"error","message":"(server.js:1327)❯❯▶ parsing_exception: [parsing_exception] Reason: No value specified for terms query","stack":"ResponseError: parsing_exception: [parsing_exception] Reason: No value specified for terms query\n    at onBody (/app/node_modules/@elastic/elasticsearch/lib/Transport.js:350:23)\n    at IncomingMessage.onEnd (/app/node_modules/@elastic/elasticsearch/lib/Transport.js:276:11)\n    at IncomingMessage.emit (events.js:326:22)\n    at endReadableNT (_stream_readable.js:1241:12)\n    at processTicksAndRejections (internal/process/task_queues.js:84:21)"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:39:15 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 1148 - 219.449 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:41:06 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 157.170 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:41:06 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 293 - 145.890 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:41:06 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 293 - 521.363 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 04:41:08 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 779.616 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:10:41 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 573.345 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:10:41 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 293 - 283.366 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:10:41 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 84.885 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:10:42 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 116.794 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:11:52 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 71.445 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:11:53 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 290 - 236.164 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:11:53 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 122.060 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:11:54 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 60.848 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:12:23 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 226.073 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:12:23 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 207.763 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:12:23 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 49.456 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:12:25 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 38.080 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:12:43 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 150.012 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:12:43 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 202.338 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:12:44 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 102.456 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:12:45 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 114.384 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:15:12 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 112.874 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:15:12 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 125.031 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:15:13 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 99.534 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:15:14 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 75.036 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:18:34 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 293 - 146.322 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:18:34 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 424.702 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:18:36 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 223.585 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:19:45 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 94.733 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:19:45 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 107.281 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:19:46 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 57.899 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:19:47 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 48.528 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:35:03 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 302.323 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:35:04 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 293 - 756.019 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:35:04 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 293 - 214.978 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:35:05 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 743.410 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:36:35 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 227.286 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:36:35 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 305.981 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:36:35 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 140.011 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:36:36 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 186.233 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:37:24 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 119425 - 132.022 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:37:30 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 284.578 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:37:30 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 332.331 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:47:40 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 272.562 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:47:40 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 324.014 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:47:42 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 111.780 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:51:50 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 69.997 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:51:50 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 293 - 135.420 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:51:50 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 59.521 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:51:52 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 56.969 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:54:41 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 80.592 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:54:42 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 291 - 165.701 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:54:42 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 291 - 87.605 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:54:43 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 51.534 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:55:30 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 291 - 65.416 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:55:30 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 753 - 51.795 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:55:30 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 78.613 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:55:31 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 74.800 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:55:33 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 167.344 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 05:55:33 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389276 - 298.268 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:12:02 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 321.427 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:12:02 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 434.193 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:12:03 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 106.788 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:29:33 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 683.225 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:29:38 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389275 - 1288.839 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:29:39 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 4762.262 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:29:40 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 251.874 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:29:40 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 596.723 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:33:21 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389276 - 632.378 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:33:21 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 402.862 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:33:24 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 103.548 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:33:30 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 39.225 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:34:52 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 69.356 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:36:08 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 124.007 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:47:38 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 1022.372 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:47:38 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 1282.788 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:47:42 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 4154.708 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:47:44 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 88.797 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:47:48 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 37.832 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:47:55 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 59.220 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:48:31 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 630.958 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:48:31 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 849.356 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:48:35 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 88.577 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:48:40 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 42.951 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:54:13 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 364.886 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:54:13 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 528.720 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:54:17 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 156.472 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 06:54:29 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 58.143 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:16:01 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 377.779 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:16:01 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 630.506 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:16:05 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 106.676 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:16:14 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 69.662 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:16:59 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 437.564 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:17:00 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 672.446 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:17:03 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 120.536 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:17:10 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 39.978 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:23:55 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 494.270 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:23:55 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 645.344 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:23:58 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 111.740 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:24:28 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 447.888 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:24:28 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 662.793 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:24:31 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 98.957 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:25:23 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 504.786 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:25:23 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 677.688 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:25:27 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 68.506 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:25:39 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 400.378 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:25:39 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 677.764 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:25:41 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 78.123 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:25:42 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 90.766 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:25:47 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 31.838 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:25:52 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 30.913 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:26:07 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 39.101 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:27:59 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389276 - 321.896 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:28:00 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 492.207 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:28:02 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 115.531 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:28:09 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 39.017 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:30:09 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 324.998 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:30:09 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 557.765 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:30:12 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 117.000 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:30:12 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 62.994 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:30:20 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 37.705 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:30:27 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 34.156 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:37:06 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 334.462 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:37:06 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 407.269 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:37:08 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 66.326 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:37:22 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 37.012 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:37:33 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 37.347 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:37:51 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 38.616 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:38:22 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 75.244 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:39:18 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 341.652 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:39:18 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 555.209 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:39:22 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 77.952 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:39:27 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 53.588 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:40:10 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 29.130 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:52:12 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 568.747 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:52:12 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 789.598 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:52:16 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 106.262 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:52:22 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 46.463 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:52:26 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 30.583 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:52:29 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 226.868 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:52:29 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 407.332 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:52:31 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 117.608 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:52:35 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 61.220 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:53:22 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 182.649 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:53:23 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 608.267 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:53:24 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 173.816 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:53:35 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 58.396 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 07:54:13 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 24.657 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:12:45 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 494.689 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:12:45 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 651.451 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:12:49 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 726.837 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:12:49 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 436.065 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:12:54 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 32.963 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:13:57 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 541.858 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:13:57 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 640.317 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:13:59 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 56.444 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:14:08 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 30.759 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:22:54 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 260.738 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:22:54 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 571.780 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:22:56 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 68.107 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:23:01 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 43.141 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:24:08 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 466.398 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:24:09 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 624.925 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:24:10 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 76.760 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:24:18 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 41.535 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:24:50 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 25.300 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:25:18 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 38.331 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:26:54 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 417.111 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:26:54 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 723.737 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:26:56 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 65.888 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:27:11 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 43.548 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:27:32 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 49.650 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:27:37 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 45.657 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:27:37 GMT+0000 (Coordinated Universal Time) POST /v1/get_followers 200 34 - 14.384 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:27:46 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 63.197 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:30:41 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 198.811 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:30:41 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 426.164 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:30:43 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 148.938 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:30:48 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 33.825 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:35:26 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 454.677 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:35:26 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 621.290 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:35:28 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 887.039 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:35:34 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 62.656 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:35:38 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 38.781 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:35:43 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 111.916 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:35:59 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 42.268 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:36:09 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 39.386 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:36:55 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 54.697 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:36:58 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 64.027 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:37:36 GMT+0000 (Coordinated Universal Time) POST /v1/login 200 44363 - 1004.775 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:37:38 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 73.600 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:37:47 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389276 - 339.445 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:37:47 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 514.191 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:37:49 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 137.763 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:37:52 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 29.634 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:38:00 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 46.167 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:38:50 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 33.252 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:38:58 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 70.930 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:39:51 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 42.217 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:40:34 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 38.707 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:40:41 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 28.954 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:50:34 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 787.096 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:50:34 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 859.956 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 08:50:36 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 1338.050 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:08:21 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 578.135 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:08:21 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389278 - 626.866 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:08:56 GMT+0000 (Coordinated Universal Time) POST /v1/login 200 44363 - 402.930 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:08:59 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 1084.639 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:10:17 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 575.281 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:10:17 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 521.800 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:10:40 GMT+0000 (Coordinated Universal Time) POST /v1/login 200 44363 - 420.039 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:10:44 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 1723.609 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:11:50 GMT+0000 (Coordinated Universal Time) POST /v1/login 200 44363 - 578.384 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:11:53 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 727.831 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:12:49 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 503.829 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:12:49 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 524.891 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:13:08 GMT+0000 (Coordinated Universal Time) POST /v1/login 200 44363 - 519.304 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:13:11 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 917.513 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:14:03 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 530.723 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:14:03 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 603.416 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:14:14 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 240.786 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:14:14 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 389277 - 421.893 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:14:25 GMT+0000 (Coordinated Universal Time) POST /v1/login 200 44363 - 535.561 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:14:29 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 1014.362 ms\n"}
+{"message":"log❯❯▶ /v1/syc_local without session","level":"error"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:15:04 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 44 - 52.604 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:16:44 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 758.114 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:16:53 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 385399 - 424.168 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:16:53 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 385399 - 528.895 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:17:11 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 449.830 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:18:41 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 1362 - 32.064 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:18:42 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 40173 - 172.954 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:18:42 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 40173 - 133.229 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:18:51 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 119771 - 297.886 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:22:13 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 1363 - 71.072 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:22:14 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 203.820 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:22:14 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 168.741 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:23:46 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 291 - 234.950 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:23:46 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 1363 - 263.499 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:23:46 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 53.912 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:26:10 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 1363 - 59.585 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:26:10 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 197.970 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:26:11 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 73.319 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:26:15 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383095 - 197.009 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:26:15 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383095 - 290.031 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:27:32 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 300.232 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:27:51 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 220.716 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:27:51 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 328.828 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:27:59 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 1363 - 27.271 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:27:59 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 193.620 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:27:59 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 50.189 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:28:57 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 45.649 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:28:58 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 48.138 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:29:52 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 119770 - 117.219 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:34:20 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383095 - 317.272 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:34:20 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383095 - 352.093 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:35:06 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 593.781 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:35:06 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 351.918 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:36:34 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383093 - 350.621 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:36:34 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 554.002 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:38:24 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 385.504 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:38:24 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 504.568 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:39:09 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 360.471 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:39:09 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 520.001 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:39:45 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 346.630 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:39:45 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 502.232 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:41:00 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 392.504 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:41:00 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383093 - 480.069 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:43:15 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 410.171 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:43:16 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 558.661 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:44:01 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 273.554 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:44:02 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 486.126 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:44:38 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 570.134 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:44:38 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 577.201 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:45:30 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383095 - 339.163 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:45:30 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 471.325 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:52:11 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 533.168 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:52:12 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 517.531 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:52:16 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 1362 - 28.487 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:52:17 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 307.710 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:52:17 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 60.729 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:53:57 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 1363 - 262.713 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:53:57 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 291 - 196.417 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 09:53:57 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 81.855 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:28:52 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 1363 - 71.762 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:28:52 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 278.290 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:28:52 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 229.429 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:28:56 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 185.590 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:28:56 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383095 - 321.562 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:29:55 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 346.313 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:29:55 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 514.704 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:31:32 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 409.401 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:31:33 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 735.728 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:32:34 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 430.368 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:32:34 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 491.854 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:33:21 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 363.418 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:33:21 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 582.375 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:33:57 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 378.418 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:33:57 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 488.618 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:34:41 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 722.372 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:34:41 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 548.895 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:35:19 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 331.514 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:35:20 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 462.695 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:39:09 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383095 - 594.505 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:39:10 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 741.731 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:39:23 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 467.514 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:39:26 GMT+0000 (Coordinated Universal Time) POST /v1/get_followers 200 403 - 32.906 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:39:36 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 314.997 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:40:18 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 339.509 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:40:18 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 394.273 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:48:45 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 1363 - 34.402 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:48:45 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 112.627 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:48:45 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 46.709 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:50:12 GMT+0000 (Coordinated Universal Time) POST /v1/follows 200 1362 - 135.966 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:50:12 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 118.988 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:50:12 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 56.750 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:50:41 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383095 - 183.598 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:50:42 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383095 - 217.370 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:51:01 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 92.629 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:51:04 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 486.594 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:51:05 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 38.942 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:51:11 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 47.890 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:51:14 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 517.088 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:51:15 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 292 - 44.499 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:55:40 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 340.823 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:55:40 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 383094 - 486.610 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:56:08 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 260.787 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:56:21 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 260.214 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:56:41 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 347.295 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:56:44 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 563.119 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:57:42 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 119770 - 120.077 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 10:58:42 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 119770 - 132.656 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:09:40 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 119770 - 186.904 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:10:10 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 381458 - 169.509 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:10:11 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 381458 - 251.608 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:11:38 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 287.614 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:15:18 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 381459 - 364.921 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:15:18 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 381459 - 479.573 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:17:18 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 381460 - 1248.533 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:17:18 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 381461 - 1280.617 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:18:38 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 381458 - 358.816 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:18:38 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 381458 - 397.900 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:20:12 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 381458 - 391.632 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:20:13 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 381458 - 646.353 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:24:50 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 381458 - 272.760 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:24:50 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 381458 - 591.474 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:25:25 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 381458 - 213.171 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:25:25 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 381458 - 416.054 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:27:22 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 381458 - 616.374 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:27:22 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 381459 - 762.163 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:27:32 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 577.296 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:27:42 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 373.442 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:27:49 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 374.150 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:28:09 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 602.347 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:28:19 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 538.695 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:29:54 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 450.958 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:30:09 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 98 - 491.619 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:31:50 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 295.714 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:32:09 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375961 - 301.471 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:32:09 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375961 - 220.121 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:34:32 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375961 - 303.368 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:34:32 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375961 - 364.479 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:36:29 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375962 - 243.196 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:36:29 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375961 - 338.461 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:37:33 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375961 - 391.258 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:37:33 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375961 - 468.567 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:37:46 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 336.788 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:38:16 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 431.131 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:39:23 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375961 - 457.721 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:39:23 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375960 - 716.713 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:39:51 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 432.203 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:41:38 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375961 - 367.303 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:41:39 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375961 - 521.756 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:41:52 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 300.636 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:41:55 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375960 - 284.598 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:41:55 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375961 - 359.584 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:42:10 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 437.458 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:43:36 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 481.842 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:46:00 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375961 - 517.119 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:46:00 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375961 - 794.288 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:46:09 GMT+0000 (Coordinated Universal Time) POST /v1/get_followers 200 34 - 22.703 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:46:28 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 362.687 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:51:09 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375961 - 435.145 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:51:09 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375962 - 441.868 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:51:34 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 305.468 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:51:52 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 652.266 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:53:28 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375962 - 205.751 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:53:28 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375962 - 380.669 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:53:38 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 556.391 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:53:47 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 496.767 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:53:55 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 99 - 350.031 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:56:08 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375961 - 249.732 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:56:08 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375961 - 403.140 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 11:56:13 GMT+0000 (Coordinated Universal Time) POST /v1/syc_local 200 98 - 624.421 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 12:46:59 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375961 - 350.907 ms\n"}
+{"meta":{"serverLogs":"server-logs"},"level":"info","message":"Fri Sep 10 2021 12:47:00 GMT+0000 (Coordinated Universal Time) POST /v1/search 200 375961 - 650.685 ms\n"}

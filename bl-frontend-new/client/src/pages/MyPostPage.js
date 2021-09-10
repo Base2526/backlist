@@ -12,6 +12,7 @@ import UseMyPostItem from "./UseMyPostItem";
 import MyPostConfirmDeleteDialog from './MyPostConfirmDeleteDialog'
 import MyPostConfirmUpdateStatusDialog from './MyPostConfirmUpdateStatusDialog'
 
+
 import MoreVertOutlinedIcon from '@material-ui/icons/MoreVertOutlined';
 
 import { LazyLoadImage } from 'react-lazy-load-image-component';
@@ -21,51 +22,66 @@ import {isEmpty, onToast} from '../utils'
 import { initMyApp,  addMyAppALL } from '../actions/my_apps';
 import { attributesToProps } from "html-react-parser";
 
+import { addContentsData } from '../actions/app';
+
+import Tabs from "../components/Tabs";
+
+var _ = require('lodash');
+
 const MyPostPage = (props) => {
     const history = useHistory();
     const [myApps, setMyApps] = useState(props.my_apps);
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [anchorEl, setAnchorEl] = useState(null);
 
-    const [isOpen, setIsOpen] = React.useState(false);
-    const [photoIndex, setPhotoIndex] = React.useState(0);
+    const [isOpen, setIsOpen] = useState(false);
+    const [photoIndex, setPhotoIndex] = useState(0);
 
-    const [showModalConfirmDelete, setShowModalConfirmDelete] = React.useState(false);
-    const [showModalConfirmUpdateStatus, setShowModalConfirmUpdateStatus] = React.useState(false);
+    const [showModalConfirmDelete, setShowModalConfirmDelete] = useState(false);
+    const [showModalConfirmUpdateStatus, setShowModalConfirmUpdateStatus] = useState(false);
+
+    const [datas, setDatas] = useState(props.data);
+    const [drafts, setDrafts] = useState([]);
+    const [published, setPublished] = useState([]);
 
     useEffect(() => {
         fetchData()
     }, []);
 
     useEffect(() => {
-        props.my_apps.sort(function(a,b){ return b.changed - a.changed; });
-        setMyApps(props.my_apps)
-    }, [props.my_apps]);
+        props.datas.sort(function(a,b){ return b.changed - a.changed; });
+        setDatas(props.datas)
+
+        setDrafts(props.datas.filter((o)=>!o.status)) 
+        setPublished(props.datas.filter((o)=>o.status)) 
+
+        console.log('props.data >>> ', props.datas.filter((o)=>!o.status), props.datas.filter((o)=>o.status) )
+
+    }, [props.datas]);
 
     const fetchData = async() =>{
-
-        // props.initMyApp()
-
-        // setLoginLoading(true)
-        let response =  await axios.post(`/api/v1/my_post`, 
-                                        { uid: props.user.uid }, 
+        let response =  await axios.post(`/api/v1/search`, 
+                                        {   type: 1,
+                                            key_word: props.user.uid,
+                                            offset: 0,
+                                           //  page_limit: pageLimit
+                                        }, 
                                         { headers: {'Authorization': `Basic ${ls.get('basic_auth')}` } });
 
         response = response.data
-        console.log("response", response)
-
+        console.log("response : ", response, props.user.uid)
         if(response.result){
-            console.log("response.datas", response.datas)
-            // response.datas.map((data)=>{
-            //     props.addMyApp( {nid:data.id, data} )
-            // })
-
-            props.addMyAppALL(response.datas)
+            let {execution_time, datas, count } = response;
+            props.addContentsData(datas);
         }
     }
 
     const handleClose = () => {
         setAnchorEl(null)
     }
+
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
 
     const menu = () =>{
         return  <Menu
@@ -377,8 +393,61 @@ const MyPostPage = (props) => {
     //                                 </div>
     //                      })
     // }
-  
+
+    const drafts_view = () =>{
+        return  drafts.map((item, idx) => {
+            return  <UseMyPostItem 
+                        {...props} 
+                        type={'drafts'}
+                        item={item}
+                        updateState={updateState}
+                        onModalConfirmDelete={onModalConfirmDelete}
+                        onModalConfirmUpdateStatus={onModalConfirmUpdateStatus}
+                    />
+         })
+    }
+
+    const published_view = () =>{
+        return  published.map((item, idx) => {
+            return  <UseMyPostItem 
+                        {...props} 
+                        type={'published'}
+                        item={item}
+                        updateState={updateState}
+                        onModalConfirmDelete={onModalConfirmDelete}
+                        onModalConfirmUpdateStatus={onModalConfirmUpdateStatus}
+                    />
+         })
+    }
+
+    const responses_view = () =>{
+        return  [].map((data, idx) => {
+            return  <div key={idx}  style={{borderStyle: "dashed"}}>
+                        <div>data.uid</div>
+                       
+                    </div>
+         })
+    }
+
     return (
+        <div>
+            <h1>Your posts</h1>
+            <Tabs activeTab={'published'}>
+                <div label= {`Drafts ${ _.isEmpty(drafts) ? '' : drafts.length }`} id="drafts" >
+                 {drafts_view()}
+                </div>
+                <div label= {`Published ${ _.isEmpty(published)  ? '' : published.length }`} id="published">
+                 {published_view()}
+                </div>
+                <div label="Responses"  id="responses">
+                  {responses_view()}
+                </div>
+            </Tabs>
+        </div>
+    )
+  
+    /*
+    return2 (
             <div className="container mb-5">
                 <div > 
                 {
@@ -398,19 +467,25 @@ const MyPostPage = (props) => {
                 </div>
             </div>
             )
+            */
 }
   
 const mapStateToProps = (state, ownProps) => {
     console.log('MyPostPage> mapStateToProps : ', state)
 	return { 
             user: state.user.data, 
-            my_apps: state.my_apps.data 
+            my_apps: state.my_apps.data,
+
+            datas: state.app.data.filter((o)=>o.owner_id === state.user.data.uid),
            }
 }
 
 const mapDispatchToProps = {
     initMyApp,
-    addMyAppALL
+    addMyAppALL,
+
+
+    addContentsData
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(MyPostPage)

@@ -18,6 +18,7 @@ import { isEmpty, commaFormatted } from "../utils";
 import ReportDialog from './ReportDialog'
 
 import { onMyFollow } from '../actions/my_follows';
+import { addFollowData } from '../actions/app'
 
 var _ = require('lodash');
 
@@ -111,12 +112,23 @@ const DetailPage = (props) => {
         return (_.filter(item.app_followers, (o) => { return o.status; })).length
     }
 
-    const is_follows = () =>{
-        if(!_.isEmpty(props.user)){
-          return _.isEmpty( (props.my_follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ) ? "gray" : "red"
-        }
+    const isFollows = () =>{
+        // if(!_.isEmpty(props.user)){
+        //   return _.isEmpty( (props.follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ) ? "gray" : "red"
+        // }
     
-        return "gray"
+        // return "gray"
+
+        if(!_.isEmpty(props.user)){
+            // return (props.follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ? "gray" : "red"
+      
+            let follow = props.follows.find((o)=>o.nid === item.nid)
+            if(!_.isEmpty(follow)){
+              return follow.status ? 'red' : 'gray'
+            }
+          }
+      
+          return "gray"
       }
 
     return (
@@ -148,20 +160,17 @@ const DetailPage = (props) => {
                         </div>
                         <div>
                             <VerifiedUserOutlinedIcon 
-                                style={{ cursor:'pointer', fill: is_follows() }}
+                                style={{ cursor:'pointer', fill: isFollows() }}
                                 onClick={()=>{ 
                                     if(_.isEmpty(props.user)){
                                         setShowModalLogin(true)
                                     }else{
-
-                                        let f = props.my_follows.find((o)=> o.nid === item.nid)
-
-                                        let status = true
-                                        if(!_.isEmpty(f)){
-                                            status = !f.status
+                                        let follow = props.follows.find((o)=>o.nid === item.nid)
+                                        let status = true;
+                                        if(!_.isEmpty(follow)){
+                                            status = !follow.status;
                                         }
-
-                                        props.onMyFollow({uid: props.user.uid,  nid: item.nid, status})
+                                        props.addFollowData({uid: props.user.uid,  nid: item.nid, status})
                                     }
                                 }} />
                             <MoreVertOutlinedIcon 
@@ -265,12 +274,16 @@ const mapStateToProps = (state, ownProps) => {
       user: state.user.data,
       data: state.app.data,
       my_follows: state.my_follows.data,
+
+      follows: state.app.follows,
     };
 }
   
 const mapDispatchToProps = {
     // fetchData,
-    onMyFollow
+    onMyFollow,
+
+    addFollowData
 }
   
 export default connect(mapStateToProps, mapDispatchToProps)(DetailPage)

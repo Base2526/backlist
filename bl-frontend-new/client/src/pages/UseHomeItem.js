@@ -30,10 +30,8 @@ const UseHomeItem = (props) => {
 
   useEffect(() => {
 
-    console.log('UseHomeItem : ', props.user.uid)
     setItem(props.item)
-    // 
-    setFollowUp( _.isEmpty( (props.my_follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ) ? false : true )
+    setFollowUp( _.isEmpty( (props.follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ) ? false : true )
   });
   
   const handleClose = () => {
@@ -73,9 +71,9 @@ const UseHomeItem = (props) => {
         case 1:{
           return(
               <div key={item.nid}> 
-                  <div class="hi-container">
-                      <div class="hi-sub-container1">
-                          <div class="hi-item1" 
+                  <div className="hi-container">
+                      <div className="hi-sub-container1">
+                          <div className="hi-item1" 
                               onClick={()=>{ 
                                   setIsOpen(true); 
                                   setPhotoIndex(0);
@@ -122,9 +120,9 @@ const UseHomeItem = (props) => {
 
         case 2:{
             return(<div key={item.nid}> 
-                <div class="hi-container">
-                <div class="hi-sub-container1">
-                    <div class="hi-item1" 
+                <div className="hi-container">
+                <div className="hi-sub-container1">
+                    <div className="hi-item1" 
                         onClick={()=>{ 
                             setIsOpen(true); 
                             setPhotoIndex(0);
@@ -136,7 +134,7 @@ const UseHomeItem = (props) => {
                             effect="blur"
                             src={thumbnail[0].url} />
                     </div>
-                    <div class="hi-item2" onClick={()=>{ setIsOpen(true); setPhotoIndex(1); }} >
+                    <div className="hi-item2" onClick={()=>{ setIsOpen(true); setPhotoIndex(1); }} >
                         <LazyLoadImage
                             alt={'image.alt'}
                             width="100%"
@@ -180,9 +178,9 @@ const UseHomeItem = (props) => {
         
         case 3:{
             return(<div key={item.nid}> 
-                <div class="hi-container">
-                <div class="hi-sub-container1">
-                    <div class="hi-item1" 
+                <div className="hi-container">
+                <div className="hi-sub-container1">
+                    <div className="hi-item1" 
                         onClick={()=>{ 
                             setIsOpen(true); 
                             setPhotoIndex(0);
@@ -194,7 +192,7 @@ const UseHomeItem = (props) => {
                             effect="blur"
                             src={thumbnail[0].url} />
                     </div>
-                    <div class="hi-item2" onClick={()=>{ setIsOpen(true); setPhotoIndex(1); }} >
+                    <div className="hi-item2" onClick={()=>{ setIsOpen(true); setPhotoIndex(1); }} >
                         <LazyLoadImage
                             alt={'image.alt'}
                             width="100%"
@@ -203,8 +201,8 @@ const UseHomeItem = (props) => {
                             src={thumbnail[1].url} />
                     </div>
                 </div>
-                <div class="hi-sub-container2">
-                    <div class="hi-item3" onClick={()=>{ setIsOpen(true); setPhotoIndex(2); }} >
+                <div className="hi-sub-container2">
+                    <div className="hi-item3" onClick={()=>{ setIsOpen(true); setPhotoIndex(2); }} >
                         <LazyLoadImage
                             alt={'image.alt'}
                             width="100%"
@@ -248,9 +246,9 @@ const UseHomeItem = (props) => {
 
         default:{
             return(<div key={item.nid}> 
-                        <div class="hi-container">
-                        <div class="hi-sub-container1">
-                            <div class="hi-item1" 
+                        <div className="hi-container">
+                        <div className="hi-sub-container1">
+                            <div className="hi-item1" 
                                 onClick={()=>{ 
                                     setIsOpen(true); 
                                     setPhotoIndex(0);
@@ -262,7 +260,7 @@ const UseHomeItem = (props) => {
                                     effect="blur"
                                     src={thumbnail[0].url} />
                             </div>
-                            <div class="hi-item2" onClick={()=>{ setIsOpen(true); setPhotoIndex(1); }} >
+                            <div className="hi-item2" onClick={()=>{ setIsOpen(true); setPhotoIndex(1); }} >
                                 <LazyLoadImage
                                     alt={'image.alt'}
                                     width="100%"
@@ -271,8 +269,8 @@ const UseHomeItem = (props) => {
                                     src={thumbnail[1].url} />
                             </div>
                         </div>
-                        <div class="hi-sub-container2">
-                            <div class="hi-item3" onClick={()=>{ setIsOpen(true); setPhotoIndex(2); }} >
+                        <div className="hi-sub-container2">
+                            <div className="hi-item3" onClick={()=>{ setIsOpen(true); setPhotoIndex(2); }} >
                                 <LazyLoadImage
                                     alt={'image.alt'}
                                     width="100%"
@@ -348,12 +346,24 @@ const UseHomeItem = (props) => {
   }
 
   const count_app_followers = () =>{
-      return (_.filter(item.app_followers, (o) => { return o.status; })).length
+      // return (_.filter(item.app_followers, (o) => { return o.status; })).length
+
+      if(_.has(item, 'app_followers')){
+        // console.log ("item.app_followers.filter((o)=>o.status) " , ;
+
+        return item.app_followers.filter((o)=>o.status).length
+      }
+      return 0;
   }
 
-  const is_follows = () =>{
+  const isFollows = () =>{
     if(!_.isEmpty(props.user)){
-      return _.isEmpty( (props.my_follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ) ? "gray" : "red"
+      // return (props.follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ? "gray" : "red"
+
+      let follow = props.follows.find((o)=>o.nid === item.nid)
+      if(!_.isEmpty(follow)){
+        return follow.status ? 'red' : 'gray'
+      }
     }
 
     return "gray"
@@ -362,11 +372,7 @@ const UseHomeItem = (props) => {
   return (
     <div key={item.nid} style={{margin: 10}}>  
       {itemView()}
-      <div style={{cursor: 'pointer'}} onClick={()=>{
-        // console.log('/detail/:id : ', props)
-        // /detail/:id
-        // props.history.push({pathname: `detail/${item.id}`, state: { item } })
-      }}> 
+      <div style={{cursor: 'pointer'}} onClick={()=>{}}> 
           <div>
               <div style={{cursor: 'pointer'}} onClick={()=>{
                 props.history.push({pathname: `detail/${item.nid}`, key: item.nid, state: { item } })
@@ -389,85 +395,27 @@ const UseHomeItem = (props) => {
             <div>
               <div>รายละเอียด</div>
               <div style={{maxWidth:"300px"}}>
-                {/* {
-                  !isEmpty(item.detail) && 
-                  <ReactReadMoreReadLess
-                    charLimit={50}
-                    readMoreText={"Read more"}
-                    readLessText={"Read less"}
-                    readMoreClassName="read-more-less--more"
-                    readLessClassName="read-more-less--less"
-                    onClick={()=>console.log("ReactReadMoreReadLess")}
-                  >
-                    {item.detail}
-                  </ReactReadMoreReadLess>
-                } */}
-
-                {
-                  !isEmpty(item.detail) && <ReadMore>{parse(item.detail)}</ReadMore>
-                }
-                
+                {!isEmpty(item.detail) && <ReadMore>{parse(item.detail)}</ReadMore>}
               </div>
             </div> 
           </div>
           <div>
             <VerifiedUserOutlinedIcon 
-              style={{fill:  is_follows() }}
+              style={{fill:  isFollows() }}
               onClick={()=>{ 
-                // toast.info("Wow so easy!", 
-                //           {
-                //             position: "bottom-right", 
-                //             hideProgressBar: true,
-                //             autoClose: 1000,
-                //           }) 
-
-                console.log("props.user : ", props.user)
-
                 if(_.isEmpty(props.user)){
                   props.updateState({showModalLogin: true})
                 }else{
+                  
+                  let follow = props.follows.find((o)=>o.nid === item.nid)
 
-                  let f = props.my_follows.find((o)=> o.nid === item.nid)
-
-                  let status = true
-                  if(!_.isEmpty(f)){
-                    status = !f.status
+                  let status = true;
+                  if(!_.isEmpty(follow)){
+                    status = !follow.status;
                   }
 
                   props.myFollow({uid: props.user.uid, nid: item.nid, status})
-                  
                 }
-
-                /*
-                let cL = this.props.user
-                if(isEmpty(cL)){
-                  _this.props.onUpdateState({showModalLogin: true})
-                }else{
-              
-                  let follow_up = true;
-                  if(!isEmpty(___follow_ups)){
-                    let find_fup = ___follow_ups.find(value => String(value.id) === String(item.id) )
-                    // console.log('fup : ', find_fup, item.id)
-
-                    if(!isEmpty(find_fup)){
-                      follow_up = !find_fup.follow_up
-                    }
-                  }
-
-                  if(follow_up){
-                    _this.props.toast.show("Follow up");
-                  }else{
-                    _this.props.toast.show("Unfollow up");
-                  }
-
-                  ___followUp({"id": item.id, 
-                              "local": true, 
-                              "follow_up": follow_up, 
-                              "unique_id": getUniqueId(), 
-                              "owner_id": item.owner_id, 
-                              "date": Date.now()}, 0);
-                }
-                */
               }} />
             <MoreVertOutlinedIcon onClick={handleClick} />
             <div onClick={()=>{

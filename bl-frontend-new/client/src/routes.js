@@ -4,7 +4,7 @@ import ProfilePage from './pages/ProfilePage'
 import SettingsPage from './pages/SettingsPage'
 import NotificationsPage from './pages/NotificationsPage'
 import MyPostPage from './pages/MyPostPage'
-import MyFollowUpPage from './pages/MyFollowUpPage'
+import FollowsPage from './pages/FollowsPage'
 import TermsofServicePage from './pages/TermsofServicePage'
 import AboutupPage from './pages/AboutupPage'
 import ForDeveloperPage from './pages/ForDeveloperPage'
@@ -21,8 +21,8 @@ export default [
     { path: "/forget-password", name: "ลืมรหัสผ่าน", Component: ForgetPasswordPage },
     { path: "/detail/:nid", name: "รายละเอียด", Component: DetailPage },
     { path: "/my-profile", name: "My Profile", Component: ProfilePage },
-    { path: "/my-profile/my-post", name: "My Post", Component: MyPostPage },
-    { path: "/my-profile/my-followup", name: "My follow up", Component: MyFollowUpPage },
+    { path: "/my-profile/my-post", name: "Your posts", Component: MyPostPage },
+    { path: "/my-profile/follows", name: "Follows", Component: FollowsPage },
     { path: "/my-profile/my-post/:nid", name: "รายละเอียด", Component: DetailPage },
     { path: "/my-profile/my-followup/:nid", name: "รายละเอียด", Component: DetailPage },
 

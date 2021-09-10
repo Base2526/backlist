@@ -301,18 +301,62 @@ const UseMyPostItem = (props) => {
         }
     }
   }
+
+  const content_view = () =>{
+    switch(props.type){
+      case 'drafts':{
+        return (
+          <div style={{borderStyle: "dotted"}}>
+            <div>{item.title}--{item.nid}</div>
+            <MoreVertOutlinedIcon onClick={handleClick} />
+            <Menu
+                keepMounted
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                open={Boolean(anchorEl)}>
+                <MenuItem onClick={()=>{
+                    console.log(item)
+                }}>Edit draft</MenuItem>
+                <MenuItem onClick={()=>{
+
+                }} >Delete draft</MenuItem>
+            </Menu> 
+          </div>
+        )
+        break;
+      }
+
+      case 'published':{
+        return (
+          <div style={{borderStyle: "dashed"}}>
+            <div>{item.title}--{item.nid}</div>
+            <MoreVertOutlinedIcon onClick={handleClick} />
+            <Menu
+                keepMounted
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                open={Boolean(anchorEl)}>
+                <MenuItem onClick={()=>{console.log(item)}}>Share</MenuItem>
+                <MenuItem onClick={()=>{console.log(item)}}>Edit</MenuItem>
+                <MenuItem onClick={()=>{}} >Delete</MenuItem>
+            </Menu> 
+          </div>
+        )
+      }
+
+      default:{
+        return (
+          <div style={{borderStyle: "dashed"}}></div>
+        )
+      }
+    }
+  }
+
+  return ( <div>{content_view()}</div>)
   
-  return (
+  /*
+  return2 (
     <div key={item.id} className="mypost-item">  
-      {/* <Button
-        aria-controls="simple-menu"
-        aria-haspopup="true"
-        onClick={handleClick}
-      >
-        Open Menu List
-      </Button> */}
-      
-                {/* {itemView()} */}
    
                 <div style={{cursor: 'pointer'}} onClick={()=>{
                   // console.log('/detail/:id : ', props)
@@ -345,19 +389,7 @@ const UseMyPostItem = (props) => {
                       <div>
                         <div><h5>รายละเอียด: </h5></div>
                         <div style={{maxWidth:"300px"}}>
-                          {/* {
-                            !isEmpty(item.detail) && 
-                            <ReactReadMoreReadLess
-                              charLimit={50}
-                              readMoreText={"Read more"}
-                              readLessText={"Read less"}
-                              readMoreClassName="read-more-less--more"
-                              readLessClassName="read-more-less--less"
-                              onClick={()=>console.log("ReactReadMoreReadLess")}
-                            >
-                              {item.detail}
-                            </ReactReadMoreReadLess>
-                          } */}
+                         
 
                         {
                           !isEmpty(item.detail) && <ReadMore>{parse(item.detail)}</ReadMore>
@@ -367,15 +399,7 @@ const UseMyPostItem = (props) => {
                       </div> 
                     </div>
                     <div>
-                      {/* <VerifiedUserOutlinedIcon 
-                        onClick={()=>{ 
-
-                          if(isEmpty(props.user)){
-                            props.updateState({showModalLogin: true})
-                          }
-
-                         
-                        }} /> */}
+                     
                       <MoreVertOutlinedIcon 
                         onClick={handleClick} />
                     </div>
@@ -385,27 +409,6 @@ const UseMyPostItem = (props) => {
                 anchorEl={anchorEl}
                 onClose={handleClose}
                 open={Boolean(anchorEl)}>
-                {/* <CopyToClipboard text={"http://localhost:8099/detail/" + item.id}>
-                  <MenuItem onClick={()=>{
-
-                    toast.info("Link to post copied to clipboard.", 
-                    {
-                        position: "bottom-right", 
-                        hideProgressBar: true,
-                        autoClose: 1000,
-                    }) 
-                    handleClose()
-                  }}>Copy link</MenuItem>
-                </CopyToClipboard>
-                <MenuItem onClick={()=>{
-                  if(isEmpty(props.user)){
-                    props.updateState({showModalLogin: true})
-                  }else{
-                    props.updateState({showModalReport: true})
-                  }
-
-                  handleClose()
-                }}>Report</MenuItem> */}
                 <MenuItem onClick={()=>{
                    props.onModalConfirmUpdateStatus(true)
                    setAnchorEl(null);
@@ -421,6 +424,7 @@ const UseMyPostItem = (props) => {
             
     </div>
   );
+  */
 };
   
 export default UseMyPostItem;

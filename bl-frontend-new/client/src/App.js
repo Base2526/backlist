@@ -26,6 +26,8 @@ import { onMyFollowALL, onMyFollowUpdateStatus } from './actions/my_follows'
 
 import { onConnect, onDisconnect } from './actions/socket'
 
+import { addContentsData, addFollowsData } from './actions/app'
+
 var _ = require('lodash');
 
 let socket = undefined;
@@ -42,7 +44,7 @@ const App = (props) => {
 
   useEffect(() => {
     
-    console.log('socketid() > [props.user] #0 > ', props.user , socket )  
+    // console.log('socketid() > [props.user] #0 > ', props.user , socket )  
 
     if( !_.isEmpty(socket) ){
       console.log('socketid() > socket.auth.token : #1')
@@ -90,39 +92,39 @@ const App = (props) => {
       interval = undefined
     }
 
-    console.log('useEffect [props.my_follows] #1: ')
+    // console.log('useEffect [props.follows] #1: ')
 
-    let {user, my_follows} = props
-    console.log("useEffect [props.my_follows] #2:", user, _.isEmpty(user), props)
+    let {user, follows} = props
+    // console.log("useEffect [props.follows] #2:", user, _.isEmpty(user), props)
     if(!_.isEmpty(user)){
-      let filter_follow_ups = my_follows.filter((im)=>im.local)
+      let filter_follow_ups = follows.filter((im)=>im.local)
       
-      console.log("useEffect [props.my_follows] #3:", filter_follow_ups)
+      // console.log("useEffect [props.follows] #3:", filter_follow_ups)
       if(!_.isEmpty(filter_follow_ups)){
         interval = setInterval(async(props)=>{
-          let {user, my_follows} = props
+          let {user, follows} = props
           let response =  await axios.post(`/api/v1/syc_local`, 
                                           { 
-                                            uid: user.uid, my_follows: JSON.stringify(my_follows) 
+                                            uid: user.uid, follows: JSON.stringify(follows) 
                                           }, 
                                           { headers: {'Authorization': `Basic ${ls.get('basic_auth')}` } });
 
           response = response.data
-          console.log("useEffect [props.my_follows] #4:", response, user)
+          console.log("/api/v1/syc_local : ", response )
 
           if(response.result){
-            props.onMyFollowUpdateStatus({})
+            // props.onMyFollowUpdateStatus({})
           }
 
           clearInterval(interval)
         }, 2000, props)
       }else {
-        console.log("useEffect [props.my_follows] #5:")
+        // console.log("useEffect [props.follows] #5:")
       }
     }else{
-      console.log("useEffect [props.my_follows] #6:")
+      // console.log("useEffect [props.follows] #6:")
     }
-  }, [props.my_follows]);
+  }, [props.follows]);
 
   const checkLocalStorage = ()=>{
     // http://apassant.net/2012/01/16/timeout-for-html5-localstorage/
@@ -153,7 +155,7 @@ const App = (props) => {
   }
 
   const socketid = async() =>{
-    console.log('process.env :', process.env, ', props : ', props, ', geolocation : ', await geolocation())
+    // console.log('process.env :', process.env, ', props : ', props, ', geolocation : ', await geolocation())
 
     if(_.isEmpty(socket)){
       socket = io( "/", 
@@ -205,7 +207,7 @@ const App = (props) => {
       socket.off('test', test);
       socket.off('onAppFollowers', onAppFollowers)
     }else{
-      console.log('socket :', socket)
+      // console.log('socket :', socket)
     }
 
     socket.on('connect', onConnect)
@@ -223,8 +225,46 @@ const App = (props) => {
     socket.off('onAppFollowers', onAppFollowers)
   }
 
-  const handleSyc = (data) =>{
-    console.log("handleSyc :", data)
+  const handleSyc = (i) =>{
+    console.log("handleSyc :", i)
+
+    switch(i.type){
+      case 'user':{
+        let {operation_type} = i
+
+        switch(operation_type){
+          case 'delete':{
+            ls.remove('basic_auth')
+            ls.remove('session')
+
+            socket.disconnect();  
+            props.userLogout()
+            break;
+          }
+        }
+        break;
+      }
+
+      case 'follows':{
+
+        let {operation_type, datas} = i
+
+        switch(operation_type){
+          case 'insert':{
+
+            break;
+          }
+
+          case 'replace':
+			    case 'update':{
+            props.addFollowsData(datas)
+            break;
+          }
+        }
+
+        break;
+      }
+    }
   }
 
   const test = (data)=>{
@@ -377,8 +417,10 @@ const App = (props) => {
                           // }
 
                           // console.log();
-                          console.log(`Generated crumbs for ${props.match.path}`);
-                          crumbs.map(({ name, path }) => console.log({ name, path }));
+                          // console.log(`Generated crumbs for ${props.match.path}`);
+                          crumbs.map(({ name, path }) =>{}
+                          //  console.log({ name, path })
+                          );
                           return (
                             <div className="p-8">
                               <Breadcrumbs crumbs={crumbs} />
@@ -409,6 +451,8 @@ const mapStateToProps = (state, ownProps) => {
 
     my_follows: state.my_follows.data,
 
+    follows: state.app.follows,
+
     is_loading_overlay: state.user.is_loading_overlay,
   };
 }
@@ -427,7 +471,11 @@ const mapDispatchToProps = {
 
 
   onConnect, 
-  onDisconnect 
+  onDisconnect ,
+
+
+
+  addFollowsData
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

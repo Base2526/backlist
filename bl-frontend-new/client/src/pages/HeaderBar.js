@@ -26,12 +26,12 @@ const HeaderBar = (props) => {
   const [showModalLogout, setShowModalLogout] = React.useState(false);
   const [loadingOverlay, setLoadingOverlay]   = React.useState(false);
 
-  const [countFollowUp, setCountFollowUp]     = React.useState(0);
+  const [follows, setFollows]     = React.useState(0);
 
   useEffect(() => {
-    let follow_ups = props.follow_ups.filter((el)=>el.status);
-    setCountFollowUp(follow_ups.length)
-  });
+
+    setFollows(props.follows.filter((el)=>el.status))
+  },[]);
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -57,8 +57,8 @@ const HeaderBar = (props) => {
                      :  <div>
                           <div>
       
-                          {  _.isEmpty(props.user) ? <ul class="flex-container row">
-                                                    <li class="flex-item">
+                          {  _.isEmpty(props.user) ? <ul className="flex-container row">
+                                                    <li className="flex-item">
                                                     <div 
                                                       style={{cursor:'pointer'}}
                                                       onClick={()=>{
@@ -68,8 +68,8 @@ const HeaderBar = (props) => {
                                                     </div>
                                                   </li> 
                                                   </ul>
-                                                : <ul class="flex-container row">
-                                                    <li class="flex-item">
+                                                : <ul className="flex-container row">
+                                                    <li className="flex-item">
                                                         <NotificationsIcon 
                                                           className="notifications-icon"
                                                           onClick={()=>{
@@ -77,7 +77,7 @@ const HeaderBar = (props) => {
                                                           }} />
                                                         <span className="notifications-span">1</span>
                                                     </li>
-                                                    <li class="flex-item">
+                                                    <li className="flex-item">
                                                       <LazyLoadImage
                                                         className="lazy-load-image-border-radius"
                                                         alt={'image.alt'}
@@ -114,13 +114,14 @@ const HeaderBar = (props) => {
                               onClick={()=>{
                                 history.push({pathname: `/my-profile/my-post`, state: {} })
                                 setAnchorEl(null);
-                              }}>Your post {props.my_apps.length}</MenuItem>
+                              }}>Posts {props.my_apps.length}</MenuItem>
       
-                            {/* <MenuItem 
+                          <MenuItem 
                               onClick={()=>{
-                                history.push({pathname: `/my-profile/my-followup`, state: {} })
+                                history.push({pathname: `/my-profile/follows`, state: {} })
                                 setAnchorEl(null);
-                              }}>My follow up ({countFollowUp})</MenuItem>
+                              }}>Follows {follows.length}</MenuItem>
+                              {/*
                             <MenuItem 
                               onClick={()=>{
                                 // setLoadingOverlay(true)
@@ -160,6 +161,9 @@ const mapStateToProps = (state, ownProps) => {
 	return {
     user: state.user.data,
     data: state.app.data,
+
+    follows: state.app.follows,
+
     follow_ups: state.user.follow_ups,
 
 

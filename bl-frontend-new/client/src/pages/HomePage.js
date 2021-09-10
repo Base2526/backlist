@@ -11,13 +11,13 @@ import Ajv from "ajv"
 import Pagination from "./Pagination";
 import UseHomeItem from "./UseHomeItem";
 import Checkbox from "../components/Checkbox";
-import AddBanlistDialog from './AddBanlistDialog'
+// import AddBanlistDialog from './AddBanlistDialog'
 // import ReportDialog from './ReportDialog'
 import InputSearchField from '../components/InputSearchField'
 
 import LoginDialog from './LoginDialog'
 import { isEmpty, mergeArrays, onToast } from '../utils'
-import { addContentsData, setTotalValue } from '../actions/app';
+import { addContentsData, setTotalValue, addFollowData } from '../actions/app';
 import { followUp } from '../actions/user';
 import { onMyFollow } from '../actions/my_follows';
 
@@ -47,12 +47,10 @@ const HomePage = (props) => {
                                                           ]);
 
   useEffect(() => {
-    console.log("useEffect #0")
     //----------------
   }, []);
 
   useEffect(() => {
-    console.log("useEffect #0 props.data : ", props.data)
 
     let datas = props.data
 
@@ -68,7 +66,6 @@ const HomePage = (props) => {
     // if( !_.isEmpty(currentPage) ){
     fetch(currentPage)
     // }
-    console.log("response fetch: ", props.data, currentPage)
   }, [currentPage])
 
   const handleFormSearch = async(e) => {
@@ -116,7 +113,6 @@ const HomePage = (props) => {
                                                       });
 
     response = response.data
-    console.log("response", response, pageLimit)
     if(response.result){
 
         let {execution_time, datas, count, all_result_count} = response;
@@ -144,7 +140,7 @@ const HomePage = (props) => {
     const offset = (currentPage - 1) * pageLimit;
     // const currentDatas = allDatas.slice(offset, offset + pageLimit);
 
-    console.log("response fetch: @  ", data, currentPage, currentPage === 0 ? 1 : currentPage )
+    // console.log("response fetch: @  ", data, currentPage, currentPage === 0 ? 1 : currentPage )
 
     setCurrentPage( currentPage === 0 ? 1 : currentPage )
     // setCurrentDatas(currentDatas)
@@ -183,7 +179,7 @@ const HomePage = (props) => {
 
                 myFollow={(data)=>{
                   // console.log('myFollow :', data)
-                  props.onMyFollow(data)
+                  props.addFollowData(data)
                 }}
                 />
             ))
@@ -195,7 +191,7 @@ const HomePage = (props) => {
              props.maintenance 
              ?  <div>We’ll be back soon! Sorry for the inconvenience but we’re performing some maintenance at the moment. We’ll be back online shortly!</div>
              :  <div>
-                  <AddBanlistDialog showModal={showModal} onClose = {()=>{ setShowModal(false) }} />
+                  {/* <AddBanlistDialog showModal={showModal} onClose = {()=>{ setShowModal(false) }} /> */}
                   {/* { showModalReport && <ReportDialog showModal={showModalReport} onClose = {()=>{  setShowModalReport(false) }}  /> } */}
                   <div>
                     <form /*onSubmit={handleFormSubmit}*/ >
@@ -224,11 +220,11 @@ const HomePage = (props) => {
                         </div>
                         <div style={{paddingTop:10}}>
                           <div style={{fontSize:"20px"}}>Search by category </div>
-                          <ul class="flex-container row">
+                          <ul className="flex-container row">
                             {
                               // selectedCheckboxes
                               itemsCategory.map((itm, index)=>{
-                                return  <li class="flex-item" key={index}>
+                                return  <li className="flex-item" key={index}>
                                           <Checkbox
                                             label={itm.title}
                                             handleCheckboxChange={toggleCheckbox}
@@ -292,10 +288,10 @@ const HomePage = (props) => {
 
 const mapStateToProps = (state, ownProps) => {
 
-  console.log('state.app.data : ', state)
 	return {
     user: state.user.data,
     data: state.app.data,
+    follows: state.app.follows,
 
     total_value: state.app.total_value,
     follow_ups: state.user.follow_ups,
@@ -314,7 +310,10 @@ const mapDispatchToProps = {
   setTotalValue,
   followUp,
 
-  onMyFollow
+  onMyFollow,
+
+
+  addFollowData
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomePage)

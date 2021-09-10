@@ -1,8 +1,5 @@
 const crypto = require('crypto');
-
-// exports.method = function() {
-//     return "method"
-// };
+const _ = require('lodash')
 
 const AES_METHOD = 'aes-256-cbc';
 const IV_LENGTH = 16; // For AES, this is always 16, checked with php
@@ -43,4 +40,23 @@ exports.decrypt = (text) => {
 
 exports.isEmpty = (value) => {
     return (value == null || value.length === 0);
+}
+
+exports.elasticField = (hit) =>{
+    let _id             = hit._id;
+    let ref             = hit._source.ref;
+    let title           = hit._source.title;
+    let name_surname    = _.isEmpty(hit._source.name_surname) ? "" : hit._source.name_surname; 
+    let owner_id        = hit._source.owner_id;
+    let transfer_amount = _.isEmpty(hit._source.field_transfer_amount) ? "" : hit._source.field_transfer_amount; 
+    let detail          = _.isEmpty(hit._source.detail) ? "" : hit._source.detail;
+    let nid             = hit._source.nid;
+    let id_card_number  = _.isEmpty(hit._source.id_card_number) ? [] : hit._source.id_card_number ;
+    let images          = hit._source.images;
+    let status          = hit._source.status;
+    let app_followers   = _.isEmpty(hit._source.app_followers) ? [] : hit._source.app_followers;
+    let created         = hit._source.created;
+    let changed         = hit._source.changed;
+
+    return {_id, ref, nid, owner_id, name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers, created, changed}
 }
