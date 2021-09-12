@@ -333,7 +333,7 @@ const LoginDialog = (props) => {
 
           response = response.data
 
-          console.log("/api/v1/login : response =", response)
+          console.log("/api/v1/login : response = xx ", response)
 
           
           if(response.result){
@@ -348,8 +348,8 @@ const LoginDialog = (props) => {
             
             props.onClose()
 
-            console.log('/login > user : ', response, user)
-            onToast("info", `Welcome to banlist.info`)
+            console.log('/login > user : ', response.data)
+            onToast("info", `Welcome to banlist.info cccc`)
             
           }else{
             onToast("error", response.message)

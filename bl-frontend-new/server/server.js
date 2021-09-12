@@ -37,6 +37,7 @@ const AppFollowersSchema= require('./models/AppFollowersSchema');
 const kittySchema       = require('./models/kittySchema')
 
 const ContentsSchema    = require('./models/ContentsSchema')
+const SessionsSchema    = require('./models/SessionsSchema')
 
 const rfs = require('rotating-file-stream');
 const morgan = require('morgan');
@@ -101,8 +102,8 @@ var sessionMiddleware = sessions({
 	cookie: { maxAge: 1000 * 60 * 60 * 24 * 365 /* OneYear */ },
 	resave: false,
 	store: mongoStore.create({
-	mongoUrl: 'mongodb://mongo1:27017,mongo2:27017,mongo3:27017/bl?replicaSet=my-mongo-set'
-	// mongoUrl: `mongodb://${MONGO_USERNAME_ENV}:${MONGO_PASSWORD_ENV}@${MONGO_HOSTNAME_ENV}:${MONGO_PORT_ENV}/${MONGO_DATABASE_NAME_ENV}?authSource=admin`
+		mongoUrl: 'mongodb://mongo1:27017,mongo2:27017,mongo3:27017/bl?replicaSet=my-mongo-set'
+		// mongoUrl: `mongodb://${MONGO_USERNAME_ENV}:${MONGO_PASSWORD_ENV}@${MONGO_HOSTNAME_ENV}:${MONGO_PORT_ENV}/${MONGO_DATABASE_NAME_ENV}?authSource=admin`
 	})
 })
 
@@ -488,7 +489,7 @@ http.listen(3001,async()=> {
 	});
 
 	SocketsSchema.watch().on('change', async data =>{
-		console.log('SocketsSchema > init : ', data.operationType, JSON.stringify(data))
+		// console.log('SocketsSchema > init : ', data.operationType, JSON.stringify(data))
 		switch(data.operationType){
 			case 'insert':
 			case 'update':
@@ -704,27 +705,27 @@ app.get('/',  async(req, res) => {
 
 	*/
 
-	let query = {
-		"query": {
-			// "bool": {
-			// 	"must": [
-			// 		{"match" : { "nid": value.nid }},
-			// 		// {"match" : { "status": true}},
-			// 	],
-			// }
+	// let query = {
+	// 	"query": {
+	// 		// "bool": {
+	// 		// 	"must": [
+	// 		// 		{"match" : { "nid": value.nid }},
+	// 		// 		// {"match" : { "status": true}},
+	// 		// 	],
+	// 		// }
 
-			terms: {
-				nid: [230, 225]
-			  }
-		},
-	}
+	// 		terms: {
+	// 			nid: [230, 225]
+	// 		  }
+	// 	},
+	// }
 
-	const { body } = await client.search({
-		index: process.env.ELASTIC_INDEX,
-		body:  query
-	})
+	// const { body } = await client.search({
+	// 	index: process.env.ELASTIC_INDEX,
+	// 	body:  query
+	// })
 
-	console.log('body :', body )
+	// console.log('body :', body )
 	// body.hits.hits.map((hit)=>{ 
 	// 									let _id             = hit._id;
 	// 									let ref             = hit._source.ref;
@@ -745,6 +746,9 @@ app.get('/',  async(req, res) => {
 
 	// 									return {_id, ref, nid, owner_id, /*name, surname, */ name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers, created, changed}
 	// 								});
+
+	
+
 	res.send(`>> Hello Docker World <<\n`);
 });
 
@@ -884,10 +888,16 @@ app.post('/v1/reset_password',  async(req, res, next)=> {
 	return res.send(data);
 });
 
-app.post('/v1/logout', (req, res, next) =>{
-req.session.destroy();
-
-res.send({"result": true});
+app.get('/v1/logout', (req, res, next) =>{
+	/*
+	try{
+		let del = await SessionsSchema.deleteOne({"_id": "04ISRo6oR7LjFxqgyRlIn_ekmGZGvTYn"});
+	} catch (err) {
+		logger.error(err);
+	}
+	*/
+	req.session.destroy();
+	res.send({"result": true});
 });
 
 app.post('/v1/profile',  async(req, res, next)=> {
@@ -961,27 +971,27 @@ try {
 });
 
 app.post('/v1/my_post',  async(req, res, next)=> {
-try {
-	const start = Date.now()
+	try {
+		const start = Date.now()
 
-	let uid = req.body.uid;
+		let uid = req.body.uid;
 
-	if(uid === undefined){
-	return res.send({ result: false, message:"UID is empty" });
+		if(uid === undefined){
+		return res.send({ result: false, message:"UID is empty" });
+		}
+
+		let my_apps =  await ContentsSchema.find({ owner_id: uid })
+		const end = Date.now()
+
+		return res.send({
+						result : true,
+						execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
+						datas: my_apps
+						});
+	} catch (err) {
+		logger.error(err);
+		return res.send({result : false, message: err});
 	}
-
-	let my_apps =  await ContentsSchema.find({ owner_id: uid })
-	const end = Date.now()
-
-	return res.send({
-					result : true,
-					execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
-					datas: my_apps
-					});
-} catch (err) {
-	logger.error(err);
-	return res.send({result : false, message: err});
-}
 });
 
 /*
@@ -991,8 +1001,7 @@ https://attacomsian.com/blog/uploading-files-nodejs-express
 app.post('/v1/add_banlist',  async(req, res, next)=> {
 	const start = Date.now()
 	try {
-
-		console.log('req >', req.headers.authorization)
+		// console.log('req >', req.headers )
 		// console.log('res >', res)
 
 		/*
@@ -1015,95 +1024,102 @@ app.post('/v1/add_banlist',  async(req, res, next)=> {
 		// const file = req.files;
 		// const bodyData = req.body;
 
-		const draft           = req.body.draft;
+		const auto_save       = req.body.auto_save;
 		const nid             = req.body.nid;
 		const product_type    = req.body.product_type;
 		const transfer_amount = req.body.transfer_amount;
 		const person_name     = req.body.person_name;
-		const person_surname  = req.body.person_surname;
+		// const person_surname  = req.body.person_surname;
 		const id_card_number  = req.body.id_card_number;
 		const selling_website = req.body.selling_website;
 		const transfer_date   = req.body.transfer_date;
 		const detail          = req.body.detail;
 		const merchant_bank_account = req.body.merchant_bank_account;
 
+		
 		const files           = req.files;
+		
 
 		//-------------------
 		let photos = []; 
 		if(!_.isEmpty(files)) {
-		files['files[]'].map(async(photo) => { 
-			let path = './uploads/' + photo.name
-			if (!fs.existsSync(path)) {
-			photo.mv(path);
-			}
+			files['files[]'].map(async(photo) => { 
+				let path = './uploads/' + photo.name
+				if (!fs.existsSync(path)) {
+				photo.mv(path);
+				}
 
-			photos.push({  
-				name: photo.name,
-				mimetype: photo.mimetype,
-				size: photo.size
-			});
-		})
+				photos.push({  
+					name: photo.name,
+					mimetype: photo.mimetype,
+					size: photo.size
+				});
+			})
 		}
+
+		
+
 
 		// console.log('photos > ', photos)
 		//-------------------
 
+		
 		const form = new FormData();
 		// draft
-		form.append('draft', draft);
+		form.append('auto_save', auto_save);
 		form.append('nid', nid);
 		form.append('product_type', product_type);
 		form.append('transfer_amount', transfer_amount);
 		form.append('person_name', person_name);
-		form.append('person_surname', person_surname);
+		// form.append('person_surname', person_surname);
+		
 		form.append('id_card_number', id_card_number);
 		form.append('selling_website', selling_website);
 		form.append('transfer_date', transfer_date);
 		form.append('detail', detail);
 		form.append('merchant_bank_account', merchant_bank_account);
-
+		
 		photos.map((photo) => { 
-		// form.append('files[]', file) 
-		form.append('files[]', fs.createReadStream('./uploads/' + photo.name), {
-			filename: photo.name
-		});
+			// form.append('files[]', file) 
+			form.append('files[]', fs.createReadStream('./uploads/' + photo.name), {
+				filename: photo.name
+			});
 		})
 
+
 		const request_config = {
-		headers: { 
-			'Authorization': req.headers.authorization , 
-			// 'Content-Type': 'multipart/form-data',
-			'Content-Type':   form.getHeaders()['content-type'],
-		},
-		maxContentLength: 10000000000,
-		maxBodyLength: 10000000000
+			headers: { 
+				'Authorization': req.headers.authorization , 
+				// 'Content-Type': 'multipart/form-data',
+				'Content-Type':   form.getHeaders()['content-type'],
+			},
+			maxContentLength: 10000000000,
+			maxBodyLength: 10000000000
 		};
 		// console.log('data > ', form)
 
 		const response = await axios.post(`${process.env.DRUPAL_API_ENV}/api/added_banlist?_format=json`, form , request_config);
-		// console.log('response > ', response);
+		console.log('response > ', response);
 
 		const end = Date.now()
 
 		if(response.status === 200){
+			// delete file all on local
+			photos.map((photo) => { 
+				let path = './uploads/' + photo.name
+				if (fs.existsSync(path)) {
+				fs.unlinkSync(path);
+				}
+			})
 
-		// delete file all on local
-		photos.map((photo) => { 
-			let path = './uploads/' + photo.name
-			if (fs.existsSync(path)) {
-			fs.unlinkSync(path);
-			}
-		})
+			let data = response.data
 
-		let data = response.data
-
-		return res.send({ result : true, 
-							...data, 
-							// photos,
-							execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`, });
+			return res.send({ 	result : true, 
+								...data, 
+								// photos,
+								execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`, });
 		}else{
-		return res.send({result : false, "message": err});
+			return res.send({result : false, "message": err});
 		}
 		
 	} catch (err) {
@@ -1782,6 +1798,46 @@ app.get('/v1/healthz', async (req, res) =>{
 
 	// let health = await client.cluster.health({});
 
+	// Create Basic auth
+	/*
+	var username = 'Test';
+	var password = '123';
+	var auth = 'Basic ' + Buffer.from(username + ':' + password).toString('base64');
+
+	console.log(`auth is: ${ auth }`)
+
+	// get sessionID
+	console.log("req.sessionID >> ", req.sessionID, req.session.id)
+
+	// Check session expires
+	console.log('Signed Cookies: ',req.session.cookie.expires)
+
+	// การ destroy session 
+	req.session.destroy()
+	*/
+
+
+	// let sessions_schema = await SessionsSchema.find({}) 
+	// console.log('sessions_schema :', sessions_schema)
+
+	// var id =  mongoose.Types.ObjectId('UvHwku793xALLlVK5TCFuPeO_JC0RREq')
+	// console.log( 'A >>>>>', await SessionsSchema.findOne({"_id": "UvHwku793xALLlVK5TCFuPeO_JC0RREq"}));
+
+
+	
+	try{
+		// await req.session.destroy()
+		// // res.redirect('/')
+		// return res.end();
+	}catch(err) {
+		console.log( err );
+	}
+
+	// await SessionsSchema.findByIdAndRemove("")
+	// 
+
+	// await SessionsSchema.remove({ _id: req.sessionID })
+
 	let health = await client.cluster.health({});
 	let html = `<div> \
 					<h1>Nodejs banlist status</h1> \ 
@@ -1789,7 +1845,7 @@ app.get('/v1/healthz', async (req, res) =>{
 					<li>Mongoose connection readyState : ${mongoose.STATES[mongoose.connection.readyState]}</li> \
 					</ul> \
 					<ul> \
-					<li>User login, userId: ${req.session.userId} basicAuth: ${req.session.basicAuth} session: ${req.session.session}  --- ${req.session.cookie.expires}</li> \
+					<li> SessionID: ${req.sessionID} Basic-Auth: ${req.session.basicAuth}  --- ${req.session.cookie.expires}</li> \
 					</ul> \
 					<ul> \
 					<li>Elasticsearch : statusCode= ${health.statusCode}, body status: ${health.body.status}</li> \
@@ -1797,6 +1853,8 @@ app.get('/v1/healthz', async (req, res) =>{
 				</div>`;
 
 	res.send(html);
+
+	
 });
 
 
@@ -1833,26 +1891,29 @@ io.on('connection', async (socket) => {
 	// socket.emit('uniqueID', { ...handshake.query, "socketID": socket.id });
   
 	if(token !== 0){
-		let userId 		= 	socket.request.session.userId
+
+		// console.log('---> socket.request.session : ', socket.request.sessionID )
+
+		// let userId 		= 	socket.request.session.userId
 	  	let user_schema =	await UserSchema.findOne({'uid':token});
 		//   console.log(`Socket UserSchema  ------- >  ${user_schema}  -- ${userId} -- ${token} `)
-		if(_.isEmpty(user_schema) || _.isEmpty([userId])){
-	
+		if( _.isEmpty(user_schema) ||  await utils.isExpiry(socket.request) ){	
 			// กรณี เช็ดแล้วไม่มี user ในระบบเราจะสั่งให้ client ที่ connect เข้ามาทำการ logout ออกจากระบบ
 			// socket.emit('onUser', {'mode': 'delete', 'A': token});
 			socket.emit('onSyc', {type: 'user', operation_type:'delete'});
 		}
 	}
 
-	console.log(`Socket ${socket.id} - ${t} connection`)
+	console.log(`Socket ${socket.id} - ${t} - ${socket.request.sessionID} connection`)
   
-	await SocketsSchema.findOneAndUpdate({t}, { t, socketId: socket.id,  auth:token, device_detect, geolocation }, { new: true, upsert: true  })
+	// เก็บ sessionID เพิ่ม เพราะจะได้รู็ว่าจะ force login ได้ถูกต้อง
+	await SocketsSchema.findOneAndUpdate({t}, { t, socketId: socket.id, sessionId: socket.request.sessionID, auth:token, device_detect, geolocation }, { new: true, upsert: true  })
   
 	socket.on('disconnect', async() => {
 		let  sockets_schema =await SocketsSchema.findOne({t: t});
 		if(sockets_schema){
 			let del = await SocketsSchema.deleteOne({t: t});
-			console.log(`Socket disconnect :` , del)
+			// console.log(`Socket disconnect :` , del)
 		}
 		console.log(`Socket ${socket.id} - ${t} disconnect`)
 	});

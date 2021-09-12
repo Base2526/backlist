@@ -31,8 +31,14 @@ const UseHomeItem = (props) => {
   useEffect(() => {
 
     setItem(props.item)
-    setFollowUp( _.isEmpty( (props.follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ) ? false : true )
-  });
+
+  }, []);
+
+  useEffect(() => {
+    if(!_.isEmpty(props.follows)){
+      setFollowUp( _.isEmpty( (props.follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ) ? false : true )
+    }
+  }, [props.follows]);
   
   const handleClose = () => {
     setAnchorEl(null);
@@ -360,10 +366,13 @@ const UseHomeItem = (props) => {
     if(!_.isEmpty(props.user)){
       // return (props.follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ? "gray" : "red"
 
-      let follow = props.follows.find((o)=>o.nid === item.nid)
-      if(!_.isEmpty(follow)){
-        return follow.status ? 'red' : 'gray'
+      if(!_.isEmpty(props.follows)){
+        let follow = props.follows.find((o)=>o.nid === item.nid)
+        if(!_.isEmpty(follow)){
+          return follow.status ? 'red' : 'gray'
+        }
       }
+      
     }
 
     return "gray"

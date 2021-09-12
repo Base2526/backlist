@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from 'react-redux'
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -21,17 +21,26 @@ var _ = require('lodash');
 
 const HeaderBar = (props) => {
   const history = useHistory();
-  const [anchorEl, setAnchorEl]               = React.useState(null);
-  const [showModal, setShowModal]             = React.useState(false);
-  const [showModalLogout, setShowModalLogout] = React.useState(false);
-  const [loadingOverlay, setLoadingOverlay]   = React.useState(false);
+  const [anchorEl, setAnchorEl]               = useState(null);
+  const [showModal, setShowModal]             = useState(false);
+  const [showModalLogout, setShowModalLogout] = useState(false);
+  const [loadingOverlay, setLoadingOverlay]   = useState(false);
 
-  const [follows, setFollows]     = React.useState(0);
+  const [maintenance, setMaintenance]   = useState(false);
+
+  const [follows, setFollows]     = useState([]);
 
   useEffect(() => {
-
-    setFollows(props.follows.filter((el)=>el.status))
+    if(!_.isEmpty(props.follows)){
+      setFollows(props.follows.filter((el)=>el.status))
+    }
+    
   },[]);
+
+
+  useEffect(() => {
+    setMaintenance(props.maintenance)
+  },[props.maintenance]);
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -52,7 +61,7 @@ const HeaderBar = (props) => {
                    </Typography>
 
                    {
-                     props.maintenance 
+                     maintenance
                      ?  <div />
                      :  <div>
                           <div>

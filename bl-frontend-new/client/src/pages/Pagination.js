@@ -55,7 +55,9 @@ class Pagination extends Component {
 
       // this.state = { currentPage: 1 };
 
-      this.setState({ currentPage: 1 })
+      // this.setState({ currentPage: 1 })
+
+      console.log('>> componentDidUpdate')
     }
   }
 

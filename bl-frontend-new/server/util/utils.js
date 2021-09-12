@@ -1,6 +1,8 @@
 const crypto = require('crypto');
 const _ = require('lodash')
 
+const SessionsSchema    = require('../models/SessionsSchema')
+
 const AES_METHOD = 'aes-256-cbc';
 const IV_LENGTH = 16; // For AES, this is always 16, checked with php
 const password = 'lbwyBzfgzUIvXZFShJuikaWvLJhIVq36'; // Must be 256 bytes (32 characters)
@@ -59,4 +61,12 @@ exports.elasticField = (hit) =>{
     let changed         = hit._source.changed;
 
     return {_id, ref, nid, owner_id, name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers, created, changed}
+}
+
+exports.isExpiry = async(req) =>{
+    let sessions_schema = await SessionsSchema.findOne({ "_id": req.sessionID })
+    if(_.isEmpty(sessions_schema)){
+        return true;
+    }
+    return false;
 }

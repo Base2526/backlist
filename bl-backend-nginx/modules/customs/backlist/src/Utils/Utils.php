@@ -5465,8 +5465,135 @@ nodejs_bl        |     status: true
     }
   }
 
-  public static function setup_elastic_search(){
+  // ----------------- mongo_appfollowers -----------------
+  /*
+    การจัดเรียงข้อมูล follow ตาม appfollowers แล้วจะมีการ update index elastic search  ของ contents ตาม appfollowers
+   */
+  public static function mongo_appfollowers(){
+    $mg_follows = Utils::MongoDB_Connect_Collection('follows');
 
+    $cursor = $mg_follows->find();
+
+    //---------------- ISODate ----------------
+    $orig_date    = new DateTime(date('Y-m-d H:i:s'));
+    $orig_date    = $orig_date->getTimestamp();
+    $utcdatetime  = new \MongoDB\BSON\UTCDateTime($orig_date*1000);
+    //---------------- ISODate ----------------
+   
+    foreach ($cursor as $document) {
+      $uid   = $document["uid"];
+      $values = json_decode( json_encode( $document["value"]->getArrayCopy() ) );
+
+      foreach( $values as $value ){
+        
+        $nid    = $value->nid;
+        $status = $value->status;
+        $date   = $value->date;
+
+        // appfollowers
+        $mg_appfollowers = Utils::MongoDB_Connect_Collection('appfollowers');
+        $filter          = array( 'nid' => $nid );
+        if($mg_appfollowers->count($filter)){
+          $cursor_appfollowers = $mg_appfollowers->find( $filter );
+          foreach ($cursor_appfollowers as $cursor_appfollowers_document) {
+            $cursor_appfollowers_document_values = json_decode( json_encode( $cursor_appfollowers_document["value"]->getArrayCopy() ) );
+
+
+            // $searchedValue = 602; // Value to search.
+            $neededObject = array_filter(
+                $cursor_appfollowers_document_values,
+                function ($e) use ($uid) {
+                    return $e->uid == $uid;
+                }
+            );
+
+            if(empty($neededObject)){
+              $cursor_appfollowers_document_values[] = (object) [ "uid" => $uid, "status" => $status, "date" => $date ];
+            }else{
+              foreach($cursor_appfollowers_document_values as $key => $value){
+                if($value->uid === $uid){
+                  $value->status = $status;
+                }
+              }
+            }
+
+            $mg_appfollowers->updateOne(
+              [ 'nid' => $nid ],
+              [ '$set' => [ "value" => $cursor_appfollowers_document_values, "updatedAt"=> $utcdatetime ]]
+            );
+          }
+        }else{
+
+          $mg_appfollowers->insertOne(array( 
+                                          "nid" => $nid , 
+                                          "createdAt"=> $utcdatetime,
+                                          "updatedAt"=> $utcdatetime,
+                                          "value" => array( (object)array(
+                                                            "uid"     => $uid,
+                                                            "status"  => $status,
+                                                            "date"    => $date,
+                                                          )),
+                                        ));
+        }
+      }
+    }
+
+
+    // ------------ elastic search contents>app_followers  -----------
+
+    $client = Utils::Elastic_Connect();
+
+    $mg_appfollowers = Utils::MongoDB_Connect_Collection('appfollowers');
+    $mg_appfollowers_cursor = $mg_appfollowers->find();
+
+    foreach ($cursor as $document) {
+      $nid   = $document["nid"];
+
+
+      $params = [
+          'index' => 'banlist_dev',
+          'body'  => [
+              'query' => [
+                  'bool' => [
+                      'must' => [
+                          ["match" => [ "nid"=> $nid ]],
+                      ]
+                  ]
+              ]
+          ]
+      ];
+
+      $response = $client->search($params);
+
+      if($response["hits"]["total"]["value"] > 0){
+        // dpm( $response["hits"]["hits"] );
+        foreach( $response["hits"]["hits"] as $hit ){
+          // dpm($hit["_id"]);
+
+          $params = [
+            'index' => 'banlist_dev',
+            'id'    =>  $hit["_id"],
+            'body'  => [
+              'doc' => [
+                  'app_followers'=>$document["value"]
+                ]
+              ]
+          ];
+
+          $response = $client->update($params);
+        }
+      }
+
+    }
+
+
+    // ------------ elastic search contents>app_followers  -----------
+
+  }
+  // ----------------- mongo_appfollowers -----------------
+
+  // ----------------- elastic -----------------
+  public static function Elastic_Connect(){
     $config_elasticsearch = ConfigPages::config('config_elasticsearch');
 
     $elastic_host     = $config_elasticsearch->get('field_elastic_host')->getValue()[0]['value'];
@@ -5495,9 +5622,13 @@ nodejs_bl        |     status: true
       ]
     ];
     
-    $client = ClientBuilder::create()
+    return $client = ClientBuilder::create()
                         ->setHosts($hosts)
                         ->build();
+  }
+
+  public static function setup_elastic_search(){
+    $client = Utils::Elastic_Connect();
 
     $mg_content = Utils::MongoDB_Connect_Collection('contents');
 
@@ -5559,43 +5690,13 @@ nodejs_bl        |     status: true
     dpm($count);  
   }
 
-  public static function clear_elastic_search(){
-
-    $config_elasticsearch = ConfigPages::config('config_elasticsearch');
-
-    $elastic_host     = $config_elasticsearch->get('field_elastic_host')->getValue()[0]['value'];
-    $elastic_port     = $config_elasticsearch->get('field_elastic_port')->getValue()[0]['value'];
-    $elastic_user     = $config_elasticsearch->get('field_elastic_user')->getValue()[0]['value'];
-    $elastic_pass     = $config_elasticsearch->get('field_elastic_pass')->getValue()[0]['value'];
-    $elastic_index    = $config_elasticsearch->get('field_elastic_index')->getValue()[0]['value'];
-
-    if(
-      empty($elastic_host) ||
-      empty($elastic_port) ||
-      empty($elastic_user) ||
-      empty($elastic_pass) ||
-      empty($elastic_index) 
-    ){
-      dpm('Config empty');
-      return;
-    }
-
-    $hosts = [
-      [
-          'host' => $elastic_host,
-          'port' => $elastic_port,
-          'user' => $elastic_user,
-          'pass' => $elastic_pass
-      ]
-    ];
-    
-    $client = ClientBuilder::create()
-                        ->setHosts($hosts)
-                        ->build();
+  public static function clear_elastic_search(){ 
+    $client = Utils::Elastic_Connect();
 
     $response = $client->indices()->delete( array('index' => $elastic_index) );
     if($response['acknowledged']){
       dpm("OK");
     }
   }
+  // ----------------- elastic -----------------
 }

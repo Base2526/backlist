@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux'
 import { BrowserRouter as BR, Route, Switch } from 'react-router-dom'; 
 import Container from 'react-bootstrap/Container'
@@ -28,19 +28,27 @@ import { onConnect, onDisconnect } from './actions/socket'
 
 import { addContentsData, addFollowsData } from './actions/app'
 
+import { setMaintenance } from './actions/setting'
+
 var _ = require('lodash');
 
 let socket = undefined;
 let interval = undefined;
 
 const App = (props) => {
-  const [timeInterval, setTimeInterval] = React.useState(undefined);
+  const [timeInterval, setTimeInterval] = useState(undefined);
+
+  const [maintenance, setMaintenance]   = useState(false);
 
   useEffect(() => {
     checkLocalStorage()
    
     console.log('socketid() []')
   }, []);
+
+  useEffect(() => {
+    setMaintenance(props.maintenance)
+  }, [props.maintenance]);
 
   useEffect(() => {
     
@@ -97,6 +105,11 @@ const App = (props) => {
     let {user, follows} = props
     // console.log("useEffect [props.follows] #2:", user, _.isEmpty(user), props)
     if(!_.isEmpty(user)){
+
+      if(_.isEmpty(follows)){
+        return;
+      }
+
       let filter_follow_ups = follows.filter((im)=>im.local)
       
       // console.log("useEffect [props.follows] #3:", filter_follow_ups)
@@ -128,6 +141,7 @@ const App = (props) => {
 
   const checkLocalStorage = ()=>{
     // http://apassant.net/2012/01/16/timeout-for-html5-localstorage/
+    
     var hours = 4; // Reset when storage is more than 24hours
     var now = new Date().getTime();
     var setupTime = localStorage.getItem('setupTime');
@@ -135,10 +149,14 @@ const App = (props) => {
       localStorage.setItem('setupTime', now)
     } else {
       if(now-setupTime > hours*60*60*1000) {
-        localStorage.clear()
+        // localStorage.clear()
+
+        localStorage.removeItem('geolocation')
+
         localStorage.setItem('setupTime', now);
       }
     }
+    
   }
 
   const geolocation = async () => {
@@ -178,8 +196,9 @@ const App = (props) => {
             "geolocation" : JSON.stringify( await geolocation() ),
             auth_token: _.isEmpty(props.user) ? 0 : props.user.uid
           },
+          // transports: ["websocket"]
         },
-        { transports: ["websocket"] }
+        // { transports: ["websocket"] }
         );
     }else{
       socket.auth.token = _.isEmpty(props.user) ? 0 : props.user.uid;
@@ -276,15 +295,19 @@ const App = (props) => {
   }
 
   const onConnect = () =>{
-    console.log('Socket io, connent! : ', socket);
+    console.log('Socket io, connent! : ');
 
     props.onConnect({connected: socket.connected})
+
+    props.setMaintenance(false)
   }
 
   const onDisconnect = () =>{
-    console.log('Socket io, disconnect! : ', socket);
+    console.log('Socket io, disconnect! : ');
 
     props.onDisconnect()
+
+    props.setMaintenance(true)
   }
 
   const onUniqueID = (data) =>{
@@ -387,55 +410,65 @@ const App = (props) => {
               text='Wait...'>
               <div className="App">
                   <HeaderBar {...props} />
-                  <Container>
-                  <ToastContainer />
-                  <CacheSwitch>
-                    {routes.map(({ path, name, Component }, key) => (
-                      <CacheRoute
-                        exact
-                        path={path}
-                        key={key}
-                        render={props => {
-                          const crumbs = routes
-                            // Get all routes that contain the current one.
-                            .filter(({ path }) => props.match.path.includes(path))
-                            // Swap out any dynamic routes with their param values.
-                            // E.g. "/pizza/:pizzaId" will become "/pizza/1"
-                            .map(({ path, ...rest }) => ({
-                              path: Object.keys(props.match.params).length
-                                ? Object.keys(props.match.params).reduce(
-                                  (path, param) => path.replace(
-                                    `:${param}`, props.match.params[param]
-                                  ), path
-                                  )
-                                : path,
-                              ...rest
-                            }));
 
-                          // if(this.props.logged_in){
-                          //   connect_socketIO(this.props)
-                          // }
+                  {
+                  maintenance
+                  ?  <div>We’ll be back soon! Sorry for the inconvenience but we’re performing some maintenance at the moment. We’ll be back online shortly!</div>
+                  :
+                    <div>
+                      <Container>
+                      <ToastContainer />
+                      <CacheSwitch>
+                        {routes.map(({ path, name, Component }, key) => (
+                          <CacheRoute
+                            exact
+                            path={path}
+                            key={key}
+                            render={props => {
+                              const crumbs = routes
+                                // Get all routes that contain the current one.
+                                .filter(({ path }) => props.match.path.includes(path))
+                                // Swap out any dynamic routes with their param values.
+                                // E.g. "/pizza/:pizzaId" will become "/pizza/1"
+                                .map(({ path, ...rest }) => ({
+                                  path: Object.keys(props.match.params).length
+                                    ? Object.keys(props.match.params).reduce(
+                                      (path, param) => path.replace(
+                                        `:${param}`, props.match.params[param]
+                                      ), path
+                                      )
+                                    : path,
+                                  ...rest
+                                }));
 
-                          // console.log();
-                          // console.log(`Generated crumbs for ${props.match.path}`);
-                          crumbs.map(({ name, path }) =>{}
-                          //  console.log({ name, path })
-                          );
-                          return (
-                            <div className="p-8">
-                              <Breadcrumbs crumbs={crumbs} />
-                              <Component {...props} />
+                              // if(this.props.logged_in){
+                              //   connect_socketIO(this.props)
+                              // }
 
-                              <ScrollToTopBtn />
-                              
-                            </div>
-                          );
-                        }}
-                      />
-                    ))}
-                  </CacheSwitch>
-                  </Container>
-                <Footer />  
+                              // console.log();
+                              // console.log(`Generated crumbs for ${props.match.path}`);
+                              crumbs.map(({ name, path }) =>{}
+                              //  console.log({ name, path })
+                              );
+                              return (
+                                <div className="p-8">
+                                  <Breadcrumbs crumbs={crumbs} />
+                                  <Component {...props} />
+
+                                  <ScrollToTopBtn />
+                                  
+                                </div>
+                              );
+                            }}
+                          />
+                        ))}
+                      </CacheSwitch>
+                      </Container>
+                      <Footer />  
+                    </div>
+                  }
+
+                  
               </div>
             </LoadingOverlay>
           </BR>)
@@ -454,6 +487,9 @@ const mapStateToProps = (state, ownProps) => {
     follows: state.app.follows,
 
     is_loading_overlay: state.user.is_loading_overlay,
+
+
+    maintenance: state.setting.maintenance
   };
 }
 
@@ -475,7 +511,10 @@ const mapDispatchToProps = {
 
 
 
-  addFollowsData
+  addFollowsData,
+
+
+  setMaintenance
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

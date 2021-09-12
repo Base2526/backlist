@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux'
 import axios from 'axios';
 import { CircularProgress } from '@material-ui/core';
@@ -6,9 +6,10 @@ import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 import { Button } from "react-bootstrap";
 import ls from 'local-storage';
 
+import ReactPaginate from 'react-paginate';
+
 import Ajv from "ajv"
 
-import Pagination from "./Pagination";
 import UseHomeItem from "./UseHomeItem";
 import Checkbox from "../components/Checkbox";
 // import AddBanlistDialog from './AddBanlistDialog'
@@ -24,22 +25,25 @@ import { onMyFollow } from '../actions/my_follows';
 var _ = require('lodash');
 
 const HomePage = (props) => {
-  // const [allDatas, setAllDatas]           = React.useState([]);
-  const [currentDatas, setCurrentDatas]   = React.useState([]);
-  const [currentPage, setCurrentPage]     = React.useState(0);
-  const [totalPages, setTotalPages]       = React.useState(0);
-  const [pageLimit, setPageLimit]         = React.useState(25);
-  const [allResultCount, setAllResultCount] = React.useState(0);
+  // const [allDatas, setAllDatas]           = useState([]);
+  const [currentDatas, setCurrentDatas]   = useState([]);
+  const [currentPage, setCurrentPage]     = useState(0);
+  const [totalPages, setTotalPages]       = useState(0);
+  const [pageLimit, setPageLimit]         = useState(25);
+  const [allResultCount, setAllResultCount] = useState(0);
 
-  const [searchWord, setSearchWord]               = React.useState("");
-  const [loading, setLoading]                     = React.useState(false);
-  const [searchLoading, setSearchLoading]         = React.useState(false);
-  const [showModal, setShowModal]                 = React.useState(false);
-  const [showModalLogin, setShowModalLogin]       = React.useState(false);
-  const [showModalReport, setShowModalReport]     = React.useState(false);
-  const [selectedCheckboxes, setSelectedCheckboxes] = React.useState(["title"]);
+  const [searchWord, setSearchWord]               = useState("");
+  const [loading, setLoading]                     = useState(false);
+  const [searchLoading, setSearchLoading]         = useState(false);
+  const [showModal, setShowModal]                 = useState(false);
+  const [showModalLogin, setShowModalLogin]       = useState(false);
+  const [showModalReport, setShowModalReport]     = useState(false);
+  const [selectedCheckboxes, setSelectedCheckboxes] = useState(["title"]);
 
-  const [itemsCategory, setItemCategory] = React.useState([ { id: 'title', title: 'สินค้า/ประเภท'},
+  const [offset, setOffset]                       = useState(0)
+  const [pageCount, setPageCount]                 = useState(0)
+
+  const [itemsCategory, setItemCategory] = useState([ { id: 'title', title: 'สินค้า/ประเภท'},
                                                             { id: 'banlist_name_surname_field', title: 'ชื่อ-นามสกุล บัญชีผู้รับเงินโอน'},
                                                             { id: 'field_id_card_number', title: 'เลขบัตรประชาชนคนขาย'},
                                                             { id: 'body', title: 'รายละเอียด'},
@@ -64,9 +68,13 @@ const HomePage = (props) => {
 
   useEffect(() => {
     // if( !_.isEmpty(currentPage) ){
-    fetch(currentPage)
+    fetch()
     // }
-  }, [currentPage])
+  }, [offset])
+
+  useEffect(()=>{
+    console.log('props.maintenance  :', props.maintenance )
+  }, [props.maintenance])
 
   const handleFormSearch = async(e) => {
     e.preventDefault();
@@ -78,7 +86,7 @@ const HomePage = (props) => {
       let response = await axios.post(`/api/v1/search`, { 
                                                           type: 99,
                                                           key_word: searchWord,
-                                                          offset: 0,
+                                                          offset,
                                                           full_text_fields: JSON.stringify(selectedCheckboxes),
                                                           page_limit: pageLimit
                                                         }, {
@@ -91,7 +99,9 @@ const HomePage = (props) => {
   
           let {execution_time, datas, count, all_result_count} = response;
           props.addContentsData(datas);
-          props.setTotalValue(all_result_count);
+          // props.setTotalValue(all_result_count);
+
+          setPageCount( Math.ceil(all_result_count / pageLimit) )
       }
   
       setSearchLoading(false)
@@ -102,11 +112,11 @@ const HomePage = (props) => {
     setCurrentPage(0)
   }
 
-  const fetch = async(currentPage) =>{
+  const fetch = async() =>{
     setLoading(true)
     let response = await axios.post(`/api/v1/search`, { type: 0,
                                                         key_word: '*',
-                                                        offset:  currentPage === 0 ? 0 : currentPage - 1,
+                                                        offset,
                                                         page_limit: pageLimit
                                                       }, {
                                                           headers: {'Authorization': isEmpty(ls.get('basic_auth')) ? `Basic ${process.env.REACT_APP_AUTHORIZATION}` : ls.get('basic_auth')}
@@ -118,6 +128,10 @@ const HomePage = (props) => {
         let {execution_time, datas, count, all_result_count} = response;
         props.addContentsData(datas);
         props.setTotalValue(all_result_count);
+
+
+        // pageCount: Math.ceil(data.meta.total_count / data.meta.limit),
+        setPageCount( Math.ceil(all_result_count / pageLimit) )
     }
 
     setLoading(false)
@@ -149,6 +163,7 @@ const HomePage = (props) => {
 
     // fetch(currentPage)
   };
+
 
   const updateState = data => {
     switch(Object.keys(data)[0]){
@@ -185,73 +200,109 @@ const HomePage = (props) => {
             ))
     }
   }
+
+  const paginate = () =>{
+    if(pageCount === 0){
+      return;
+    }else{
+      return  <div className="w-100 px-4 py-5 d-flex flex-row flex-wrap align-items-center justify-content-between">
+                <div className="d-flex flex-row py-4 align-items-center">
+                  <ReactPaginate
+                    previousLabel={'previous'}
+                    nextLabel={'next'}
+                    breakLabel={'...'}
+                    breakClassName={'break-me'}
+                    pageCount={pageCount}
+                    marginPagesDisplayed={2}
+                    pageRangeDisplayed={5}
+                    onPageChange={(data)=>{
+                      let selected = data.selected;
+                      let offset = Math.ceil(selected * pageLimit);
+
+                      console.log('>> ', offset)
+                      setOffset(offset)
+                    }}
+                    containerClassName={'pagination'}
+                    activeClassName={'active'}
+                  />
+                </div>
+                <div className="d-flex flex-row align-items-center">
+                  <h2>
+                    <strong className="text-secondary">{props.total_value}</strong>  Item
+                  </h2>
+                  <span className="current-page d-inline-block h-100 pl-4 text-secondary">
+                    Page <span className="font-weight-bold">{offset/pageLimit+1}</span> /{" "}
+                    <span className="font-weight-bold">{pageCount}</span>
+                  </span>
+                </div>
+              </div>
+
+    }
+  }
     
   return (<div className="container mb-5">
-            {
-             props.maintenance 
-             ?  <div>We’ll be back soon! Sorry for the inconvenience but we’re performing some maintenance at the moment. We’ll be back online shortly!</div>
-             :  <div>
-                  {/* <AddBanlistDialog showModal={showModal} onClose = {()=>{ setShowModal(false) }} /> */}
-                  {/* { showModalReport && <ReportDialog showModal={showModalReport} onClose = {()=>{  setShowModalReport(false) }}  /> } */}
-                  <div>
-                    <form /*onSubmit={handleFormSubmit}*/ >
+            <div>
+                {/* <AddBanlistDialog showModal={showModal} onClose = {()=>{ setShowModal(false) }} /> */}
+                {/* { showModalReport && <ReportDialog showModal={showModalReport} onClose = {()=>{  setShowModalReport(false) }}  /> } */}
+                <div>
+                  <form /*onSubmit={handleFormSubmit}*/ >
+                    <div>
                       <div>
-                        <div>
-                          
-                          <InputSearchField 
-                            label="Input keyword"
-                            placeholder="Input keyword"
-                            value={searchWord}  
-                            onChange={(e)=>{ 
-                              setSearchWord(e.target.value)
-                            }}
-                            onClear={(e)=>{
-                              setSearchWord('')
-                              setCurrentPage(1)
+                        
+                        <InputSearchField 
+                          label="Input keyword"
+                          placeholder="Input keyword"
+                          value={searchWord}  
+                          onChange={(e)=>{ 
+                            setSearchWord(e.target.value)
+                          }}
+                          onClear={(e)=>{
+                            setSearchWord('')
+                            setCurrentPage(1)
 
-                              clearSearch()
-                            }}/>
-                          <Button 
-                            variant="primary" 
-                            disabled={isEmpty(searchWord) ? true : false}
-                            onClick={(e)=>{ handleFormSearch(e)}}>Search { searchLoading && <CircularProgress size={15}/> }</Button>
+                            clearSearch()
+                          }}/>
+                        <Button 
+                          variant="primary" 
+                          disabled={isEmpty(searchWord) ? true : false}
+                          onClick={(e)=>{ handleFormSearch(e)}}>Search { searchLoading && <CircularProgress size={15}/> }</Button>
 
-                          {/* searchLoading */}
-                        </div>
-                        <div style={{paddingTop:10}}>
-                          <div style={{fontSize:"20px"}}>Search by category </div>
-                          <ul className="flex-container row">
-                            {
-                              // selectedCheckboxes
-                              itemsCategory.map((itm, index)=>{
-                                return  <li className="flex-item" key={index}>
-                                          <Checkbox
-                                            label={itm.title}
-                                            handleCheckboxChange={toggleCheckbox}
-                                            value={itm.id}
-                                            key={itm.id}
-                                            checked={(selectedCheckboxes.find((item)=>item === itm.id) === undefined) ? false : true}/>
-                                        </li>
-                              })
-                            }
-                          </ul>
-                        </div>
+                        {/* searchLoading */}
                       </div>
-                    </form>
-                  </div>
-                  <div className="row d-flex flex-row py-5"> 
-                    { renderContent() }
-
-                    <div className="w-100 px-4 py-5 d-flex flex-row flex-wrap align-items-center justify-content-between">
-                      <div className="d-flex flex-row py-4 align-items-center">
-                        <Pagination
-                          totalRecords={allResultCount}
-                          pageLimit={pageLimit}
-                          pageNeighbours={1}
-                          onPageChanged={onPageChanged}
-                        />
+                      <div style={{paddingTop:10}}>
+                        <div style={{fontSize:"20px"}}>Search by category </div>
+                        <ul className="flex-container row">
+                          {
+                            // selectedCheckboxes
+                            itemsCategory.map((itm, index)=>{
+                              return  <li className="flex-item" key={index}>
+                                        <Checkbox
+                                          label={itm.title}
+                                          handleCheckboxChange={toggleCheckbox}
+                                          value={itm.id}
+                                          key={itm.id}
+                                          checked={(selectedCheckboxes.find((item)=>item === itm.id) === undefined) ? false : true}/>
+                                      </li>
+                            })
+                          }
+                        </ul>
                       </div>
-                      <div className="d-flex flex-row align-items-center">
+                    </div>
+                  </form>
+                </div>
+                <div className="row d-flex flex-row py-5"> 
+                  { renderContent() }
+
+                  {/* <div className="w-100 px-4 py-5 d-flex flex-row flex-wrap align-items-center justify-content-between">
+                    <div className="d-flex flex-row py-4 align-items-center">
+                      <Pagination
+                        totalRecords={allResultCount}
+                        pageLimit={pageLimit}
+                        pageNeighbours={1}
+                        onPageChanged={onPageChanged}
+                      />
+                    </div>
+                    <div className="d-flex flex-row align-items-center">
                       <h2>
                         <strong className="text-secondary">{allResultCount}</strong>  Item
                       </h2>
@@ -261,27 +312,26 @@ const HomePage = (props) => {
                             <span className="font-weight-bold">{totalPages}</span>
                           </span>
                         )}
-                      </div>
                     </div>
-
-                  </div>
-                  {showModalLogin &&  <LoginDialog showModal={showModalLogin} onClose = {()=>{  setShowModalLogin(false) }} />}
-                  {/* <div 
-                    className="fab"
-                    onClick={()=>{
-                      if(isEmpty(props.user)){
-                        setShowModalLogin(true)
-                      }else{
-                        setShowModal(true)
-                      }
-                    }}>
-                    <AddCircleOutlinedIcon  style={{fill: props.socket_connected ? "red" : "green", fontSize: '48px'}}/>
-                  </div>   */}
-                
+                  </div> */}
+                  
+                  { paginate() }
+                  
                 </div>
-
-            }
-            
+                {showModalLogin &&  <LoginDialog showModal={showModalLogin} onClose = {()=>{  setShowModalLogin(false) }} />}
+                {/* <div 
+                  className="fab"
+                  onClick={()=>{
+                    if(isEmpty(props.user)){
+                      setShowModalLogin(true)
+                    }else{
+                      setShowModal(true)
+                    }
+                  }}>
+                  <AddCircleOutlinedIcon  style={{fill: props.socket_connected ? "red" : "green", fontSize: '48px'}}/>
+                </div>   */}
+              
+            </div>
           </div>
   )
 }
