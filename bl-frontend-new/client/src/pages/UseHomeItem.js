@@ -30,9 +30,23 @@ const UseHomeItem = (props) => {
 
   useEffect(() => {
 
+    return () => {
+      setItem({})
+      setAnchorEl(null)
+      setIsOpen(false)
+      setPhotoIndex()
+      setFollowUp()
+      setShowModalReport()
+    }
+  }, []);
+
+  useEffect(() => {
     setItem(props.item)
 
-  }, []);
+    return () => {
+      setItem({})
+    }
+  }, [props.item]);
 
   useEffect(() => {
     if(!_.isEmpty(props.follows)){
@@ -45,8 +59,6 @@ const UseHomeItem = (props) => {
   };
   
   const handleClick = (event) => {
-
-    console.log('setAnchorEl : ', event.currentTarget)
     console.log(typeof event.currentTarget);
     setAnchorEl(event.currentTarget);
   };
@@ -426,9 +438,9 @@ const UseHomeItem = (props) => {
                   props.myFollow({uid: props.user.uid, nid: item.nid, status})
                 }
               }} />
-            <MoreVertOutlinedIcon onClick={handleClick} />
+            <MoreVertOutlinedIcon onClick={(e)=>handleClick(e)} />
             <div onClick={()=>{
-              props.history.push({pathname: `my-follower/${item.nid}`, key: item.nid, state: { item } })
+              props.history.push({pathname: `/follower/${item.nid}`, key: item.nid, state: { item } })
             }}>
               { count_app_followers() } follower
             </div>

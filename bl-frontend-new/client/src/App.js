@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux'
-import { BrowserRouter as BR, Route, Switch } from 'react-router-dom'; 
+import { BrowserRouter, Router, Route, Switch } from 'react-router-dom'; 
 import Container from 'react-bootstrap/Container'
 import { ToastContainer, toast } from 'react-toastify';
 import LoadingOverlay from 'react-loading-overlay';
@@ -8,12 +8,10 @@ import io from 'socket.io-client';
 import { CacheSwitch, CacheRoute, } from "react-router-cache-route";
 import axios from 'axios';
 import { Base64 } from 'js-base64';
-
 import ls from 'local-storage';
 import { deviceDetect } from "react-device-detect";
 
 import Ajv from "ajv"
-
 import Breadcrumbs from './pages/Breadcrumbs'
 import HeaderBar from './pages/HeaderBar';
 import Footer from './pages/Footer';
@@ -30,20 +28,26 @@ import { addContentsData, addFollowsData } from './actions/app'
 
 import { setMaintenance } from './actions/setting'
 
+import history from './history';
+
 var _ = require('lodash');
 
 let socket = undefined;
 let interval = undefined;
 
 const App = (props) => {
-  const [timeInterval, setTimeInterval] = useState(undefined);
-
-  const [maintenance, setMaintenance]   = useState(false);
+  const [maintenance, setMaintenance]   = useState();
 
   useEffect(() => {
     checkLocalStorage()
-   
-    console.log('socketid() []')
+
+    setMaintenance(false)
+    return () => {
+      setMaintenance() 
+
+      socket = undefined;
+      interval = undefined;
+    };
   }, []);
 
   useEffect(() => {
@@ -55,42 +59,10 @@ const App = (props) => {
     // console.log('socketid() > [props.user] #0 > ', props.user , socket )  
 
     if( !_.isEmpty(socket) ){
-      console.log('socketid() > socket.auth.token : #1')
       socket.disconnect()
       socket = null;
     }
-
     socketid()
-
-    /*
-    if( _.isEmpty(socket) ){
-      console.log('socketid() > socket.auth.token : #1')
-      socketid()
-    }else{
-      console.log('socketid() > socket.auth.token : #2',  props.user , '-- ', socket.query )
-
-      if(_.isEmpty(props.user)){
-        // if(!_.isEmpty(socket.query.auth_token)){
-          if(socket.query.auth_token !== 0){
-            console.log('socketid() > socket.auth.token : #3 A', socket)
-            socket.query.auth_token = 0;
-            console.log('socketid() > socket.auth.token : #3 B', socket)
-            socket.disconnect().connect()
-
-            console.log('------------- disconnect ------------- #1')
-          }
-        // }
-      }else{
-        if(socket.query.auth_token !== props.user.uid){
-          console.log('socketid() > socket.auth.token : #4')
-          socket.query.auth_token = props.user.uid;
-          socket.disconnect().connect()
-
-          console.log('------------- disconnect ------------- #2')
-        }
-      }
-    }
-    */
   }, [props.user]);
 
   useEffect(async() => {
@@ -245,7 +217,9 @@ const App = (props) => {
   }
 
   const handleSyc = (i) =>{
-    console.log("handleSyc :", i)
+
+    
+    console.log("handleSyc :", i )
 
     switch(i.type){
       case 'user':{
@@ -258,6 +232,8 @@ const App = (props) => {
 
             socket.disconnect();  
             props.userLogout()
+            
+            history.push("/");
             break;
           }
         }
@@ -283,6 +259,18 @@ const App = (props) => {
 
         break;
       }
+
+      case 'setting':{
+        let {operation_type, datas} = i
+
+        switch(operation_type){
+          case 'maintenance':{
+            props.setMaintenance(false)
+            break;
+          }
+        }
+        break;
+      }
     }
   }
 
@@ -295,19 +283,19 @@ const App = (props) => {
   }
 
   const onConnect = () =>{
-    console.log('Socket io, connent! : ');
+    console.log('Socket io, connent!');
 
     props.onConnect({connected: socket.connected})
 
-    props.setMaintenance(false)
+    // props.setMaintenance(false)
   }
 
   const onDisconnect = () =>{
-    console.log('Socket io, disconnect! : ');
+    console.log('Socket io, disconnect!');
 
     props.onDisconnect()
 
-    props.setMaintenance(true)
+    // props.setMaintenance(true)
   }
 
   const onUniqueID = (data) =>{
@@ -323,6 +311,7 @@ const App = (props) => {
   const onUser = (data) =>{
     console.log("onUser :", data)
 
+    /*
     try {
       let mode = data.mode
       console.log("onUser mode", mode)
@@ -347,6 +336,7 @@ const App = (props) => {
       console.log("onUser error :", error)
     }
 
+    */
     // mode: "delete"
   }
 
@@ -403,7 +393,7 @@ const App = (props) => {
     // props.onMyFollowALL(data)
   }
 
-  return( <BR>
+  return( <Router history={history}>
             <LoadingOverlay
               active={props.is_loading_overlay}
               spinner
@@ -471,7 +461,7 @@ const App = (props) => {
                   
               </div>
             </LoadingOverlay>
-          </BR>)
+          </Router>)
 }
 
 const mapStateToProps = (state, ownProps) => {

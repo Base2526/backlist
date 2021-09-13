@@ -1,15 +1,21 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 
 const ScrollToTopBtn = (props) => {
-  const [visible, setVisible] = React.useState(false);
+  const [visible, setVisible] = useState();
 
   useEffect(() => {
     document.addEventListener("scroll", function (e) {
       toggleVisibility();
     });
-  });
+
+    setVisible(false)
+
+    return () => {
+      setVisible() 
+    };
+  }, []);
 
   const toggleVisibility = () => {
     if (window.pageYOffset > 800) {
@@ -28,11 +34,9 @@ const ScrollToTopBtn = (props) => {
 
   return (
     <div className="scroll-to-top">
-      {visible && (
-        <div onClick={() => scrollToTop()}>
-          <span><ExpandLessIcon /></span>
-        </div>
-      )}
+      { visible && 
+        <div onClick={() => scrollToTop()}><span><ExpandLessIcon /></span></div>
+      }
     </div>
   );
 };

@@ -4987,13 +4987,14 @@ nodejs_bl        |     status: true
 
         $filter = array('uid' => $uid );
         if(!$mg_user->count($filter)){
+          $account_name    = $user->getAccountName();
           $email   = $user->getEmail();
           $pass    = $user->getPassword();
   
-          $name = "";
+          $display_name = "";
           $field_display_name = $user->get('field_display_name')->getValue();
           if(!empty($field_display_name)){
-            $name = $field_display_name[0]['value'];
+            $display_name = $field_display_name[0]['value'];
           }
           $image_url = "";  
           if (!$user->get('user_picture')->isEmpty()) {
@@ -5015,8 +5016,9 @@ nodejs_bl        |     status: true
 
           $document = array( 
             "uid"     => $uid, 
-            'email'   => $email,
-            "name"    => $name,
+            "account_name" => $account_name,
+            "email"   => $email,
+            "display_name"    => $display_name,
             "pass"    => $pass,
             "image_url"=>$image_url,
             "gender"  =>$gender,

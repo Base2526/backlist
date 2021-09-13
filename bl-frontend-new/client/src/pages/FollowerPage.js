@@ -11,6 +11,13 @@ const FollowerPage = (props) => {
     const [datas, setDatas]  = React.useState([]);
 
     useEffect(async() => {
+
+        return () => {
+            setDatas([])
+        }
+    }, [])
+
+    useEffect(async() => {
         let response =  await axios.post(`/api/v1/get_followers`,  {nid: props.match.params.nid}, { headers: {'Authorization': `Basic ${process.env.REACT_APP_AUTHORIZATION}`} });
         if(response.status === 200){
             
@@ -26,7 +33,7 @@ const FollowerPage = (props) => {
         return  datas.map((data, idx) => {
                             return  <div key={idx}  style={{borderStyle: "dashed"}}>
                                         <div>{data.uid}</div>
-                                        <div>{data.name}</div>
+                                        <div>{data.display_name}</div>
                                         <div>{data.email}</div>
                                         <div>{data.image_url}</div>
                                     </div>

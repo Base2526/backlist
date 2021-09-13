@@ -123,8 +123,7 @@ http.listen(3001,async()=> {
 	}
 
 	AppFollowersSchema.watch().on('change', async data =>{
-		console.log('AppFollowersSchema', data.operationType, data, JSON.stringify(data))
-	
+		// console.log('AppFollowersSchema', data.operationType, data, JSON.stringify(data))
 		try{
 			switch(data.operationType){
 				case 'insert':
@@ -148,10 +147,10 @@ http.listen(3001,async()=> {
 									let uid = app_follower.uid
 									let sockets = await SocketsSchema.find({ auth: uid });
 									sockets.map(async(socket) => {
-									console.log('AppFollowersSchema  socket.socketId, uid  #1= ', socket.socketId, ' - ', uid)
-									if(!_.isEmpty(socket.socketId)){
-										io.to(socket.socketId).emit('onAppFollowers', {app_followers});
-									}
+										// console.log('AppFollowersSchema  socket.socketId, uid  #1= ', socket.socketId, ' - ', uid)
+										if(!_.isEmpty(socket.socketId)){
+											io.to(socket.socketId).emit('onAppFollowers', {app_followers});
+										}
 									})
 								}
 							})
@@ -161,11 +160,11 @@ http.listen(3001,async()=> {
 								// เจ้าของ contents
 								let owner_id = contents_schema.owner_id
 
-								console.log('AppFollowersSchema > insert, update : owner_id, nid  #2= ', owner_id, nid)
+								// console.log('AppFollowersSchema > insert, update : owner_id, nid  #2= ', owner_id, nid)
 
 								let sockets = await SocketsSchema.find({ auth: owner_id });
 								sockets.map(async(socket) => {
-									console.log('AppFollowersSchema  socket.socketId-owner_id = ', socket.socketId, ' - ', owner_id)
+									// console.log('AppFollowersSchema  socket.socketId-owner_id = ', socket.socketId, ' - ', owner_id)
 									if(!_.isEmpty(socket.socketId)){
 										io.to(socket.socketId).emit('onAppFollowers', {app_followers});
 									}
@@ -220,12 +219,12 @@ http.listen(3001,async()=> {
 	});
 
 	FollowsSchema.watch().on('change', async data =>{
-		console.log('FollowsSchema > init : ', data.operationType, data, JSON.stringify(data))
+		// console.log('FollowsSchema > init : ', data.operationType, data, JSON.stringify(data))
 
 		switch(data.operationType){
 			case 'insert':{
 				let followsSchema = await FollowsSchema.findById(data.documentKey._id.toString()) 
-				console.log('FollowsSchema > insert : ', JSON.stringify(followsSchema));
+				// console.log('FollowsSchema > insert : ', JSON.stringify(followsSchema));
 
 				let uid = followsSchema.uid
 				let datas = followsSchema.value
@@ -245,7 +244,7 @@ http.listen(3001,async()=> {
 			case 'replace':
 			case 'update':{
 				let followsSchema = await FollowsSchema.findById(data.documentKey._id.toString()) 
-				console.log('FollowsSchema > update : ', JSON.stringify(followsSchema), followsSchema.uid, followsSchema.value);
+				// console.log('FollowsSchema > update : ', JSON.stringify(followsSchema), followsSchema.uid, followsSchema.value);
 
 				let uid = followsSchema.uid
 				let datas = followsSchema.value
@@ -753,18 +752,140 @@ app.get('/',  async(req, res) => {
 });
 
 app.post('/v1/login',  async(req, res)=> {
-	const start = Date.now()
-	let email = req.body.email;
-	let password = req.body.password;
-  
-	if(email === undefined && password === undefined){
-	  return res.send({ status: false, message:"Email & Pass is empty" });
-	}else if(email === undefined){
-	  return res.send({ status: false, message:"Email is empty" });
-	}else if(password === undefined){
-	  return res.send({ status: false, message:"Pass is empty" });
+	try{
+		const start = Date.now()
+		let username = req.body.email.toLowerCase();
+		let password = req.body.password;
+	
+		if(username === undefined && password === undefined){
+		return res.send({ status: false, message:"Email & Pass is empty" });
+		}else if(username === undefined){
+		return res.send({ status: false, message:"Email is empty" });
+		}else if(password === undefined){
+		return res.send({ status: false, message:"Pass is empty" });
+		}
+
+		//-------------
+
+		if( utils.validateEmail(username) ){
+			// login by email
+
+			let user_schema = await UserSchema.findOne({ email: username }) 
+
+			if(!_.isEmpty(user_schema)){
+				if(_.isEqual(utils.decrypt(user_schema.pass), password)){
+					// login success
+					// basic_auth: 'Basic ' + Buffer.from(username + ':' + password).toString('base64'),
+					// session: req.sessionID,
+
+
+					let uid  = user_schema.uid
+					let name = user_schema.display_name
+					let email = user_schema.email
+					let image_url = user_schema.image_url
+
+					let contents =  await ContentsSchema.find({ owner_id: uid })
+
+					let followsSchema = await FollowsSchema.findOne({ uid });
+					let follows = []
+					if(!_.isEmpty(followsSchema)){
+						follows = followsSchema.value.filter(function(value) { return value.status });
+					}
+
+					let user = {
+								'uid'       :  uid,
+								'name'      :  name,
+								'email'     :  email,
+								'image_url' :  image_url,
+								}
+
+					let data =  {
+								basic_auth: 'Basic ' + Buffer.from(username + ':' + password).toString('base64'),
+								session: req.sessionID,
+								user,
+								contents,
+								follows
+								}
+				
+					return res.send({result: true, 
+									execution_time: `Time Taken to execute = ${(Date.now() - start)/1000} seconds`,
+									data}); 
+				}else{
+					// wrong password
+					return res.send({	result: false, 
+										execution_time: `Time Taken to execute = ${(Date.now() - start)/1000} seconds`,
+										message: "wrong password"}); 
+				}
+			}else{
+				// not match email
+				return res.send({	result: false, 
+									execution_time: `Time Taken to execute = ${(Date.now() - start)/1000} seconds`,
+									message: "not match email"}); 
+			}
+		}else {
+			// login by name
+			let user_schema = await UserSchema.findOne({ account_name: username }) 
+			if(!_.isEmpty(user_schema)){
+				if(_.isEqual(utils.decrypt(user_schema.pass), password)){
+					// login success
+					// basic_auth: 'Basic ' + Buffer.from(username + ':' + password).toString('base64'),
+					// session: req.sessionID,
+
+
+					let uid  = user_schema.uid
+					let name = user_schema.display_name
+					let email = user_schema.email
+					let image_url = user_schema.image_url
+
+					let contents =  await ContentsSchema.find({ owner_id: uid })
+
+					let followsSchema = await FollowsSchema.findOne({ uid });
+					let follows = []
+					if(!_.isEmpty(followsSchema)){
+						follows = followsSchema.value.filter(function(value) { return value.status });
+					}
+
+					let user = {
+								'uid'       :  uid,
+								'name'      :  name,
+								'email'     :  email,
+								'image_url' :  image_url,
+								}
+
+					let data =  {
+								basic_auth: 'Basic ' + Buffer.from(username + ':' + password).toString('base64'),
+								session: req.sessionID,
+								user,
+								contents,
+								follows
+								}
+				
+					return res.send({result: true, 
+									execution_time: `Time Taken to execute = ${(Date.now() - start)/1000} seconds`,
+									data}); 
+					
+				}else{
+					// wrong password
+					return res.send({	result: false, 
+						execution_time: `Time Taken to execute = ${(Date.now() - start)/1000} seconds`,
+						message: "wrong password"}); 
+				}
+			}else{
+				// not match name
+				return res.send({	result: false, 
+					execution_time: `Time Taken to execute = ${(Date.now() - start)/1000} seconds`,
+					message: "not match name"});
+			}
+		}
+
+	} catch (err) {
+		logger.error(err);
+		return res.send({result : false, message: err.message});
 	}
+
+	//-------------
   
+	/*
 	// http://api.banlist.info:8090/api/v1/login?_format=json 
 	let response = await axios.post(`${process.env.DRUPAL_API_ENV}/v1/login?_format=json`, {
 								  "name":email, 
@@ -827,6 +948,8 @@ app.post('/v1/login',  async(req, res)=> {
 						execution_time: `Time Taken to execute = ${(end - start)/1000} seconds`,
 						message: response.message});
 	}
+
+	*/
 });
   
 app.post('/v1/register',  async(req, res)=> {
@@ -888,7 +1011,7 @@ app.post('/v1/reset_password',  async(req, res, next)=> {
 	return res.send(data);
 });
 
-app.get('/v1/logout', (req, res, next) =>{
+app.post('/v1/logout', async(req, res, next) =>{
 	/*
 	try{
 		let del = await SessionsSchema.deleteOne({"_id": "04ISRo6oR7LjFxqgyRlIn_ekmGZGvTYn"});
@@ -896,8 +1019,23 @@ app.get('/v1/logout', (req, res, next) =>{
 		logger.error(err);
 	}
 	*/
-	req.session.destroy();
-	res.send({"result": true});
+
+	const start = Date.now()
+	try{
+		
+		// req.session.destroy();
+		// res.send({"result": true});
+
+		console.log('/v1/logout req.sessionID : ', req.sessionID)
+
+		await SessionsSchema.deleteOne({"_id": req.sessionID});
+		return res.send({result: true, 
+						 execution_time: `Time Taken to execute = ${(Date.now() - start)/1000} seconds` }); 
+	} catch (err) {
+		logger.error(err);
+		return res.send({result: false, 
+						 execution_time: `Time Taken to execute = ${(Date.now() - start)/1000} seconds` }); 
+	}
 });
 
 app.post('/v1/profile',  async(req, res, next)=> {
@@ -1003,6 +1141,10 @@ app.post('/v1/add_banlist',  async(req, res, next)=> {
 	try {
 		// console.log('req >', req.headers )
 		// console.log('res >', res)
+
+		if(await utils.isExpiry(req)){
+			forceLogout(req);
+		}
 
 		/*
 			nid: '0',
@@ -1452,7 +1594,7 @@ app.post('/v1/get_followers',  async(req, res, next)=> {
 				return res.send({
 								result : true,
 								execution_time : `Time Taken to execute = ${(end - start)/1000} seconds`,
-								datas: app_followers
+								datas: app_followers.filter((o)=>!_.isEmpty(o))
 								});
 			}
 		}
@@ -1713,18 +1855,17 @@ app.post('/v1/nodejs_notify_user',  async(req, res, next)=> {
 // /v1/syc_local
 app.post('/v1/syc_local',  async(req, res, next)=> {
 	try {
-
-		let uid = req.session.userId
-		if(_.isEmpty([uid])){
+		if(await utils.isExpiry(req)){
 			logger.error("/v1/syc_local without session");
 
 			return res.send({result : false, message: "without session"});
 		}
 
 		const start = Date.now()
+		let uid = req.body.uid;
 		let my_follows = req.body.follows;
 
-		console.log('/v1/syc_local, my_follows #1 : ', my_follows )
+		// console.log('/v1/syc_local, my_follows #1 : ', my_follows )
 		if(!_.isEmpty(my_follows)){
 			my_follows = JSON.parse(my_follows)
 			my_follows.map( async(mf)=>{
@@ -1754,7 +1895,7 @@ app.post('/v1/syc_local',  async(req, res, next)=> {
 			})
 
 			let new_my_follows = []
-			console.log('/v1/syc_local, new_my_follows #1 : ', uid , ' - ', new_my_follows )
+			// console.log('/v1/syc_local, new_my_follows #1 : ', uid , ' - ', new_my_follows )
 			//-----------------  FollowsSchema  -------------------
 			let follow = await FollowsSchema.findOne({ 'uid': uid });
 			if(!_.isEmpty(follow)){
@@ -1766,7 +1907,7 @@ app.post('/v1/syc_local',  async(req, res, next)=> {
 				new_my_follows = my_follows.map((mf)=>{mf.local = false; return mf})
 			}
 
-			console.log('/v1/syc_local, new_my_follows #2 : ', uid , ' - ', new_my_follows )
+			// console.log('/v1/syc_local, new_my_follows #2 : ', uid , ' - ', new_my_follows )
 			await FollowsSchema.findOneAndUpdate({'uid': uid}, {value: new_my_follows},  { new: true, upsert: true })
 
 			// let sockets = await SocketsSchema.find({ auth: uid });
@@ -1829,6 +1970,16 @@ app.get('/v1/healthz', async (req, res) =>{
 		// await req.session.destroy()
 		// // res.redirect('/')
 		// return res.end();
+
+		// console.log( utils.decrypt("026355339f387d94dc5e24c8d5ec527b:561c459865a8c49abbe9197716c831d5") )
+
+		/*
+		    email: 'phoswo@example.com',
+    name: 'Phoswo',
+		*/
+		
+		// if(!_.isEmpty(user)){
+
 	}catch(err) {
 		console.log( err );
 	}
@@ -1928,4 +2079,15 @@ io.on('connection', async (socket) => {
    
 	});
 });
-	
+
+const forceLogout = async (req) =>{
+	if(!_.isEmpty(req.sessionID)){
+		let sockets = await SocketsSchema.find({ sessionId: req.sessionID });
+		sockets.map(async(socket) => {
+			// console.log('AppFollowersSchema  socket.socketId, uid  #1= ', socket.socketId, ' - ', uid)
+			if(!_.isEmpty(socket.socketId)){
+				io.to(socket.socketId).emit('onSyc', {type: 'user', operation_type:'delete'});
+			}
+		})
+	}
+}

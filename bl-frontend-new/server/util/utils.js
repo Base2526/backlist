@@ -44,7 +44,7 @@ exports.isEmpty = (value) => {
     return (value == null || value.length === 0);
 }
 
-exports.elasticField = (hit) =>{
+exports.elasticField = (hit) => {
     let _id             = hit._id;
     let ref             = hit._source.ref;
     let title           = hit._source.title;
@@ -63,10 +63,15 @@ exports.elasticField = (hit) =>{
     return {_id, ref, nid, owner_id, name_surname, title, transfer_amount, detail, id_card_number, images, status, app_followers, created, changed}
 }
 
-exports.isExpiry = async(req) =>{
+exports.isExpiry = async(req) => {
     let sessions_schema = await SessionsSchema.findOne({ "_id": req.sessionID })
     if(_.isEmpty(sessions_schema)){
         return true;
     }
     return false;
+}
+
+exports.validateEmail = (email) => {
+    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
 }

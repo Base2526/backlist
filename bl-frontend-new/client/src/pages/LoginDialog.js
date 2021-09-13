@@ -1,4 +1,4 @@
-import React, { Component, isValidElement, useEffect, useRef } from "react";
+import React, { Component, isValidElement, useEffect, useState } from "react";
 
 import { Modal, Button } from "react-bootstrap";
 import { connect } from 'react-redux'
@@ -20,26 +20,35 @@ import { addMyAppALL } from '../actions/my_apps';
 import { addContentsData, addFollowsData } from '../actions/app';
 
 const LoginDialog = (props) => {
-  const [displayName, setDisplayName] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [mode, setMode] = React.useState("login");
-  const [showModal, setShowModal] = React.useState(false);
-  const [error, setError] = React.useState(false);
-  const [errorMessages, setErrorMessages] = React.useState([]);
-  const [loginLoading, setLoginLoading] = React.useState(false);
-  const [loadingFacebook, setLoadingFacebook] = React.useState(false);
-  const [loadingGoogle, setLoadingGoogle] = React.useState(false);
+  const [displayName, setDisplayName] = useState();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [mode, setMode] = useState("login");
+  const [showModal, setShowModal] = useState(false);
+  const [error, setError] = useState(false);
+  const [errorMessages, setErrorMessages] = useState([]);
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loadingFacebook, setLoadingFacebook] = useState(false);
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
 
-  const [registerLoading, setRegisterLoading] = React.useState(false);
-  const [forgotLoading, setForgotLoading] = React.useState(false);
+  const [registerLoading, setRegisterLoading] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
 
-  // loadingEP
-  // const [updateLoading, setUpdateLoading] = React.useState(false);
+  useEffect(() => {
+    setShowModal(false)
+    setDisplayName("")
+    setEmail("")
+
+    return () => {
+      setShowModal()
+      setEmail()
+      setDisplayName()
+    };
+  }, []);
 
   useEffect(() => {
     setShowModal(props.showModal)
-  });
+  }, [props.showModal]);
 
   const contentBody = () =>{
     switch(mode){
@@ -349,7 +358,7 @@ const LoginDialog = (props) => {
             props.onClose()
 
             console.log('/login > user : ', response.data)
-            onToast("info", `Welcome to banlist.info cccc`)
+            onToast("info", `Welcome to banlist.info`)
             
           }else{
             onToast("error", response.message)

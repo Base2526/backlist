@@ -72,10 +72,6 @@ const HomePage = (props) => {
     // }
   }, [offset])
 
-  useEffect(()=>{
-    console.log('props.maintenance  :', props.maintenance )
-  }, [props.maintenance])
-
   const handleFormSearch = async(e) => {
     e.preventDefault();
     if(isEmpty(selectedCheckboxes)){
@@ -148,22 +144,6 @@ const HomePage = (props) => {
     }
     setSelectedCheckboxes(temp)
   }
-
-  const onPageChanged = (data) => {
-    const { currentPage, totalPages, pageLimit } = data;
-    const offset = (currentPage - 1) * pageLimit;
-    // const currentDatas = allDatas.slice(offset, offset + pageLimit);
-
-    // console.log("response fetch: @  ", data, currentPage, currentPage === 0 ? 1 : currentPage )
-
-    setCurrentPage( currentPage === 0 ? 1 : currentPage )
-    // setCurrentDatas(currentDatas)
-    setTotalPages(totalPages)
-
-
-    // fetch(currentPage)
-  };
-
 
   const updateState = data => {
     switch(Object.keys(data)[0]){
@@ -242,8 +222,6 @@ const HomePage = (props) => {
     
   return (<div className="container mb-5">
             <div>
-                {/* <AddBanlistDialog showModal={showModal} onClose = {()=>{ setShowModal(false) }} /> */}
-                {/* { showModalReport && <ReportDialog showModal={showModalReport} onClose = {()=>{  setShowModalReport(false) }}  /> } */}
                 <div>
                   <form /*onSubmit={handleFormSubmit}*/ >
                     <div>
@@ -319,18 +297,6 @@ const HomePage = (props) => {
                   
                 </div>
                 {showModalLogin &&  <LoginDialog showModal={showModalLogin} onClose = {()=>{  setShowModalLogin(false) }} />}
-                {/* <div 
-                  className="fab"
-                  onClick={()=>{
-                    if(isEmpty(props.user)){
-                      setShowModalLogin(true)
-                    }else{
-                      setShowModal(true)
-                    }
-                  }}>
-                  <AddCircleOutlinedIcon  style={{fill: props.socket_connected ? "red" : "green", fontSize: '48px'}}/>
-                </div>   */}
-              
             </div>
           </div>
   )
@@ -350,8 +316,6 @@ const mapStateToProps = (state, ownProps) => {
     my_follows: state.my_follows.data,
 
     socket_connected : state.data,
-
-    maintenance: state.setting.maintenance
   };
 }
 

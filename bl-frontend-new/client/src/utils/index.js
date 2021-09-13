@@ -33,51 +33,51 @@ export function isEmailValid(email) {
 }
 
 export const uniqueId =(uid) => {
-    if(isEmpty(uid)){
-        var uniqueId = ls.get('uniqueId')
-        if(isEmpty(uniqueId)){
-            const uint32 = window.crypto.getRandomValues(new Uint32Array(1))[0];
-            uniqueId = Base64.encode(uint32.toString( 35 ));
+    // if(isEmpty(uid)){
+    //     var uniqueId = ls.get('uniqueId')
+    //     if(isEmpty(uniqueId)){
+    //         const uint32 = window.crypto.getRandomValues(new Uint32Array(1))[0];
+    //         uniqueId = Base64.encode(uint32.toString( 35 ));
 
-            ls.set('uniqueId', uniqueId)
-        }else{
-            var arr_uniqueId = (Base64.decode(uniqueId)).split("&");
-            if(arr_uniqueId.length > 1){
-                const uint32 = window.crypto.getRandomValues(new Uint32Array(1))[0];
-                uniqueId = Base64.encode(uint32.toString( 35 ));
+    //         ls.set('uniqueId', uniqueId)
+    //     }else{
+    //         var arr_uniqueId = (Base64.decode(uniqueId)).split("&");
+    //         if(arr_uniqueId.length > 1){
+    //             const uint32 = window.crypto.getRandomValues(new Uint32Array(1))[0];
+    //             uniqueId = Base64.encode(uint32.toString( 35 ));
 
-                ls.set('uniqueId', uniqueId)
-            }
-        }
+    //             ls.set('uniqueId', uniqueId)
+    //         }
+    //     }
 
-        return uniqueId;
-    }else {
-        var uniqueId = ls.get('uniqueId')
+    //     return uniqueId;
+    // }else {
+    //     var uniqueId = ls.get('uniqueId')
 
-        if(isEmpty(uniqueId)){
-            const uint32 = window.crypto.getRandomValues(new Uint32Array(1))[0];
-            uniqueId = Base64.encode(uint32.toString( 35 ) +'&'+ Base64.encode(uid))
+    //     if(isEmpty(uniqueId)){
+    //         const uint32 = window.crypto.getRandomValues(new Uint32Array(1))[0];
+    //         uniqueId = Base64.encode(uint32.toString( 35 ) +'&'+ Base64.encode(uid))
         
-            ls.set('uniqueId', uniqueId)
-        }else{
-            var arr_uniqueId = (Base64.decode(uniqueId)).split("&");
-            if(arr_uniqueId.length == 2){
-                if(Base64.decode(arr_uniqueId[1]) !== uid){
-                    const uint32 = window.crypto.getRandomValues(new Uint32Array(1))[0];
-                    uniqueId = Base64.encode(uint32.toString( 35 ) +'&'+ Base64.encode(uid))
+    //         ls.set('uniqueId', uniqueId)
+    //     }else{
+    //         var arr_uniqueId = (Base64.decode(uniqueId)).split("&");
+    //         if(arr_uniqueId.length == 2){
+    //             if(Base64.decode(arr_uniqueId[1]) !== uid){
+    //                 const uint32 = window.crypto.getRandomValues(new Uint32Array(1))[0];
+    //                 uniqueId = Base64.encode(uint32.toString( 35 ) +'&'+ Base64.encode(uid))
                 
-                    ls.set('uniqueId', uniqueId)
-                }
-            }else{
-                const uint32 = window.crypto.getRandomValues(new Uint32Array(1))[0];
-                uniqueId = Base64.encode(uint32.toString( 35 ) +'&'+ Base64.encode(uid))
+    //                 ls.set('uniqueId', uniqueId)
+    //             }
+    //         }else{
+    //             const uint32 = window.crypto.getRandomValues(new Uint32Array(1))[0];
+    //             uniqueId = Base64.encode(uint32.toString( 35 ) +'&'+ Base64.encode(uid))
             
-                ls.set('uniqueId', uniqueId)
-            }
-        }
+    //             ls.set('uniqueId', uniqueId)
+    //         }
+    //     }
 
-        return uniqueId;
-    }
+    //     return uniqueId;
+    // }
 }
 
 export const mergeArrays = (...arrays) => {
