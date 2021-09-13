@@ -1086,58 +1086,37 @@ nodejs_bl        |   }
 
       */
 
-      $draft            = trim( $_REQUEST['draft'] );            // is draft
+      $auto_save      = trim( $_REQUEST['auto_save'] );            // is draft
       $nid            = trim( $_REQUEST['nid'] );            // new/edit
       $product_type   = trim( $_REQUEST['product_type'] );       // สินค้า/ประเภท
       $transfer_amount= trim( $_REQUEST['transfer_amount'] );    // ยอดเงิน
       $person_name    = trim( $_REQUEST['person_name'] );        // ชื่อบัญชี ผู้รับเงินโอน
-      $person_surname = trim( $_REQUEST['person_surname'] );     // นามสกุล ผู้รับเงินโอน
+      // $person_surname = trim( $_REQUEST['person_surname'] );     // นามสกุล ผู้รับเงินโอน
       $id_card_number = trim( $_REQUEST['id_card_number'] );     // เลขบัตรประชาชนคนขาย
       $selling_website= trim( $_REQUEST['selling_website'] );    // เว็บไซด์ประกาศขายของ
       $transfer_date  = trim( $_REQUEST['transfer_date'] );      // วันโอนเงิน
       $details        = trim( $_REQUEST['detail'] );            // รายละเอียดเพิ่มเติม
       $merchant_bank_account   = json_decode($_REQUEST['merchant_bank_account']); // บัญชีธนาคารคนขาย
-      // $images         = $content['images'];            // รูปภาพประกอบ
-      
-      // $response_array['result']   = TRUE;
-      // $response_array['execution_time']   = microtime(true) - $time1;
-      // $response_array['merchant_bank_account'] = $merchant_bank_account;
-      // $response_array['eee'] = $_REQUEST['merchant_bank_account'];
-      // return new JsonResponse( $response_array ); 
 
-      /*
-          { "product_type"   : "product_type 1",
-            "transfer_amount": 500,
-            "person_name"    : "person_name 1",
-            "person_surname" : "person_surname 1",
-            "id_card_number" : 2138123412,
-            "selling_website": "http://banlist.info",
-            "transfer_date"  : "2021-01-19",
-            "details"        : "details 1",
-            "images":[{"type": "type 1", "image":'', "name":"name 1", "extension": "png"}, 
-                      {"type": "type 2", "image":"dfasfd", "name":"name 2", "extension": "png"}, 
-                      {"type": "type 3", "image":"dfasfd", "name":"name 3", "extension": "png"}],
+      if(!$auto_save){
+        if( empty(trim($product_type))   || 
+            empty(trim($person_name))    || 
+            // empty(trim($person_surname)) ||
+            empty(trim($transfer_date)) ||
+            empty(trim($details)) ){
 
-            "merchant_bank_account":[{"bank_account": "1234", "bank_wallet": 15}]
-          }
-      */
-      if( empty(trim($product_type))   || 
-          empty(trim($person_name))    || 
-          empty(trim($person_surname)) ||
-          empty(trim($transfer_date)) ||
-          empty(trim($details)) ){
-
-        $response_array['result']   = FALSE;
-        $response_array['product_type']   = $product_type;
-        $response_array['person_name']   = $person_name;
-        $response_array['person_surname']   = $person_surname;
-        $response_array['transfer_date']   = $transfer_date;
-        $response_array['details']   = $details;
-        $response_array['message']  = 'Empty product_type or person_name or person_surname or transfer_date or details';
-        // $response['execution_time']   = microtime(true) - $time1;
-        return new JsonResponse( $response_array );  
+          $response_array['result']   = FALSE;
+          $response_array['product_type']   = $product_type;
+          $response_array['person_name']   = $person_name;
+          // $response_array['person_surname']   = $person_surname;
+          $response_array['transfer_date']   = $transfer_date;
+          $response_array['details']   = $details;
+          $response_array['message']  = 'Empty product_type or person_name or person_surname or transfer_date or details';
+          // $response['execution_time']   = microtime(true) - $time1;
+          return new JsonResponse( $response_array );  
+        }
       }
-
+      
       $merchant_bank_account_paragraphs =array();
       foreach ($merchant_bank_account as $ii=>$vv){
         $item_merchant = Paragraph::create([
@@ -1148,32 +1127,6 @@ nodejs_bl        |   }
         $item_merchant->save();
         $merchant_bank_account_paragraphs[] = array('target_id'=> $item_merchant->id(), 'target_revision_id' => $item_merchant->getRevisionId());
       }
-      
-      // $images_fids = array();
-      // foreach ($images as $imi=>$imv){
-      //   $file = file_save_data(base64_decode($imv['image']), 'public://'. date('m-d-Y_hia') . '.' . ( empty($imv['extension']) ? 'png': $imv['extension']), FileSystemInterface::EXISTS_RENAME);
-      //   $images_fids[] = array(
-      //     'target_id' => $file->id(),
-      //     'alt' => '',
-      //     'title' => empty($imv['name']) ? '' : $imv['name']
-      //   );
-      // }
-
-  
-
-      // $response['images_fids']  = $images_fids;
-      /*
-      $product_type   = trim( $content['product_type'] );       // สินค้า/ประเภท
-      $transfer_amount= trim( $content['transfer_amount'] );    // ยอดเงิน
-      $person_name    = trim( $content['person_name'] );        // ชื่อบัญชี ผู้รับเงินโอน
-      $person_surname = trim( $content['person_surname'] );     // นามสกุล ผู้รับเงินโอน
-      $id_card_number = trim( $content['id_card_number'] );     // เลขบัตรประชาชนคนขาย
-      $selling_website= trim( $content['selling_website'] );    // เว็บไซด์ประกาศขายของ
-      $transfer_date  = trim( $content['transfer_date'] );      // วันโอนเงิน
-      $details        = trim( $content['details'] );            // รายละเอียดเพิ่มเติม
-      $merchant_bank_account   = $content['merchant_bank_account']; // บัญชีธนาคารคนขาย
-      $images         = $content['images'];                     // รูปภาพประกอบ
-      */
       
       if(!empty($nid) && $nid !=  'undefined' ){
         $node = Node::load($nid);
@@ -1205,16 +1158,16 @@ nodejs_bl        |   }
           $node->field_sales_person_name = $person_name;
         }
 
-        $field_sales_person_surname = $node->field_sales_person_surname->getValue();
-        if(!empty($field_sales_person_surname)){
-          $field_sales_person_surname = $field_sales_person_surname[0]['value'];
+        // $field_sales_person_surname = $node->field_sales_person_surname->getValue();
+        // if(!empty($field_sales_person_surname)){
+        //   $field_sales_person_surname = $field_sales_person_surname[0]['value'];
 
-          if( strcmp($field_sales_person_surname, $person_surname) != 0 ){
-            $node->field_sales_person_surname = $person_surname;
-          }
-        }else{
-          $node->field_sales_person_surname = $person_surname;
-        }
+        //   if( strcmp($field_sales_person_surname, $person_surname) != 0 ){
+        //     $node->field_sales_person_surname = $person_surname;
+        //   }
+        // }else{
+        //   $node->field_sales_person_surname = $person_surname;
+        // }
 
         $field_id_card_number = $node->field_id_card_number->getValue();
         if(!empty($field_id_card_number)){
@@ -1251,6 +1204,8 @@ nodejs_bl        |   }
 
         $node->save();
 
+        $response_array['nid']   = $nid;
+
       }else{
 
         $images_fids = array();
@@ -1272,21 +1227,23 @@ nodejs_bl        |   }
         $node = Node::create([
           'type'                   => 'back_list',
           'uid'                    => \Drupal::currentUser()->id(),
-          'status'                 => empty($draft) ? 1 : 0,
+          'status'                 => $auto_save ? 0 : 1,
           'field_channel'          => 32,                // ถูกสร้างผ่านช่องทาง 31: Web, 32: Api
   
-          'title'                  => $product_type,     // สินค้า/ประเภท
-          'field_transfer_amount'  => $transfer_amount,  // ยอดเงิน
-          'field_sales_person_name'=> $person_name,      // ชื่อบัญชี ผู้รับเงินโอน
-          'field_sales_person_surname' => $person_surname, // นามสกุล ผู้รับเงินโอน
-          'field_id_card_number'    => $id_card_number,  // เลขบัตรประชาชนคนขาย
-          'field_selling_website'   => $selling_website, // เว็บไซด์ประกาศขายของ
-          'field_transfer_date'     => date('Y-m-d',  $transfer_date),   // วันโอนเงิน
-          'body'                    => $details,         // หมายเหตุ
+          'title'                  =>  empty($product_type) ? '' : $product_type,     // สินค้า/ประเภท
+          'field_transfer_amount'  =>  empty($transfer_amount) ? '' : $transfer_amount,  // ยอดเงิน
+          'field_sales_person_name'=>  empty($person_name) ? '' : $person_name,      // ชื่อบัญชี ผู้รับเงินโอน
+          // 'field_sales_person_surname' => empty($person_surname) ? '' : $person_surname, // นามสกุล ผู้รับเงินโอน
+          'field_id_card_number'    => empty($id_card_number) ? '' : $id_card_number,  // เลขบัตรประชาชนคนขาย
+          'field_selling_website'   => empty($selling_website) ? '' : $selling_website, // เว็บไซด์ประกาศขายของ
+          'field_transfer_date'     => empty($transfer_date) ? '' : date('Y-m-d',  $transfer_date),   // วันโอนเงิน
+          'body'                    => empty($details) ? '' : $details,         // หมายเหตุ
           'field_merchant_bank_account' => $merchant_bank_account_paragraphs, // บัญชีธนาคารคนขาย
           'field_images'            => $images_fids      // รูปภาพประกอบ
         ]);
         $node->save();
+
+        $response_array['nid']   = $node->id();
       }
       
       // ------------ noti to user and fetch all my_apps new

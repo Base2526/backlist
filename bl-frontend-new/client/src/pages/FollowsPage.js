@@ -16,6 +16,10 @@ const FollowsPage = (props) => {
 
     useEffect(() => {
         fetch()
+
+        return () => {
+            setFollows([])
+        }
     }, []);
 
     useEffect( async() => {

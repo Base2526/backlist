@@ -4,21 +4,45 @@ import { useHistory } from "react-router-dom";
 import { Modal, Button } from "react-bootstrap";
 import ls from 'local-storage';
 import { CircularProgress } from '@material-ui/core';
+import axios from 'axios';
 
 import { userLogout } from '../actions/user';
 
 const LogoutDialog = (props) => {
     const history = useHistory();
-    const [showModal, setShowModal] = React.useState(false);
+    const [showModal, setShowModal] = React.useState();
 
-    const [logoutLoading, setLogoutLoading] = React.useState(false);
+    const [logoutLoading, setLogoutLoading] = React.useState();
+
+    useEffect(() => {
+        setShowModal(false)
+        setLogoutLoading(false)
+
+        return () => {
+            setShowModal()
+            setLogoutLoading()
+        };
+    }, []);
+
 
     useEffect(() => {
         setShowModal(props.showModalLogout)
-    });
 
-    const handleLogout = (e) => {
+    }, [props.showModalLogout]);
+
+    const handleLogout = async(e) => {
         setLogoutLoading(true)
+
+
+        let response =  await axios.post(`/api/v1/logout`);
+
+        response = response.data
+
+        console.log("/api/v1/logout : response = xx ", response)
+
+        
+        // if(response.result){
+
         props.onClose()
 
         ls.remove('basic_auth')
@@ -45,7 +69,7 @@ const LogoutDialog = (props) => {
             show={showModal}
             onHide={props.onClose}
             // onSubmit={handleSubmit}
-            bsSize="large"
+            // bsSize="large"
             backdrop="static">
             <Modal.Header closeButton={true}>
                 <h2>Comfirm Logout</h2>

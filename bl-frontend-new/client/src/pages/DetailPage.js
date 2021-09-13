@@ -122,9 +122,11 @@ const DetailPage = (props) => {
         if(!_.isEmpty(props.user)){
             // return (props.follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ? "gray" : "red"
       
-            let follow = props.follows.find((o)=>o.nid === item.nid)
-            if(!_.isEmpty(follow)){
-              return follow.status ? 'red' : 'gray'
+            if(!_.isEmpty(props.follows)){
+                let follow = props.follows.find((o)=>o.nid === item.nid)
+                if(!_.isEmpty(follow)){
+                  return follow.status ? 'red' : 'gray'
+                }
             }
           }
       

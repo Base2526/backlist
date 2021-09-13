@@ -277,3 +277,18 @@
   border: solid #ccc;
   border-width: 1px 1px 0 1px;
 }
+
+.errorMsg {
+  color: #cc0000;
+  margin-bottom: 12px;
+}
+
+#react-paginate ul {
+  display: inline-block;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+#react-paginate li {
+  display: inline-block;
+}

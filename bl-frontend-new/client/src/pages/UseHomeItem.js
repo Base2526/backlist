@@ -30,17 +30,35 @@ const UseHomeItem = (props) => {
 
   useEffect(() => {
 
+    return () => {
+      setItem({})
+      setAnchorEl(null)
+      setIsOpen(false)
+      setPhotoIndex()
+      setFollowUp()
+      setShowModalReport()
+    }
+  }, []);
+
+  useEffect(() => {
     setItem(props.item)
-    setFollowUp( _.isEmpty( (props.follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ) ? false : true )
-  });
+
+    return () => {
+      setItem({})
+    }
+  }, [props.item]);
+
+  useEffect(() => {
+    if(!_.isEmpty(props.follows)){
+      setFollowUp( _.isEmpty( (props.follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ) ? false : true )
+    }
+  }, [props.follows]);
   
   const handleClose = () => {
     setAnchorEl(null);
   };
   
   const handleClick = (event) => {
-
-    console.log('setAnchorEl : ', event.currentTarget)
     console.log(typeof event.currentTarget);
     setAnchorEl(event.currentTarget);
   };
@@ -360,10 +378,13 @@ const UseHomeItem = (props) => {
     if(!_.isEmpty(props.user)){
       // return (props.follows.find((el)=>el.nid === parseInt(item.nid) && el.status)) ? "gray" : "red"
 
-      let follow = props.follows.find((o)=>o.nid === item.nid)
-      if(!_.isEmpty(follow)){
-        return follow.status ? 'red' : 'gray'
+      if(!_.isEmpty(props.follows)){
+        let follow = props.follows.find((o)=>o.nid === item.nid)
+        if(!_.isEmpty(follow)){
+          return follow.status ? 'red' : 'gray'
+        }
       }
+      
     }
 
     return "gray"
@@ -417,9 +438,9 @@ const UseHomeItem = (props) => {
                   props.myFollow({uid: props.user.uid, nid: item.nid, status})
                 }
               }} />
-            <MoreVertOutlinedIcon onClick={handleClick} />
+            <MoreVertOutlinedIcon onClick={(e)=>handleClick(e)} />
             <div onClick={()=>{
-              props.history.push({pathname: `my-follower/${item.nid}`, key: item.nid, state: { item } })
+              props.history.push({pathname: `/follower/${item.nid}`, key: item.nid, state: { item } })
             }}>
               { count_app_followers() } follower
             </div>

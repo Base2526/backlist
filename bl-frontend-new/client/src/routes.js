@@ -26,7 +26,7 @@ export default [
     { path: "/my-profile/my-post/:nid", name: "รายละเอียด", Component: DetailPage },
     { path: "/my-profile/my-followup/:nid", name: "รายละเอียด", Component: DetailPage },
 
-    { path: "/my-follower/:nid", name: "ผู้ติดตาม", Component: FollowerPage },
+    { path: "/follower/:nid", name: "ผู้ติดตาม", Component: FollowerPage },
     // { path: "/my-profile/detail/:nid", name: "รายละเอียด", Component: DetailPage },
     // /my-profile/detail/70287
     { path: "/settings", name: "Settings", Component: SettingsPage },
