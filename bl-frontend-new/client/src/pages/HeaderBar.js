@@ -16,7 +16,6 @@ import LogoutDialog from './LogoutDialog'
 import LoginDialog from './LoginDialog'
 import previewIcon from '../images/preview-icon.png';
 
-
 var _ = require('lodash');
 
 const HeaderBar = (props) => {
@@ -66,40 +65,40 @@ const HeaderBar = (props) => {
                      :  <div>
                           <div>
       
-                          {  _.isEmpty(props.user) ? <ul className="flex-container row">
-                                                    <li className="flex-item">
-                                                    <div 
-                                                      style={{cursor:'pointer'}}
-                                                      onClick={()=>{
-                                                        setShowModal(true)
-                                                      }}>
-                                                      เข้าสู่ระบบ
-                                                    </div>
-                                                  </li> 
-                                                  </ul>
-                                                : <ul className="flex-container row">
-                                                    <li className="flex-item">
-                                                        <NotificationsIcon 
-                                                          className="notifications-icon"
-                                                          onClick={()=>{
-                                                            history.push({pathname: `/notifications`, state: {} })
-                                                          }} />
-                                                        <span className="notifications-span">1</span>
-                                                    </li>
-                                                    <li className="flex-item">
-                                                      <LazyLoadImage
-                                                        className="lazy-load-image-border-radius"
-                                                        alt={'image.alt'}
-                                                        width="40px"
-                                                        height="40px"
-                                                        effect="blur"
-                                                        onClick={handleClick}
-                                                        placeholderSrc={previewIcon}
-                                                        src={props.user.image_url} 
-                                                        />
-                                                    </li>
-                                                  </ul>
-                                                  }
+                            {  _.isEmpty(props.user) ? <ul className="flex-container row">
+                                                      <li className="flex-item">
+                                                      <div 
+                                                        style={{cursor:'pointer'}}
+                                                        onClick={()=>{
+                                                          setShowModal(true)
+                                                        }}>
+                                                        เข้าสู่ระบบ
+                                                      </div>
+                                                    </li> 
+                                                    </ul>
+                                                  : <ul className="flex-container row">
+                                                      <li className="flex-item">
+                                                          <NotificationsIcon 
+                                                            className="notifications-icon"
+                                                            onClick={()=>{
+                                                              history.push({pathname: `/notifications`, state: {} })
+                                                            }} />
+                                                          <span className="notifications-span">1</span>
+                                                      </li>
+                                                      <li className="flex-item">
+                                                        <LazyLoadImage
+                                                          className="lazy-load-image-border-radius"
+                                                          alt={'image.alt'}
+                                                          width="40px"
+                                                          height="40px"
+                                                          effect="blur"
+                                                          onClick={handleClick}
+                                                          placeholderSrc={previewIcon}
+                                                          src={props.user.image_url} 
+                                                          />
+                                                      </li>
+                                                    </ul>
+                                                    }
                           </div>
                           <Menu
                             keepMounted

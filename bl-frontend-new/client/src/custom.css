@@ -1,0 +1,121 @@
+.bg-gray25 {
+    background-color: #f5f5f5;
+}
+.bg-violet25 {
+    background-color: #593780;
+}
+.bg-darkgreen {
+    background-color: #376b16;
+}
+.bg-primary {
+    background-color: #2ac4ea !important;
+}
+.bg-dark25 {
+    background-color: #262626;
+}
+.color-gray80 {
+    color: #808080;
+}
+.sign-inout .text {
+    display: inline-block;
+    vertical-align: middle;
+}
+.btn.btn-signout {
+    padding-right: 0;
+}
+.btn.btn-signout .svg-inline--fa {
+    vertical-align: middle;
+    margin-right: 4px;
+}
+.breadcrumb-item a {
+    color: #555;
+}
+.contain-search {
+    background: #fff;
+    color: #808080;
+    box-shadow: 0 2px 3px rgba(26, 26, 26, .2);
+    -webkit-box-shadow: 0 2px 3px rgba(26, 26, 26, .2);
+    -moz-box-shadow: 0 2px 3px rgba(26, 26, 26, .2);
+}
+.contain-search .svg-inline--fa {
+    position: absolute;
+    top: 50%;
+    margin-top: -7px;
+    left: 16px;
+}
+.contain-search .form-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    padding-left: 2rem;
+}
+.contain-search .btn {
+    border-radius: 0 0.25rem 0.25rem 0;
+}
+.form-control::placeholder, .form-control {
+    color: #808080;
+}
+.btn.bg-primary:hover {
+    background-color: #14a8cd !important;
+}
+.btn.bg-primary:focus {
+    background-color: #14a8cd !important;
+}
+.subtexts {
+    margin-top: 0.4rem;
+}
+.subtexts .title {
+    flex-basis: 42%;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+.subtexts .des-text {
+    flex-basis: 58%;
+    font-size: 0.9rem;
+    color: #808080;
+}
+.card {
+    border: 0;
+    box-shadow: 0 1px 3px #000;
+    -webkit-box-shadow: 0 1px 3px #000;
+}
+.card-body .hz-line {
+    height: 1px;
+    width: 100%;
+    background-color: #ddd;
+}
+.card-body .card-text.-foot {
+    background: #fafafa;
+}
+.tex-follow {
+    color: #808080;
+}
+.page-item {
+    color: #2ac4ea;
+}
+.page-item.active .page-link {
+    background-color: #2ac4ea;
+    border-color: #2ac4ea;
+}
+.page-item .page-link {
+    color: #2ac4ea;
+}
+.box-hfoot {
+    height: 1.5rem;
+    background-color: #333;
+}
+.navbar-nav .nav-link {
+    color: #fafafa;
+}
+@media screen and (min-width: 768px) {
+    .navbar-expand-lg .navbar-nav:first-child .nav-link {
+        padding-left: 0;
+   }
+}
+@media screen and (min-width: 1200px) {
+    .subtexts .title {
+        flex-basis: 46%;
+   }
+    .subtexts .des-text {
+        flex-basis: 54%;
+   }
+}

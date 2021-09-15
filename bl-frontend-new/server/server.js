@@ -1,5 +1,5 @@
 
-const bodyParser = require('body-parser');
+// const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cookieParser = require("cookie-parser");
 const _ = require('lodash')
@@ -758,11 +758,11 @@ app.post('/v1/login',  async(req, res)=> {
 		let password = req.body.password;
 	
 		if(username === undefined && password === undefined){
-		return res.send({ status: false, message:"Email & Pass is empty" });
+			return res.send({ status: false, message:"Email & Pass is empty" });
 		}else if(username === undefined){
-		return res.send({ status: false, message:"Email is empty" });
+			return res.send({ status: false, message:"Email is empty" });
 		}else if(password === undefined){
-		return res.send({ status: false, message:"Pass is empty" });
+			return res.send({ status: false, message:"Pass is empty" });
 		}
 
 		//-------------
@@ -772,11 +772,14 @@ app.post('/v1/login',  async(req, res)=> {
 
 			let user_schema = await UserSchema.findOne({ email: username }) 
 
+			console.log('user_schema : ', user_schema)
 			if(!_.isEmpty(user_schema)){
 				if(_.isEqual(utils.decrypt(user_schema.pass), password)){
 					// login success
 					// basic_auth: 'Basic ' + Buffer.from(username + ':' + password).toString('base64'),
 					// session: req.sessionID,
+
+
 
 
 					let uid  = user_schema.uid
@@ -792,19 +795,20 @@ app.post('/v1/login',  async(req, res)=> {
 						follows = followsSchema.value.filter(function(value) { return value.status });
 					}
 
-					let user = {
-								'uid'       :  uid,
-								'name'      :  name,
-								'email'     :  email,
-								'image_url' :  image_url,
-								}
+					// let user = {
+					// 			'uid'       :  uid,
+					// 			'name'      :  user_schema.display_name,
+					// 			'email'     :  email,
+					// 			'image_url' :  image_url,
+					// 			}
 
 					let data =  {
 								basic_auth: 'Basic ' + Buffer.from(username + ':' + password).toString('base64'),
 								session: req.sessionID,
-								user,
+								user: user_schema,
 								contents,
-								follows
+								follows,
+								// user_schema
 								}
 				
 					return res.send({result: true, 
@@ -825,6 +829,8 @@ app.post('/v1/login',  async(req, res)=> {
 		}else {
 			// login by name
 			let user_schema = await UserSchema.findOne({ account_name: username }) 
+
+			console.log('user_schema : ', user_schema)
 			if(!_.isEmpty(user_schema)){
 				if(_.isEqual(utils.decrypt(user_schema.pass), password)){
 					// login success
@@ -845,19 +851,20 @@ app.post('/v1/login',  async(req, res)=> {
 						follows = followsSchema.value.filter(function(value) { return value.status });
 					}
 
-					let user = {
-								'uid'       :  uid,
-								'name'      :  name,
-								'email'     :  email,
-								'image_url' :  image_url,
-								}
+					// let user = {
+					// 			'uid'       :  uid,
+					// 			'name'      :  user_schema.display_name,
+					// 			'email'     :  email,
+					// 			'image_url' :  image_url,
+					// 			}
 
 					let data =  {
 								basic_auth: 'Basic ' + Buffer.from(username + ':' + password).toString('base64'),
 								session: req.sessionID,
-								user,
+								user: user_schema,
 								contents,
-								follows
+								follows,
+								// user_schema
 								}
 				
 					return res.send({result: true, 

@@ -10,11 +10,10 @@ import axios from 'axios';
 import { Base64 } from 'js-base64';
 import ls from 'local-storage';
 import { deviceDetect } from "react-device-detect";
+import HeaderBar from "./components/HeaderBar";
+import Breadcrumb from "./components/Breadcrumb"
+import Footer from './components/Footer';
 
-import Ajv from "ajv"
-import Breadcrumbs from './pages/Breadcrumbs'
-import HeaderBar from './pages/HeaderBar';
-import Footer from './pages/Footer';
 import routes from "./routes";
 import ScrollToTopBtn from "./components/ScrollToTopBtn";
 import { userLogin, userLogout } from './actions/user';
@@ -36,7 +35,8 @@ let socket = undefined;
 let interval = undefined;
 
 const App = (props) => {
-  const [maintenance, setMaintenance]   = useState();
+  const [maintenance, setMaintenance]   = useState(false);
+  const [isLoadingOverlay, setIsLoadingOverlay]   = useState(false);
 
   useEffect(() => {
     checkLocalStorage()
@@ -44,6 +44,7 @@ const App = (props) => {
     setMaintenance(false)
     return () => {
       setMaintenance() 
+      setIsLoadingOverlay(false)
 
       socket = undefined;
       interval = undefined;
@@ -53,6 +54,10 @@ const App = (props) => {
   useEffect(() => {
     setMaintenance(props.maintenance)
   }, [props.maintenance]);
+
+  useEffect(() => {
+    setIsLoadingOverlay(props.is_loading_overlay)
+  }, [props.is_loading_overlay]);
 
   useEffect(() => {
     
@@ -217,10 +222,7 @@ const App = (props) => {
   }
 
   const handleSyc = (i) =>{
-
-    
     console.log("handleSyc :", i )
-
     switch(i.type){
       case 'user':{
         let {operation_type} = i
@@ -393,80 +395,83 @@ const App = (props) => {
     // props.onMyFollowALL(data)
   }
 
+  const onMaintenance = () =>{
+    return (<div>We’ll be back soon! Sorry for the inconvenience but we’re performing some maintenance at the moment. We’ll be back online shortly!</div>)
+  }
+
+  const onMainView = () =>{
+    return (<div>
+              <Container>
+              <ToastContainer />
+              <CacheSwitch>
+                {routes.map(({ path, name, Component }, key) => (
+                  <CacheRoute
+                    exact
+                    path={path}
+                    key={key}
+                    render={props => {
+                      const crumbs = routes
+                        // Get all routes that contain the current one.
+                        .filter(({ path }) => props.match.path.includes(path))
+                        // Swap out any dynamic routes with their param values.
+                        // E.g. "/pizza/:pizzaId" will become "/pizza/1"
+                        .map(({ path, ...rest }) => ({
+                          path: Object.keys(props.match.params).length
+                            ? Object.keys(props.match.params).reduce(
+                              (path, param) => path.replace(
+                                `:${param}`, props.match.params[param]
+                              ), path
+                              )
+                            : path,
+                          ...rest
+                        }));
+
+                      // if(this.props.logged_in){
+                      //   connect_socketIO(this.props)
+                      // }
+
+                      // console.log();
+                      // console.log(`Generated crumbs for ${props.match.path}`);
+                      crumbs.map(({ name, path }) =>{}
+                      //  console.log({ name, path })
+                      );
+                      return (
+                        <div className="bg-gray25">
+                        <div className="container">
+                          <div className="row">
+                            <Breadcrumb crumbs={crumbs} />
+                          </div>
+                          
+                          <Component {...props} />
+
+                          <ScrollToTopBtn />
+                        </div>
+                        </div>
+                      );
+                    }}
+                  />
+                ))}
+              </CacheSwitch>
+              </Container>
+              <Footer />  
+            </div>)
+  }
+
   return( <Router history={history}>
             <LoadingOverlay
-              active={props.is_loading_overlay}
+              active={isLoadingOverlay}
               spinner
               text='Wait...'>
               <div className="App">
-                  <HeaderBar {...props} />
-
-                  {
-                  maintenance
-                  ?  <div>We’ll be back soon! Sorry for the inconvenience but we’re performing some maintenance at the moment. We’ll be back online shortly!</div>
-                  :
-                    <div>
-                      <Container>
-                      <ToastContainer />
-                      <CacheSwitch>
-                        {routes.map(({ path, name, Component }, key) => (
-                          <CacheRoute
-                            exact
-                            path={path}
-                            key={key}
-                            render={props => {
-                              const crumbs = routes
-                                // Get all routes that contain the current one.
-                                .filter(({ path }) => props.match.path.includes(path))
-                                // Swap out any dynamic routes with their param values.
-                                // E.g. "/pizza/:pizzaId" will become "/pizza/1"
-                                .map(({ path, ...rest }) => ({
-                                  path: Object.keys(props.match.params).length
-                                    ? Object.keys(props.match.params).reduce(
-                                      (path, param) => path.replace(
-                                        `:${param}`, props.match.params[param]
-                                      ), path
-                                      )
-                                    : path,
-                                  ...rest
-                                }));
-
-                              // if(this.props.logged_in){
-                              //   connect_socketIO(this.props)
-                              // }
-
-                              // console.log();
-                              // console.log(`Generated crumbs for ${props.match.path}`);
-                              crumbs.map(({ name, path }) =>{}
-                              //  console.log({ name, path })
-                              );
-                              return (
-                                <div className="p-8">
-                                  <Breadcrumbs crumbs={crumbs} />
-                                  <Component {...props} />
-
-                                  <ScrollToTopBtn />
-                                  
-                                </div>
-                              );
-                            }}
-                          />
-                        ))}
-                      </CacheSwitch>
-                      </Container>
-                      <Footer />  
-                    </div>
-                  }
-
-                  
+                  <HeaderBar  {...props}/>
+                  { console.log('maintenance :', maintenance) }
+                  { maintenance ? onMaintenance() : onMainView() }
               </div>
             </LoadingOverlay>
           </Router>)
 }
 
 const mapStateToProps = (state, ownProps) => {
-
-  // console.log('state : >>> ', state)
 	return {
     user: state.user.data,
     my_apps: state.my_apps.data,
@@ -478,7 +483,6 @@ const mapStateToProps = (state, ownProps) => {
 
     is_loading_overlay: state.user.is_loading_overlay,
 
-
     maintenance: state.setting.maintenance
   };
 }
@@ -487,23 +491,16 @@ const mapDispatchToProps = {
   userLogin,
   userLogout,
 
-
   addMyApp, 
   updateMyApp, 
   deleteMyApp,
-
   onMyFollowALL,
   onMyFollowUpdateStatus,
-
 
   onConnect, 
   onDisconnect ,
 
-
-
   addFollowsData,
-
-
   setMaintenance
 }
 

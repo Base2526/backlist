@@ -1,3 +1,24 @@
+body {
+  font-family: "K2D", sans-serif;
+}
+
+.font-prompt {
+  font-family: "Prompt", sans-serif;
+}
+
+.App {
+  /* font-family: sans-serif; */
+  /* text-align: center; */
+}
+
+.form-control:focus {
+  box-shadow: none;
+  -webkit-box-shadow: none;
+  color: #808080;
+  border-color: #484848;
+}
+
+
 .current-page {
     font-size: 1.5rem;
     vertical-align: middle;

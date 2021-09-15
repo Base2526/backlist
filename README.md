@@ -9,7 +9,7 @@ docker exec  -t -u postgres 49b9509f7e98 pg_dumpall -c > dump_`date +%d-%m-%Y"_"
 docker exec  -t -u kong 8e98189b5fdb /usr/local/pgsql-12/pg_dump -c > dump_`date +%d-%m-%Y"_"%H_%M_%S`.sql
 
 Restore:
-cat dump_06-08-2021_02_57_05.sql | docker exec -i acbb167067ac psql -Upostgres
+cat dump_12-09-2021_08_57_02.sql | docker exec -i 5e37ce2273f1 psql -Upostgres
 
 
 Facebook Login
@@ -586,3 +586,17 @@ Node js + Elastic query
 https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-multi-field
 
 https://github.com/micheleriva/the-quotes-database/blob/master/src/server/models/index.js
+
+
+React js 
+https://codesandbox.io/s/autocomplete-udfvd?file=/src/Autocomplete.js
+
+React js Skeleton UI 
+https://github.com/danilowoz/react-content-loader
+https://skeletonreact.com/
+
+https://codesandbox.io/s/3g1n0
+https://codesandbox.io/s/t6hsc
+https://xqyg0.csb.app/
+https://codesandbox.io/s/ftu0e
+https://codesandbox.io/s/p3m80o14v7

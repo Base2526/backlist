@@ -352,7 +352,7 @@ const LoginDialog = (props) => {
             ls.set('session', session)
 
             props.userLogin(user)
-            props.addContentsData(contents)
+            // props.addContentsData(contents)
             props.addFollowsData(follows)
             
             props.onClose()

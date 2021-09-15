@@ -6,6 +6,9 @@ import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 import { Button } from "react-bootstrap";
 import ls from 'local-storage';
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
+
 
 
 import ReactPaginate from 'react-paginate';
@@ -17,6 +20,8 @@ import Checkbox from "../components/Checkbox";
 // import AddBanlistDialog from './AddBanlistDialog'
 // import ReportDialog from './ReportDialog'
 import InputSearchField from '../components/InputSearchField'
+
+import Pagination from "../components/Pagination";
 
 import LoginDialog from './LoginDialog'
 import { isEmpty, mergeArrays, onToast } from '../utils'
@@ -222,12 +227,13 @@ const HomePage = (props) => {
     }
   }
     
-  return (<div className="container mb-5">
+  return (
             <div>
                 <div>
                   <form /*onSubmit={handleFormSubmit}*/ >
                     <div>
-                      <div>
+
+                      {/* <div>
                         
                         <InputSearchField 
                           label="Input keyword"
@@ -247,9 +253,33 @@ const HomePage = (props) => {
                           disabled={isEmpty(searchWord) ? true : false}
                           onClick={(e)=>{ handleFormSearch(e)}}>Search { searchLoading && <CircularProgress size={15}/> }</Button>
 
-                        {/* searchLoading */}
+                      </div> */}
+
+                      <div className="form-row mt-2 mb-3">
+                        <label className="col-12 text-dark font-weight-bold">
+                          Input keyword
+                        </label>
+                        <div className="col">
+                          <div className="d-flex position-relative contain-search px-2 py-2 font-prompt">
+                            <FontAwesomeIcon icon={faSearch} />
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="input keyword"
+                            />
+                            <button type="button" className="btn bg-primary text-white">
+                              Search
+                            </button>
+                          </div>
+                        </div>
+                        {/* <div className="col-auto">
+                          <button type="button" className="btn btn-primary">
+                            Search
+                          </button>
+                        </div> */}
                       </div>
-                      <div style={{paddingTop:10}}>
+
+                      {/* <div style={{paddingTop:10}}>
                         <div style={{fontSize:"20px"}}>Search by category </div>
                         <ul className="flex-container row">
                           {
@@ -266,46 +296,68 @@ const HomePage = (props) => {
                             })
                           }
                         </ul>
+                      </div> */}
+
+
+                      <div className="search-catogory mb-3">
+                        <label className="d-block text-dark font-weight-bold">
+                          Search by catogory
+                        </label>
+                        {
+                            // selectedCheckboxes
+                            itemsCategory.map((itm, index)=>{
+                              // return  <li className="flex-item" key={index}>
+                              //           <Checkbox
+                              //             label={itm.title}
+                              //             handleCheckboxChange={toggleCheckbox}
+                              //             value={itm.id}
+                              //             key={itm.id}
+                              //             checked={(selectedCheckboxes.find((item)=>item === itm.id) === undefined) ? false : true}/>
+                              //         </li>
+
+                              return (
+                                <div className="form-check form-check-inline"  key={index}>
+                                  <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id={itm.id}
+                                    onChange={(data)=>{
+                                      toggleCheckbox(data)
+                                    }}
+                                    value={itm.id}
+                                    key={itm.id}
+                                    // defaultChecked={checked}
+                                    defaultChecked={(selectedCheckboxes.find((item)=>item === itm.id) === undefined) ? false : true}/>
+                                  <label className="form-check-label" htmlFor="Checkbox1">
+                                  {itm.title}
+                                  </label>
+                                </div>
+                              )
+                            })
+                          }
                       </div>
+
+
+
+
                     </div>
                   </form>
                 </div>
-                <div className="row d-flex flex-row py-5"> 
+                <div className="row">
                   { renderContent() }
-
-                  {/* <div className="w-100 px-4 py-5 d-flex flex-row flex-wrap align-items-center justify-content-between">
-                    <div className="d-flex flex-row py-4 align-items-center">
-                      <Pagination
-                        totalRecords={allResultCount}
-                        pageLimit={pageLimit}
-                        pageNeighbours={1}
-                        onPageChanged={onPageChanged}
-                      />
-                    </div>
-                    <div className="d-flex flex-row align-items-center">
-                      <h2>
-                        <strong className="text-secondary">{allResultCount}</strong>  Item
-                      </h2>
-                        {currentPage && (
-                          <span className="current-page d-inline-block h-100 pl-4 text-secondary">
-                            Page <span className="font-weight-bold">{currentPage}</span> /{" "}
-                            <span className="font-weight-bold">{totalPages}</span>
-                          </span>
-                        )}
-                    </div>
-                  </div> */}
-                  
-                  { paginate() }
-                  
                 </div>
+
+                  
+                {/* { paginate() } */}
+
+                <Pagination />
+
                 {showModalLogin &&  <LoginDialog showModal={showModalLogin} onClose = {()=>{  setShowModalLogin(false) }} />}
             </div>
-          </div>
   )
 }
 
 const mapStateToProps = (state, ownProps) => {
-
 	return {
     user: state.user.data,
     data: state.app.data,

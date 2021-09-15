@@ -5048,7 +5048,7 @@ nodejs_bl        |     status: true
       $bank_wallet = Utils::MongoDB_Connect_Collection('bank_wallet');
       // $filter = array('tid' => $entity->id() );
 
-      $terms =\Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($bundle);
+      $terms =\Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree('bank_wallet');
       foreach ($terms as $term) {
         $filter = array( 'tid' => $term->tid );
 
@@ -5107,8 +5107,7 @@ nodejs_bl        |     status: true
 
       $articles = Utils::MongoDB_Connect_Collection('articles');
 
-      $articles = array(1, 2, 3);
-      foreach($articles as $nid){
+      foreach(array(1, 2, 3) as $nid){
         $node = Node::load($nid);
 
         /*

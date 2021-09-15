@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from 'react-redux'
 import { useHistory } from "react-router-dom";
 import axios from 'axios';
@@ -9,8 +9,6 @@ import Menu from "@material-ui/core/Menu";
 
 import ls from 'local-storage';
 
-import AddCircleOutlineOutlinedIcon from '@material-ui/icons/AddCircleOutlineOutlined';
-import VerifiedUserOutlinedIcon from '@material-ui/icons/VerifiedUserOutlined';
 import CameraAltOutlinedIcon from '@material-ui/icons/CameraAltOutlined';
 import { CircularProgress } from '@material-ui/core';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
@@ -20,16 +18,32 @@ import previewIcon  from "../images/preview-icon.png";
 
 import { userLogin } from '../actions/user';
 
+var _ = require('lodash');
+
 const ProfilePage = (props) => {
     const history = useHistory();
-    const [name, setName] = React.useState(props.user.name);
-    const [edit, setEdit] = React.useState(false);
-    const [updateLoading, setUpdateLoading] = React.useState(false);
-    const [files, setFiles] = React.useState([]);
+    const [name, setName]           = useState("");
+    const [email, setEmail]         = useState("");
+    const [imageUrl, setImageUrl]   = useState("");
 
-    // useEffect(() => {
-    //     fetchProfile()
-    // }, [props.user])
+    const [edit, setEdit] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [files, setFiles] = useState([]);
+
+    useEffect(() => {
+        update()
+    }, []);
+
+    useEffect(() => {
+        update()
+    }, [props.user])
+
+    const update = () =>{
+        let { display_name, email, image_url } = props.user
+        setName(display_name)
+        setEmail(email)
+        setImageUrl(image_url)
+    }
 
     // const fetchProfile = async () =>{
     //     let { uid } = props.user
@@ -49,8 +63,9 @@ const ProfilePage = (props) => {
         setFiles(fileArr)        
     }
 
+    /*
     const onUpdate = () =>{
-        setUpdateLoading(true)
+        setLoading(true)
         const data = new FormData();
         if(props.user.name !== name){
             data.append("type", 1);
@@ -79,7 +94,7 @@ const ProfilePage = (props) => {
             let results = response.data
             console.log(results) 
 
-            setUpdateLoading(false)
+            setLoading(false)
 
             toast.info("Update success.", 
                     {
@@ -99,7 +114,8 @@ const ProfilePage = (props) => {
                     }) 
         });
     }
-  
+    */
+    
     return (
         <div>
            <div>
@@ -113,14 +129,14 @@ const ProfilePage = (props) => {
                     }
                     <div>
                     {
-                        isEmpty(files) ?  <LazyLoadImage
-                                            className="lazy-load-image-border-radius"
-                                            alt={'image.alt'}
-                                            width="150px"
-                                            height="150px"
-                                            effect="blur"
-                                            placeholderSrc={previewIcon}
-                                            src={ props.user.image_url} />
+                        _.isEmpty(files) ?  <LazyLoadImage
+                                                className="lazy-load-image-border-radius"
+                                                alt={'image.alt'}
+                                                width="150px"
+                                                height="150px"
+                                                effect="blur"
+                                                placeholderSrc={previewIcon}
+                                                src={ imageUrl } />
                                         : files.map((file) => {
                                             return <LazyLoadImage
                                                     className="lazy-load-image-border-radius"
@@ -152,14 +168,14 @@ const ProfilePage = (props) => {
                             placeholder="name"
                             value={name}
                             onChange={(e)=>{
-                            setName(e.target.value)
+                                setName(e.target.value)
                             }}
                         />
-                        : props.user.name
+                        : name
                     }
                     </div>
                     <div>Email : </div>
-                    <div>{props.user.email}</div>
+                    <div>{email}</div>
                     {
                         edit &&
                         <div>
@@ -169,7 +185,7 @@ const ProfilePage = (props) => {
                                 setEdit(false)
                             }}><span className={"div-button"}>Cancel</span></div>
                             {
-                                updateLoading 
+                                loading 
                                 ? <div style={{cursor:'pointer', padding: "5px", display: "inline", pointerEvents: "none", opacity: "0.4"}}> 
                                     <span className={"div-button"}>Update <CircularProgress style={{ fontSize: 15, width:15, height:15 }}/></span>
                                   </div>
@@ -179,7 +195,7 @@ const ProfilePage = (props) => {
                                 ? <div 
                                     style={{cursor:'pointer', padding: "5px", display: "inline"}}
                                     onClick={()=>{
-                                        onUpdate()
+                                        // onUpdate()
                                     }}> 
                                     <span className={"div-button"}>Update</span>
                                   </div>
@@ -190,26 +206,6 @@ const ProfilePage = (props) => {
                         </div>
                     }
                 </div>
-                {/* <div style={{paddingTop:10}}>
-                    <div>
-                        <span 
-                            style={{cursor:'pointer'}}
-                            className={"span-border-bottom"}
-                            onClick={()=>{
-                                history.push("/my-profile/my-post");
-                            }}> <AddCircleOutlineOutlinedIcon />My post (10)
-                        </span>
-                    </div>
-                    <div>
-                        <span 
-                            style={{cursor:'pointer'}}
-                            className={"span-border-bottom"}
-                            onClick={()=>{
-                                history.push("/my-profile/my-followup");
-                            }}> <VerifiedUserOutlinedIcon />My follow up (50)
-                        </span>
-                    </div>
-                </div> */}
             </div>
         </div>
     );

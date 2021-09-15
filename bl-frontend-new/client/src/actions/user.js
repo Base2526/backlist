@@ -89,34 +89,49 @@ const _clear_cached = data => ({
   data,
 });
 
+
+/*
+_id: "614097d046ebea647663f6d4"
+uid: 60
+account_name: "phoswo"
+display_name: "Phoswo"
+email: "phoswo@example.com"
+gender: "30"
+image_url: "http://frontend.banlist.info:8055/sites/default/files/pictures/2021-09/240959914_528400418251311_5122779305900211655_n.png"
+pass: "177adf4afeacaed5a3c13e2578d9cf96:b33f5507e20bafb3a38a9ac87c9bd698"
+type_login: "26"
+
+
+  var innerSchema = {
+    "type" : "object",
+    "properties" : {
+      _id: {type: "string"},
+      ref: {type: "string"},
+      nid: {type: "integer"},
+      owner_id: {type: "integer"},
+      status: {type: "boolean"},
+    },
+    "required" : ["_id", "ref", "nid", "owner_id", "status"]
+  }
+
+
+*/
 export const userLogin = (data) => dispatch => {
   const schema = {
     type: "object",
     properties: {
       _id: {type: "string"},
       uid: {type: "number"},
-      name: {type: "string"},
+      account_name: {type: "string"},
+      display_name: {type: "string"},
       pass: {type: "string"},
       email: {type: "string"},
       gender: {type: "string"},
       type_login: {type: "string"},
       image_url: {type: "string"},
     },
-    required: ["uid", "name", "email" ],
-    additionalProperties: false,
-    /*
-    basic_auth: "c2FzZXNodXBpcmF3OjEyMzQ="
-​​​
-email: "saseshupiraw@example.com"
-​​​
-image_url: "http://165.22.99.230:8055/sites/default/files/pictures/2021-08/screen-shot-2564-08-10-at-15.47.48.png"
-​​​
-name: "saseshupiraw"
-​​​
-session: "yA-dCL7e9zdsT4O6K23GFsa4236FPMtTu27XNbhLPgY"
-​​​
-uid: "65"
-    */
+    required: ["email"],
+    // additionalProperties: false,
   }
   const ajv = new Ajv() 
   const validate = ajv.compile(schema)
@@ -124,6 +139,8 @@ uid: "65"
   console.log("userLogin : >> ", data )
   if(validate(data)){
     dispatch(_dataUserLogin(data));
+  }else{
+    console.log('Ajv invalid addContentsData : ', data)
   }
 }
 

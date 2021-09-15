@@ -34,3 +34,5 @@ reactjs/node_modules
 
 nodejs-docker/node_modules
 ChatApp-docker-compose-dev.zip
+
+bl-frontend-new/server/logs

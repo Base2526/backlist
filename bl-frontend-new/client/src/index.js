@@ -23,6 +23,8 @@ import "react-image-lightbox/style.css";
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import "react-datepicker/dist/react-datepicker.css";
 
+import "./custom.css";
+
 const persistConfig = {
     key: 'root',
     storage,

@@ -10,10 +10,19 @@ import { LazyLoadImage } from 'react-lazy-load-image-component';
 // import ReactReadMoreReadLess from "react-read-more-read-less";
 import moment from "moment";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faEllipsisV,
+  faCheckSquare,
+  faUserPlus
+} from "@fortawesome/free-solid-svg-icons";
+
 import parse from 'html-react-parser';
 
 import ReportDialog from './ReportDialog'
 import { isEmpty, commaFormatted, ReadMore } from "../utils";
+
+import Cards from "../components/Cards";
 
 var _ = require('lodash');
 
@@ -389,68 +398,192 @@ const UseHomeItem = (props) => {
 
     return "gray"
   }
-  
-  return (
-    <div key={item.nid} style={{margin: 10}}>  
-      {itemView()}
-      <div style={{cursor: 'pointer'}} onClick={()=>{}}> 
-          <div>
-              <div style={{cursor: 'pointer'}} onClick={()=>{
-                props.history.push({pathname: `detail/${item.nid}`, key: item.nid, state: { item } })
-              }}> 
-            
-              <div>
-                <div>ชื่อ-นามสกุล: {item.name_surname}</div>
-              </div>
 
-              <div>
-                <div>สินค้า/ประเภท: {item.title} -- {item.nid}</div>
-              </div>
-              <div>
-                <div>ยอดเงิน: {!isEmpty(item.transfer_amount) ? commaFormatted(item.transfer_amount) : item.transfer_amount}</div>
-              </div>
-              <div>
-                <div>วันโอนเงิน: {moment(item.transfer_date).format('MMM DD, YYYY')}</div>
-              </div>
-            </div>
-            <div>
-              <div>รายละเอียด</div>
-              <div style={{maxWidth:"300px"}}>
-                {!isEmpty(item.detail) && <ReadMore>{parse(item.detail)}</ReadMore>}
-              </div>
-            </div> 
+  const embedResponsive = () =>{
+    if(_.isEmpty(item)){
+      return <div />
+    }
+    
+    let thumbnail = item.images[0]
+    let medium    = item.images[1]
+
+    if(_.isEmpty(thumbnail)){
+      return <div />
+    }
+
+    // console.log("thumbnail :", thumbnail)
+    return (
+      <div>
+          <div className="hi-item1" 
+            onClick={()=>{ 
+                setIsOpen(true); 
+                setPhotoIndex(0);
+            }} >
+            <img
+            className="embed-responsive-item"
+            src={thumbnail[0].url}
+            alt="thumbnail"/>
           </div>
-          <div>
-            <VerifiedUserOutlinedIcon 
-              style={{fill:  isFollows() }}
-              onClick={()=>{ 
-                if(_.isEmpty(props.user)){
-                  props.updateState({showModalLogin: true})
-                }else{
-                  
-                  let follow = props.follows.find((o)=>o.nid === item.nid)
+          
+          {
+        isOpen && <Lightbox
+                    mainSrc={medium[photoIndex].url}
+                    nextSrc={medium[(photoIndex + 1) % medium.length].url}
+                    prevSrc={medium[(photoIndex + medium.length - 1) % medium.length].url}
 
-                  let status = true;
-                  if(!_.isEmpty(follow)){
-                    status = !follow.status;
-                  }
+                    imageTitle= { (photoIndex + 1) + "/" + medium.length }
+                    // mainSrcThumbnail={images[photoIndex]}
+                    // nextSrcThumbnail={images[(photoIndex + 1) % images.length]}
+                    // prevSrcThumbnail={images[(photoIndex + images.length - 1) % images.length]}
 
-                  props.myFollow({uid: props.user.uid, nid: item.nid, status})
-                }
-              }} />
-            <MoreVertOutlinedIcon onClick={(e)=>handleClick(e)} />
-            <div onClick={()=>{
-              props.history.push({pathname: `/follower/${item.nid}`, key: item.nid, state: { item } })
-            }}>
-              { count_app_followers() } follower
-            </div>
-          </div>
+                    onCloseRequest={() => setIsOpen(false) }
+
+                    onMovePrevRequest={() =>
+                    // this.setState({
+                    //     photoIndex: (photoIndex + images.length - 1) % images.length
+                    // })
+                        setPhotoIndex((photoIndex + medium.length - 1) % medium.length)
+                    }
+                    onMoveNextRequest={() =>
+                    // this.setState({
+                    //     photoIndex: (photoIndex + 1) % images.length
+                    // })
+                        setPhotoIndex((photoIndex + 1) % medium.length)
+                    }
+                />
+            } 
+      </div>)
+  }
+
+  return ( 
+    <div className=" col-sm-6 col-lg-4 col-xl-3 ">
+    <div className="card mb-3">
+      <div className="embed-responsive embed-responsive-1by1">
+        {/* <img
+          className="embed-responsive-item"
+          src="https://wallpapercave.com/wp/wp4587054.jpg"
+          alt="thumbnail"
+        /> */}
+        {
+          embedResponsive()
+        }
       </div>
-      {menu()}  
+      <div className="card-body p-0">
+        <div className="card-text px-2 py-2"
+          onClick={()=>{
+            props.history.push({pathname: `detail/${item.nid}`, key: item.nid, state: { item } })
+          }}
+          >
+          <div className="d-flex subtexts ">
+            <span className="title">ชื่อ-นามสกุล :</span>
+            <span className="des-text">{_.isEmpty(item.name_surname) ? '' : item.name_surname.substring(0, 15)}</span>
+          </div>
+          <div className="d-flex subtexts">
+            <span className="title">สินค้า/ประเภพ :</span>
+            <span className="des-text">{_.isEmpty(item.title) ? '' : item.title.substring(0, 20)}</span>
+          </div>
+          <div className="d-flex subtexts">
+            <span className="title">ยอดเงิน :</span>
+            <span className="des-text">120,000 บาท</span>
+          </div>
+          <div className="d-flex subtexts">
+            <span className="title">วันที่โอนเงิน :</span>
+            <span className="des-text">{moment(item.transfer_date).format('MMM DD, YYYY')}</span>
+          </div>
 
-      { showModalReport && <ReportDialog {...props} showModal={showModalReport} onClose = {()=>{  setShowModalReport(false) }}  /> }
+          <div className=" subtexts">
+            <span className="title w-100 d-block">รายละเอียด :</span>
+            <span className="des-text my-1 d-inline-block">
+              {
+                _.isEmpty(item.detail) ? '' : item.detail.substring(0, 100)
+              }
+            </span>
+          </div>
+        </div>
+        <div className="hz-line"></div>
+        <div className="card-text -foot d-flex align-items-center py-2 px-2 justify-content-between">
+          <p className="m-0 tex-follow"
+            onClick={()=>{
+              props.history.push({pathname: `/follower/${item.nid}`, key: item.nid, state: { item } })
+            }}
+            >
+            <FontAwesomeIcon icon={faUserPlus} className="mr-1" />
+            Followers
+            <span> {count_app_followers()}</span>
+          </p>
+          <button className="btn bg-primary text-white">
+            {/* isFollows() */}
+            <FontAwesomeIcon icon={faCheckSquare} className="m-1"  color={isFollows()} />
+            <FontAwesomeIcon icon={faEllipsisV} onClick={(e)=>handleClick(e)}  className="m-1" />
+          </button>
+
+          {menu()}  
+        </div>
+      </div>
     </div>
-  );
+  </div>)
+  
+  // return (
+  //   <div key={item.nid} style={{margin: 10}}>  
+  //     {itemView()}
+  //     <div style={{cursor: 'pointer'}} onClick={()=>{}}> 
+  //         <div>
+  //             <div style={{cursor: 'pointer'}} onClick={()=>{
+  //               props.history.push({pathname: `detail/${item.nid}`, key: item.nid, state: { item } })
+  //             }}> 
+            
+  //             <div>
+  //               <div>ชื่อ-นามสกุล: {item.name_surname}</div>
+  //             </div>
+
+  //             <div>
+  //               <div>สินค้า/ประเภท: {item.title} -- {item.nid}</div>
+  //             </div>
+  //             <div>
+  //               <div>ยอดเงิน: {!isEmpty(item.transfer_amount) ? commaFormatted(item.transfer_amount) : item.transfer_amount}</div>
+  //             </div>
+  //             <div>
+  //               <div>วันโอนเงิน: {moment(item.transfer_date).format('MMM DD, YYYY')}</div>
+  //             </div>
+  //           </div>
+  //           <div>
+  //             <div>รายละเอียด</div>
+  //             <div style={{maxWidth:"300px"}}>
+  //               {!isEmpty(item.detail) && <ReadMore>{parse(item.detail)}</ReadMore>}
+  //             </div>
+  //           </div> 
+  //         </div>
+  //         <div>
+  //           <VerifiedUserOutlinedIcon 
+  //             style={{fill:  isFollows() }}
+  //             onClick={()=>{ 
+  //               if(_.isEmpty(props.user)){
+  //                 props.updateState({showModalLogin: true})
+  //               }else{
+                  
+  //                 let follow = props.follows.find((o)=>o.nid === item.nid)
+
+  //                 let status = true;
+  //                 if(!_.isEmpty(follow)){
+  //                   status = !follow.status;
+  //                 }
+
+  //                 props.myFollow({uid: props.user.uid, nid: item.nid, status})
+  //               }
+  //             }} />
+  //           <MoreVertOutlinedIcon onClick={(e)=>handleClick(e)} />
+  //           <div onClick={()=>{
+  //             props.history.push({pathname: `/follower/${item.nid}`, key: item.nid, state: { item } })
+  //           }}>
+  //             { count_app_followers() } follower
+  //           </div>
+  //         </div>
+  //     </div>
+  //     {menu()}  
+
+  //     { showModalReport && <ReportDialog {...props} showModal={showModalReport} onClose = {()=>{  setShowModalReport(false) }}  /> }
+  //   </div>
+  // );
 };
   
 export default UseHomeItem;
